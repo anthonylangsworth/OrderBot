@@ -14,7 +14,7 @@ using (SubscriberSocket client = new SubscriberSocket())
 
     while (true)
     {
-        if (client.TryReceiveFrameBytes(out byte[]? compressed, out bool more) 
+        if (client.TryReceiveFrameBytes(TimeSpan.FromMilliseconds(1000), out byte[]? compressed, out bool more) 
             && compressed != null)
         {
             Task.Factory.StartNew(() => messageProcessor.ProcessMessage(compressed));
@@ -30,6 +30,7 @@ static IServiceProvider BuildServiceProvider()
         logging.ClearProviders();
         logging.AddConsole();
     });
-    serviceCollection.AddSingleton<EddnMessageProcessor>();
+    serviceCollection.AddSingleton(
+        serviceProvider => new EddnMessageProcessor(serviceProvider.GetRequiredService<ILogger<EddnMessageProcessor>>(), new [] { "EDA Kunti League"}));
     return serviceCollection.BuildServiceProvider();
 }

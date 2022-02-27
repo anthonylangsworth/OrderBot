@@ -11,52 +11,61 @@ namespace MinorFactionMonitor
 {
     internal class EddnMessageProcessor
     {
-        public EddnMessageProcessor(ILogger<EddnMessageProcessor> logger)
+        public EddnMessageProcessor(ILogger<EddnMessageProcessor> logger, IEnumerable<string> minorFactions)
         {
             Logger = logger;
+            MinorFactions = new HashSet<string>(minorFactions);
+
+            logger.LogInformation("{Type} started. Monitoring minor factions: {MinorFactions}", GetType().Name, string.Join(",", minorFactions));
         }
 
         public ILogger<EddnMessageProcessor> Logger { get; }
+        public ISet<string> MinorFactions { get; }
 
         public void ProcessMessage(byte[] compressed)
         {
-            byte[] uncompressed = ZlibStream.UncompressBuffer(compressed);
-            string message = Encoding.UTF8.GetString(uncompressed);
-            JsonDocument document;
-
             try
             {
-                document = JsonDocument.Parse(message);
-            }
-            catch(JsonException ex)
-            {
-                Logger.LogWarning(ex, "Message is invalid JSON. Ingoring.");
-                return;
-            }
+                JsonDocument document;
+                try
+                {
+                    string message = Encoding.UTF8.GetString(ZlibStream.UncompressBuffer(compressed));
+                    document = JsonDocument.Parse(message);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning(ex, "Message is invalid JSON. Ignoring.");
+                    return;
+                }
 
-            DateTime timestamp;
-            try
-            {
-                timestamp = GetTimestamp(document);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                Logger.LogWarning(ex, "Timestamp missing. Ingoring.");
-                return;
-            }
+                DateTime timestamp;
+                try
+                {
+                    timestamp = GetTimestamp(document);
+                }
+                catch (KeyNotFoundException ex)
+                {
+                    Logger.LogWarning(ex, "Timestamp missing. Ignoring.");
+                    return;
+                }
 
-            JsonElement messageElement = document.RootElement.GetProperty("message");
-            string? starSystemName = null;
-            if (messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty))
-            {
-                starSystemName = starSystemProperty.GetString();
+                JsonElement messageElement = document.RootElement.GetProperty("message");
+                string? starSystemName = null;
+                if (messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty))
+                {
+                    starSystemName = starSystemProperty.GetString();
+                }
+                if (starSystemName != null
+                    && messageElement.TryGetProperty("Factions", out JsonElement factionsProperty)
+                    && factionsProperty.EnumerateArray().Any(element => MinorFactions.Contains(element.GetProperty("Name").GetString())))
+                {
+                    // TODO: Extract faction information in to MinorFactionInfo[]
+                    Console.WriteLine(document.RootElement.ToString());
+                }
             }
-            if (starSystemName != null 
-                && messageElement.TryGetProperty("Factions", out JsonElement factionsProperty)
-                && factionsProperty.EnumerateArray().Any(element => "EDA Kunti League".Equals(element.GetProperty("Name").GetString())))
+            catch (Exception ex)
             {
-                // TODO: Extract faction information in to MinorFactionInfo[]
-               Console.WriteLine(message);
+                Logger.LogWarning("Unknown error occured processing a message", ex);
             }
         }
 
