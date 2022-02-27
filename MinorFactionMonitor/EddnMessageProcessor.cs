@@ -8,22 +8,47 @@ using System.Threading.Tasks;
 
 namespace MinorFactionMonitor
 {
+    /// <summary>
+    /// Extract relevant details from EDDN messages.
+    /// </summary>
     internal class EddnMessageProcessor
     {
-        public EddnMessageProcessor(ILogger<EddnMessageProcessor> logger, IEnumerable<string> minorFactions)
+        /// <summary>
+        /// Create a new <see cref="EddnMessageProcessor"/>.
+        /// </summary>
+        /// <param name="minorFactions">
+        /// Minor factions to scan for. The names must match in-game names exactly.
+        /// </param>
+        public EddnMessageProcessor(IEnumerable<string> minorFactions)
         {
-            Logger = logger;
             MinorFactions = new HashSet<string>(minorFactions);
-
-            logger.LogInformation(
-                "{Type} started. Monitoring minor factions: {MinorFactions}", 
-                GetType().Name, string.Join(",", minorFactions));
         }
 
-        public ILogger<EddnMessageProcessor> Logger { get; }
+        /// <summary>
+        /// Minor factions to scan for.
+        /// </summary>
         public ISet<string> MinorFactions { get; }
 
-        public void ProcessMessage(string message)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message">
+        /// The message received from EDDN.
+        /// </param>
+        /// <returns>
+        /// The message's UTC timestamp and an array of <see cref="MinorFactionInfo"/> with relevant
+        /// details about the system. If this array is empty, there are no relevant details.
+        /// </returns>
+        /// <exception cref="JsonException">
+        /// The message is not valid JSON.
+        /// </exception>
+        /// <exception cref="KeyNotFoundException">
+        /// The message is valid JSON but is not the expected format.
+        /// </exception>
+        /// <exception cref="FormatException">
+        /// One or more fields are not of the expected format.
+        /// </exception>
+        public (DateTime, MinorFactionInfo[]) GetTimestampAndFactionInfo(string message)
         {
             JsonDocument document = JsonDocument.Parse(message);
             DateTime timestamp = document.RootElement
@@ -33,7 +58,7 @@ namespace MinorFactionMonitor
 
             JsonElement messageElement = document.RootElement.GetProperty("message");
             string? starSystemName = null;
-            IEnumerable<MinorFactionInfo> minorFactions;
+            MinorFactionInfo[] minorFactions = new MinorFactionInfo[0];
             if (messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty))
             {
                 starSystemName = starSystemProperty.GetString();
@@ -46,13 +71,13 @@ namespace MinorFactionMonitor
                     new MinorFactionInfo(
                         element.GetProperty("Name").GetString() ?? "",
                         element.GetProperty("Influence").GetDouble(),
-                        element.TryGetProperty("ActiveStates", out JsonElement activeStatesElement) 
+                        element.TryGetProperty("ActiveStates", out JsonElement activeStatesElement)
                             ? activeStatesElement.EnumerateArray().Select(stateElement => stateElement.GetProperty("State").GetString() ?? "").ToArray()
                             : Array.Empty<string>()
-                    ));
-
-                Console.WriteLine(string.Join(",", minorFactions));
+                    )).ToArray();
             }
+
+            return (timestamp, minorFactions);
         }
     }
 }

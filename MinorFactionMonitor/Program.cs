@@ -7,7 +7,7 @@ using Ionic.Zlib;
 using System.Text;
 
 using ServiceProvider serviceProvider = BuildServiceProvider();
-EddnMessageProcessor messageProcessor = serviceProvider.GetRequiredService<EddnMessageProcessor>();
+EddnMessageProcessor messageProcessor = new EddnMessageProcessor(new[] { "EDA Kunti League" });
 Encoding encoding = Encoding.UTF8;
 ILogger logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
@@ -27,7 +27,7 @@ using (SubscriberSocket client = new SubscriberSocket("tcp://eddn.edcd.io:9500")
                     try
                     {
                         string message = encoding.GetString(ZlibStream.UncompressBuffer(compressed));
-                        messageProcessor.ProcessMessage(message);
+                        (DateTime timestamp, MinorFactionInfo[] minorFactionDetails) = messageProcessor.GetTimestampAndFactionInfo(message);
                     }
                     catch (Exception ex)
                     {
@@ -47,10 +47,5 @@ static ServiceProvider BuildServiceProvider()
         logging.ClearProviders();
         logging.AddConsole();
     });
-    serviceCollection.AddSingleton(
-        serviceProvider => new EddnMessageProcessor(
-            serviceProvider.GetRequiredService<ILogger<EddnMessageProcessor>>(), 
-            new [] { "EDA Kunti League"})
-        );
     return serviceCollection.BuildServiceProvider();
 }

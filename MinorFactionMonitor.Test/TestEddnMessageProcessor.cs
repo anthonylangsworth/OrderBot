@@ -9,11 +9,9 @@ namespace MinorFactionMonitor.Test
         [Test]
         public void Ctor()
         {
-            NullLogger<EddnMessageProcessor> logger = new NullLogger<EddnMessageProcessor>();
             string[] minorFactions = new [] { "A", "B" };
-            EddnMessageProcessor messageProcessor = new EddnMessageProcessor(logger, minorFactions);
+            EddnMessageProcessor messageProcessor = new EddnMessageProcessor(minorFactions);
 
-            Assert.That(messageProcessor.Logger, Is.EqualTo(logger));
             Assert.That(messageProcessor.MinorFactions, Is.EquivalentTo(minorFactions));
         }
 
@@ -23,12 +21,11 @@ namespace MinorFactionMonitor.Test
         [TestCase("{\"header\":{}}", typeof(KeyNotFoundException))]
         [TestCase("{\"header\":{\"gatewayTimestamp\":\"\"}}", typeof(FormatException))]
         [TestCase("{\"header\":{\"gatewayTimestamp\":\"abc\"}}", typeof(FormatException))]
-        public void ProcessMessageException(string message, Type? expectedException)
+        public void GetTimestampAndFactionInfoException(string message, Type? expectedException)
         {
-            NullLogger<EddnMessageProcessor> logger = new NullLogger<EddnMessageProcessor>();
             string[] minorFactions = new[] { "A", "B" };
-            EddnMessageProcessor messageProcessor = new EddnMessageProcessor(logger, minorFactions);
-            Assert.That(() => messageProcessor.ProcessMessage(message), 
+            EddnMessageProcessor messageProcessor = new EddnMessageProcessor(minorFactions);
+            Assert.That(() => messageProcessor.GetTimestampAndFactionInfo(message), 
                 expectedException != null ? Throws.InstanceOf(expectedException) : Throws.Nothing);
         }
     }
