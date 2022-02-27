@@ -1,7 +1,5 @@
-﻿using Ionic.Zlib;
-using NetMQ;
+﻿using NetMQ;
 using NetMQ.Sockets;
-using System.Text;
 using MinorFactionMonitor;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,14 +14,10 @@ using (SubscriberSocket client = new SubscriberSocket())
 
     while (true)
     {
-        if (client.TryReceiveFrameBytes(out byte[]? compressed, out bool more))
+        if (client.TryReceiveFrameBytes(out byte[]? compressed, out bool more) 
+            && compressed != null)
         {
-            if (compressed != null)
-            {
-                byte[] uncompressed = ZlibStream.UncompressBuffer(compressed);
-                string message = Encoding.UTF8.GetString(uncompressed);
-                Task.Factory.StartNew(() => messageProcessor.ProcessMessage(message));
-            }
+            Task.Factory.StartNew(() => messageProcessor.ProcessMessage(compressed));
         }
     }
 }
@@ -31,11 +25,11 @@ using (SubscriberSocket client = new SubscriberSocket())
 static IServiceProvider BuildServiceProvider()
 {
     ServiceCollection serviceCollection = new ServiceCollection();
-    serviceCollection.AddLogging((logging =>
+    serviceCollection.AddLogging(logging =>
     {
         logging.ClearProviders();
         logging.AddConsole();
-    }));
+    });
     serviceCollection.AddSingleton<EddnMessageProcessor>();
     return serviceCollection.BuildServiceProvider();
 }

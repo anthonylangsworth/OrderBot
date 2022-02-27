@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Ionic.Zlib;
 
 namespace MinorFactionMonitor
 {
@@ -17,17 +18,31 @@ namespace MinorFactionMonitor
 
         public ILogger<EddnMessageProcessor> Logger { get; }
 
-        public void ProcessMessage(string result)
+        public void ProcessMessage(byte[] compressed)
         {
-            JsonDocument document = JsonDocument.Parse(result);
+            byte[] uncompressed = ZlibStream.UncompressBuffer(compressed);
+            string message = Encoding.UTF8.GetString(uncompressed);
+            JsonDocument document;
 
             try
             {
-                DateTime timestamp = GetTimestamp(document);
+                document = JsonDocument.Parse(message);
+            }
+            catch(JsonException ex)
+            {
+                Logger.LogWarning(ex, "Message is invalid JSON. Ingoring.");
+                return;
+            }
+
+            DateTime timestamp;
+            try
+            {
+                timestamp = GetTimestamp(document);
             }
             catch (KeyNotFoundException ex)
             {
-                Logger.LogWarning(ex, "Timestamp missing");
+                Logger.LogWarning(ex, "Timestamp missing. Ingoring.");
+                return;
             }
 
             JsonElement messageElement = document.RootElement.GetProperty("message");
@@ -41,7 +56,7 @@ namespace MinorFactionMonitor
                 && factionsProperty.EnumerateArray().Any(element => "EDA Kunti League".Equals(element.GetProperty("Name").GetString())))
             {
                 // TODO: Extract faction information in to MinorFactionInfo[]
-               Console.WriteLine(result);
+               Console.WriteLine(message);
             }
         }
 
