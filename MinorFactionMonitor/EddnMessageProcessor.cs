@@ -33,22 +33,26 @@ namespace MinorFactionMonitor
 
             JsonElement messageElement = document.RootElement.GetProperty("message");
             string? starSystemName = null;
+            IEnumerable<MinorFactionInfo> minorFactions;
             if (messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty))
             {
                 starSystemName = starSystemProperty.GetString();
             }
             if (starSystemName != null
                 && messageElement.TryGetProperty("Factions", out JsonElement factionsProperty)
-                && factionsProperty.EnumerateArray().Any(element => MinorFactions.Contains(element.GetProperty("Name").GetString())))
+                && factionsProperty.EnumerateArray().Any(element => MinorFactions.Contains(element.GetProperty("Name").GetString() ?? "")))
             {
-                // TODO: Extract faction information in to MinorFactionInfo[]
-                Console.WriteLine(document.RootElement.ToString());
-            }
-        }
+                minorFactions = factionsProperty.EnumerateArray().Select(element =>
+                    new MinorFactionInfo(
+                        element.GetProperty("Name").GetString() ?? "",
+                        element.GetProperty("Influence").GetDouble(),
+                        element.TryGetProperty("ActiveStates", out JsonElement activeStatesElement) 
+                            ? activeStatesElement.EnumerateArray().Select(stateElement => stateElement.GetProperty("State").GetString() ?? "").ToArray()
+                            : Array.Empty<string>()
+                    ));
 
-        IEnumerable<MinorFactionInfo> FindFactions(Predicate<JsonElement> filter)
-        {
-            return Enumerable.Empty<MinorFactionInfo>();
+                Console.WriteLine(string.Join(",", minorFactions));
+            }
         }
     }
 }
