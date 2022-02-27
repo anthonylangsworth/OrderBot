@@ -2,48 +2,40 @@
 using NetMQ;
 using NetMQ.Sockets;
 using System.Text;
-using System.Text.Json;
+using MinorFactionMonitor;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
-using SubscriberSocket client = new SubscriberSocket();
-client.Options.ReceiveHighWatermark = 1000;
-client.Connect("tcp://eddn.edcd.io:9500");
-client.SubscribeToAnyTopic();
+IServiceProvider serviceProvider = BuildServiceProvider();
+EddnMessageProcessor messageProcessor = serviceProvider.GetRequiredService<EddnMessageProcessor>();
 
-while (true)
+using (SubscriberSocket client = new SubscriberSocket())
 {
-    if (client.TryReceiveFrameBytes(out byte[]? compressed, out bool more))
+    client.Connect("tcp://eddn.edcd.io:9500");
+    client.SubscribeToAnyTopic();
+
+    while (true)
     {
-        byte[] uncompressed = ZlibStream.UncompressBuffer(compressed);
-        string result = Encoding.UTF8.GetString(uncompressed);
-
-        JsonDocument document = JsonDocument.Parse(result);
-
-        // Get UTC time of last update
-        DateTime timestamp = document.RootElement
-                .GetProperty("header")
-                .GetProperty("gatewayTimestamp")
-                .GetDateTime();
-
-        JsonElement messageElement = document.RootElement.GetProperty("message");
-        string? starSystemName = null;
-        if (messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty))
+        if (client.TryReceiveFrameBytes(out byte[]? compressed, out bool more))
         {
-            starSystemName = starSystemProperty.GetString();
+            if (compressed != null)
+            {
+                byte[] uncompressed = ZlibStream.UncompressBuffer(compressed);
+                string message = Encoding.UTF8.GetString(uncompressed);
+                Task.Factory.StartNew(() => messageProcessor.ProcessMessage(message));
+            }
         }
-        if (starSystemName != null && messageElement.TryGetProperty("Factions", out JsonElement factionsProperty))
-        {
-            factionsProperty.EnumerateArray().First(element => element.GetProperty("Name").GetString().Equals()
-        }
-
-        Console.WriteLine(result);
     }
 }
 
-record MinorFactionInfo
+static IServiceProvider BuildServiceProvider()
 {
-    string Name;
-    double Influence;
-    string[] States;
+    ServiceCollection serviceCollection = new ServiceCollection();
+    serviceCollection.AddLogging((logging =>
+    {
+        logging.ClearProviders();
+        logging.AddConsole();
+    }));
+    serviceCollection.AddSingleton<EddnMessageProcessor>();
+    return serviceCollection.BuildServiceProvider();
 }
-
-public 
