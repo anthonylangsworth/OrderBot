@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EddnMessageSink
+namespace EddnMessageProcessor
 {
     internal class EddnMessageDecompressor
     {

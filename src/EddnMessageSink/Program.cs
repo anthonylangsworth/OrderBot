@@ -1,6 +1,6 @@
 ﻿using NetMQ;
 using NetMQ.Sockets;
-using EddnMessageSink;
+using EddnMessageProcessor;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;

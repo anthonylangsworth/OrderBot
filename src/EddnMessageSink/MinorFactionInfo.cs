@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EddnMessageSink
+namespace EddnMessageProcessor
 {
     record MinorFactionInfo(string minorFaction, double influence, string[] states);
 }

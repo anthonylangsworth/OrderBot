@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System.Text.Json;
 
-namespace EddnMessageSink.Test
+namespace EddnMessageProcessor.Test
 {
     public class TestEddnMessageExtractor
     {

@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace EddnMessageSink
+namespace EddnMessageProcessor
 {
     /// <summary>
     /// Extract relevant details from EDDN messages.
