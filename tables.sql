@@ -10,12 +10,12 @@ GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DiscordGuild]') AND type in (N'U'))
 DROP TABLE [dbo].[DiscordGuild]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[System]') AND type in (N'U'))
-DROP TABLE [dbo].[System]
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MinorFaction]') AND type in (N'U'))
-DROP TABLE [dbo].[MinorFaction]
-GO
+--IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[System]') AND type in (N'U'))
+--DROP TABLE [dbo].[System]
+--GO
+--IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MinorFaction]') AND type in (N'U'))
+--DROP TABLE [dbo].[MinorFaction]
+--GO
 
 CREATE TABLE [dbo].[DiscordGuild](
 	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
@@ -25,32 +25,32 @@ CREATE TABLE [dbo].[DiscordGuild](
 CREATE UNIQUE INDEX [IX_DiscordGuild_Snowflake] 
 ON [dbo].[DiscordGuild]([Snowflake])
 
-CREATE TABLE [dbo].[System](
-	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
-	[Name] [nvarchar](100) NOT NULL,
-)
+--CREATE TABLE [dbo].[System](
+--	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
+--	[Name] [nvarchar](100) NOT NULL,
+--)
 
-CREATE UNIQUE INDEX [IX_System_Name] 
-ON [dbo].[System]([Name])
+--CREATE UNIQUE INDEX [IX_System_Name] 
+--ON [dbo].[System]([Name])
 
-CREATE TABLE [dbo].[MinorFaction](
-	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
-	[Name] [nvarchar](100) NOT NULL,
-)
+--CREATE TABLE [dbo].[MinorFaction](
+--	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
+--	[Name] [nvarchar](100) NOT NULL,
+--)
 
-CREATE UNIQUE INDEX [IX_MinorFaction_Name] 
-ON [dbo].[MinorFaction]([Name])
+--CREATE UNIQUE INDEX [IX_MinorFaction_Name] 
+--ON [dbo].[MinorFaction]([Name])
 
 CREATE TABLE [dbo].[SystemMinorFaction](
 	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
-	[SystemID] [int] FOREIGN KEY REFERENCES [System]([ID]),
-	[MinorFactionID] [int] FOREIGN KEY REFERENCES [MinorFaction]([ID]),
+	[System] [nvarchar](100),
+	[MinorFaction] [nvarchar](100),
 	[Influence] [float] NULL,
 	[LastUpdated] [datetime] NOT NULL
 )
 
 CREATE UNIQUE INDEX [IX_SystemMinorFaction_SystemMinorFaction] 
-ON [dbo].[SystemMinorFaction]([SystemID], [MinorFactionID])
+ON [dbo].[SystemMinorFaction]([System], [MinorFaction])
 
 CREATE TABLE [dbo].[SystemMinorFactionState](
 	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
