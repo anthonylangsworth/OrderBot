@@ -19,20 +19,25 @@ namespace EddnMessageProcessor
                                                                               .FirstOrDefault(smf => smf.StarSystem == starSystem && smf.MinorFaction == newMinorFactionInfo.minorFaction);
                     if (existingSystemMinorFaction == null)
                     {
-                        dbContext.SystemMinorFaction.Add(new SystemMinorFaction
+                        existingSystemMinorFaction = new SystemMinorFaction
                         {
                             MinorFaction = newMinorFactionInfo.minorFaction,
                             StarSystem = starSystem,
                             Influence = newMinorFactionInfo.influence,
                             LastUpdated = DateTime.UtcNow
-                        });
+                        };
+                        dbContext.SystemMinorFaction.Add(existingSystemMinorFaction);
                     }
                     else
                     {
                         existingSystemMinorFaction.Influence = newMinorFactionInfo.influence;
                         existingSystemMinorFaction.LastUpdated = DateTime.UtcNow;
                     }
+
+                    existingSystemMinorFaction.States.Clear();
+                    existingSystemMinorFaction.States.AddRange(newMinorFactionInfo.states);
                 }
+
                 dbContext.SaveChanges();
             }
         }
