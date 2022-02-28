@@ -63,6 +63,7 @@ ON [dbo].[SystemMinorFactionState]([SystemMinorFactionID])
 
 CREATE TABLE [dbo].[DiscordGuidSystemMinorFactionGoal](
 	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
+	[DiscordGuidID] [int] FOREIGN KEY REFERENCES [DiscordGuild]([ID]),
 	[SystemMinorFactionID] [int] FOREIGN KEY REFERENCES [SystemMinorFaction]([ID]),
 	[Goal] [nvarchar](100) NOT NULL
 )
