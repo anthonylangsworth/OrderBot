@@ -69,5 +69,5 @@ CREATE TABLE [dbo].[DiscordGuidSystemMinorFactionGoal](
 )
 
 CREATE INDEX [IX_DiscordGuidSystemMinorFactionGoal_SystemMinorFaction] 
-ON [dbo].[DiscordGuidSystemMinorFactionGoal]([SystemMinorFactionID])
+ON [dbo].[DiscordGuidSystemMinorFactionGoal]([DiscordGuidID], [SystemMinorFactionID])
 
