@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinorFactionMonitor
+namespace EddnMessageSink
 {
     record MinorFactionInfo(string Name, double Influence, string[] States);
 }

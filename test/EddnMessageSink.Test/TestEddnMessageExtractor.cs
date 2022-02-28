@@ -2,15 +2,15 @@
 using NUnit.Framework;
 using System.Text.Json;
 
-namespace MinorFactionMonitor.Test
+namespace EddnMessageSink.Test
 {
-    public class TestEddnMessageProcessor
+    public class TestEddnMessageExtractor
     {
         [Test]
         public void Ctor()
         {
             string[] minorFactions = new [] { "A", "B" };
-            EddnMessageProcessor messageProcessor = new EddnMessageProcessor(minorFactions);
+            EddnMessageExtractor messageProcessor = new EddnMessageExtractor(minorFactions);
 
             Assert.That(messageProcessor.MinorFactions, Is.EquivalentTo(minorFactions));
         }
@@ -24,7 +24,7 @@ namespace MinorFactionMonitor.Test
         public void GetTimestampAndFactionInfoException(string message, Type? expectedException)
         {
             string[] minorFactions = new[] { "A", "B" };
-            EddnMessageProcessor messageProcessor = new EddnMessageProcessor(minorFactions);
+            EddnMessageExtractor messageProcessor = new EddnMessageExtractor(minorFactions);
             Assert.That(() => messageProcessor.GetTimestampAndFactionInfo(message), 
                 expectedException != null ? Throws.InstanceOf(expectedException) : Throws.Nothing);
         }

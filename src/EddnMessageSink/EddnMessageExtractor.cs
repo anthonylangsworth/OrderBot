@@ -5,20 +5,20 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace MinorFactionMonitor
+namespace EddnMessageSink
 {
     /// <summary>
     /// Extract relevant details from EDDN messages.
     /// </summary>
-    internal class EddnMessageProcessor
+    internal class EddnMessageExtractor
     {
         /// <summary>
-        /// Create a new <see cref="EddnMessageProcessor"/>.
+        /// Create a new <see cref="EddnMessageExtractor"/>.
         /// </summary>
         /// <param name="minorFactions">
         /// Minor factions to scan for. The names must match in-game names exactly.
         /// </param>
-        public EddnMessageProcessor(IEnumerable<string> minorFactions)
+        public EddnMessageExtractor(IEnumerable<string> minorFactions)
         {
             MinorFactions = new HashSet<string>(minorFactions);
         }
