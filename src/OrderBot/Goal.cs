@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EddnMessageSink
+namespace OrderBot
 {
     record Goal(string name, string description);
 

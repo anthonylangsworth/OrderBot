@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MinorFactionMonitor.Test
+namespace EddnMessageSink.Test
 {
     /// <summary>
     /// An implementation of ILogger{T} that does nothing.

@@ -11,7 +11,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FCE54A54-6
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EddnMessageSink.Test", "test\EddnMessageSink.Test\EddnMessageSink.Test.csproj", "{311F696F-31E7-4B9C-B2AC-FF12D42B4B73}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderBot", "src\OrderBot\OrderBot.csproj", "{F9638C14-C46F-446C-AB53-62ABC3A73381}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBot", "src\OrderBot\OrderBot.csproj", "{F9638C14-C46F-446C-AB53-62ABC3A73381}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{86421715-8F27-4990-A5D2-5910B4BD047C}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deploy", "deploy", "{EB55A3E1-9089-47E6-AB28-DE9AA2ADF9CE}"
+	ProjectSection(SolutionItems) = preProject
+		db.sql = db.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
