@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Ionic.Zlib;
 using System.Text;
+using System.Text.Json;
 
 using ServiceProvider serviceProvider = BuildServiceProvider();
 EddnMessageProcessor messageProcessor = new EddnMessageProcessor(new[] { "EDA Kunti League" });
@@ -22,12 +23,25 @@ using (SubscriberSocket client = new SubscriberSocket("tcp://eddn.edcd.io:9500")
         {
             Task.Factory.StartNew(() =>
             {
-                using (logger.BeginScope("Process message received at {Time}", DateTime.UtcNow))
+                using (logger.BeginScope("Process message received at {UtcTime}", DateTime.UtcNow))
                 {
+                    string message = "";
                     try
                     {
-                        string message = encoding.GetString(ZlibStream.UncompressBuffer(compressed));
+                        message = encoding.GetString(ZlibStream.UncompressBuffer(compressed));
                         (DateTime timestamp, MinorFactionInfo[] minorFactionDetails) = messageProcessor.GetTimestampAndFactionInfo(message);
+                    }
+                    catch (JsonException)
+                    {
+                        logger.LogWarning("Invalid JSON", message);
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                        logger.LogWarning("Required field(s) missing", message);
+                    }
+                    catch (FormatException)
+                    {
+                        logger.LogWarning("Incorrect field format", message);
                     }
                     catch (Exception ex)
                     {
