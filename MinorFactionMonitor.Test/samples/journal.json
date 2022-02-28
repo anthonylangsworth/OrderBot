@@ -1,0 +1,109 @@
+{
+  "$schemaRef": "https://eddn.edcd.io/schemas/journal/1",
+  "header": {
+    "gatewayTimestamp": "2022-02-24T12:09:53.335118Z",
+    "softwareName": "GameGlass",
+    "softwareVersion": "3.1.39",
+    "uploaderID": "2a2a02b61801466a0bb2dc7fb67b631c8c5f5b8e"
+  },
+  "message": {
+    "Body": "Hauser's Reach",
+    "BodyID": 75,
+    "BodyType": "Station",
+    "Conflicts": [
+      {
+        "Faction1": {
+          "Name": "Robigo Cartel",
+          "Stake": "Cukkemane's Nest",
+          "WonDays": 2
+        },
+        "Faction2": {
+          "Name": "CdE Corporation",
+          "Stake": "Gluschenko Military Barracks",
+          "WonDays": 1
+        },
+        "Status": "active",
+        "WarType": "civilwar"
+      }
+    ],
+    "DistFromStarLS": 1073.593973,
+    "Docked": true,
+    "Factions": [
+      {
+        "ActiveStates": [ { "State": "Boom" } ],
+        "Allegiance": "Independent",
+        "FactionState": "Boom",
+        "Government": "Corporate",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.567677,
+        "Name": "Sirius Corporation",
+        "PendingStates": [
+          {
+            "State": "CivilLiberty",
+            "Trend": 0
+          }
+        ]
+      },
+      {
+        "ActiveStates": [
+          { "State": "InfrastructureFailure" },
+          { "State": "CivilWar" }
+        ],
+        "Allegiance": "Independent",
+        "FactionState": "CivilWar",
+        "Government": "Anarchy",
+        "Happiness": "$Faction_HappinessBand3;",
+        "Influence": 0.206061,
+        "Name": "Robigo Cartel"
+      },  
+      {
+        "ActiveStates": [ { "State": "CivilWar" } ],
+        "Allegiance": "Empire",
+        "FactionState": "CivilWar",
+        "Government": "Anarchy",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.226263,
+        "Name": "CdE Corporation",
+        "RecoveringStates": [
+          {
+            "State": "PirateAttack",
+            "Trend": 0
+          }
+        ]
+      }
+    ],
+    "MarketID": 128858698,
+    "Multicrew": false,
+    "Population": 444782,
+    "StarPos": [ -303.40625, 7.3125, -314.15625 ],
+    "StarSystem": "Robigo",
+    "StationEconomies": [
+      {
+        "Name": "$economy_Refinery;",
+        "Proportion": 1
+      }
+    ],
+    "StationEconomy": "$economy_Refinery;",
+    "StationFaction": {
+      "FactionState": "Boom",
+      "Name": "Sirius Corporation"
+    },
+    "StationGovernment": "$government_Corporate;",
+    "StationName": "Hauser's Reach",
+    "StationServices": [ "dock", "autodock", "commodities", "contacts", "exploration", "missions", "outfitting", "crewlounge", "rearm", "refuel", "repair", "shipyard", "tuning", "engineer", "missionsgenerated", "flightcontroller", "stationoperations", "searchrescue", "stationMenu", "shop", "livery", "socialspace", "bartender", "vistagenomics", "pioneersupplies", "apexinterstellar", "frontlinesolutions" ],
+    "StationType": "Orbis",
+    "SystemAddress": 9463020987689,
+    "SystemAllegiance": "Independent",
+    "SystemEconomy": "$economy_Extraction;",
+    "SystemFaction": {
+      "FactionState": "Boom",
+      "Name": "Sirius Corporation"
+    },
+    "SystemGovernment": "$government_Corporate;",
+    "SystemSecondEconomy": "$economy_Refinery;",
+    "SystemSecurity": "$SYSTEM_SECURITY_high;",
+    "Taxi": false,
+    "event": "Location",
+    "timestamp": "2022-02-24T12:09:52Z"
+  }
+}
