@@ -5,25 +5,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EddnMessageSink
+namespace OrderBot.Core
 {
-    internal class OrderBotDbContext: DbContext
+    public class OrderBotDbContext: DbContext
     {
         public OrderBotDbContext()
         {
             // Do nothing
         }
 
-        public OrderBotDbContext(DbContextOptions<OrderBotDbContext> dbContextOptions)
-            : base(dbContextOptions)
-        {
-            // Do nothing
-        }
+        //public OrderBotDbContext(DbContextOptions<OrderBotDbContext> dbContextOptions)
+        //    : base(dbContextOptions)
+        //{
+        //    // Do nothing
+        //}
 
-        public DbSet<SystemMinorFaction>? SystemMinorFaction { get; set; }
+        public DbSet<SystemMinorFaction> SystemMinorFaction { get; protected set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            // TODO: Load from environment variable or configuration
             optionsBuilder.UseSqlServer(
                 @"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password");
         }
@@ -32,8 +33,8 @@ namespace EddnMessageSink
         {
             modelBuilder.Entity<SystemMinorFaction>(entity =>
             {
-                entity.Property(e => e.ID)
-                      .UseIdentityColumn();
+                //entity.Property(e => e.ID)
+                //      .UseIdentityColumn();
 
                 entity.Property(e => e.StarSystem)
                       .HasColumnName("System")
@@ -47,6 +48,9 @@ namespace EddnMessageSink
                 entity.Property(e => e.LastUpdated)
                       .IsRequired();
             });
+
+            modelBuilder.Entity<SystemMinorFaction>()
+                        .HasMany(e => e.States);
         }
     }
 }

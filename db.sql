@@ -34,7 +34,6 @@ CREATE TABLE [dbo].[SystemMinorFaction](
 	[System] [nvarchar](100) NOT NULL,
 	[MinorFaction] [nvarchar](100) NOT NULL,
 	[Influence] [float] NULL,
-	[Goal] [nvarchar](100) NULL,
 	[LastUpdated] [datetime] NOT NULL
  CONSTRAINT [PK_SystemMinorFaction] PRIMARY KEY CLUSTERED 
 (

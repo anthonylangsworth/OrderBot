@@ -46,7 +46,7 @@ void ProcessMessage(EddnMessageDecompressor messageDecompressor, EddnMessageExtr
             message = messageDecompressor.Decompress(compressed);
             (DateTime timestamp, string? starSystem, MinorFactionInfo[] minorFactionDetails) = messageProcessor.GetTimestampAndFactionInfo(message);
 
-            if (starSystem != null)
+            if (starSystem != null && minorFactionDetails.Length > 0)
             {
                 using (OrderBotDbContext dbContext = new OrderBotDbContext())
                 {
@@ -61,7 +61,6 @@ void ProcessMessage(EddnMessageDecompressor messageDecompressor, EddnMessageExtr
                                 MinorFaction = newMinorFactionInfo.minorFaction,
                                 StarSystem = starSystem,
                                 Influence = newMinorFactionInfo.influence,
-                                Goal = Goals.Default.Name,
                                 LastUpdated = DateTime.UtcNow
                             });
                         }

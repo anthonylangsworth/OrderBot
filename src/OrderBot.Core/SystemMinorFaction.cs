@@ -4,15 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EddnMessageSink
+namespace OrderBot.Core
 {
-    internal class SystemMinorFaction
+    public class SystemMinorFaction
     {
-        public int ID { get; }
+        // public int ID { get; }
         public string? StarSystem { get; set; }
         public string? MinorFaction { get; set; }   
         public double Influence { get; set; }
         public string? Goal { get; set; }
-        public DateTime LastUpdated { get; set; }
+        public DateTime LastUpdated { get; set; } 
+        public List<string> States { get; set; } = null!;
     }
 }
