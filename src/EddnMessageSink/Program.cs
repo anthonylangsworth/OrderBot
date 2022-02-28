@@ -4,6 +4,7 @@ using EddnMessageSink;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
+using OrderBot.Core;
 
 using ServiceProvider serviceProvider = BuildServiceProvider();
 EddnMessageDecompressor messageDecompressor = new EddnMessageDecompressor();
@@ -43,7 +44,36 @@ void ProcessMessage(EddnMessageDecompressor messageDecompressor, EddnMessageExtr
         try
         {
             message = messageDecompressor.Decompress(compressed);
-            (DateTime timestamp, MinorFactionInfo[] minorFactionDetails) = messageProcessor.GetTimestampAndFactionInfo(message);
+            (DateTime timestamp, string? starSystem, MinorFactionInfo[] minorFactionDetails) = messageProcessor.GetTimestampAndFactionInfo(message);
+
+            if (starSystem != null)
+            {
+                using (OrderBotDbContext dbContext = new OrderBotDbContext())
+                {
+                    foreach (MinorFactionInfo newMinorFactionInfo in minorFactionDetails)
+                    {
+                        SystemMinorFaction? existingSystemMinorFaction = dbContext.SystemMinorFaction
+                                                                                  .FirstOrDefault(smf => smf.StarSystem == starSystem && smf.MinorFaction == newMinorFactionInfo.minorFaction);
+                        if(existingSystemMinorFaction == null)
+                        {
+                            dbContext.SystemMinorFaction.Add(new SystemMinorFaction
+                            {
+                                MinorFaction = newMinorFactionInfo.minorFaction,
+                                StarSystem = starSystem,
+                                Influence = newMinorFactionInfo.influence,
+                                Goal = Goals.Default.Name,
+                                LastUpdated = DateTime.UtcNow
+                            });
+                        }
+                        else
+                        {
+                            existingSystemMinorFaction.Influence = newMinorFactionInfo.influence;
+                            existingSystemMinorFaction.LastUpdated = DateTime.UtcNow;
+                        }
+                    }
+                    dbContext.SaveChanges();
+                }
+            }
         }
         catch (JsonException)
         {

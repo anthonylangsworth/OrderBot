@@ -47,7 +47,7 @@ namespace EddnMessageSink
         /// <exception cref="FormatException">
         /// One or more fields are not of the expected format.
         /// </exception>
-        public (DateTime, MinorFactionInfo[]) GetTimestampAndFactionInfo(string message)
+        public (DateTime, string?, MinorFactionInfo[]) GetTimestampAndFactionInfo(string message)
         {
             JsonDocument document = JsonDocument.Parse(message);
             DateTime timestamp = document.RootElement
@@ -76,7 +76,7 @@ namespace EddnMessageSink
                     )).ToArray();
             }
 
-            return (timestamp, minorFactions);
+            return (timestamp, starSystemName, minorFactions);
         }
     }
 }

@@ -66,5 +66,7 @@ GO
 CREATE USER [OrderBot] FOR LOGIN [OrderBot] WITH DEFAULT_SCHEMA=[dbo]
 GO
 
+EXEC sp_addrolemember 'db_datareader', 'OrderBot'
+EXEC sp_addrolemember 'db_datawriter', 'OrderBot'
 
 

@@ -1,5 +1,4 @@
-﻿using MinorFactionMonitor;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System.Text.Json;
 
 namespace EddnMessageSink.Test

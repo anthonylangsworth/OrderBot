@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace EddnMessageSink
 {
-    record MinorFactionInfo(string Name, double Influence, string[] States);
+    record MinorFactionInfo(string minorFaction, double influence, string[] states);
 }
