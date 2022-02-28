@@ -29,7 +29,7 @@ namespace MinorFactionMonitor
         public ISet<string> MinorFactions { get; }
 
         /// <summary>
-        /// 
+        /// Extract the timestamp and info for relevant minor factions.
         /// </summary>
         /// <param name="message">
         /// The message received from EDDN.
