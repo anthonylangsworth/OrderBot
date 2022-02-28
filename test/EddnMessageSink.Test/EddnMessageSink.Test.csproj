@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MinorFactionMonitor\MinorFactionMonitor.csproj" />
+    <ProjectReference Include="..\..\src\EddnMessageSink\EddnMessageSink.csproj" />
   </ItemGroup>
 
 </Project>
