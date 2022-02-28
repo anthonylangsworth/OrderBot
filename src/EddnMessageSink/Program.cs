@@ -4,11 +4,11 @@ using EddnMessageProcessor;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
-using OrderBot.Core;
 
 using ServiceProvider serviceProvider = BuildServiceProvider();
 EddnMessageDecompressor messageDecompressor = new EddnMessageDecompressor();
 EddnMessageExtractor messageProcessor = new EddnMessageExtractor(new[] { "EDA Kunti League" });
+EddnMessageSink messageSink = new EddnMessageSink();
 ILogger logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
 using (SubscriberSocket client = new SubscriberSocket("tcp://eddn.edcd.io:9500"))
@@ -45,33 +45,9 @@ void ProcessMessage(EddnMessageDecompressor messageDecompressor, EddnMessageExtr
         {
             message = messageDecompressor.Decompress(compressed);
             (DateTime timestamp, string? starSystem, MinorFactionInfo[] minorFactionDetails) = messageProcessor.GetTimestampAndFactionInfo(message);
-
             if (starSystem != null && minorFactionDetails.Length > 0)
             {
-                using (OrderBotDbContext dbContext = new OrderBotDbContext())
-                {
-                    foreach (MinorFactionInfo newMinorFactionInfo in minorFactionDetails)
-                    {
-                        SystemMinorFaction? existingSystemMinorFaction = dbContext.SystemMinorFaction
-                                                                                  .FirstOrDefault(smf => smf.StarSystem == starSystem && smf.MinorFaction == newMinorFactionInfo.minorFaction);
-                        if(existingSystemMinorFaction == null)
-                        {
-                            dbContext.SystemMinorFaction.Add(new SystemMinorFaction
-                            {
-                                MinorFaction = newMinorFactionInfo.minorFaction,
-                                StarSystem = starSystem,
-                                Influence = newMinorFactionInfo.influence,
-                                LastUpdated = DateTime.UtcNow
-                            });
-                        }
-                        else
-                        {
-                            existingSystemMinorFaction.Influence = newMinorFactionInfo.influence;
-                            existingSystemMinorFaction.LastUpdated = DateTime.UtcNow;
-                        }
-                    }
-                    dbContext.SaveChanges();
-                }
+                messageSink.Sink(timestamp, starSystem, minorFactionDetails);
             }
         }
         catch (JsonException)
