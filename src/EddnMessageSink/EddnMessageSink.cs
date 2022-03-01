@@ -16,26 +16,26 @@ namespace EddnMessageProcessor
                 foreach (MinorFactionInfo newMinorFactionInfo in minorFactionDetails)
                 {
                     SystemMinorFaction? existingSystemMinorFaction = dbContext.SystemMinorFaction
-                                                                              .FirstOrDefault(smf => smf.StarSystem == starSystem && smf.MinorFaction == newMinorFactionInfo.minorFaction);
+                                                                              .FirstOrDefault(smf => smf.StarSystem == starSystem && smf.MinorFaction == newMinorFactionInfo.MinorFaction);
                     if (existingSystemMinorFaction == null)
                     {
                         existingSystemMinorFaction = new SystemMinorFaction
                         {
-                            MinorFaction = newMinorFactionInfo.minorFaction,
+                            MinorFaction = newMinorFactionInfo.MinorFaction,
                             StarSystem = starSystem,
-                            Influence = newMinorFactionInfo.influence,
+                            Influence = newMinorFactionInfo.Influence,
                             LastUpdated = DateTime.UtcNow
                         };
                         dbContext.SystemMinorFaction.Add(existingSystemMinorFaction);
                     }
                     else
                     {
-                        existingSystemMinorFaction.Influence = newMinorFactionInfo.influence;
+                        existingSystemMinorFaction.Influence = newMinorFactionInfo.Influence;
                         existingSystemMinorFaction.LastUpdated = DateTime.UtcNow;
                     }
 
                     existingSystemMinorFaction.States.Clear();
-                    existingSystemMinorFaction.States.AddRange(newMinorFactionInfo.states);
+                    existingSystemMinorFaction.States.AddRange(newMinorFactionInfo.States);
                 }
 
                 dbContext.SaveChanges();

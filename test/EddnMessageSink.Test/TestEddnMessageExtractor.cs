@@ -35,7 +35,7 @@ namespace EddnMessageProcessor.Test
             new object []{ "hausersReach.json", new [] { "A" }, "2022-02-24T12:09:53.335118Z", "Robigo", Array.Empty<MinorFactionInfo>() },
             new object []{ "hausersReach.json", new [] { "Sirius Corporation" }, "2022-02-24T12:09:53.335118Z", "Robigo", new MinorFactionInfo[] {
                     new MinorFactionInfo("Sirius Corporation", 0.567677, new [] { "Boom" } ),
-                    new MinorFactionInfo("Robigo Cartel", 0.206061, new [] { "Infrastructure Failure", "CivilWar" }),
+                    new MinorFactionInfo("Robigo Cartel", 0.206061, new [] { "InfrastructureFailure", "CivilWar" }),
                     new MinorFactionInfo("CdE Corporation", 0.226263, new [] { "CivilWar" })
                 }
             }
