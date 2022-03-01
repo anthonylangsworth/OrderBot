@@ -17,4 +17,13 @@
     <ProjectReference Include="..\..\src\EddnMessageSink\EddnMessageProcessor.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="samples\hausersReach.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="samples\heinleinStation.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

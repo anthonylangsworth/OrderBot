@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System.Globalization;
 using System.Text.Json;
 
 namespace EddnMessageProcessor.Test
@@ -26,6 +27,24 @@ namespace EddnMessageProcessor.Test
             EddnMessageExtractor messageProcessor = new EddnMessageExtractor(minorFactions);
             Assert.That(() => messageProcessor.GetTimestampAndFactionInfo(message), 
                 expectedException != null ? Throws.InstanceOf(expectedException) : Throws.Nothing);
+        }
+
+        public static object[] GetTimeStampAndFactionInfoSource() => new[]
+        {
+            new object []{ "hausersReach.json", Array.Empty<string>(), "2022-02-24T12:09:53.335118Z", "Robigo", Array.Empty<MinorFactionInfo>() }
+        };
+
+        [TestCaseSource(nameof(GetTimeStampAndFactionInfoSource))]
+        public void GetTimestampAndFactionInfo(string fileName, string[] minorFactions, string expectedTimestamp, string? expectedSystemName, MinorFactionInfo[] expectedMinorFactionInfo)
+        {
+            EddnMessageExtractor messageProcessor = new EddnMessageExtractor(minorFactions);
+            using (StreamReader streamReader = File.OpenText($"samples/{fileName}"))
+            {
+                (DateTime timestamp, string? systemName, MinorFactionInfo[] minorFactionInfo) = messageProcessor.GetTimestampAndFactionInfo(streamReader.ReadToEnd());
+                Assert.That(timestamp, Is.EqualTo(DateTime.Parse(expectedTimestamp).ToUniversalTime()));
+                Assert.That(systemName, Is.EqualTo(expectedSystemName));
+                Assert.That(minorFactionInfo, Is.EquivalentTo(expectedMinorFactionInfo));
+            }
         }
     }
 }

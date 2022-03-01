@@ -53,7 +53,8 @@ namespace EddnMessageProcessor
             DateTime timestamp = document.RootElement
                     .GetProperty("header")
                     .GetProperty("gatewayTimestamp")
-                    .GetDateTime();
+                    .GetDateTime()
+                    .ToUniversalTime();
 
             JsonElement messageElement = document.RootElement.GetProperty("message");
             string? starSystemName = null;

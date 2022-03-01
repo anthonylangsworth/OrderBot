@@ -6,5 +6,6 @@ using System.Threading.Tasks;
 
 namespace EddnMessageProcessor
 {
-    record MinorFactionInfo(string minorFaction, double influence, string[] states);
+    // Must be public for tests
+    public record MinorFactionInfo(string minorFaction, double influence, string[] states);
 }
