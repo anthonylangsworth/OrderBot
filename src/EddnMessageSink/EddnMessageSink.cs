@@ -3,15 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using OrderBot.Core;
 
 namespace EddnMessageProcessor
 {
     internal class EddnMessageSink
     {
-        public void Sink(DateTime timestamp, string? starSystem, MinorFactionInfo[] minorFactionDetails)
+        public EddnMessageSink(IDbContextFactory<OrderBotDbContext> dbContextFactory)
         {
-            using (OrderBotDbContext dbContext = new OrderBotDbContext())
+            DbContextFactory = dbContextFactory;
+        }
+
+        public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
+
+        public void Sink(DateTime timestamp, string starSystem, MinorFactionInfo[] minorFactionDetails)
+        {
+            using (OrderBotDbContext dbContext = DbContextFactory.CreateDbContext())
             {
                 foreach (MinorFactionInfo newMinorFactionInfo in minorFactionDetails)
                 {
@@ -35,7 +43,7 @@ namespace EddnMessageProcessor
                     }
 
                     existingSystemMinorFaction.States.Clear();
-                    existingSystemMinorFaction.States.AddRange(newMinorFactionInfo.States);
+                    existingSystemMinorFaction.States.AddRange(newMinorFactionInfo.States.Select(state => new SystemMinorFactionState { State = state }));
                 }
 
                 dbContext.SaveChanges();

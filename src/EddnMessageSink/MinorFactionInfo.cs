@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,12 +14,12 @@ namespace EddnMessageProcessor
         {
             MinorFaction = minorFaction;
             Influence = influence;
-            States = new SortedSet<string>(states);
+            States = states.ToImmutableSortedSet();
         }
 
         public string MinorFaction { get; }
         public double Influence { get; }
-        public ISet<string> States { get; }
+        public IImmutableSet<string> States { get; }
 
         public override bool Equals(object? obj)
         {

@@ -9,32 +9,20 @@ namespace OrderBot.Core
 {
     public class OrderBotDbContext: DbContext
     {
-        public OrderBotDbContext()
+        public OrderBotDbContext(DbContextOptions dbContextOptions)
+            : base(dbContextOptions)
         {
             // Do nothing
         }
 
-        //public OrderBotDbContext(DbContextOptions<OrderBotDbContext> dbContextOptions)
-        //    : base(dbContextOptions)
-        //{
-        //    // Do nothing
-        //}
-
         public DbSet<SystemMinorFaction> SystemMinorFaction { get; protected set; } = null!;
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            // TODO: Load from environment variable or configuration
-            optionsBuilder.UseSqlServer(
-                @"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password");
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<SystemMinorFaction>(entity =>
             {
-                //entity.Property(e => e.ID)
-                //      .UseIdentityColumn();
+                entity.Property(e => e.ID)
+                      .UseIdentityColumn();
 
                 entity.Property(e => e.StarSystem)
                       .HasColumnName("System")
@@ -50,7 +38,18 @@ namespace OrderBot.Core
             });
 
             modelBuilder.Entity<SystemMinorFaction>()
-                        .HasMany(e => e.States);
+                        .HasMany(e => e.States)
+                        .WithOne(e => e.SystemMinorFaction);
+
+            modelBuilder.Entity<SystemMinorFactionState>(entity =>
+            {
+                entity.Property(e => e.ID)
+                      .UseIdentityColumn();
+
+                entity.Property(e => e.State)
+                      .HasMaxLength(100)
+                      .IsRequired();
+            });
         }
     }
 }

@@ -8,12 +8,11 @@ namespace OrderBot.Core
 {
     public class SystemMinorFaction
     {
-        // public int ID { get; }
-        public string? StarSystem { get; set; }
-        public string? MinorFaction { get; set; }   
+        public int ID { get; }
+        public string StarSystem { get; set; } = null!;
+        public string MinorFaction { get; set; } = null!;   
         public double Influence { get; set; }
-        public string? Goal { get; set; }
         public DateTime LastUpdated { get; set; } 
-        public List<string> States { get; set; } = null!;
+        public List<SystemMinorFactionState> States { get; } = new List<SystemMinorFactionState>();
     }
 }

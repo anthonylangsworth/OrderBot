@@ -4,16 +4,19 @@ using EddnMessageProcessor;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using OrderBot.Core;
 
 using ServiceProvider serviceProvider = BuildServiceProvider();
 EddnMessageDecompressor messageDecompressor = new EddnMessageDecompressor();
 EddnMessageExtractor messageProcessor = new EddnMessageExtractor(new[] { "EDA Kunti League" });
-EddnMessageSink messageSink = new EddnMessageSink();
+EddnMessageSink messageSink = new EddnMessageSink(serviceProvider.GetRequiredService<IDbContextFactory<OrderBotDbContext>>());
 ILogger logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
 using (SubscriberSocket client = new SubscriberSocket("tcp://eddn.edcd.io:9500"))
 {
     client.SubscribeToAnyTopic();
+    logger.LogInformation("Started");
 
     while (true)
     {
@@ -33,6 +36,8 @@ ServiceProvider BuildServiceProvider()
         logging.ClearProviders();
         logging.AddConsole();
     });
+    serviceCollection.AddDbContextFactory<OrderBotDbContext>(
+        dbContextOptionsBuilder => dbContextOptionsBuilder.UseSqlServer(@"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password"));
     return serviceCollection.BuildServiceProvider();
 }
 
@@ -48,6 +53,7 @@ void ProcessMessage(EddnMessageDecompressor messageDecompressor, EddnMessageExtr
             if (starSystem != null && minorFactionDetails.Length > 0)
             {
                 messageSink.Sink(timestamp, starSystem, minorFactionDetails);
+                logger.LogInformation("System {system} updated", starSystem);
             }
         }
         catch (JsonException)
