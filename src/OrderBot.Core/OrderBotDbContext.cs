@@ -58,12 +58,7 @@ namespace OrderBot.Core
             modelBuilder.Entity<SystemMinorFaction>()
                         .HasMany(e => e.States)
                         .WithOne()
-                        .IsRequired();// e => e.SystemMinorFaction
-                        // .HasForeignKey("SytemMinorFactionID");
-
-            //modelBuilder.Entity<SystemMinorFaction>()
-            //    .Navigation(b => b.States)
-            //    .UsePropertyAccessMode(Prope rtyAccessMode.Property);
+                        .IsRequired();
         }
     }
 }

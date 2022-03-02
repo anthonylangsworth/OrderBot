@@ -17,15 +17,18 @@ namespace EddnMessageProcessor
 
         public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
 
-        public void Sink(DateTime timestamp, string starSystem, MinorFactionInfo[] minorFactionDetails)
+        public void Sink(DateTime timestamp, string starSystem, IEnumerable<MinorFactionInfo> minorFactionDetails)
         {
             using (OrderBotDbContext dbContext = DbContextFactory.CreateDbContext())
             {
+                // Add or update minor factions
                 foreach (MinorFactionInfo newMinorFactionInfo in minorFactionDetails)
                 {
                     SystemMinorFaction? dbSystemMinorFaction = dbContext.SystemMinorFaction
                                                                         .Include(smf => smf.States)
-                                                                        .FirstOrDefault(smf => smf.StarSystem == starSystem && smf.MinorFaction == newMinorFactionInfo.MinorFaction)                                                                        ;
+                                                                        .FirstOrDefault(
+                                                                            smf => smf.StarSystem == starSystem 
+                                                                            && smf.MinorFaction == newMinorFactionInfo.MinorFaction)                                                                        ;
                     if (dbSystemMinorFaction == null)
                     {
                         dbSystemMinorFaction = new SystemMinorFaction
@@ -45,6 +48,14 @@ namespace EddnMessageProcessor
 
                     dbSystemMinorFaction.States.Clear();
                     dbSystemMinorFaction.States.AddRange(newMinorFactionInfo.States.Select(state => new SystemMinorFactionState { State = state }));
+                }
+
+                // Delete old  minor factions
+                SortedSet<string> newSystemMinorFactions = new SortedSet<string>(minorFactionDetails.Select(mfd => mfd.MinorFaction));
+                foreach (SystemMinorFaction systemMinorFaction in dbContext.SystemMinorFaction
+                                                                           .Where(smf => !newSystemMinorFactions.Contains(smf.MinorFaction)))
+                {
+                    dbContext.SystemMinorFaction.Remove(systemMinorFaction);
                 }
 
                 dbContext.SaveChanges();

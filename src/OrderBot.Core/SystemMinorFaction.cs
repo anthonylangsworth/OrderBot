@@ -9,10 +9,10 @@ namespace OrderBot.Core
     public class SystemMinorFaction
     {
         public int Id;
-        public string? StarSystem = null!;
-        public string? MinorFaction = null!;
+        public string StarSystem = null!;
+        public string MinorFaction = null!;
         public double Influence;
         public DateTime LastUpdated;
-        public List<SystemMinorFactionState> States = new List<SystemMinorFactionState>();
+        public List<SystemMinorFactionState> States = new();
     }
 }

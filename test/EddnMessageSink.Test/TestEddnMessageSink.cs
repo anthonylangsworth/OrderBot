@@ -31,9 +31,10 @@ namespace EddnMessageProcessor.Test
             double newInfluence = 0.7;
 
             IDbContextFactory<OrderBotDbContext> dbContextFactory = new OrderBotDbContextFactory(useInMemoryDB);
-            DateTime newTimestamp = DateTime.UtcNow.ToUniversalTime();
+            DateTime timestamp = DateTime.UtcNow.ToUniversalTime();
             EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
-            messageSink.Sink(newTimestamp, starSystem, new MinorFactionInfo[]
+
+            messageSink.Sink(timestamp, starSystem, new MinorFactionInfo[]
             {
                 new MinorFactionInfo(minorFaction, newInfluence, new string[0])
             });
@@ -50,6 +51,7 @@ namespace EddnMessageProcessor.Test
                     Assert.That(newSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
                     Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
                     Assert.That(newSystemMinorFaction.States, Is.Empty);
+                    Assert.That(newSystemMinorFaction.LastUpdated, Is.EqualTo(timestamp).Using(DbDateTimeComparer.Instance));
                 }
                 finally
                 {
@@ -71,9 +73,10 @@ namespace EddnMessageProcessor.Test
             string[] states = new string[] { "C", "D" };
 
             IDbContextFactory<OrderBotDbContext> dbContextFactory = new OrderBotDbContextFactory(useInMemoryDB);
-            DateTime newTimestamp = DateTime.UtcNow.ToUniversalTime();
+            DateTime timestamp = DateTime.UtcNow.ToUniversalTime();
             EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
-            messageSink.Sink(newTimestamp, starSystem, new MinorFactionInfo[]
+
+            messageSink.Sink(timestamp, starSystem, new MinorFactionInfo[]
             {
                 new MinorFactionInfo(minorFaction, newInfluence, states)
             });
@@ -90,6 +93,7 @@ namespace EddnMessageProcessor.Test
                     Assert.That(newSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
                     Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
                     Assert.That(newSystemMinorFaction.States.Select(smfs => smfs.State), Is.EquivalentTo(states));
+                    Assert.That(newSystemMinorFaction.LastUpdated, Is.EqualTo(timestamp).Using(DbDateTimeComparer.Instance));
                 }
                 finally
                 {
@@ -102,24 +106,99 @@ namespace EddnMessageProcessor.Test
             }
         }
 
-        //[Test]
-        //public void TestExistingSystem()
+        [Test]
+        public void TestExistingSystemOneMinorFaction()
+        {
+            IDbContextFactory<OrderBotDbContext> dbContextFactory = new OrderBotDbContextFactory(useInMemoryDB);
+            EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
+
+            string starSystem = "A";
+            string minorFaction = "B";
+            MinorFactionInfo minorFactionInfo1 = new MinorFactionInfo(minorFaction, 0.2, new string[] { "A", "B" });
+            MinorFactionInfo minorFactionInfo2 = new MinorFactionInfo(minorFaction, 0.5, new string[] { "B", "C" });
+            DateTime timestamp1 = DateTime.UtcNow.AddSeconds(-1).ToUniversalTime();
+            DateTime timestamp2 = DateTime.UtcNow.ToUniversalTime();
+            messageSink.Sink(timestamp1, starSystem, new MinorFactionInfo[]
+            {
+                minorFactionInfo1
+            });
+            messageSink.Sink(timestamp2, starSystem, new MinorFactionInfo[]
+            {
+                minorFactionInfo2
+            });
+
+            using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
+            {
+                IEnumerable<SystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFaction.Include(smf => smf.States);
+                SystemMinorFaction? newSystemMinorFaction = null;
+                try
+                {
+                    Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
+                    newSystemMinorFaction = systemMinorFactions.First();
+                    Assert.That(newSystemMinorFaction.StarSystem, Is.EqualTo(starSystem));
+                    Assert.That(newSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
+                    Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(minorFactionInfo2.Influence));
+                    Assert.That(newSystemMinorFaction.States.Select(smfs => smfs.State), Is.EquivalentTo(minorFactionInfo2.States));
+                    Assert.That(newSystemMinorFaction.LastUpdated, Is.EqualTo(timestamp2).Using(DbDateTimeComparer.Instance));
+                }
+                finally
+                {
+                    if (newSystemMinorFaction != null)
+                    {
+                        dbContext.SystemMinorFaction.Remove(newSystemMinorFaction);
+                    }
+                    dbContext.SaveChanges();
+                }
+            }
+        }
+
+        // [Test]
+        //public void TestExistingSystemMultipleMinorFactions()
         //{
+        //    IDbContextFactory<OrderBotDbContext> dbContextFactory = new OrderBotDbContextFactory(useInMemoryDB);
+        //    EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
+
         //    string starSystem = "A";
         //    string minorFaction = "B";
-        //    double newInfluence = 0.7;
+        //    MinorFactionInfo oldMinorFactionInfo1 = new MinorFactionInfo("A", 0.2, new string[] { "A", "B" });
+        //    MinorFactionInfo oldMinorFactionInfo2 = new MinorFactionInfo("B", 0.5, new string[] { "B", "C" });
+        //    MinorFactionInfo newMinorFactionInfo1 = new MinorFactionInfo("B", 0.6, new string[] { "B" });
+        //    MinorFactionInfo newMinorFactionInfo2 = new MinorFactionInfo("C", 0.1, new string[] { "D", "E", "F" });
+        //    DateTime timestamp1 = DateTime.UtcNow.AddSeconds(-1).ToUniversalTime();
+        //    DateTime timestamp2 = DateTime.UtcNow.ToUniversalTime();
+        //    messageSink.Sink(timestamp1, starSystem, new MinorFactionInfo[]
+        //    {
+        //        oldMinorFactionInfo1,
+        //        oldMinorFactionInfo2
+        //    });
+        //    messageSink.Sink(timestamp2, starSystem, new MinorFactionInfo[]
+        //    {
+        //        newMinorFactionInfo1,
+        //        newMinorFactionInfo2
+        //    });
 
-        //    IDbContextFactory<OrderBotDbContext> dbContextFactory = new OrderBotDbContextFactory();
         //    using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
         //    {
-        //        dbContext.SystemMinorFaction.Add(new SystemMinorFaction
+        //        IEnumerable<SystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFaction.Include(smf => smf.States);
+        //        SystemMinorFaction? newSystemMinorFaction = null;
+        //        try
         //        {
-        //            StarSystem = starSystem,
-        //            MinorFaction = minorFaction,
-        //            Influence = 0.5,
-        //            LastUpdated = DateTime.UtcNow.AddHours(-1).ToUniversalTime()
-        //        });
-        //        dbContext.SaveChanges();
+        //            Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
+        //            newSystemMinorFaction = systemMinorFactions.First();
+        //            Assert.That(newSystemMinorFaction.StarSystem, Is.EqualTo(starSystem));
+        //            Assert.That(newSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
+        //            Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(minorFactionInfo2.Influence));
+        //            Assert.That(newSystemMinorFaction.States.Select(smfs => smfs.State), Is.EquivalentTo(minorFactionInfo2.States));
+        //            Assert.That(newSystemMinorFaction.LastUpdated, Is.EqualTo(timestamp2).Using(DbDateTimeComparer.Instance));
+        //        }
+        //        finally
+        //        {
+        //            if (newSystemMinorFaction != null)
+        //            {
+        //                dbContext.SystemMinorFaction.Remove(newSystemMinorFaction);
+        //            }
+        //            dbContext.SaveChanges();
+        //        }
         //    }
         //}
     }
