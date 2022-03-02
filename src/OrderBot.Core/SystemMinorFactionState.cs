@@ -8,8 +8,9 @@ namespace OrderBot.Core
 {
     public class SystemMinorFactionState
     {
-        public int ID;
-        public SystemMinorFaction? SystemMinorFaction;
+        public int Id;
+        // public SystemMinorFaction? SystemMinorFaction;
         public string? State;
     }
 }
+    

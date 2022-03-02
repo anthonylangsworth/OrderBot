@@ -54,17 +54,20 @@ ON [dbo].[SystemMinorFaction]([System], [MinorFaction])
 
 CREATE TABLE [dbo].[SystemMinorFactionState](
 	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
-	[SystemMinorFactionID] [int] FOREIGN KEY REFERENCES [SystemMinorFaction]([ID]),
+	[SystemMinorFactionID] [int] FOREIGN KEY REFERENCES [SystemMinorFaction]([ID]) ON DELETE CASCADE,
 	[State] [nvarchar](100) NOT NULL
 )
 
 CREATE INDEX [IX_SystemMinorFactionState_SystemMinorFaction] 
 ON [dbo].[SystemMinorFactionState]([SystemMinorFactionID])
 
+CREATE UNIQUE INDEX [IX_SystemMinorFactionState_SystemMinorFactionState] 
+ON [dbo].[SystemMinorFactionState]([SystemMinorFactionID], [State])
+
 CREATE TABLE [dbo].[DiscordGuidSystemMinorFactionGoal](
 	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
-	[DiscordGuidID] [int] FOREIGN KEY REFERENCES [DiscordGuild]([ID]),
-	[SystemMinorFactionID] [int] FOREIGN KEY REFERENCES [SystemMinorFaction]([ID]),
+	[DiscordGuidID] [int] FOREIGN KEY REFERENCES [DiscordGuild]([ID]) ON DELETE CASCADE,
+	[SystemMinorFactionID] [int] FOREIGN KEY REFERENCES [SystemMinorFaction]([ID]) ON DELETE CASCADE,
 	[Goal] [nvarchar](100) NOT NULL
 )
 

@@ -41,15 +41,24 @@ namespace EddnMessageProcessor.Test
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
                 IEnumerable<SystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFaction;
-                Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
-                SystemMinorFaction newSystemMinorFaction = systemMinorFactions.First();
-                Assert.That(newSystemMinorFaction.StarSystem, Is.EqualTo(starSystem));
-                Assert.That(newSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
-                Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
-                Assert.That(newSystemMinorFaction.States, Is.Empty);
-
-                dbContext.SystemMinorFaction.Remove(newSystemMinorFaction);
-                dbContext.SaveChanges();
+                SystemMinorFaction? newSystemMinorFaction = null;
+                try
+                {
+                    Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
+                    newSystemMinorFaction = systemMinorFactions.First();
+                    Assert.That(newSystemMinorFaction.StarSystem, Is.EqualTo(starSystem));
+                    Assert.That(newSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
+                    Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
+                    Assert.That(newSystemMinorFaction.States, Is.Empty);
+                }
+                finally
+                {
+                    if (newSystemMinorFaction != null)
+                    {
+                        dbContext.SystemMinorFaction.Remove(newSystemMinorFaction);
+                    }
+                    dbContext.SaveChanges();
+                }
             }
         }
 
@@ -71,16 +80,25 @@ namespace EddnMessageProcessor.Test
 
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
-                IEnumerable<SystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFaction;
-                Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
-                SystemMinorFaction newSystemMinorFaction = systemMinorFactions.First();
-                Assert.That(newSystemMinorFaction.StarSystem, Is.EqualTo(starSystem));
-                Assert.That(newSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
-                Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
-                Assert.That(newSystemMinorFaction.States, Is.EquivalentTo(states));
-
-                dbContext.SystemMinorFaction.Remove(newSystemMinorFaction);
-                dbContext.SaveChanges();
+                IEnumerable<SystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFaction.Include(smf => smf.States);
+                SystemMinorFaction? newSystemMinorFaction = null;
+                try
+                {
+                    Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
+                    newSystemMinorFaction = systemMinorFactions.First();
+                    Assert.That(newSystemMinorFaction.StarSystem, Is.EqualTo(starSystem));
+                    Assert.That(newSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
+                    Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
+                    Assert.That(newSystemMinorFaction.States.Select(smfs => smfs.State), Is.EquivalentTo(states));
+                }
+                finally
+                {
+                    if (newSystemMinorFaction != null)
+                    {
+                        dbContext.SystemMinorFaction.Remove(newSystemMinorFaction);
+                    }
+                    dbContext.SaveChanges();
+                }
             }
         }
 

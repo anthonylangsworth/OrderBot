@@ -23,27 +23,28 @@ namespace EddnMessageProcessor
             {
                 foreach (MinorFactionInfo newMinorFactionInfo in minorFactionDetails)
                 {
-                    SystemMinorFaction? existingSystemMinorFaction = dbContext.SystemMinorFaction
-                                                                              .FirstOrDefault(smf => smf.StarSystem == starSystem && smf.MinorFaction == newMinorFactionInfo.MinorFaction);
-                    if (existingSystemMinorFaction == null)
+                    SystemMinorFaction? dbSystemMinorFaction = dbContext.SystemMinorFaction
+                                                                        .Include(smf => smf.States)
+                                                                        .FirstOrDefault(smf => smf.StarSystem == starSystem && smf.MinorFaction == newMinorFactionInfo.MinorFaction)                                                                        ;
+                    if (dbSystemMinorFaction == null)
                     {
-                        existingSystemMinorFaction = new SystemMinorFaction
+                        dbSystemMinorFaction = new SystemMinorFaction
                         {
                             MinorFaction = newMinorFactionInfo.MinorFaction,
                             StarSystem = starSystem,
                             Influence = newMinorFactionInfo.Influence,
-                            LastUpdated = DateTime.UtcNow
+                            LastUpdated = timestamp
                         };
-                        dbContext.SystemMinorFaction.Add(existingSystemMinorFaction);
+                        dbContext.SystemMinorFaction.Add(dbSystemMinorFaction);
                     }
                     else
                     {
-                        existingSystemMinorFaction.Influence = newMinorFactionInfo.Influence;
-                        existingSystemMinorFaction.LastUpdated = DateTime.UtcNow;
+                        dbSystemMinorFaction.Influence = newMinorFactionInfo.Influence;
+                        dbSystemMinorFaction.LastUpdated = timestamp;
                     }
 
-                    existingSystemMinorFaction.States.Clear();
-                    existingSystemMinorFaction.States.AddRange(newMinorFactionInfo.States.Select(state => new SystemMinorFactionState { State = state }));
+                    dbSystemMinorFaction.States.Clear();
+                    dbSystemMinorFaction.States.AddRange(newMinorFactionInfo.States.Select(state => new SystemMinorFactionState { State = state }));
                 }
 
                 dbContext.SaveChanges();

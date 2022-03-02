@@ -21,13 +21,15 @@ namespace OrderBot.Core
         {
             modelBuilder.Entity<SystemMinorFaction>(entity =>
             {
-                entity.Property(e => e.ID)
+                entity.Property(e => e.Id)
                       .UseIdentityColumn();
 
                 entity.Property(e => e.StarSystem)
                       .HasColumnName("System")
                       .HasMaxLength(100)
                       .IsRequired();
+
+                entity.Property(e => e.Influence);
 
                 entity.Property(e => e.MinorFaction)
                       .HasMaxLength(100)
@@ -38,18 +40,30 @@ namespace OrderBot.Core
             });
 
             modelBuilder.Entity<SystemMinorFaction>()
-                        .HasMany(e => e.States)
-                        .WithOne(e => e.SystemMinorFaction);
+                        .HasKey(e => e.Id);
 
             modelBuilder.Entity<SystemMinorFactionState>(entity =>
             {
-                entity.Property(e => e.ID)
+                entity.Property(e => e.Id)
                       .UseIdentityColumn();
 
                 entity.Property(e => e.State)
                       .HasMaxLength(100)
                       .IsRequired();
             });
+
+            modelBuilder.Entity<SystemMinorFactionState>()
+                        .HasKey(e => e.Id);
+
+            modelBuilder.Entity<SystemMinorFaction>()
+                        .HasMany(e => e.States)
+                        .WithOne()
+                        .IsRequired();// e => e.SystemMinorFaction
+                        // .HasForeignKey("SytemMinorFactionID");
+
+            //modelBuilder.Entity<SystemMinorFaction>()
+            //    .Navigation(b => b.States)
+            //    .UsePropertyAccessMode(Prope rtyAccessMode.Property);
         }
     }
 }
