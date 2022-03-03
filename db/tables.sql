@@ -59,10 +59,10 @@ CREATE TABLE [dbo].[State](
 )
 
 CREATE INDEX [IX_SystemMinorFactionState_SystemMinorFaction] 
-ON [dbo].[State]([SystemMinorFactionID])
+ON [dbo].[State]([StarSystemMinorFactionID])
 
 CREATE UNIQUE INDEX [IX_SystemMinorFactionState_SystemMinorFactionState] 
-ON [dbo].[State]([SystemMinorFactionID], [Name])
+ON [dbo].[State]([StarSystemMinorFactionID], [Name])
 
 CREATE TABLE [dbo].[DiscordGuidSystemMinorFactionGoal](
 	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
