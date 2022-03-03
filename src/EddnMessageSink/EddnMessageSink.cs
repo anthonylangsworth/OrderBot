@@ -43,10 +43,12 @@ namespace EddnMessageProcessor
                     }
 
                     StarSystemMinorFaction? dbSystemMinorFaction = dbContext.SystemMinorFactions
-                                                                        .Include(smf => smf.States)
-                                                                        .FirstOrDefault(
-                                                                            smf => smf.StarSystem == starSystem 
-                                                                            && smf.MinorFaction == minorFaction)                                                                        ;
+                                                                            .Include(smf => smf.States)
+                                                                            .Include(smf => smf.StarSystem)
+                                                                            .Include(smf => smf.MinorFaction)
+                                                                            .FirstOrDefault(
+                                                                                smf => smf.StarSystem == starSystem 
+                                                                                && smf.MinorFaction == minorFaction)                                                                        ;
                     if (dbSystemMinorFaction == null)
                     {
                         dbSystemMinorFaction = new StarSystemMinorFaction
