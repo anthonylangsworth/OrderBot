@@ -6,11 +6,9 @@ using System.Threading.Tasks;
 
 namespace OrderBot.Core
 {
-    public class SystemMinorFactionState
+    public class MinorFaction
     {
         public int Id;
-        // public SystemMinorFaction? SystemMinorFaction;
-        public string? State;
+        public string Name = null!;
     }
 }
-    

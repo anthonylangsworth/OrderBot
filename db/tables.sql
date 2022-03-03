@@ -1,21 +1,21 @@
 ﻿IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DiscordGuidSystemMinorFactionGoal]') AND type in (N'U'))
 DROP TABLE [dbo].[DiscordGuidSystemMinorFactionGoal]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SystemMinorFactionState]') AND type in (N'U'))
-DROP TABLE [dbo].[SystemMinorFactionState]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[State]') AND type in (N'U'))
+DROP TABLE [dbo].[State]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[SystemMinorFaction]') AND type in (N'U'))
-DROP TABLE [dbo].[SystemMinorFaction]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[StarSystemMinorFaction]') AND type in (N'U'))
+DROP TABLE [dbo].[StarSystemMinorFaction]
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[DiscordGuild]') AND type in (N'U'))
 DROP TABLE [dbo].[DiscordGuild]
 GO
---IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[System]') AND type in (N'U'))
---DROP TABLE [dbo].[System]
---GO
---IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MinorFaction]') AND type in (N'U'))
---DROP TABLE [dbo].[MinorFaction]
---GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[StarSystem]') AND type in (N'U'))
+DROP TABLE [dbo].[StarSystem]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MinorFaction]') AND type in (N'U'))
+DROP TABLE [dbo].[MinorFaction]
+GO
 
 CREATE TABLE [dbo].[DiscordGuild](
 	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
@@ -25,52 +25,52 @@ CREATE TABLE [dbo].[DiscordGuild](
 CREATE UNIQUE INDEX [IX_DiscordGuild_Snowflake] 
 ON [dbo].[DiscordGuild]([Snowflake])
 
---CREATE TABLE [dbo].[System](
---	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
---	[Name] [nvarchar](100) NOT NULL,
---)
-
---CREATE UNIQUE INDEX [IX_System_Name] 
---ON [dbo].[System]([Name])
-
---CREATE TABLE [dbo].[MinorFaction](
---	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
---	[Name] [nvarchar](100) NOT NULL,
---)
-
---CREATE UNIQUE INDEX [IX_MinorFaction_Name] 
---ON [dbo].[MinorFaction]([Name])
-
-CREATE TABLE [dbo].[SystemMinorFaction](
+CREATE TABLE [dbo].[StarSystem](
 	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
-	[System] [nvarchar](100),
-	[MinorFaction] [nvarchar](100),
-	[Influence] [float] NULL,
+	[Name] [nvarchar](100) NOT NULL,
 	[LastUpdated] [datetime] NOT NULL
 )
 
-CREATE UNIQUE INDEX [IX_SystemMinorFaction_SystemMinorFaction] 
-ON [dbo].[SystemMinorFaction]([System], [MinorFaction])
+CREATE UNIQUE INDEX [IX_StarSystem_Name] 
+ON [dbo].[StarSystem]([Name])
 
-CREATE TABLE [dbo].[SystemMinorFactionState](
+CREATE TABLE [dbo].[MinorFaction](
 	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
-	[SystemMinorFactionID] [int] FOREIGN KEY REFERENCES [SystemMinorFaction]([ID]) ON DELETE CASCADE,
-	[State] [nvarchar](100) NOT NULL
+	[Name] [nvarchar](100) NOT NULL,
+)
+
+CREATE UNIQUE INDEX [IX_MinorFaction_Name] 
+ON [dbo].[MinorFaction]([Name])
+
+CREATE TABLE [dbo].[StarSystemMinorFaction](
+	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
+	[StarSystemID] [int] FOREIGN KEY REFERENCES [StarSystem]([ID]) ON DELETE CASCADE,
+	[MinorFactionID] [int] FOREIGN KEY REFERENCES [MinorFaction]([ID]) ON DELETE CASCADE,
+	[Influence] [float] NULL,
+)
+
+CREATE UNIQUE INDEX [IX_SystemMinorFaction_SystemMinorFaction] 
+ON [dbo].[StarSystemMinorFaction]([StarSystemID], [MinorFactionID])
+
+CREATE TABLE [dbo].[State](
+	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
+	[StarSystemMinorFactionID] [int] FOREIGN KEY REFERENCES [StarSystemMinorFaction]([ID]) ON DELETE CASCADE,
+	[Name] [nvarchar](100) NOT NULL
 )
 
 CREATE INDEX [IX_SystemMinorFactionState_SystemMinorFaction] 
-ON [dbo].[SystemMinorFactionState]([SystemMinorFactionID])
+ON [dbo].[State]([SystemMinorFactionID])
 
 CREATE UNIQUE INDEX [IX_SystemMinorFactionState_SystemMinorFactionState] 
-ON [dbo].[SystemMinorFactionState]([SystemMinorFactionID], [State])
+ON [dbo].[State]([SystemMinorFactionID], [Name])
 
 CREATE TABLE [dbo].[DiscordGuidSystemMinorFactionGoal](
 	[ID] [int] IDENTITY(1,1) PRIMARY KEY,
 	[DiscordGuidID] [int] FOREIGN KEY REFERENCES [DiscordGuild]([ID]) ON DELETE CASCADE,
-	[SystemMinorFactionID] [int] FOREIGN KEY REFERENCES [SystemMinorFaction]([ID]) ON DELETE CASCADE,
+	[StarSystemMinorFactionID] [int] FOREIGN KEY REFERENCES [StarSystemMinorFaction]([ID]) ON DELETE CASCADE,
 	[Goal] [nvarchar](100) NOT NULL
 )
 
 CREATE INDEX [IX_DiscordGuidSystemMinorFactionGoal_SystemMinorFaction] 
-ON [dbo].[DiscordGuidSystemMinorFactionGoal]([DiscordGuidID], [SystemMinorFactionID])
+ON [dbo].[DiscordGuidSystemMinorFactionGoal]([DiscordGuidID], [StarSystemMinorFactionID])
 

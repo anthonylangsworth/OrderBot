@@ -41,23 +41,27 @@ namespace EddnMessageProcessor.Test
 
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
-                IEnumerable<SystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFaction;
-                SystemMinorFaction? newSystemMinorFaction = null;
+                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.States)
+                                                                                                       .Include(smf => smf.StarSystem)
+                                                                                                       .Include(smf => smf.MinorFaction);
+                StarSystemMinorFaction? newSystemMinorFaction = null;
                 try
                 {
                     Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
                     newSystemMinorFaction = systemMinorFactions.First();
-                    Assert.That(newSystemMinorFaction.StarSystem, Is.EqualTo(starSystem));
-                    Assert.That(newSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
+                    Assert.That(newSystemMinorFaction.StarSystem, Is.Not.Null);
+                    Assert.That(newSystemMinorFaction.StarSystem.Name, Is.EqualTo(starSystem));
+                    Assert.That(newSystemMinorFaction.StarSystem.LastUpdated, Is.EqualTo(timestamp).Using(DbDateTimeComparer.Instance));
+                    Assert.That(newSystemMinorFaction.MinorFaction, Is.Not.Null);
+                    Assert.That(newSystemMinorFaction.MinorFaction.Name, Is.EqualTo(minorFaction));
                     Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
                     Assert.That(newSystemMinorFaction.States, Is.Empty);
-                    Assert.That(newSystemMinorFaction.LastUpdated, Is.EqualTo(timestamp).Using(DbDateTimeComparer.Instance));
                 }
                 finally
                 {
                     if (newSystemMinorFaction != null)
                     {
-                        dbContext.SystemMinorFaction.Remove(newSystemMinorFaction);
+                        dbContext.SystemMinorFactions.Remove(newSystemMinorFaction);
                     }
                     dbContext.SaveChanges();
                 }
@@ -83,23 +87,27 @@ namespace EddnMessageProcessor.Test
 
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
-                IEnumerable<SystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFaction.Include(smf => smf.States);
-                SystemMinorFaction? newSystemMinorFaction = null;
+                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.States)
+                                                                                                       .Include(smf => smf.StarSystem)
+                                                                                                       .Include(smf => smf.MinorFaction);
+                StarSystemMinorFaction? newSystemMinorFaction = null;
                 try
                 {
                     Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
                     newSystemMinorFaction = systemMinorFactions.First();
-                    Assert.That(newSystemMinorFaction.StarSystem, Is.EqualTo(starSystem));
-                    Assert.That(newSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
+                    Assert.That(newSystemMinorFaction.StarSystem, Is.Not.Null);
+                    Assert.That(newSystemMinorFaction.StarSystem.Name, Is.EqualTo(starSystem));
+                    Assert.That(newSystemMinorFaction.StarSystem.LastUpdated, Is.EqualTo(timestamp).Using(DbDateTimeComparer.Instance));
+                    Assert.That(newSystemMinorFaction.MinorFaction, Is.Not.Null);
+                    Assert.That(newSystemMinorFaction.MinorFaction.Name, Is.EqualTo(minorFaction));
                     Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
-                    Assert.That(newSystemMinorFaction.States.Select(smfs => smfs.State), Is.EquivalentTo(states));
-                    Assert.That(newSystemMinorFaction.LastUpdated, Is.EqualTo(timestamp).Using(DbDateTimeComparer.Instance));
+                    Assert.That(newSystemMinorFaction.States.Select(state => state.Name), Is.EquivalentTo(states));
                 }
                 finally
                 {
                     if (newSystemMinorFaction != null)
                     {
-                        dbContext.SystemMinorFaction.Remove(newSystemMinorFaction);
+                        dbContext.SystemMinorFactions.Remove(newSystemMinorFaction);
                     }
                     dbContext.SaveChanges();
                 }
@@ -129,23 +137,27 @@ namespace EddnMessageProcessor.Test
 
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
-                IEnumerable<SystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFaction.Include(smf => smf.States);
-                SystemMinorFaction? newSystemMinorFaction = null;
+                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.States)
+                                                                                                       .Include(smf => smf.StarSystem)
+                                                                                                       .Include(smf => smf.MinorFaction);
+                StarSystemMinorFaction? newSystemMinorFaction = null;
                 try
                 {
                     Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
                     newSystemMinorFaction = systemMinorFactions.First();
-                    Assert.That(newSystemMinorFaction.StarSystem, Is.EqualTo(starSystem));
-                    Assert.That(newSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
+                    Assert.That(newSystemMinorFaction.StarSystem, Is.Not.Null);
+                    Assert.That(newSystemMinorFaction.StarSystem.Name, Is.EqualTo(starSystem));
+                    Assert.That(newSystemMinorFaction.StarSystem.LastUpdated, Is.EqualTo(timestamp2).Using(DbDateTimeComparer.Instance));
+                    Assert.That(newSystemMinorFaction.MinorFaction, Is.Not.Null);
+                    Assert.That(newSystemMinorFaction.MinorFaction.Name, Is.EqualTo(minorFaction));
                     Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(minorFactionInfo2.Influence));
-                    Assert.That(newSystemMinorFaction.States.Select(smfs => smfs.State), Is.EquivalentTo(minorFactionInfo2.States));
-                    Assert.That(newSystemMinorFaction.LastUpdated, Is.EqualTo(timestamp2).Using(DbDateTimeComparer.Instance));
+                    Assert.That(newSystemMinorFaction.States.Select(state => state.Name), Is.EquivalentTo(minorFactionInfo2.States));
                 }
                 finally
                 {
                     if (newSystemMinorFaction != null)
                     {
-                        dbContext.SystemMinorFaction.Remove(newSystemMinorFaction);
+                        dbContext.SystemMinorFactions.Remove(newSystemMinorFaction);
                     }
                     dbContext.SaveChanges();
                 }

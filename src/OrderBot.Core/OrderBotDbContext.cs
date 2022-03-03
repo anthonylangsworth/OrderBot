@@ -15,23 +15,22 @@ namespace OrderBot.Core
             // Do nothing
         }
 
-        public DbSet<SystemMinorFaction> SystemMinorFaction { get; protected set; } = null!;
+        public DbSet<StarSystem> StarSystems { get; protected set; } = null!;
+        public DbSet<MinorFaction> MinorFactions { get; protected set; } = null!;
+        public DbSet<StarSystemMinorFaction> SystemMinorFactions { get; protected set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<SystemMinorFaction>(entity =>
+            modelBuilder.Entity<StarSystem>(entity =>
             {
+                entity.ToTable("StarSystem");
+
                 entity.Property(e => e.Id)
                       .UseIdentityColumn();
 
-                entity.Property(e => e.StarSystem)
-                      .HasColumnName("System")
-                      .HasMaxLength(100)
-                      .IsRequired();
+                entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.Influence);
-
-                entity.Property(e => e.MinorFaction)
+                entity.Property(e => e.Name)
                       .HasMaxLength(100)
                       .IsRequired();
 
@@ -39,23 +38,57 @@ namespace OrderBot.Core
                       .IsRequired();
             });
 
-            modelBuilder.Entity<SystemMinorFaction>()
-                        .HasKey(e => e.Id);
-
-            modelBuilder.Entity<SystemMinorFactionState>(entity =>
+            modelBuilder.Entity<MinorFaction>(entity =>
             {
+                entity.ToTable("MinorFaction");
+
                 entity.Property(e => e.Id)
                       .UseIdentityColumn();
 
-                entity.Property(e => e.State)
+                entity.HasKey(e => e.Id);   
+
+                entity.Property(e => e.Name)
                       .HasMaxLength(100)
                       .IsRequired();
             });
 
-            modelBuilder.Entity<SystemMinorFactionState>()
-                        .HasKey(e => e.Id);
+            modelBuilder.Entity<StarSystemMinorFaction>(entity =>
+            {
+                entity.ToTable("StarSystemMinorFaction");
 
-            modelBuilder.Entity<SystemMinorFaction>()
+                entity.Property(e => e.Id)
+                      .UseIdentityColumn();
+
+                entity.HasKey(e  => e.Id);
+
+                entity.Property(e => e.Influence);
+            });
+
+            modelBuilder.Entity<StarSystemMinorFaction>()
+                        .HasOne(e => e.StarSystem)
+                        .WithMany()
+                        .IsRequired();
+
+            modelBuilder.Entity<StarSystemMinorFaction>()
+                        .HasOne(e => e.MinorFaction)
+                        .WithMany()
+                        .IsRequired();
+
+            modelBuilder.Entity<State>(entity =>
+            {
+                entity.ToTable("State");
+
+                entity.Property(e => e.Id)
+                      .UseIdentityColumn();
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Name)
+                      .HasMaxLength(100)
+                      .IsRequired();
+            });
+
+            modelBuilder.Entity<StarSystemMinorFaction>()
                         .HasMany(e => e.States)
                         .WithOne()
                         .IsRequired();

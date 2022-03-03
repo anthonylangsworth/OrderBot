@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace OrderBot.Core
 {
-    public class SystemMinorFaction
+    public class StarSystem
     {
         public int Id;
-        public string StarSystem = null!;
-        public string MinorFaction = null!;
-        public double Influence;
+        public string Name = null!;
         public DateTime LastUpdated;
-        public List<SystemMinorFactionState> States = new();
     }
 }
