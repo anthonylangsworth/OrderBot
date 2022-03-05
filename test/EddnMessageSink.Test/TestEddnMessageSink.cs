@@ -41,7 +41,7 @@ namespace EddnMessageProcessor.Test
 
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
-                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.States)
+                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.State)
                                                                                                        .Include(smf => smf.StarSystem)
                                                                                                        .Include(smf => smf.MinorFaction);
                 StarSystemMinorFaction? newSystemMinorFaction = null;
@@ -55,13 +55,15 @@ namespace EddnMessageProcessor.Test
                     Assert.That(newSystemMinorFaction.MinorFaction, Is.Not.Null);
                     Assert.That(newSystemMinorFaction.MinorFaction.Name, Is.EqualTo(minorFaction));
                     Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
-                    Assert.That(newSystemMinorFaction.States, Is.Empty);
+                    Assert.That(newSystemMinorFaction.State, Is.Empty);
                 }
                 finally
                 {
                     if (newSystemMinorFaction != null)
                     {
                         dbContext.SystemMinorFactions.Remove(newSystemMinorFaction);
+                        dbContext.StarSystems.Remove(dbContext.StarSystems.First(ss => ss.Name == starSystem));
+                        dbContext.MinorFactions.Remove(dbContext.MinorFactions.First(mf => mf.Name == minorFaction));
                     }
                     dbContext.SaveChanges();
                 }
@@ -87,7 +89,7 @@ namespace EddnMessageProcessor.Test
 
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
-                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.States)
+                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.State)
                                                                                                        .Include(smf => smf.StarSystem)
                                                                                                        .Include(smf => smf.MinorFaction);
                 StarSystemMinorFaction? newSystemMinorFaction = null;
@@ -101,13 +103,15 @@ namespace EddnMessageProcessor.Test
                     Assert.That(newSystemMinorFaction.MinorFaction, Is.Not.Null);
                     Assert.That(newSystemMinorFaction.MinorFaction.Name, Is.EqualTo(minorFaction));
                     Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
-                    Assert.That(newSystemMinorFaction.States.Select(state => state.Name), Is.EquivalentTo(states));
+                    Assert.That(newSystemMinorFaction.State.Select(state => state.Name), Is.EquivalentTo(states));
                 }
                 finally
                 {
                     if (newSystemMinorFaction != null)
                     {
                         dbContext.SystemMinorFactions.Remove(newSystemMinorFaction);
+                        dbContext.StarSystems.Remove(dbContext.StarSystems.First(ss => ss.Name == starSystem));
+                        dbContext.MinorFactions.Remove(dbContext.MinorFactions.First(mf => mf.Name == minorFaction));
                     }
                     dbContext.SaveChanges();
                 }
@@ -137,7 +141,7 @@ namespace EddnMessageProcessor.Test
 
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
-                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.States)
+                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.State)
                                                                                                        .Include(smf => smf.StarSystem)
                                                                                                        .Include(smf => smf.MinorFaction);
                 StarSystemMinorFaction? newSystemMinorFaction = null;
@@ -151,13 +155,15 @@ namespace EddnMessageProcessor.Test
                     Assert.That(newSystemMinorFaction.MinorFaction, Is.Not.Null);
                     Assert.That(newSystemMinorFaction.MinorFaction.Name, Is.EqualTo(minorFaction));
                     Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(minorFactionInfo2.Influence));
-                    Assert.That(newSystemMinorFaction.States.Select(state => state.Name), Is.EquivalentTo(minorFactionInfo2.States));
+                    Assert.That(newSystemMinorFaction.State.Select(state => state.Name), Is.EquivalentTo(minorFactionInfo2.States));
                 }
                 finally
                 {
                     if (newSystemMinorFaction != null)
                     {
                         dbContext.SystemMinorFactions.Remove(newSystemMinorFaction);
+                        dbContext.StarSystems.Remove(dbContext.StarSystems.First(ss => ss.Name == starSystem));
+                        dbContext.MinorFactions.Remove(dbContext.MinorFactions.First(mf => mf.Name == minorFaction));
                     }
                     dbContext.SaveChanges();
                 }

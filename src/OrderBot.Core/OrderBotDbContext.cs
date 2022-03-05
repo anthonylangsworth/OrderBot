@@ -17,6 +17,7 @@ namespace OrderBot.Core
 
         public DbSet<StarSystem> StarSystems { get; protected set; } = null!;
         public DbSet<MinorFaction> MinorFactions { get; protected set; } = null!;
+        public DbSet<State> State { get; protected set; } = null!;
         public DbSet<StarSystemMinorFaction> SystemMinorFactions { get; protected set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -52,6 +53,20 @@ namespace OrderBot.Core
                       .IsRequired();
             });
 
+            modelBuilder.Entity<State>(entity =>
+            {
+                entity.ToTable("State");
+
+                entity.Property(e => e.Id)
+                      .UseIdentityColumn();
+
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Name)
+                      .HasMaxLength(100)
+                      .IsRequired();
+            });
+
             modelBuilder.Entity<StarSystemMinorFaction>(entity =>
             {
                 entity.ToTable("StarSystemMinorFaction");
@@ -74,24 +89,9 @@ namespace OrderBot.Core
                         .WithMany()
                         .IsRequired();
 
-            modelBuilder.Entity<State>(entity =>
-            {
-                entity.ToTable("State");
-
-                entity.Property(e => e.Id)
-                      .UseIdentityColumn();
-
-                entity.HasKey(e => e.Id);
-
-                entity.Property(e => e.Name)
-                      .HasMaxLength(100)
-                      .IsRequired();
-            });
-
             modelBuilder.Entity<StarSystemMinorFaction>()
-                        .HasMany(e => e.States)
-                        .WithOne()
-                        .IsRequired();
+                        .HasMany(e => e.State)
+                        .WithMany(e => e.StarSystemMinorFaction);
         }
     }
 }
