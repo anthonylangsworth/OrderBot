@@ -12,6 +12,6 @@ namespace OrderBot.Core
         public StarSystem StarSystem = null!;
         public MinorFaction MinorFaction = null!;
         public double Influence;
-        public List<State> State = new();
+        public List<State> States = new();
     }
 }

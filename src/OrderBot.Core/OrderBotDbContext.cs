@@ -90,8 +90,9 @@ namespace OrderBot.Core
                         .IsRequired();
 
             modelBuilder.Entity<StarSystemMinorFaction>()
-                        .HasMany(e => e.State)
-                        .WithMany(e => e.StarSystemMinorFaction);
+                        .HasMany(e => e.States)
+                        .WithMany(e => e.StarSystemMinorFactions)
+                        .UsingEntity<StarSystemMinorFactionState>();
         }
     }
 }

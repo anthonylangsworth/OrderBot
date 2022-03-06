@@ -41,7 +41,7 @@ namespace EddnMessageProcessor.Test
 
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
-                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.State)
+                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.States)
                                                                                                        .Include(smf => smf.StarSystem)
                                                                                                        .Include(smf => smf.MinorFaction);
                 StarSystemMinorFaction? newSystemMinorFaction = null;
@@ -55,7 +55,7 @@ namespace EddnMessageProcessor.Test
                     Assert.That(newSystemMinorFaction.MinorFaction, Is.Not.Null);
                     Assert.That(newSystemMinorFaction.MinorFaction.Name, Is.EqualTo(minorFaction));
                     Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
-                    Assert.That(newSystemMinorFaction.State, Is.Empty);
+                    Assert.That(newSystemMinorFaction.States, Is.Empty);
                 }
                 finally
                 {
@@ -89,7 +89,7 @@ namespace EddnMessageProcessor.Test
 
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
-                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.State)
+                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.States)
                                                                                                        .Include(smf => smf.StarSystem)
                                                                                                        .Include(smf => smf.MinorFaction);
                 StarSystemMinorFaction? newSystemMinorFaction = null;
@@ -103,7 +103,7 @@ namespace EddnMessageProcessor.Test
                     Assert.That(newSystemMinorFaction.MinorFaction, Is.Not.Null);
                     Assert.That(newSystemMinorFaction.MinorFaction.Name, Is.EqualTo(minorFaction));
                     Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
-                    Assert.That(newSystemMinorFaction.State.Select(state => state.Name), Is.EquivalentTo(states));
+                    Assert.That(newSystemMinorFaction.States.Select(state => state.Name), Is.EquivalentTo(states));
                 }
                 finally
                 {
@@ -141,7 +141,7 @@ namespace EddnMessageProcessor.Test
 
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
-                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.State)
+                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.SystemMinorFactions.Include(smf => smf.States)
                                                                                                        .Include(smf => smf.StarSystem)
                                                                                                        .Include(smf => smf.MinorFaction);
                 StarSystemMinorFaction? newSystemMinorFaction = null;
@@ -155,7 +155,7 @@ namespace EddnMessageProcessor.Test
                     Assert.That(newSystemMinorFaction.MinorFaction, Is.Not.Null);
                     Assert.That(newSystemMinorFaction.MinorFaction.Name, Is.EqualTo(minorFaction));
                     Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(minorFactionInfo2.Influence));
-                    Assert.That(newSystemMinorFaction.State.Select(state => state.Name), Is.EquivalentTo(minorFactionInfo2.States));
+                    Assert.That(newSystemMinorFaction.States.Select(state => state.Name), Is.EquivalentTo(minorFactionInfo2.States));
                 }
                 finally
                 {

@@ -60,7 +60,7 @@ CREATE TABLE [dbo].[StarSystemMinorFaction](
 	[Influence] [float] NULL,
 )
 
-CREATE UNIQUE INDEX [IX_SystemMinorFaction_SystemMinorFaction] 
+CREATE UNIQUE INDEX [IX_StarSystemMinorFaction_SystemMinorFaction] 
 ON [dbo].[StarSystemMinorFaction]([StarSystemId], [MinorFactionId])
 
 CREATE TABLE [dbo].[StarSystemMinorFactionState](
@@ -69,10 +69,10 @@ CREATE TABLE [dbo].[StarSystemMinorFactionState](
 	[StateId] [int] NOT NULL FOREIGN KEY REFERENCES [State]([Id]) ON DELETE CASCADE,
 )
 
-CREATE INDEX [IX_SystemMinorFactionState_SystemMinorFaction] 
+CREATE INDEX [IX_StarSystemMinorFactionState_SystemMinorFaction] 
 ON [dbo].[StarSystemMinorFactionState]([StarSystemMinorFactionId])
 
-CREATE UNIQUE INDEX [IX_SystemMinorFactionState_SystemMinorFactionState] 
+CREATE UNIQUE INDEX [IX_StarSystemMinorFactionState_SystemMinorFactionState] 
 ON [dbo].[StarSystemMinorFactionState]([StarSystemMinorFactionId], [StateId])
 
 CREATE TABLE [dbo].[DiscordGuidSystemMinorFactionGoal](

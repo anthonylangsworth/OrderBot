@@ -9,7 +9,7 @@ namespace OrderBot.Core
     public class State
     {
         public int Id;
-        public List<StarSystemMinorFaction> StarSystemMinorFaction = new ();
+        public List<StarSystemMinorFaction> StarSystemMinorFactions = new ();
         public string Name = null!;
     }
 }

@@ -43,7 +43,7 @@ namespace EddnMessageProcessor
                     }
 
                     StarSystemMinorFaction? dbSystemMinorFaction = dbContext.SystemMinorFactions
-                                                                            .Include(smf => smf.State)
+                                                                            .Include(smf => smf.States)
                                                                             .Include(smf => smf.StarSystem)
                                                                             .Include(smf => smf.MinorFaction)
                                                                             .FirstOrDefault(
@@ -64,8 +64,8 @@ namespace EddnMessageProcessor
                         dbSystemMinorFaction.Influence = newMinorFactionInfo.Influence;
                     }
 
-                    dbSystemMinorFaction.State.Clear();
-                    dbSystemMinorFaction.State.AddRange(newMinorFactionInfo.States.Select(state => new State { Name = state }));
+                    dbSystemMinorFaction.States.Clear();
+                    dbSystemMinorFaction.States.AddRange(newMinorFactionInfo.States.Select(state => new State { Name = state }));
                 }
 
                 // Delete old minor factions
