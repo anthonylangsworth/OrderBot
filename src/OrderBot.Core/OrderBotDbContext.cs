@@ -84,6 +84,9 @@ namespace OrderBot.Core
             modelBuilder.Entity<StarSystemMinorFaction>()
                         .HasMany(e => e.States)
                         .WithMany(e => e.StarSystemMinorFactions);
+
+            // May need to configure correct pluralization of many-to-many field names.
+            // Possibly related to https://docs.microsoft.com/en-us/ef/core/what-is-new/ef-core-6.0/whatsnew#less-configuration-for-many-to-many-relationships.
         }
     }
 }
