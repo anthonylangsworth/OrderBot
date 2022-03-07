@@ -8,7 +8,6 @@ namespace OrderBot.Core
 {
     public class StarSystemMinorFactionState
     {
-        public int Id;
         public StarSystemMinorFaction StarSystemMinorFaction = null!;
         public State State = null!;
     }

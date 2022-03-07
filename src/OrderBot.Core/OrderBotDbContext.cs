@@ -29,8 +29,6 @@ namespace OrderBot.Core
                 entity.Property(e => e.Id)
                       .UseIdentityColumn();
 
-                entity.HasKey(e => e.Id);
-
                 entity.Property(e => e.Name)
                       .HasMaxLength(100)
                       .IsRequired();
@@ -46,8 +44,6 @@ namespace OrderBot.Core
                 entity.Property(e => e.Id)
                       .UseIdentityColumn();
 
-                entity.HasKey(e => e.Id);   
-
                 entity.Property(e => e.Name)
                       .HasMaxLength(100)
                       .IsRequired();
@@ -60,8 +56,6 @@ namespace OrderBot.Core
                 entity.Property(e => e.Id)
                       .UseIdentityColumn();
 
-                entity.HasKey(e => e.Id);
-
                 entity.Property(e => e.Name)
                       .HasMaxLength(100)
                       .IsRequired();
@@ -73,8 +67,6 @@ namespace OrderBot.Core
 
                 entity.Property(e => e.Id)
                       .UseIdentityColumn();
-
-                entity.HasKey(e  => e.Id);
 
                 entity.Property(e => e.Influence);
             });
@@ -91,8 +83,7 @@ namespace OrderBot.Core
 
             modelBuilder.Entity<StarSystemMinorFaction>()
                         .HasMany(e => e.States)
-                        .WithMany(e => e.StarSystemMinorFactions)
-                        .UsingEntity<StarSystemMinorFactionState>();
+                        .WithMany(e => e.StarSystemMinorFactions);
         }
     }
 }
