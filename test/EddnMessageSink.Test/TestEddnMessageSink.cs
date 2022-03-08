@@ -45,8 +45,8 @@ namespace EddnMessageProcessor.Test
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
                 IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
-                                                                                                       .Include(smf => smf.StarSystem)
-                                                                                                       .Include(smf => smf.MinorFaction);
+                                                                                                           .Include(smf => smf.StarSystem)
+                                                                                                           .Include(smf => smf.MinorFaction);
                 Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
                 StarSystemMinorFaction? newSystemMinorFaction = systemMinorFactions.First();
                 Assert.That(newSystemMinorFaction.StarSystem, Is.Not.Null);
@@ -80,8 +80,8 @@ namespace EddnMessageProcessor.Test
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
                 IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
-                                                                                                       .Include(smf => smf.StarSystem)
-                                                                                                       .Include(smf => smf.MinorFaction);
+                                                                                                           .Include(smf => smf.StarSystem)
+                                                                                                           .Include(smf => smf.MinorFaction);
                 Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
                 StarSystemMinorFaction? newSystemMinorFaction = systemMinorFactions.First();
                 Assert.That(newSystemMinorFaction.StarSystem, Is.Not.Null);
@@ -119,17 +119,11 @@ namespace EddnMessageProcessor.Test
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
                 IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
-                                                                                                       .Include(smf => smf.StarSystem)
-                                                                                                       .Include(smf => smf.MinorFaction);
+                                                                                                           .Include(smf => smf.StarSystem)
+                                                                                                           .Include(smf => smf.MinorFaction);
                 Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
-                StarSystemMinorFaction? newSystemMinorFaction = systemMinorFactions.First();
-                Assert.That(newSystemMinorFaction.StarSystem, Is.Not.Null);
-                Assert.That(newSystemMinorFaction.StarSystem.Name, Is.EqualTo(starSystem));
-                Assert.That(newSystemMinorFaction.StarSystem.LastUpdated, Is.EqualTo(timestamp2).Using(DbDateTimeComparer.Instance));
-                Assert.That(newSystemMinorFaction.MinorFaction, Is.Not.Null);
-                Assert.That(newSystemMinorFaction.MinorFaction.Name, Is.EqualTo(minorFaction));
-                Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(minorFactionInfo2.Influence));
-                Assert.That(newSystemMinorFaction.States.Select(state => state.Name), Is.EquivalentTo(minorFactionInfo2.States));
+                StarSystemMinorFaction newSystemMinorFaction = systemMinorFactions.First();
+                Assert.That(Helpers.IsSame(newSystemMinorFaction, starSystem, minorFactionInfo2), Is.True);
             }
         }
 
@@ -141,7 +135,6 @@ namespace EddnMessageProcessor.Test
             EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
 
             string starSystem = "A";
-            string minorFaction = "B";
             MinorFactionInfo oldMinorFactionInfo1 = new MinorFactionInfo("A", 0.2, new string[] { "A", "B" });
             MinorFactionInfo oldMinorFactionInfo2 = new MinorFactionInfo("B", 0.5, new string[] { "B", "C" });
             MinorFactionInfo newMinorFactionInfo1 = new MinorFactionInfo("B", 0.6, new string[] { "B" });
@@ -161,14 +154,12 @@ namespace EddnMessageProcessor.Test
 
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
-                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States);
-                Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
-                StarSystemMinorFaction? newSystemMinorFaction = systemMinorFactions.First();
-                Assert.That(newSystemMinorFaction.StarSystem, Is.EqualTo(starSystem));
-                Assert.That(newSystemMinorFaction.StarSystem.LastUpdated, Is.EqualTo(timestamp2).Using(DbDateTimeComparer.Instance));
-                Assert.That(newSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
-                Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newMinorFactionInfo2.Influence));
-                Assert.That(newSystemMinorFaction.States.Select(smfs => smfs.Name), Is.EquivalentTo(newMinorFactionInfo2.States));
+                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
+                                                                                                           .Include(smf => smf.StarSystem)
+                                                                                                           .Include(smf => smf.MinorFaction);
+                Assert.That(systemMinorFactions.Count, Is.EqualTo(2));
+                Assert.That(Helpers.IsSame(systemMinorFactions.First(), starSystem, newMinorFactionInfo1), Is.True);
+                Assert.That(Helpers.IsSame(systemMinorFactions.Skip(1).First(), starSystem, newMinorFactionInfo2), Is.True);
             }
         }
     }

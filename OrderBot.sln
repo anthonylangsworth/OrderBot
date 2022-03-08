@@ -22,6 +22,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "db", "db", "{EB55A3E1-9089-
 	ProjectSection(SolutionItems) = preProject
 		db\db.sql = db\db.sql
 		db\tables.sql = db\tables.sql
+		db\test.sql = db\test.sql
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBot.Core", "src\OrderBot.Core\OrderBot.Core.csproj", "{DA4F0233-7D9B-4FBA-9F9D-C2C92CCA9960}"

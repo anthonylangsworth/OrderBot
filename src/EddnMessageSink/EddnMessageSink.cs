@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using OrderBot.Core;
 
 namespace EddnMessageProcessor
@@ -20,6 +22,7 @@ namespace EddnMessageProcessor
         public void Sink(DateTime timestamp, string starSystemName, IEnumerable<MinorFactionInfo> minorFactionDetails)
         {
             using (OrderBotDbContext dbContext = DbContextFactory.CreateDbContext())
+            using (IDbContextTransaction transaction = dbContext.Database.BeginTransaction())
             {
                 StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(starSystem => starSystem.Name == starSystemName);
                 if(starSystem == null)
@@ -86,6 +89,7 @@ namespace EddnMessageProcessor
                 }
 
                 dbContext.SaveChanges();
+                transaction.Commit();
             }
         }
     }
