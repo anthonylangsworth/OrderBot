@@ -123,7 +123,7 @@ namespace EddnMessageProcessor.Test
                                                                                                            .Include(smf => smf.MinorFaction);
                 Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
                 StarSystemMinorFaction newSystemMinorFaction = systemMinorFactions.First();
-                Assert.That(Helpers.IsSame(newSystemMinorFaction, starSystem, minorFactionInfo2), Is.True);
+                Assert.That(Helpers.IsSame(newSystemMinorFaction, starSystem, timestamp2, minorFactionInfo2), Is.True);
             }
         }
 
@@ -158,8 +158,8 @@ namespace EddnMessageProcessor.Test
                                                                                                            .Include(smf => smf.StarSystem)
                                                                                                            .Include(smf => smf.MinorFaction);
                 Assert.That(systemMinorFactions.Count, Is.EqualTo(2));
-                Assert.That(Helpers.IsSame(systemMinorFactions.First(), starSystem, newMinorFactionInfo1), Is.True);
-                Assert.That(Helpers.IsSame(systemMinorFactions.Skip(1).First(), starSystem, newMinorFactionInfo2), Is.True);
+                Assert.That(Helpers.IsSame(systemMinorFactions.First(), starSystem, timestamp2, newMinorFactionInfo1), Is.True);
+                Assert.That(Helpers.IsSame(systemMinorFactions.Skip(1).First(), starSystem, timestamp2, newMinorFactionInfo2), Is.True);
             }
         }
     }
