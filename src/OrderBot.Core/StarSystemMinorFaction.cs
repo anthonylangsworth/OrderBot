@@ -8,10 +8,10 @@ namespace OrderBot.Core
 {
     public class StarSystemMinorFaction
     {
-        public int Id;
+        public int Id { get; }
         public StarSystem StarSystem = null!;
         public MinorFaction MinorFaction = null!;
         public double Influence;
-        public List<State> States = new();
+        public List<State> States { get; } = new();
     }
 }

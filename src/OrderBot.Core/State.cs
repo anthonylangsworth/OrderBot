@@ -8,8 +8,8 @@ namespace OrderBot.Core
 {
     public class State
     {
-        public int Id;
-        public List<StarSystemMinorFaction> StarSystemMinorFactions = new ();
+        public int Id { get; }
+        public List<StarSystemMinorFaction> StarSystemMinorFactions { get; } = new ();
         public string Name = null!;
     }
 }

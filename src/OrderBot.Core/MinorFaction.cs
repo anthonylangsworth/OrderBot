@@ -8,7 +8,7 @@ namespace OrderBot.Core
 {
     public class MinorFaction
     {
-        public int Id;
+        public int Id { get; }
         public string Name = null!;
     }
 }

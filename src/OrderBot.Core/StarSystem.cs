@@ -8,7 +8,7 @@ namespace OrderBot.Core
 {
     public class StarSystem
     {
-        public int Id;
+        public int Id { get; private set; }
         public string Name = null!;
         public DateTime LastUpdated;
     }
