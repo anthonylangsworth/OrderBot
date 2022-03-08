@@ -19,20 +19,6 @@ namespace OrderBot.Core.Test
                 : optionsBuilder.UseSqlServer(SqlConnection)).Options;
         }
 
-        public DbContextOptions DbContextOptions { get; }
-
-        public SqlConnection SqlConnection { get; }
-
-        public IDbContextTransaction BeginTransaction()
-        {
-            return CreateDbContext().Database.BeginTransaction();
-        }
-
-        public OrderBotDbContext CreateDbContext()
-        {
-            return new OrderBotDbContext(DbContextOptions);
-        }
-
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
@@ -50,6 +36,19 @@ namespace OrderBot.Core.Test
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+        public DbContextOptions DbContextOptions { get; }
+
+        public SqlConnection SqlConnection { get; }
+
+        public IDbContextTransaction BeginTransaction()
+        {
+            return CreateDbContext().Database.BeginTransaction();
+        }
+
+        public OrderBotDbContext CreateDbContext()
+        {
+            return new OrderBotDbContext(DbContextOptions);
         }
     }
 }
