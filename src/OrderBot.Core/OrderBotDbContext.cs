@@ -17,8 +17,8 @@ namespace OrderBot.Core
 
         public DbSet<StarSystem> StarSystems { get; protected set; } = null!;
         public DbSet<MinorFaction> MinorFactions { get; protected set; } = null!;
-        public DbSet<State> State { get; protected set; } = null!;
-        public DbSet<StarSystemMinorFaction> SystemMinorFactions { get; protected set; } = null!;
+        public DbSet<State> States { get; protected set; } = null!;
+        public DbSet<StarSystemMinorFaction> StarSystemMinorFactions { get; protected set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

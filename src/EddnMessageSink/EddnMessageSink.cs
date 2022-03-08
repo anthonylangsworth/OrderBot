@@ -42,7 +42,7 @@ namespace EddnMessageProcessor
                         dbContext.MinorFactions.Add(minorFaction);
                     }
 
-                    StarSystemMinorFaction? dbSystemMinorFaction = dbContext.SystemMinorFactions
+                    StarSystemMinorFaction? dbSystemMinorFaction = dbContext.StarSystemMinorFactions
                                                                             .Include(smf => smf.States)
                                                                             .Include(smf => smf.StarSystem)
                                                                             .Include(smf => smf.MinorFaction)
@@ -57,7 +57,7 @@ namespace EddnMessageProcessor
                             StarSystem = starSystem,
                             Influence = newMinorFactionInfo.Influence,
                         };
-                        dbContext.SystemMinorFactions.Add(dbSystemMinorFaction);
+                        dbContext.StarSystemMinorFactions.Add(dbSystemMinorFaction);
                     }
                     else
                     {
@@ -65,15 +65,24 @@ namespace EddnMessageProcessor
                     }
 
                     dbSystemMinorFaction.States.Clear();
-                    dbSystemMinorFaction.States.AddRange(newMinorFactionInfo.States.Select(state => new State { Name = state }));
+                    foreach (string stateName in newMinorFactionInfo.States)
+                    {
+                        State? state = dbContext.States.FirstOrDefault(s => s.Name == stateName);
+                        if (state == null)
+                        {
+                            state = new State { Name = stateName };
+                            dbContext.States.Add(state);
+                        }
+                        dbSystemMinorFaction.States.Add(state);
+                    }
                 }
 
                 // Delete old minor factions
                 SortedSet<string> newSystemMinorFactions = new SortedSet<string>(minorFactionDetails.Select(mfd => mfd.MinorFaction));
-                foreach (StarSystemMinorFaction systemMinorFaction in dbContext.SystemMinorFactions
+                foreach (StarSystemMinorFaction systemMinorFaction in dbContext.StarSystemMinorFactions
                                                                                .Where(smf => !newSystemMinorFactions.Contains(smf.MinorFaction.Name)))
                 {
-                    dbContext.SystemMinorFactions.Remove(systemMinorFaction);
+                    dbContext.StarSystemMinorFactions.Remove(systemMinorFaction);
                 }
 
                 dbContext.SaveChanges();

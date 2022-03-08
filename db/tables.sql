@@ -51,7 +51,7 @@ CREATE TABLE [dbo].[State](
 )
 
 CREATE UNIQUE INDEX [IX_State] 
-ON [dbo].[StarSystem]([Name])
+ON [dbo].[State]([Name])
 
 CREATE TABLE [dbo].[StarSystemMinorFaction](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
