@@ -83,7 +83,8 @@ namespace EddnMessageProcessor
                 // Delete old minor factions
                 SortedSet<string> newSystemMinorFactions = new SortedSet<string>(minorFactionDetails.Select(mfd => mfd.MinorFaction));
                 foreach (StarSystemMinorFaction systemMinorFaction in dbContext.StarSystemMinorFactions
-                                                                               .Where(smf => !newSystemMinorFactions.Contains(smf.MinorFaction.Name)))
+                                                                               .Where(smf => smf.StarSystem == starSystem
+                                                                                    && !newSystemMinorFactions.Contains(smf.MinorFaction.Name)))
                 {
                     dbContext.StarSystemMinorFactions.Remove(systemMinorFaction);
                 }

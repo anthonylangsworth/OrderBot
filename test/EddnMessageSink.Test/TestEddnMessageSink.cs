@@ -154,12 +154,48 @@ namespace EddnMessageProcessor.Test
 
             using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
             {
-                IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
-                                                                                                           .Include(smf => smf.StarSystem)
-                                                                                                           .Include(smf => smf.MinorFaction);
+                List<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
+                                                                                                    .Include(smf => smf.StarSystem)
+                                                                                                    .Include(smf => smf.MinorFaction)
+                                                                                                    .OrderBy(smf => smf.MinorFaction.Name)
+                                                                                                    .ToList();
                 Assert.That(systemMinorFactions.Count, Is.EqualTo(2));
                 Assert.That(Helpers.IsSame(systemMinorFactions.First(), starSystem, timestamp2, newMinorFactionInfo1), Is.True);
                 Assert.That(Helpers.IsSame(systemMinorFactions.Skip(1).First(), starSystem, timestamp2, newMinorFactionInfo2), Is.True);
+            }
+        }
+
+        [Test]
+        public void TestTwoSystems()
+        {
+            using OrderBotDbContextFactory dbContextFactory = new OrderBotDbContextFactory(useInMemoryDB);
+            using IDbContextTransaction transaction = dbContextFactory.BeginTransaction();
+            EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
+
+            string starSystem1 = "A";
+            string starSystem2 = "B";
+            MinorFactionInfo systemOneMinorFactionInfo = new MinorFactionInfo("MF1", 0.3, new string[] { "A", "B" });
+            MinorFactionInfo systemTwoMinorFactionInfo = new MinorFactionInfo("MF2", 0.5, new string[] { "B" });
+            DateTime timestamp = DateTime.UtcNow.ToUniversalTime();
+            messageSink.Sink(timestamp, starSystem1, new MinorFactionInfo[]
+            {
+                systemOneMinorFactionInfo
+            });
+            messageSink.Sink(timestamp, starSystem2, new MinorFactionInfo[]
+            {
+                systemTwoMinorFactionInfo
+            });
+
+            using (OrderBotDbContext dbContext = dbContextFactory.CreateDbContext())
+            {
+                List<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
+                                                                                                    .Include(smf => smf.StarSystem)
+                                                                                                    .Include(smf => smf.MinorFaction)
+                                                                                                    .OrderBy(smf => smf.StarSystem.Name)
+                                                                                                    .ToList();
+                Assert.That(systemMinorFactions.Count, Is.EqualTo(2));
+                Assert.That(Helpers.IsSame(systemMinorFactions.First(), starSystem1, timestamp, systemOneMinorFactionInfo), Is.True);
+                Assert.That(Helpers.IsSame(systemMinorFactions.Skip(1).First(), starSystem2, timestamp, systemTwoMinorFactionInfo), Is.True);
             }
         }
     }
