@@ -9,7 +9,7 @@ namespace OrderBot.Core.Test
     {
         private bool disposedValue;
 
-        public OrderBotDbContextFactory(bool useInMemory = true)
+        public OrderBotDbContextFactory(bool useInMemory = false)
         {
             // Share the same connection to enable transactions
             SqlConnection = new(@"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password"); 
@@ -40,11 +40,6 @@ namespace OrderBot.Core.Test
         public DbContextOptions DbContextOptions { get; }
 
         public SqlConnection SqlConnection { get; }
-
-        public IDbContextTransaction BeginTransaction()
-        {
-            return CreateDbContext().Database.BeginTransaction();
-        }
 
         public OrderBotDbContext CreateDbContext()
         {

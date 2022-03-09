@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using OrderBot.Core;
@@ -22,7 +23,7 @@ namespace EddnMessageProcessor
         public void Sink(DateTime timestamp, string starSystemName, IEnumerable<MinorFactionInfo> minorFactionDetails)
         {
             using (OrderBotDbContext dbContext = DbContextFactory.CreateDbContext())
-            using (IDbContextTransaction transaction = dbContext.Database.BeginTransaction())
+            using (TransactionScope transactionScope = new TransactionScope())
             {
                 StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(starSystem => starSystem.Name == starSystemName);
                 if(starSystem == null)
@@ -78,6 +79,8 @@ namespace EddnMessageProcessor
                         }
                         dbSystemMinorFaction.States.Add(state);
                     }
+
+                    dbContext.SaveChanges();
                 }
 
                 // Delete old minor factions
@@ -90,7 +93,7 @@ namespace EddnMessageProcessor
                 }
 
                 dbContext.SaveChanges();
-                transaction.Commit();
+                transactionScope.Complete();
             }
         }
     }
