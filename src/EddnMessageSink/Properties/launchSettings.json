@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "EddnMessageProcessor": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
