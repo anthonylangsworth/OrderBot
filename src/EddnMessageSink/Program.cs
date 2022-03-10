@@ -3,6 +3,7 @@ using NetMQ.Sockets;
 using EddnMessageProcessor;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using OrderBot.Core;
@@ -30,6 +31,19 @@ using (SubscriberSocket client = new SubscriberSocket("tcp://eddn.edcd.io:9500")
 
 ServiceProvider BuildServiceProvider()
 {
+    // Overkill for reading a single environment variable but future proof.
+    //const string environmentVariablePrefix = "OB__";
+    //const string databaseEnvironmentVariable = "DB";
+    //IConfigurationRoot configurationRoot = new ConfigurationBuilder().AddEnvironmentVariables(environmentVariablePrefix)
+    //                                                                 .Build();
+    //string dbConnectionString = configurationRoot.GetConnectionString(databaseEnvironmentVariable);
+    //if (string.IsNullOrEmpty(dbConnectionString))
+    //{
+    //    throw new InvalidOperationException(
+    //        $"Database connection string missing from environment variable `{environmentVariablePrefix}__ConnectionStrings__{databaseEnvironmentVariable}`. " +
+    //        "Usually in the form of `Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password`.");
+    //}
+
     ServiceCollection serviceCollection = new ServiceCollection();
     serviceCollection.AddLogging(logging =>
     {
@@ -37,8 +51,8 @@ ServiceProvider BuildServiceProvider()
         logging.AddConsole();
     });
     serviceCollection.AddDbContextFactory<OrderBotDbContext>(
-        dbContextOptionsBuilder => dbContextOptionsBuilder.UseSqlServer(@"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password",
-                                                                     options => options.EnableRetryOnFailure()));
+        dbContextOptionsBuilder => dbContextOptionsBuilder.UseSqlServer("Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password"));
+                                                                        // options => options.EnableRetryOnFailure()));
     return serviceCollection.BuildServiceProvider();
 }
 

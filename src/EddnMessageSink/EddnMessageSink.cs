@@ -25,8 +25,9 @@ namespace EddnMessageProcessor
             using (OrderBotDbContext dbContext = DbContextFactory.CreateDbContext())
             using (TransactionScope transactionScope = new TransactionScope())
             {
-                IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();
-                executionStrategy.Execute(() => InnerSink(timestamp, starSystemName, minorFactionDetails, dbContext));
+                //IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();
+                //executionStrategy.Execute(() => InnerSink(timestamp, starSystemName, minorFactionDetails, dbContext));
+                InnerSink(timestamp, starSystemName, minorFactionDetails, dbContext);
                 transactionScope.Complete();
             }
         }
@@ -43,6 +44,7 @@ namespace EddnMessageProcessor
             {
                 starSystem.LastUpdated = timestamp;
             }
+            dbContext.SaveChanges();
 
             // Add or update minor factions
             foreach (MinorFactionInfo newMinorFactionInfo in minorFactionDetails)
@@ -52,6 +54,7 @@ namespace EddnMessageProcessor
                 {
                     minorFaction = new MinorFaction { Name = newMinorFactionInfo.MinorFaction };
                     dbContext.MinorFactions.Add(minorFaction);
+                    dbContext.SaveChanges();
                 }
 
                 StarSystemMinorFaction? dbSystemMinorFaction = dbContext.StarSystemMinorFactions
@@ -75,6 +78,7 @@ namespace EddnMessageProcessor
                 {
                     dbSystemMinorFaction.Influence = newMinorFactionInfo.Influence;
                 }
+                dbContext.SaveChanges();
 
                 dbSystemMinorFaction.States.Clear();
                 foreach (string stateName in newMinorFactionInfo.States)
@@ -87,7 +91,6 @@ namespace EddnMessageProcessor
                     }
                     dbSystemMinorFaction.States.Add(state);
                 }
-
                 dbContext.SaveChanges();
             }
 
@@ -99,7 +102,6 @@ namespace EddnMessageProcessor
             {
                 dbContext.StarSystemMinorFactions.Remove(systemMinorFaction);
             }
-
             dbContext.SaveChanges();
         }
     }

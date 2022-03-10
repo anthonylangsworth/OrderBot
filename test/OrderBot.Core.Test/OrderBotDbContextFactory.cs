@@ -16,7 +16,7 @@ namespace OrderBot.Core.Test
             DbContextOptionsBuilder<OrderBotDbContext> optionsBuilder = new DbContextOptionsBuilder<OrderBotDbContext>();
             DbContextOptions = (useInMemory
                 ? optionsBuilder.UseInMemoryDatabase("OrderBot").ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
-                : optionsBuilder.UseSqlServer(SqlConnection)).Options;
+                : optionsBuilder.UseSqlServer(SqlConnection)).Options; // , options => options.EnableRetryOnFailure()
         }
 
         protected virtual void Dispose(bool disposing)
