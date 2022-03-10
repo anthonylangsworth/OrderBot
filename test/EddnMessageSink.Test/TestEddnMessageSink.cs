@@ -45,7 +45,8 @@ namespace EddnMessageProcessor.Test
             {
                 IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
                                                                                                            .Include(smf => smf.StarSystem)
-                                                                                                           .Include(smf => smf.MinorFaction);
+                                                                                                           .Include(smf => smf.MinorFaction)
+                                                                                                           .Where(smf => smf.StarSystem.Name == starSystem);
                 Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
                 StarSystemMinorFaction? newSystemMinorFaction = systemMinorFactions.First();
                 Assert.That(newSystemMinorFaction.StarSystem, Is.Not.Null);
@@ -80,7 +81,8 @@ namespace EddnMessageProcessor.Test
             {
                 IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
                                                                                                            .Include(smf => smf.StarSystem)
-                                                                                                           .Include(smf => smf.MinorFaction);
+                                                                                                           .Include(smf => smf.MinorFaction)
+                                                                                                           .Where(smf => smf.StarSystem.Name == starSystem);
                 Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
                 StarSystemMinorFaction? newSystemMinorFaction = systemMinorFactions.First();
                 Assert.That(newSystemMinorFaction.StarSystem, Is.Not.Null);
@@ -119,7 +121,8 @@ namespace EddnMessageProcessor.Test
             {
                 IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
                                                                                                            .Include(smf => smf.StarSystem)
-                                                                                                           .Include(smf => smf.MinorFaction);
+                                                                                                           .Include(smf => smf.MinorFaction)
+                                                                                                           .Where(smf => smf.StarSystem.Name == starSystem);
                 Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
                 StarSystemMinorFaction newSystemMinorFaction = systemMinorFactions.First();
                 Assert.That(Helpers.IsSame(newSystemMinorFaction, starSystem, timestamp2, minorFactionInfo2), Is.True);
@@ -157,10 +160,11 @@ namespace EddnMessageProcessor.Test
                                                                                                     .Include(smf => smf.StarSystem)
                                                                                                     .Include(smf => smf.MinorFaction)
                                                                                                     .OrderBy(smf => smf.MinorFaction.Name)
+                                                                                                    .Where(smf => smf.StarSystem.Name == starSystem)
                                                                                                     .ToList();
                 Assert.That(systemMinorFactions.Count, Is.EqualTo(2));
-                Assert.That(Helpers.IsSame(systemMinorFactions.First(), starSystem, timestamp2, newMinorFactionInfo1), Is.True);
-                Assert.That(Helpers.IsSame(systemMinorFactions.Skip(1).First(), starSystem, timestamp2, newMinorFactionInfo2), Is.True);
+                Assert.That(Helpers.IsSame(systemMinorFactions[0], starSystem, timestamp2, newMinorFactionInfo1), Is.True);
+                Assert.That(Helpers.IsSame(systemMinorFactions[1], starSystem, timestamp2, newMinorFactionInfo2), Is.True);
             }
         }
 
@@ -191,10 +195,11 @@ namespace EddnMessageProcessor.Test
                                                                                                     .Include(smf => smf.StarSystem)
                                                                                                     .Include(smf => smf.MinorFaction)
                                                                                                     .OrderBy(smf => smf.StarSystem.Name)
+                                                                                                    .Where(smf => smf.StarSystem.Name == starSystem1 || smf.StarSystem.Name == starSystem2)
                                                                                                     .ToList();
                 Assert.That(systemMinorFactions.Count, Is.EqualTo(2));
-                Assert.That(Helpers.IsSame(systemMinorFactions.First(), starSystem1, timestamp, systemOneMinorFactionInfo), Is.True);
-                Assert.That(Helpers.IsSame(systemMinorFactions.Skip(1).First(), starSystem2, timestamp, systemTwoMinorFactionInfo), Is.True);
+                Assert.That(Helpers.IsSame(systemMinorFactions[0], starSystem1, timestamp, systemOneMinorFactionInfo), Is.True);
+                Assert.That(Helpers.IsSame(systemMinorFactions[1], starSystem2, timestamp, systemTwoMinorFactionInfo), Is.True);
             }
         }
     }

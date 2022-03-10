@@ -37,7 +37,8 @@ ServiceProvider BuildServiceProvider()
         logging.AddConsole();
     });
     serviceCollection.AddDbContextFactory<OrderBotDbContext>(
-        dbContextOptionsBuilder => dbContextOptionsBuilder.UseSqlServer(@"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password"));
+        dbContextOptionsBuilder => dbContextOptionsBuilder.UseSqlServer(@"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password",
+                                                                     options => options.EnableRetryOnFailure()));
     return serviceCollection.BuildServiceProvider();
 }
 
