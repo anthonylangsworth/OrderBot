@@ -17,5 +17,11 @@ RUN dotnet publish "EddnMessageProcessor.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
+RUN adduser \
+  --disabled-password \
+  --home /app \
+  --gecos '' app \
+  && chown -R app /app
+USER app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "EddnMessageProcessor.dll"]

@@ -15,8 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBot", "src\OrderBot\Or
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{86421715-8F27-4990-A5D2-5910B4BD047C}"
 	ProjectSection(SolutionItems) = preProject
-		.dockerignore = .dockerignore
-		Dockerfile = Dockerfile
+		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
