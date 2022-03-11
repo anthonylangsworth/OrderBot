@@ -6,4 +6,5 @@ To setup:
 
 
 # References
-1. https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/visual-studio-tools-for-docker?view=aspnetcore-6.0
+1. Using Docker with .Net Core: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/visual-studio-tools-for-docker?view=aspnetcore-6.0
+2. Github action to build SQL server database: https://github.com/ankane/setup-sqlserver
