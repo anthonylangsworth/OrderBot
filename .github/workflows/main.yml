@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest] # , windows-latest
     steps:
     - uses: actions/checkout@v2
     - name: Setup DB
@@ -18,8 +18,8 @@ jobs:
         sqlserver-version: 2019
     - name: Configure DB
       run: |
-        sqlcmd -U SA -P 'YourStrong!Passw0rd' -i deploy\db.sql
-        sqlcmd -U SA -P 'YourStrong!Passw0rd' -i deploy\tables.sql
+        sqlcmd -U SA -P 'YourStrong!Passw0rd' -i deploy/db.sql
+        sqlcmd -U SA -P 'YourStrong!Passw0rd' -i deploy/tables.sql
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
