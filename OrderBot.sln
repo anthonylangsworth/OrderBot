@@ -15,6 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBot", "src\OrderBot\Or
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{86421715-8F27-4990-A5D2-5910B4BD047C}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
@@ -29,6 +30,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBot.Core", "src\OrderBot.Core\OrderBot.Core.csproj", "{DA4F0233-7D9B-4FBA-9F9D-C2C92CCA9960}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBot.Core.Test", "test\OrderBot.Core.Test\OrderBot.Core.Test.csproj", "{89572626-344D-4E3D-8DC1-DEEF29F510D1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{D2502924-C9A1-46F3-A3E4-0CE730896F1A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{454DDC7C-A0A1-44C4-9A9D-06A6BB64B6B4}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\main.yml = .github\workflows\main.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +74,7 @@ Global
 		{F9638C14-C46F-446C-AB53-62ABC3A73381} = {EFD23576-FAC9-4911-9558-44B7413860A3}
 		{DA4F0233-7D9B-4FBA-9F9D-C2C92CCA9960} = {EFD23576-FAC9-4911-9558-44B7413860A3}
 		{89572626-344D-4E3D-8DC1-DEEF29F510D1} = {FCE54A54-616D-40A9-BDA3-330EB0CB1BB2}
+		{454DDC7C-A0A1-44C4-9A9D-06A6BB64B6B4} = {D2502924-C9A1-46F3-A3E4-0CE730896F1A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3A3E09AF-7EA3-4A2F-A7FD-F7E48344DE0D}
