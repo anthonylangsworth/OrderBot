@@ -1,12 +1,12 @@
-﻿using NetMQ;
-using NetMQ.Sockets;
-using EddnMessageProcessor;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
-using System.Text.Json;
+﻿using EddnMessageProcessor;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NetMQ;
+using NetMQ.Sockets;
 using OrderBot.Core;
+using System.Text.Json;
 
 using ServiceProvider serviceProvider = BuildServiceProvider();
 EddnMessageDecompressor messageDecompressor = new EddnMessageDecompressor();
