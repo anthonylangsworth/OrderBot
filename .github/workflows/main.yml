@@ -3,8 +3,8 @@ name: Build and Test
 on: push
 
 env:
-    DB_NAME: OrderBot # TODO: Pass this into both db.sql and tests
-    # CONNECTION_STRING: 
+  DB_NAME: OrderBot # TODO: Pass this into both db.sql and tests
+  # CONNECTION_STRING: 
 
 jobs:
   build-and-test:
