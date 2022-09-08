@@ -2,6 +2,9 @@ name: Build and Test
 
 on: push
 
+env:
+    db: OrderBot # TODO: Pass this into both db.sql and tests
+
 jobs:
   build-and-test:
     name: build-and-test-${{matrix.os}}
@@ -19,9 +22,7 @@ jobs:
     - name: Create DB
       run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -e -i deploy/db.sql
     - name: Create DB Tables
-      run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -d OrderBot -e -i deploy/tables.sql
-    - name: Test Access (Temporary)
-      run: sqlcmd -U OrderBot -P 'password' -d OrderBot -e -i deploy/test.sql
+      run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -d ${{ db }} -e -i deploy/tables.sql
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
