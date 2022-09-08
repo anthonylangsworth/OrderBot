@@ -14,7 +14,8 @@ jobs:
       matrix:
         os: [ubuntu-latest] # , windows-latest
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v3
     - name: Setup DB
       uses: ankane/setup-sqlserver@v1
       with:
