@@ -17,9 +17,9 @@ jobs:
         accept-eula: true
         sqlserver-version: 2019
     - name: Create DB
-      run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -i deploy/db.sql
+      run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -e -i deploy/db.sql
     - name: Create DB Tables
-      run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -i deploy/tables.sql
+      run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -e -i deploy/tables.sql
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
