@@ -9,12 +9,12 @@ using OrderBot.Core;
 using System.Text.Json;
 
 using ServiceProvider serviceProvider = BuildServiceProvider();
-EddnMessageDecompressor messageDecompressor = new EddnMessageDecompressor();
-EddnMessageExtractor messageProcessor = new EddnMessageExtractor(new[] { "EDA Kunti League" });
-EddnMessageSink messageSink = new EddnMessageSink(serviceProvider.GetRequiredService<IDbContextFactory<OrderBotDbContext>>());
+EddnMessageDecompressor messageDecompressor = new();
+EddnMessageExtractor messageProcessor = new(new[] { "EDA Kunti League" });
+EddnMessageSink messageSink = new(serviceProvider.GetRequiredService<IDbContextFactory<OrderBotDbContext>>());
 ILogger logger = serviceProvider.GetRequiredService<ILogger<Program>>();
 
-using (SubscriberSocket client = new SubscriberSocket("tcp://eddn.edcd.io:9500"))
+using (SubscriberSocket client = new("tcp://eddn.edcd.io:9500"))
 {
     client.SubscribeToAnyTopic();
     logger.LogInformation("Started");
@@ -45,7 +45,7 @@ ServiceProvider BuildServiceProvider()
             "Usually in the form of `Server=server;Database=OrderBot;User ID=OrderBot;Password=password`.");
     }
 
-    ServiceCollection serviceCollection = new ServiceCollection();
+    ServiceCollection serviceCollection = new();
     serviceCollection.AddLogging(logging =>
     {
         logging.ClearProviders();
