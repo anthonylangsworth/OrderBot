@@ -1,14 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.EntityFrameworkCore.Storage;
 using NUnit.Framework;
 using OrderBot.Core;
 using OrderBot.Core.Test;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
 using System.Transactions;
 
@@ -19,7 +12,7 @@ namespace EddnMessageProcessor.Test
         [Test]
         public void Ctor()
         {
-            IDbContextFactory<OrderBotDbContext> dbContextFactory = new OrderBotDbContextFactory();
+            using OrderBotDbContextFactory dbContextFactory = new OrderBotDbContextFactory();
             EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
             Assert.That(messageSink.DbContextFactory, Is.EqualTo(dbContextFactory));
         }

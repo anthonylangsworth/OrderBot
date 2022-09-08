@@ -33,9 +33,9 @@ ServiceProvider BuildServiceProvider()
 {
     // Overkill for reading a single environment variable but future proof.
     const string environmentVariablePrefix = "OB__";
-    const string databaseEnvironmentVariable = "DB";
+    const string databaseEnvironmentVariable = "OrderBot";
     IConfigurationRoot configurationRoot = new ConfigurationBuilder().AddEnvironmentVariables(environmentVariablePrefix)
-                                                                     .AddJsonFile("appsettings.json")
+                                                                     .AddJsonFile("appsettings.json", false)
                                                                      .Build();
     string dbConnectionString = configurationRoot.GetConnectionString(databaseEnvironmentVariable);
     if (string.IsNullOrEmpty(dbConnectionString))

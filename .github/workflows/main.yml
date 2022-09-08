@@ -3,7 +3,8 @@ name: Build and Test
 on: push
 
 env:
-    db: OrderBot # TODO: Pass this into both db.sql and tests
+    DB_NAME: OrderBot # TODO: Pass this into both db.sql and tests
+    # CONNECTION_STRING: 
 
 jobs:
   build-and-test:
@@ -22,7 +23,7 @@ jobs:
     - name: Create DB
       run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -e -i deploy/db.sql
     - name: Create DB Tables
-      run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -d ${{ db }} -e -i deploy/tables.sql
+      run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -d ${{ env.DB_NAME }} -e -i deploy/tables.sql
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
