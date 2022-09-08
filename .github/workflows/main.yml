@@ -1,6 +1,6 @@
 name: Build and Test
 
-on: push
+on: [push, pull]
 
 env:
   DB_NAME: OrderBot # TODO: Pass this into both db.sql and tests
@@ -26,9 +26,7 @@ jobs:
     - name: Create DB Tables
       run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -d ${{ env.DB_NAME }} -e -i deploy/tables.sql
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
+      uses: actions/setup-dotnet@v2
     - name: Install dependencies
       run: dotnet restore
     - name: Build
