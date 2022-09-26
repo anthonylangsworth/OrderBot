@@ -1,4 +1,4 @@
-﻿namespace OrderBot
+﻿namespace OrderBot.MessageProcessors
 {
     /// <summary>
     /// Process a message received by <see cref="EddnMessageBackgroundService"/>.

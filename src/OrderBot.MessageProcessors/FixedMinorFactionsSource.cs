@@ -1,4 +1,4 @@
-﻿namespace OrderBot
+﻿namespace OrderBot.MessageProcessors
 {
     /// <summary>
     /// Use a fixed set of minor factions.

@@ -1,4 +1,4 @@
-﻿namespace OrderBot
+﻿namespace OrderBot.MessageProcessors
 {
     /// <summary>
     /// Minor factions used to filter messages processed by <see cref="OrderBotMessageProcessor"/>.

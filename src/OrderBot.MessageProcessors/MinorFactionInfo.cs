@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace OrderBot
+namespace OrderBot.MessageProcessors
 {
     // Must be public for tests
     public class MinorFactionInfo : IEquatable<MinorFactionInfo?>

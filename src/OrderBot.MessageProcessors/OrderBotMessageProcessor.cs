@@ -5,7 +5,7 @@ using System.Data;
 using System.Text.Json;
 using System.Transactions;
 
-namespace OrderBot
+namespace OrderBot.MessageProcessors
 {
     internal class OrderBotMessageProcessor : EddnMessageProcessor
     {
@@ -33,8 +33,9 @@ namespace OrderBot
                     //executionStrategy.Execute(() => InnerSink(timestamp, starSystemName, minorFactionDetails, dbContext));
                     Update(timestamp, starSystemName, minorFactionDetails, dbContext);
                     transactionScope.Complete();
+
+                    Logger.LogInformation("System {system} updated", starSystemName);
                 }
-                Logger.LogInformation("System {system} updated", starSystemName);
             }
         }
 
