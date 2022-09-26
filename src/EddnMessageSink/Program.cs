@@ -8,6 +8,15 @@ using NetMQ.Sockets;
 using OrderBot.Core;
 using System.Text.Json;
 
+//IHost host = Host.CreateDefaultBuilder(args)
+//    .ConfigureServices((hostContext, services) =>
+//    {
+//        services.AddHostedService<Worker>();
+//    })
+//    .Build();
+
+//host.Run();
+
 using ServiceProvider serviceProvider = BuildServiceProvider();
 EddnMessageDecompressor messageDecompressor = new();
 EddnMessageExtractor messageProcessor = new(new[] { "EDA Kunti League" });
@@ -41,7 +50,7 @@ ServiceProvider BuildServiceProvider()
     if (string.IsNullOrEmpty(dbConnectionString))
     {
         throw new InvalidOperationException(
-            $"Database connection string missing from environment variable `{environmentVariablePrefix}ConnectionStrings__{databaseEnvironmentVariable}`. " +
+            $"Database connection string missing from environment variable `{environmentVariablePrefix}ConnectionString__{databaseEnvironmentVariable}`. " +
             "Usually in the form of `Server=server;Database=OrderBot;User ID=OrderBot;Password=password`.");
     }
 
