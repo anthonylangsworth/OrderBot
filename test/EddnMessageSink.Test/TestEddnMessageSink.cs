@@ -13,7 +13,7 @@ namespace EddnMessageProcessor.Test
         public void Ctor()
         {
             using OrderBotDbContextFactory dbContextFactory = new OrderBotDbContextFactory();
-            EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
+            OrderBotMessageProcessor messageSink = new OrderBotMessageSink(dbContextFactory);
             Assert.That(messageSink.DbContextFactory, Is.EqualTo(dbContextFactory));
         }
 
@@ -27,7 +27,7 @@ namespace EddnMessageProcessor.Test
             using OrderBotDbContextFactory dbContextFactory = new OrderBotDbContextFactory();
             using TransactionScope transactionScope = new TransactionScope();
             DateTime timestamp = DateTime.UtcNow.ToUniversalTime();
-            EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
+            OrderBotMessageProcessor messageSink = new OrderBotMessageSink(dbContextFactory);
 
             messageSink.Sink(timestamp, starSystem, new MinorFactionInfo[]
             {
@@ -63,7 +63,7 @@ namespace EddnMessageProcessor.Test
             using OrderBotDbContextFactory dbContextFactory = new OrderBotDbContextFactory();
             using TransactionScope transactionScope = new TransactionScope();
             DateTime timestamp = DateTime.UtcNow.ToUniversalTime();
-            EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
+            OrderBotMessageProcessor messageSink = new OrderBotMessageSink(dbContextFactory);
 
             messageSink.Sink(timestamp, starSystem, new MinorFactionInfo[]
             {
@@ -93,7 +93,7 @@ namespace EddnMessageProcessor.Test
         {
             using OrderBotDbContextFactory dbContextFactory = new OrderBotDbContextFactory();
             using TransactionScope transactionScope = new TransactionScope();
-            EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
+            OrderBotMessageProcessor messageSink = new OrderBotMessageSink(dbContextFactory);
 
             string starSystem = "A";
             string minorFaction = "B";
@@ -127,7 +127,7 @@ namespace EddnMessageProcessor.Test
         {
             using OrderBotDbContextFactory dbContextFactory = new OrderBotDbContextFactory();
             using TransactionScope transactionScope = new TransactionScope();
-            EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
+            OrderBotMessageProcessor messageSink = new OrderBotMessageSink(dbContextFactory);
 
             string starSystem = "A";
             MinorFactionInfo oldMinorFactionInfo1 = new MinorFactionInfo("A", 0.2, new string[] { "A", "B" });
@@ -166,7 +166,7 @@ namespace EddnMessageProcessor.Test
         {
             using OrderBotDbContextFactory dbContextFactory = new OrderBotDbContextFactory();
             using TransactionScope transactionScope = new TransactionScope();
-            EddnMessageSink messageSink = new EddnMessageSink(dbContextFactory);
+            OrderBotMessageProcessor messageSink = new OrderBotMessageSink(dbContextFactory);
 
             string starSystem1 = "A";
             string starSystem2 = "B";
