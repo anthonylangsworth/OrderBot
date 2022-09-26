@@ -5,7 +5,7 @@ using System.Data;
 using System.Text.Json;
 using System.Transactions;
 
-namespace EddnMessageProcessor
+namespace OrderBot
 {
     internal class OrderBotMessageProcessor : EddnMessageProcessor
     {

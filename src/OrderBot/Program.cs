@@ -1,8 +1,8 @@
-﻿using EddnMessageProcessor;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OrderBot;
 using OrderBot.Core;
 
 const string environmentVariablePrefix = "OB__";
@@ -24,7 +24,7 @@ IHost host = Host.CreateDefaultBuilder(args)
                                                                                                   // options => options.EnableRetryOnFailure()));
         services.AddHostedService<EddnMessageBackgroundService>();
         services.AddSingleton<MinorFactionsSource, FixedMinorFactionsSource>(sp => new FixedMinorFactionsSource(new HashSet<string>(new[] { "EDA Kunti League" })));
-        services.AddSingleton<EddnMessageProcessor.EddnMessageProcessor, OrderBotMessageProcessor>();
+        services.AddSingleton<EddnMessageProcessor, OrderBotMessageProcessor>();
     })
     .Build();
 

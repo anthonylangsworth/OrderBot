@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Immutable;
 
-namespace EddnMessageProcessor
+namespace OrderBot
 {
     // Must be public for tests
     public class MinorFactionInfo : IEquatable<MinorFactionInfo?>
@@ -30,7 +25,7 @@ namespace EddnMessageProcessor
         {
             return other != null &&
                    MinorFaction == other.MinorFaction &&
-                   Influence == other.Influence && 
+                   Influence == other.Influence &&
                    States.SetEquals(other.States);
         }
 

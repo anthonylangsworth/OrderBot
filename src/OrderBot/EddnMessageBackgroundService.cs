@@ -6,7 +6,7 @@ using NetMQ.Sockets;
 using System.Text;
 using System.Text.Json;
 
-namespace EddnMessageProcessor
+namespace OrderBot
 {
     internal class EddnMessageBackgroundService : BackgroundService
     {

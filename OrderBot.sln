@@ -3,15 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32126.317
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EddnMessageProcessor", "src\EddnMessageSink\EddnMessageProcessor.csproj", "{61EB4D7A-06F2-4458-9613-97B7D8A41917}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EFD23576-FAC9-4911-9558-44B7413860A3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FCE54A54-616D-40A9-BDA3-330EB0CB1BB2}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EddnMessageProcessor.Test", "test\EddnMessageSink.Test\EddnMessageProcessor.Test.csproj", "{311F696F-31E7-4B9C-B2AC-FF12D42B4B73}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBot", "src\OrderBot\OrderBot.csproj", "{F9638C14-C46F-446C-AB53-62ABC3A73381}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{86421715-8F27-4990-A5D2-5910B4BD047C}"
 	ProjectSection(SolutionItems) = preProject
@@ -39,24 +35,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		.github\workflows\main.yml = .github\workflows\main.yml
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBot", "src\OrderBot\OrderBot.csproj", "{8B2B2425-B3A9-4D05-8BB3-4F26ED757951}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{61EB4D7A-06F2-4458-9613-97B7D8A41917}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{61EB4D7A-06F2-4458-9613-97B7D8A41917}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{61EB4D7A-06F2-4458-9613-97B7D8A41917}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{61EB4D7A-06F2-4458-9613-97B7D8A41917}.Release|Any CPU.Build.0 = Release|Any CPU
 		{311F696F-31E7-4B9C-B2AC-FF12D42B4B73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{311F696F-31E7-4B9C-B2AC-FF12D42B4B73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{311F696F-31E7-4B9C-B2AC-FF12D42B4B73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{311F696F-31E7-4B9C-B2AC-FF12D42B4B73}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F9638C14-C46F-446C-AB53-62ABC3A73381}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F9638C14-C46F-446C-AB53-62ABC3A73381}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F9638C14-C46F-446C-AB53-62ABC3A73381}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F9638C14-C46F-446C-AB53-62ABC3A73381}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DA4F0233-7D9B-4FBA-9F9D-C2C92CCA9960}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DA4F0233-7D9B-4FBA-9F9D-C2C92CCA9960}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA4F0233-7D9B-4FBA-9F9D-C2C92CCA9960}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -65,17 +55,20 @@ Global
 		{89572626-344D-4E3D-8DC1-DEEF29F510D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{89572626-344D-4E3D-8DC1-DEEF29F510D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{89572626-344D-4E3D-8DC1-DEEF29F510D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B2B2425-B3A9-4D05-8BB3-4F26ED757951}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B2B2425-B3A9-4D05-8BB3-4F26ED757951}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B2B2425-B3A9-4D05-8BB3-4F26ED757951}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B2B2425-B3A9-4D05-8BB3-4F26ED757951}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{61EB4D7A-06F2-4458-9613-97B7D8A41917} = {EFD23576-FAC9-4911-9558-44B7413860A3}
 		{311F696F-31E7-4B9C-B2AC-FF12D42B4B73} = {FCE54A54-616D-40A9-BDA3-330EB0CB1BB2}
-		{F9638C14-C46F-446C-AB53-62ABC3A73381} = {EFD23576-FAC9-4911-9558-44B7413860A3}
 		{DA4F0233-7D9B-4FBA-9F9D-C2C92CCA9960} = {EFD23576-FAC9-4911-9558-44B7413860A3}
 		{89572626-344D-4E3D-8DC1-DEEF29F510D1} = {FCE54A54-616D-40A9-BDA3-330EB0CB1BB2}
 		{454DDC7C-A0A1-44C4-9A9D-06A6BB64B6B4} = {D2502924-C9A1-46F3-A3E4-0CE730896F1A}
+		{8B2B2425-B3A9-4D05-8BB3-4F26ED757951} = {EFD23576-FAC9-4911-9558-44B7413860A3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3A3E09AF-7EA3-4A2F-A7FD-F7E48344DE0D}

@@ -1,4 +1,4 @@
-﻿namespace EddnMessageProcessor
+﻿namespace OrderBot
 {
     /// <summary>
     /// Minor factions used to filter messages processed by <see cref="OrderBotMessageProcessor"/>.

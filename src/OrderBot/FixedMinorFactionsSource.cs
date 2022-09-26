@@ -1,4 +1,4 @@
-﻿namespace EddnMessageProcessor
+﻿namespace OrderBot
 {
     /// <summary>
     /// Use a fixed set of minor factions.
