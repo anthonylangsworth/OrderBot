@@ -1,5 +1,5 @@
-﻿IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuidSystemMinorFactionGoal]') AND type in (N'U'))
-DROP TABLE [dbo].[DiscordGuidSystemMinorFactionGoal]
+﻿IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuildSystemMinorFactionGoal]') AND type in (N'U'))
+DROP TABLE [dbo].[DiscordGuildSystemMinorFactionGoal]
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[StarSystemMinorFactionState]') AND type in (N'U'))
 DROP TABLE [dbo].[StarSystemMinorFactionState]
@@ -20,13 +20,13 @@ IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[State
 DROP TABLE [dbo].[State]
 GO
 
---CREATE TABLE [dbo].[DiscordGuild](
---	[Id] [int] IdENTITY(1,1) PRIMARY KEY,
---	[Snowflake] [nvarchar](20) NOT NULL,
---)
+CREATE TABLE [dbo].[DiscordGuild](
+	[Id] [int] IdENTITY(1,1) PRIMARY KEY,
+	[Snowflake] [nvarchar](20) NOT NULL,
+)
 
---CREATE UNIQUE INDEX [IX_DiscordGuild_Snowflake] 
---ON [dbo].[DiscordGuild]([Snowflake])
+CREATE UNIQUE INDEX [IX_DiscordGuild_Snowflake] 
+ON [dbo].[DiscordGuild]([Snowflake])
 
 CREATE TABLE [dbo].[StarSystem](
 	[Id] [int] IdENTITY(1,1) PRIMARY KEY,
@@ -73,13 +73,13 @@ CREATE TABLE [dbo].[StarSystemMinorFactionState](
 CREATE INDEX [IX_StarSystemMinorFactionState_SystemMinorFaction] 
 ON [dbo].[StarSystemMinorFactionState]([StarSystemMinorFactionsId])
 
---CREATE TABLE [dbo].[DiscordGuidSystemMinorFactionGoal](
---	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
---	[DiscordGuildId] [int] FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE,
---	[StarSystemMinorFactionId] [int] FOREIGN KEY REFERENCES [StarSystemMinorFaction]([Id]) ON DELETE CASCADE,
---	[Goal] [nvarchar](100) NOT NULL
---)
+CREATE TABLE [dbo].[DiscordGuildSystemMinorFactionGoal](
+	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
+	[DiscordGuildId] [int] FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE,
+	[StarSystemMinorFactionId] [int] FOREIGN KEY REFERENCES [StarSystemMinorFaction]([Id]) ON DELETE CASCADE,
+	[Goal] [nvarchar](100) NOT NULL
+)
 
---CREATE INDEX [IX_DiscordGuIdSystemMinorFactionGoal_SystemMinorFaction] 
---ON [dbo].[DiscordGuIdSystemMinorFactionGoal]([DiscordGuildId], [StarSystemMinorFactionId])
+CREATE INDEX [IX_DiscordGuIdSystemMinorFactionGoal_SystemMinorFaction] 
+ON [dbo].[DiscordGuildSystemMinorFactionGoal]([DiscordGuildId], [StarSystemMinorFactionId])
 
