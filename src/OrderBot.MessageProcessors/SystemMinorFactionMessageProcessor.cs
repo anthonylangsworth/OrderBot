@@ -7,16 +7,16 @@ using System.Transactions;
 
 namespace OrderBot.MessageProcessors
 {
-    internal class OrderBotMessageProcessor : EddnMessageProcessor
+    internal class SystemMinorFactionMessageProcessor : EddnMessageProcessor
     {
-        public OrderBotMessageProcessor(ILogger<OrderBotMessageProcessor> logger, IDbContextFactory<OrderBotDbContext> dbContextFactory, MinorFactionsSource minorFactionsSource)
+        public SystemMinorFactionMessageProcessor(ILogger<SystemMinorFactionMessageProcessor> logger, IDbContextFactory<OrderBotDbContext> dbContextFactory, MinorFactionsSource minorFactionsSource)
         {
             Logger = logger;
             DbContextFactory = dbContextFactory;
             MinorFactionsSource = minorFactionsSource;
         }
 
-        public ILogger<OrderBotMessageProcessor> Logger { get; }
+        public ILogger<SystemMinorFactionMessageProcessor> Logger { get; }
         public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
         public MinorFactionsSource MinorFactionsSource { get; }
 

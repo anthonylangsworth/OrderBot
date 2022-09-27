@@ -1,11 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace EddnMessageSink.Test
+namespace OrderBot.MessageProcessors.Test
 {
     /// <summary>
     /// An implementation of ILogger{T} that does nothing.

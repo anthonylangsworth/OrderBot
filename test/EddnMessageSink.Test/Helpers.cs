@@ -1,13 +1,7 @@
 ﻿using OrderBot.Core;
 using OrderBot.Core.Test;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace EddnMessageProcessor.Test
+namespace OrderBot.MessageProcessors.Test
 {
     public static class Helpers
     {

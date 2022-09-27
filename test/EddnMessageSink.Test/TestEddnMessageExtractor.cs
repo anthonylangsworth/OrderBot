@@ -1,15 +1,14 @@
 ﻿using NUnit.Framework;
-using System.Globalization;
 using System.Text.Json;
 
-namespace EddnMessageProcessor.Test
+namespace OrderBot.MessageProcessors.Test
 {
     public class TestEddnMessageExtractor
     {
         [Test]
         public void Ctor()
         {
-            string[] minorFactions = new [] { "A", "B" };
+            string[] minorFactions = new[] { "A", "B" };
             EddnMessageExtractor messageProcessor = new EddnMessageExtractor(minorFactions);
 
             Assert.That(messageProcessor.MinorFactions, Is.EquivalentTo(minorFactions));
@@ -25,7 +24,7 @@ namespace EddnMessageProcessor.Test
         {
             string[] minorFactions = new[] { "A", "B" };
             EddnMessageExtractor messageProcessor = new EddnMessageExtractor(minorFactions);
-            Assert.That(() => messageProcessor.GetTimestampAndFactionInfo(message), 
+            Assert.That(() => messageProcessor.GetTimestampAndFactionInfo(message),
                 expectedException != null ? Throws.InstanceOf(expectedException) : Throws.Nothing);
         }
 
@@ -45,13 +44,11 @@ namespace EddnMessageProcessor.Test
         public void GetTimestampAndFactionInfo(string fileName, string[] minorFactions, string expectedTimestamp, string? expectedSystemName, MinorFactionInfo[] expectedMinorFactionInfo)
         {
             EddnMessageExtractor messageProcessor = new EddnMessageExtractor(minorFactions);
-            using (StreamReader streamReader = File.OpenText($"samples/{fileName}"))
-            {
-                (DateTime timestamp, string? systemName, MinorFactionInfo[] minorFactionInfo) = messageProcessor.GetTimestampAndFactionInfo(streamReader.ReadToEnd());
-                Assert.That(timestamp, Is.EqualTo(DateTime.Parse(expectedTimestamp).ToUniversalTime()));
-                Assert.That(systemName, Is.EqualTo(expectedSystemName));
-                Assert.That(minorFactionInfo, Is.EquivalentTo(expectedMinorFactionInfo));
-            }
+            using StreamReader streamReader = File.OpenText($"samples/{fileName}");
+            (DateTime timestamp, string? systemName, MinorFactionInfo[] minorFactionInfo) = messageProcessor.GetTimestampAndFactionInfo(streamReader.ReadToEnd());
+            Assert.That(timestamp, Is.EqualTo(DateTime.Parse(expectedTimestamp).ToUniversalTime()));
+            Assert.That(systemName, Is.EqualTo(expectedSystemName));
+            Assert.That(minorFactionInfo, Is.EquivalentTo(expectedMinorFactionInfo));
         }
     }
 }

@@ -7,6 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="TestEddnMessageExtractor.cs" />
+    <Compile Remove="TestEddnMessageSink.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.8" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.1" />
@@ -15,7 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\EddnMessageSink\EddnMessageProcessor.csproj" />
+    <ProjectReference Include="..\..\src\OrderBot.MessageProcessors\OrderBot.MessageProcessors.csproj" />
     <ProjectReference Include="..\OrderBot.Core.Test\OrderBot.Core.Test.csproj" />
   </ItemGroup>
 

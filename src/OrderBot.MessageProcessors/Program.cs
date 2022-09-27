@@ -24,7 +24,7 @@ IHost host = Host.CreateDefaultBuilder(args)
                                                                                                   // options => options.EnableRetryOnFailure()));
         services.AddHostedService<EddnMessageBackgroundService>();
         services.AddSingleton<MinorFactionsSource, FixedMinorFactionsSource>(sp => new FixedMinorFactionsSource(new HashSet<string>(new[] { "EDA Kunti League" })));
-        services.AddSingleton<EddnMessageProcessor, OrderBotMessageProcessor>();
+        services.AddSingleton<EddnMessageProcessor, SystemMinorFactionMessageProcessor>();
     })
     .Build();
 

@@ -5,7 +5,7 @@ using OrderBot.Core.Test;
 using System.Data;
 using System.Transactions;
 
-namespace EddnMessageProcessor.Test
+namespace OrderBot.MessageProcessors.Test
 {
     public class TestEddnMessageSink
     {

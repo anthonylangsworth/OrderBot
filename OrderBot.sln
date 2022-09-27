@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{EFD23576-FAC
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{FCE54A54-616D-40A9-BDA3-330EB0CB1BB2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EddnMessageProcessor.Test", "test\EddnMessageSink.Test\EddnMessageProcessor.Test.csproj", "{311F696F-31E7-4B9C-B2AC-FF12D42B4B73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBot.MessageProcessors.Test", "test\EddnMessageSink.Test\OrderBot.MessageProcessors.Test.csproj", "{311F696F-31E7-4B9C-B2AC-FF12D42B4B73}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{86421715-8F27-4990-A5D2-5910B4BD047C}"
 	ProjectSection(SolutionItems) = preProject
