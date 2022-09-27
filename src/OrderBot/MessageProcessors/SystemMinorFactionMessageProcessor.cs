@@ -10,16 +10,16 @@ namespace OrderBot.MessageProcessors
     internal class SystemMinorFactionMessageProcessor : EddnMessageProcessor
     {
         public SystemMinorFactionMessageProcessor(ILogger<SystemMinorFactionMessageProcessor> logger,
-            IDbContextFactory<OrderBotDbContext> dbContextFactory, MinorFactionNameFilter minorFactionNameFilter)
+            IDbContextFactory<OrderBotDbContext> dbContextFactory, MinorFactionNameFilter filter)
         {
             Logger = logger;
             DbContextFactory = dbContextFactory;
-            MinorFactionNameFilter = minorFactionNameFilter;
+            Filter = filter;
         }
 
         public ILogger<SystemMinorFactionMessageProcessor> Logger { get; }
         public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
-        public MinorFactionNameFilter MinorFactionNameFilter { get; }
+        public MinorFactionNameFilter Filter { get; }
 
         public override void Process(string message)
         {
@@ -27,7 +27,7 @@ namespace OrderBot.MessageProcessors
             using TransactionScope transactionScope = new();
 
             (DateTime timestamp, string? starSystemName, MinorFactionInfluence[] minorFactionDetails) =
-                GetTimestampAndFactionInfo(message, MinorFactionNameFilter);
+                GetTimestampAndFactionInfo(message, Filter);
             if (starSystemName != null && minorFactionDetails.Length > 0)
             {
                 //IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();
@@ -61,7 +61,8 @@ namespace OrderBot.MessageProcessors
         /// <exception cref="FormatException">
         /// One or more fields are not of the expected format.
         /// </exception>
-        internal static (DateTime, string?, MinorFactionInfluence[]) GetTimestampAndFactionInfo(string message, MinorFactionNameFilter minorFactionNameFilters)
+        internal static (DateTime, string?, MinorFactionInfluence[]) GetTimestampAndFactionInfo(string message,
+            MinorFactionNameFilter minorFactionNameFilters)
         {
             JsonDocument document = JsonDocument.Parse(message);
             DateTime timestamp = document.RootElement
@@ -94,7 +95,8 @@ namespace OrderBot.MessageProcessors
             return (timestamp, starSystemName, minorFactionInfos);
         }
 
-        internal static void Update(DateTime timestamp, string starSystemName, IEnumerable<MinorFactionInfluence> minorFactionDetails, OrderBotDbContext dbContext)
+        internal static void Update(DateTime timestamp, string starSystemName, IEnumerable<MinorFactionInfluence> minorFactionDetails,
+            OrderBotDbContext dbContext)
         {
             StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(starSystem => starSystem.Name == starSystemName);
             if (starSystem == null)
