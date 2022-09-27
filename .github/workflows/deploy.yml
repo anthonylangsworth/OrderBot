@@ -1,0 +1,44 @@
+name: "Deploy"
+
+on: [workflow_dispatch]
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    steps:  
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Docker Login
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    - name: Build and Push Image
+      run: |
+        docker build -f "src/Order/Dockerfile" . --tag ${{ secrets.REGISTRY_LOGIN_SERVER }}/orderbot:${{ github.sha }}
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/orderbot:${{ github.sha }}
+
+    - name: Deploy to Azure Container Instances
+      uses: azure/aci-deploy@v1
+      with:
+        resource-group: ${{ secrets.RESOURCE_GROUP }}
+        dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }} # Required even when not exposing ports
+        image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/orderbot:${{ github.sha }}
+        registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+        registry-username: ${{ secrets.REGISTRY_USERNAME }}
+        registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+        name: ci-orderbot
+        secure-environment-variables: OB__ConnectionString__OrderBot=${{ secrets.SQL_CONNECTION_STRING }}
+        location: australiaeast
+        memory: 1
+        cpu: 1
+        os-type: Linux
