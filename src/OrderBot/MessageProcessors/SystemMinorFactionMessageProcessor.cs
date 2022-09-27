@@ -26,7 +26,7 @@ namespace OrderBot.MessageProcessors
             using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();
 
-            (DateTime timestamp, string? starSystemName, MinorFactionInfo[] minorFactionDetails) =
+            (DateTime timestamp, string? starSystemName, MinorFactionInfluence[] minorFactionDetails) =
                 GetTimestampAndFactionInfo(message, MinorFactionNameFilter);
             if (starSystemName != null && minorFactionDetails.Length > 0)
             {
@@ -49,7 +49,7 @@ namespace OrderBot.MessageProcessors
         /// Filter out systems that do not match this filter.
         /// </param>
         /// <returns>
-        /// The message's UTC timestamp and an array of <see cref="MinorFactionInfo"/> with relevant
+        /// The message's UTC timestamp and an array of <see cref="MinorFactionInfluence"/> with relevant
         /// details about the system. If this array is empty, there are no relevant details.
         /// </returns>
         /// <exception cref="JsonException">
@@ -61,7 +61,7 @@ namespace OrderBot.MessageProcessors
         /// <exception cref="FormatException">
         /// One or more fields are not of the expected format.
         /// </exception>
-        internal static (DateTime, string?, MinorFactionInfo[]) GetTimestampAndFactionInfo(string message, MinorFactionNameFilter minorFactionNameFilters)
+        internal static (DateTime, string?, MinorFactionInfluence[]) GetTimestampAndFactionInfo(string message, MinorFactionNameFilter minorFactionNameFilters)
         {
             JsonDocument document = JsonDocument.Parse(message);
             DateTime timestamp = document.RootElement
@@ -72,7 +72,7 @@ namespace OrderBot.MessageProcessors
 
             JsonElement messageElement = document.RootElement.GetProperty("message");
             string? starSystemName = null;
-            MinorFactionInfo[] minorFactionInfos = Array.Empty<MinorFactionInfo>();
+            MinorFactionInfluence[] minorFactionInfos = Array.Empty<MinorFactionInfluence>();
             if (messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty))
             {
                 starSystemName = starSystemProperty.GetString();
@@ -82,7 +82,7 @@ namespace OrderBot.MessageProcessors
                 && factionsProperty.EnumerateArray().Any(element => minorFactionNameFilters.Matches(element.GetProperty("Name").GetString() ?? "")))
             {
                 minorFactionInfos = factionsProperty.EnumerateArray().Select(element =>
-                    new MinorFactionInfo(
+                    new MinorFactionInfluence(
                         element.GetProperty("Name").GetString() ?? "",
                         element.GetProperty("Influence").GetDouble(),
                         element.TryGetProperty("ActiveStates", out JsonElement activeStatesElement)
@@ -94,7 +94,7 @@ namespace OrderBot.MessageProcessors
             return (timestamp, starSystemName, minorFactionInfos);
         }
 
-        internal static void Update(DateTime timestamp, string starSystemName, IEnumerable<MinorFactionInfo> minorFactionDetails, OrderBotDbContext dbContext)
+        internal static void Update(DateTime timestamp, string starSystemName, IEnumerable<MinorFactionInfluence> minorFactionDetails, OrderBotDbContext dbContext)
         {
             StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(starSystem => starSystem.Name == starSystemName);
             if (starSystem == null)
@@ -109,7 +109,7 @@ namespace OrderBot.MessageProcessors
             dbContext.SaveChanges();
 
             // Add or update minor factions
-            foreach (MinorFactionInfo newMinorFactionInfo in minorFactionDetails)
+            foreach (MinorFactionInfluence newMinorFactionInfo in minorFactionDetails)
             {
                 MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(minorFaction => minorFaction.Name == newMinorFactionInfo.MinorFaction);
                 if (minorFaction == null)
