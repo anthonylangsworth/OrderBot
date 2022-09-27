@@ -1,7 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore.Storage;
 
 namespace OrderBot.Core.Test
 {
@@ -12,8 +11,8 @@ namespace OrderBot.Core.Test
         public OrderBotDbContextFactory(bool useInMemory = false)
         {
             // Share the same connection to enable transactions
-            SqlConnection = new(@"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password"); 
-            DbContextOptionsBuilder<OrderBotDbContext> optionsBuilder = new DbContextOptionsBuilder<OrderBotDbContext>();
+            SqlConnection = new(@"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password");
+            DbContextOptionsBuilder<OrderBotDbContext> optionsBuilder = new();
             DbContextOptions = (useInMemory
                 ? optionsBuilder.UseInMemoryDatabase("OrderBot").ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 : optionsBuilder.UseSqlServer(SqlConnection)).Options; // , options => options.EnableRetryOnFailure()

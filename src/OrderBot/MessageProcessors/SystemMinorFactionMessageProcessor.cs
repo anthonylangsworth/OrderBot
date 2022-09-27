@@ -9,33 +9,33 @@ namespace OrderBot.MessageProcessors
 {
     internal class SystemMinorFactionMessageProcessor : EddnMessageProcessor
     {
-        public SystemMinorFactionMessageProcessor(ILogger<SystemMinorFactionMessageProcessor> logger, IDbContextFactory<OrderBotDbContext> dbContextFactory, MinorFactionsSource minorFactionsSource)
+        public SystemMinorFactionMessageProcessor(ILogger<SystemMinorFactionMessageProcessor> logger,
+            IDbContextFactory<OrderBotDbContext> dbContextFactory, MinorFactionNameFilter minorFactionNameFilter)
         {
             Logger = logger;
             DbContextFactory = dbContextFactory;
-            MinorFactionsSource = minorFactionsSource;
+            MinorFactionNameFilter = minorFactionNameFilter;
         }
 
         public ILogger<SystemMinorFactionMessageProcessor> Logger { get; }
         public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
-        public MinorFactionsSource MinorFactionsSource { get; }
+        public MinorFactionNameFilter MinorFactionNameFilter { get; }
 
         public override void Process(string message)
         {
-            using (OrderBotDbContext dbContext = DbContextFactory.CreateDbContext())
-            using (TransactionScope transactionScope = new())
-            {
-                (DateTime timestamp, string? starSystemName, MinorFactionInfo[] minorFactionDetails) =
-                    GetTimestampAndFactionInfo(message, MinorFactionsSource.Get());
-                if (starSystemName != null && minorFactionDetails.Length > 0)
-                {
-                    //IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();
-                    //executionStrategy.Execute(() => InnerSink(timestamp, starSystemName, minorFactionDetails, dbContext));
-                    Update(timestamp, starSystemName, minorFactionDetails, dbContext);
-                    transactionScope.Complete();
+            using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
+            using TransactionScope transactionScope = new();
 
-                    Logger.LogInformation("System {system} updated", starSystemName);
-                }
+            (DateTime timestamp, string? starSystemName, MinorFactionInfo[] minorFactionDetails) =
+                GetTimestampAndFactionInfo(message, MinorFactionNameFilter);
+            if (starSystemName != null && minorFactionDetails.Length > 0)
+            {
+                //IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();
+                //executionStrategy.Execute(() => InnerSink(timestamp, starSystemName, minorFactionDetails, dbContext));
+                Update(timestamp, starSystemName, minorFactionDetails, dbContext);
+                transactionScope.Complete();
+
+                Logger.LogInformation("System {system} updated", starSystemName);
             }
         }
 
@@ -45,8 +45,8 @@ namespace OrderBot.MessageProcessors
         /// <param name="message">
         /// The message received from EDDN.
         /// </param>
-        /// <param name="minorFactions">
-        /// The minor factions to filter by.
+        /// <param name="minorFactionNameFilters">
+        /// Filter out systems that do not match this filter.
         /// </param>
         /// <returns>
         /// The message's UTC timestamp and an array of <see cref="MinorFactionInfo"/> with relevant
@@ -61,7 +61,7 @@ namespace OrderBot.MessageProcessors
         /// <exception cref="FormatException">
         /// One or more fields are not of the expected format.
         /// </exception>
-        internal static (DateTime, string?, MinorFactionInfo[]) GetTimestampAndFactionInfo(string message, IReadOnlySet<string> minorFactions)
+        internal static (DateTime, string?, MinorFactionInfo[]) GetTimestampAndFactionInfo(string message, MinorFactionNameFilter minorFactionNameFilters)
         {
             JsonDocument document = JsonDocument.Parse(message);
             DateTime timestamp = document.RootElement
@@ -72,14 +72,14 @@ namespace OrderBot.MessageProcessors
 
             JsonElement messageElement = document.RootElement.GetProperty("message");
             string? starSystemName = null;
-            MinorFactionInfo[] minorFactionInfos = new MinorFactionInfo[0];
+            MinorFactionInfo[] minorFactionInfos = Array.Empty<MinorFactionInfo>();
             if (messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty))
             {
                 starSystemName = starSystemProperty.GetString();
             }
             if (starSystemName != null
                 && messageElement.TryGetProperty("Factions", out JsonElement factionsProperty)
-                && factionsProperty.EnumerateArray().Any(element => minorFactions.Contains(element.GetProperty("Name").GetString() ?? "")))
+                && factionsProperty.EnumerateArray().Any(element => minorFactionNameFilters.Matches(element.GetProperty("Name").GetString() ?? "")))
             {
                 minorFactionInfos = factionsProperty.EnumerateArray().Select(element =>
                     new MinorFactionInfo(

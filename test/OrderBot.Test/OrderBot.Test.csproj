@@ -20,17 +20,20 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\OrderBot.MessageProcessors\OrderBot.MessageProcessors.csproj" />
-    <ProjectReference Include="..\OrderBot.Core.Test\OrderBot.Core.Test.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="samples\hausersReach.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="samples\heinleinStation.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="MessageProcessors\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\OrderBot\OrderBot.csproj" />
   </ItemGroup>
 
 </Project>

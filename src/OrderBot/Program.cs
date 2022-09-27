@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using OrderBot;
 using OrderBot.Core;
 using OrderBot.MessageProcessors;
 
@@ -23,7 +24,7 @@ IHost host = Host.CreateDefaultBuilder(args)
             dbContextOptionsBuilder => dbContextOptionsBuilder.UseSqlServer(dbConnectionString)); // "Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password"
                                                                                                   // options => options.EnableRetryOnFailure()));
         services.AddHostedService<EddnMessageBackgroundService>();
-        services.AddSingleton<MinorFactionsSource, FixedMinorFactionsSource>(sp => new FixedMinorFactionsSource(new HashSet<string>(new[] { "EDA Kunti League" })));
+        services.AddSingleton<MinorFactionNameFilter, FixedMinorFactionNameFilter>(sp => new FixedMinorFactionNameFilter(new[] { "EDA Kunti League" }));
         services.AddSingleton<EddnMessageProcessor, SystemMinorFactionMessageProcessor>();
     })
     .Build();
