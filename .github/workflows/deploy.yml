@@ -24,7 +24,7 @@ jobs:
 
     - name: Build and Push Image
       run: |
-        docker build -f "src/Order/Dockerfile" . --tag ${{ secrets.REGISTRY_LOGIN_SERVER }}/orderbot:${{ github.sha }}
+        docker build -f "src/OrderBot/Dockerfile" . --tag ${{ secrets.REGISTRY_LOGIN_SERVER }}/orderbot:${{ github.sha }}
         docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/orderbot:${{ github.sha }}
 
     - name: Deploy to Azure Container Instances
