@@ -24,15 +24,15 @@ jobs:
 
     - name: Build and Push Image
       run: |
-        docker build -f "src/OrderBot/Dockerfile" . --tag ${{ secrets.REGISTRY_LOGIN_SERVER }}/orderbot:${{ github.sha }}
-        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/orderbot:${{ github.sha }}
+        docker build -f "src/OrderBot/Dockerfile" . --tag ${{ secrets.REGISTRY_LOGIN_SERVER }}/bgsorderbot:${{ github.sha }}
+        docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/bgsorderbot:${{ github.sha }}
 
     - name: Deploy to Azure Container Instances
       uses: azure/aci-deploy@v1
       with:
         resource-group: ${{ secrets.RESOURCE_GROUP }}
         dns-name-label: ${{ secrets.RESOURCE_GROUP }}${{ github.run_number }} # Required even when not exposing ports
-        image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/orderbot:${{ github.sha }}
+        image: ${{ secrets.REGISTRY_LOGIN_SERVER }}/bgsorderbot:${{ github.sha }}
         registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
         registry-username: ${{ secrets.REGISTRY_USERNAME }}
         registry-password: ${{ secrets.REGISTRY_PASSWORD }}
