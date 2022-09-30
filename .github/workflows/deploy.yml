@@ -36,7 +36,7 @@ jobs:
         registry-login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
         registry-username: ${{ secrets.REGISTRY_USERNAME }}
         registry-password: ${{ secrets.REGISTRY_PASSWORD }}
-        name: ci-orderbot
+        name: ci-bgsorderbot
         secure-environment-variables: OB__ConnectionString__OrderBot="${{ secrets.SQL_CONNECTION_STRING }}"
         location: australiaeast
         memory: 1
