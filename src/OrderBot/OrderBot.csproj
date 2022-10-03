@@ -22,10 +22,4 @@
     <PackageReference Include="NetMQ" Version="4.0.1.9" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>
