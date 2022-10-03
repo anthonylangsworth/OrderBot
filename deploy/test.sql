@@ -18,6 +18,14 @@ left join State
 	on ssmfs.StatesId = State.Id
 go
 
+/* Basic Report */
+select ss.Name as [Star System], mf.Name as [Minor Faction], ssmf.Influence
+from StarSystem ss left join StarSystemMinorFaction ssmf
+	on ss.Id = ssmf.StarSystemId
+	left join MinorFaction mf
+	on ssmf.MinorFactionId = mf.Id
+order by ss.Name, ssmf.Influence desc
+
 /*
 select * from MinorFaction
 select * from StarSystem
