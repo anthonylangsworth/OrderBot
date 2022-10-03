@@ -6,7 +6,7 @@ using OrderBot;
 using OrderBot.Core;
 using OrderBot.MessageProcessors;
 
-const string environmentVariablePrefix = "OB__";
+const string environmentVariablePrefix = ""; // "OB__"
 const string databaseEnvironmentVariable = "OrderBot";
 
 IHost host = Host.CreateDefaultBuilder(args)

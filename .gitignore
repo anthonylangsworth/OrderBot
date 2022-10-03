@@ -245,3 +245,4 @@ ModelManifest.xml
 .fake/
 
 appsettings.json
+*.env
