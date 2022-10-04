@@ -73,13 +73,13 @@ CREATE TABLE [dbo].[StarSystemMinorFactionState](
 CREATE INDEX [IX_StarSystemMinorFactionState_SystemMinorFaction] 
 ON [dbo].[StarSystemMinorFactionState]([StarSystemMinorFactionsId])
 
-CREATE TABLE [dbo].[DiscordGuildSystemMinorFactionGoal](
+CREATE TABLE [dbo].[DiscordGuildStarSystemMinorFactionGoal](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[DiscordGuildId] [int] FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE,
 	[StarSystemMinorFactionId] [int] FOREIGN KEY REFERENCES [StarSystemMinorFaction]([Id]) ON DELETE CASCADE,
 	[Goal] [nvarchar](100) NOT NULL
 )
 
-CREATE INDEX [IX_DiscordGuIdSystemMinorFactionGoal_SystemMinorFaction] 
-ON [dbo].[DiscordGuildSystemMinorFactionGoal]([DiscordGuildId], [StarSystemMinorFactionId])
+CREATE INDEX [IX_DiscordGuildStarSystemMinorFactionGoal_SystemMinorFaction] 
+ON [dbo].[DiscordGuildStarSystemMinorFactionGoal]([DiscordGuildId], [StarSystemMinorFactionId])
 

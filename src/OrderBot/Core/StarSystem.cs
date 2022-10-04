@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OrderBot.Core
+﻿namespace OrderBot.Core
 {
-    public class StarSystem
+    public record StarSystem
     {
         public int Id { get; }
-        public string Name = null!;
-        public DateTime LastUpdated;
+        public string Name { get; init; } = null!;
+        public DateTime LastUpdated { get; set; }
     }
 }

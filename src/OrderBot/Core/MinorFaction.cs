@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OrderBot.Core
+﻿namespace OrderBot.Core
 {
-    public class MinorFaction
+    public record MinorFaction
     {
-        public int Id { get; }
-        public string Name = null!;
+        public int Id { init; get; }
+        public string Name { init; get; } = null!;
     }
 }
