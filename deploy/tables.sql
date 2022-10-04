@@ -77,7 +77,7 @@ CREATE TABLE [dbo].[DiscordGuildStarSystemMinorFactionGoal](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[DiscordGuildId] [int] FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE,
 	[StarSystemMinorFactionId] [int] FOREIGN KEY REFERENCES [StarSystemMinorFaction]([Id]) ON DELETE CASCADE,
-	[Goal] [nvarchar](100) NOT NULL
+	[Goal] [nvarchar](100)
 )
 
 CREATE INDEX [IX_DiscordGuildStarSystemMinorFactionGoal_SystemMinorFaction] 

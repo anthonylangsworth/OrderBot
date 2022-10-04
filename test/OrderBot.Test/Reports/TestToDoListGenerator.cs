@@ -35,35 +35,68 @@ namespace OrderBot.Test.Reports
         }
 
         internal ILogger<ToDoListGenerator> Logger = new NullLogger<ToDoListGenerator>();
+        internal const string Snowflake = "ABCDEF12345";
         internal const string MinorFactionName = "Purple People Eaters";
         internal OrderBotDbContextFactory DbContextFactory { get; set; }
         internal TransactionScope TransactionScope { get; set; }
         internal OrderBotDbContext DbContext { get; set; }
 
+        [Test]
         public void TestGenerate_Empty()
         {
             ToDoListGenerator generator = new(Logger, DbContextFactory);
-            ToDoList toDoList = generator.Generate(MinorFactionName);
+            ToDoList toDoList = generator.Generate(Snowflake, MinorFactionName);
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
             Assert.That(toDoList.Pro, Is.Empty);
             Assert.That(toDoList.Anti, Is.Empty);
         }
 
+        [Test]
         public void TestGenerate_SingleSystem_DefaultGoal_None()
         {
             StarSystem alphCentauri = new() { Name = "Alpha Centauri", LastUpdated = DateTime.UtcNow };
             MinorFaction purplePeopleEaters = new() { Name = MinorFactionName };
             StarSystemMinorFaction starSystemMinorFaction =
-                new() { MinorFaction = purplePeopleEaters, StarSystem = alphCentauri, Influence = 0.6 };
-            DbContext.StarSystems.Add(alphCentauri);
-            DbContext.MinorFactions.Add(purplePeopleEaters);
-            DbContext.StarSystemMinorFactions.Add(starSystemMinorFaction);
+                new()
+                {
+                    MinorFaction = purplePeopleEaters,
+                    StarSystem = alphCentauri,
+                    Influence = (ControlGoal.LowerInfluenceThreshold + ControlGoal.UpperInfluenceThreshold) / 2
+                };
+            DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
+            {
+                DiscordGuild = new DiscordGuild() { Snowflake = Snowflake },
+                StarSystemMinorFaction = starSystemMinorFaction
+            };
+            DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
             DbContext.SaveChanges();
 
             ToDoListGenerator generator = new(Logger, DbContextFactory);
-            ToDoList toDoList = generator.Generate(MinorFactionName);
+            ToDoList toDoList = generator.Generate(Snowflake, MinorFactionName);
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
             Assert.That(toDoList.Pro, Is.Empty);
+            Assert.That(toDoList.Anti, Is.Empty);
+        }
+
+        [Test]
+        public void TestGenerate_SingleSystem_DefaultGoal_Pro()
+        {
+            StarSystem alphCentauri = new() { Name = "Alpha Centauri", LastUpdated = DateTime.UtcNow };
+            MinorFaction purplePeopleEaters = new() { Name = MinorFactionName };
+            StarSystemMinorFaction starSystemMinorFaction =
+                new() { MinorFaction = purplePeopleEaters, StarSystem = alphCentauri, Influence = ControlGoal.LowerInfluenceThreshold - 0.1 };
+            DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
+            {
+                DiscordGuild = new() { Snowflake = Snowflake },
+                StarSystemMinorFaction = starSystemMinorFaction
+            };
+            DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
+            DbContext.SaveChanges();
+
+            ToDoListGenerator generator = new(Logger, DbContextFactory);
+            ToDoList toDoList = generator.Generate(Snowflake, MinorFactionName);
+            Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
+            Assert.That(toDoList.Pro, Is.EquivalentTo(new[] { new InfluenceAction() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence } }));
             Assert.That(toDoList.Anti, Is.Empty);
         }
 

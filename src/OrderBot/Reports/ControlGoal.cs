@@ -21,23 +21,23 @@ namespace OrderBot.Reports
         /// <summary>
         /// Work for this minor faction if the influence drops below this level.
         /// </summary>
-        public double LowerThreshold = 0.55;
+        public static readonly double LowerInfluenceThreshold = 0.55;
 
         /// <summary>
         /// Work against this minor faction if the influence raises above this level.
         /// </summary>
-        public double UpperThreshold = 0.65;
+        public static readonly double UpperInfluenceThreshold = 0.65;
 
         /// <inheritdoc/>
         public override void AddActions(StarSystemMinorFaction starSystemMinorFaction, ToDoList toDoList)
         {
-            if (starSystemMinorFaction.Influence < LowerThreshold)
+            if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
             {
-                toDoList.Pro.Add(new(starSystemMinorFaction.StarSystem, starSystemMinorFaction.Influence));
+                toDoList.Pro.Add(new InfluenceAction { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
             }
-            else if (starSystemMinorFaction.Influence > UpperThreshold)
+            else if (starSystemMinorFaction.Influence > UpperInfluenceThreshold)
             {
-                toDoList.Anti.Add(new(starSystemMinorFaction.StarSystem, starSystemMinorFaction.Influence));
+                toDoList.Anti.Add(new InfluenceAction { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
             }
 
             // TODO: Handle conflicts

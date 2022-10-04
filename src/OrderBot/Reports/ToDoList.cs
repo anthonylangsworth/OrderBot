@@ -1,6 +1,4 @@
-﻿using OrderBot.Core;
-
-namespace OrderBot.Reports
+﻿namespace OrderBot.Reports
 {
     /// <summary>
     /// A To Do List, containing the various work for commanders to support a minor faction.
@@ -16,8 +14,8 @@ namespace OrderBot.Reports
         public ToDoList(string minorFaction)
         {
             MinorFaction = minorFaction;
-            Pro = new List<(StarSystem starSystem, double influence)>();
-            Anti = new List<(StarSystem starSystem, double influence)>();
+            Pro = new List<InfluenceAction>();
+            Anti = new List<InfluenceAction>();
         }
 
         /// <summary>
@@ -28,11 +26,11 @@ namespace OrderBot.Reports
         /// <summary>
         /// Work for the specified minor faction.
         /// </summary>
-        public IList<(StarSystem starSystem, double influence)> Pro { get; }
+        public IList<InfluenceAction> Pro { get; }
 
         /// <summary>
         /// Work against the specified minor faction.
         /// </summary>
-        public IList<(StarSystem starSystem, double influence)> Anti { get; }
+        public IList<InfluenceAction> Anti { get; }
     }
 }

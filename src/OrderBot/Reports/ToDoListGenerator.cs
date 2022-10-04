@@ -17,7 +17,7 @@ namespace OrderBot.Reports
         public ILogger<ToDoListGenerator> Logger { get; }
         public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
 
-        public ToDoList Generate(string minorFactionName)
+        public ToDoList Generate(string snowflake, string minorFactionName)
         {
             ToDoList toDoList = new(minorFactionName);
 
@@ -25,10 +25,12 @@ namespace OrderBot.Reports
             using TransactionScope transactionScope = new();
 
             IQueryable<DiscordGuildStarSystemMinorFactionGoal> dgssmfgs =
-                dbContext.DiscordGuildStarSystemMinorFactionGoals.Include(dgssmf => dgssmf.StarSystemMinorFaction)
+                dbContext.DiscordGuildStarSystemMinorFactionGoals.Include(dgssmf => dgssmf.DiscordGuild)
+                                                                 .Include(dgssmf => dgssmf.StarSystemMinorFaction)
                                                                  .Include(dgssmf => dgssmf.StarSystemMinorFaction.MinorFaction)
                                                                  .Include(dgssmf => dgssmf.StarSystemMinorFaction.StarSystem)
-                                                                 .Where(dgssmf => dgssmf.StarSystemMinorFaction.MinorFaction.Name == minorFactionName);
+                                                                 .Where(dgssmf => dgssmf.DiscordGuild.Snowflake == snowflake
+                                                                               && dgssmf.StarSystemMinorFaction.MinorFaction.Name == minorFactionName);
 
             // TODO: Consider Aggregate()
 
@@ -44,7 +46,8 @@ namespace OrderBot.Reports
                     Logger.LogError("Skipping unknown goal '{goal}' for star system '{starSystem}' for minor faction '{minorFaction}'",
                         dgssmfg.Goal, dgssmfg.StarSystemMinorFaction.StarSystem.Name, dgssmfg.StarSystemMinorFaction.MinorFaction.Name);
                 }
-                else
+
+                if (goal != null)
                 {
                     goal.AddActions(dgssmfg.StarSystemMinorFaction, toDoList);
                 }
