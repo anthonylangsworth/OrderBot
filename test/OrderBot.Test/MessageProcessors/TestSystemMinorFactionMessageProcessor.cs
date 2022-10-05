@@ -3,9 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using OrderBot.Core;
-using OrderBot.Core.Test;
 using OrderBot.MessageProcessors;
-using OrderBot.MessageProcessors.Test;
 using System.Transactions;
 
 namespace OrderBot.Test.MessageProcessors

@@ -1,8 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using OrderBot.Core;
 
-namespace OrderBot.Core.Test
+namespace OrderBot.Test
 {
     public class OrderBotDbContextFactory : IDbContextFactory<OrderBotDbContext>, IDisposable
     {

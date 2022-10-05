@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using OrderBot.Core;
-using OrderBot.Core.Test;
 using OrderBot.Reports;
 using System.Transactions;
 
@@ -42,7 +41,7 @@ namespace OrderBot.Test.Reports
         internal OrderBotDbContext DbContext { get; set; }
 
         [Test]
-        public void TestGenerate_Empty()
+        public void Generate_Empty()
         {
             ToDoListGenerator generator = new(Logger, DbContextFactory);
             ToDoList toDoList = generator.Generate(Snowflake, MinorFactionName);
@@ -52,7 +51,7 @@ namespace OrderBot.Test.Reports
         }
 
         [Test]
-        public void TestGenerate_SingleSystem_DefaultGoal_None()
+        public void Generate_SingleSystem_DefaultGoal_None()
         {
             StarSystem alphCentauri = new() { Name = "Alpha Centauri", LastUpdated = DateTime.UtcNow };
             MinorFaction purplePeopleEaters = new() { Name = MinorFactionName };
@@ -79,7 +78,7 @@ namespace OrderBot.Test.Reports
         }
 
         [Test]
-        public void TestGenerate_SingleSystem_DefaultGoal_Pro()
+        public void Generate_SingleSystem_DefaultGoal_Pro()
         {
             StarSystem alphCentauri = new() { Name = "Alpha Centauri", LastUpdated = DateTime.UtcNow };
             MinorFaction purplePeopleEaters = new() { Name = MinorFactionName };
@@ -96,7 +95,9 @@ namespace OrderBot.Test.Reports
             ToDoListGenerator generator = new(Logger, DbContextFactory);
             ToDoList toDoList = generator.Generate(Snowflake, MinorFactionName);
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
-            Assert.That(toDoList.Pro, Is.EquivalentTo(new[] { new InfluenceAction() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence } }));
+            Assert.That(toDoList.Pro,
+                Is.EquivalentTo(new[] { new InfluenceInitiatedAction() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence } })
+                  .Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
             Assert.That(toDoList.Anti, Is.Empty);
         }
 

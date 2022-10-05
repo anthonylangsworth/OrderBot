@@ -33,11 +33,11 @@ namespace OrderBot.Reports
         {
             if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
             {
-                toDoList.Pro.Add(new InfluenceAction { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                toDoList.Pro.Add(new InfluenceInitiatedAction { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
             }
             else if (starSystemMinorFaction.Influence > UpperInfluenceThreshold)
             {
-                toDoList.Anti.Add(new InfluenceAction { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                toDoList.Anti.Add(new InfluenceInitiatedAction { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
             }
 
             // TODO: Handle conflicts

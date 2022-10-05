@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
 
-namespace OrderBot.Core.Test
+namespace OrderBot.Test
 {
     /// <summary>
     /// SQL Server's datetime type has a resolution to ms. The .Net DateTime type
@@ -14,7 +9,7 @@ namespace OrderBot.Core.Test
     /// </summary>
     public class DbDateTimeComparer : IEqualityComparer<DateTime>
     {
-        private static DbDateTimeComparer _instance = new DbDateTimeComparer();
+        private static readonly DbDateTimeComparer _instance = new DbDateTimeComparer();
 
         public bool Equals(DateTime x, DateTime y)
         {

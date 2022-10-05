@@ -1,7 +1,7 @@
 ﻿using OrderBot.Core;
-using OrderBot.Core.Test;
+using OrderBot.MessageProcessors;
 
-namespace OrderBot.MessageProcessors.Test
+namespace OrderBot.Test.MessageProcessors
 {
     public static class Helpers
     {
