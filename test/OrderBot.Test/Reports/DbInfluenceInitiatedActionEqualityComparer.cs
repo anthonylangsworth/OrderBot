@@ -3,6 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace OrderBot.Test.Reports
 {
+    /// <summary>
+    /// Compare two <see cref="InfluenceInitiatedAction"/>s, ignoring database-induced 
+    /// differences with <see cref="DateTime"/>s.
+    /// </summary>
     internal class DbInfluenceInitiatedActionEqualityComparer : IEqualityComparer<InfluenceInitiatedAction>
     {
         public static readonly DbInfluenceInitiatedActionEqualityComparer Instance = new();

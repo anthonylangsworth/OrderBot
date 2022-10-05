@@ -9,7 +9,15 @@ namespace OrderBot.Test
     /// </summary>
     public class DbDateTimeComparer : IEqualityComparer<DateTime>
     {
-        private static readonly DbDateTimeComparer _instance = new DbDateTimeComparer();
+        public static readonly DbDateTimeComparer Instance = new();
+
+        /// <summary>
+        /// Prevent instantiation
+        /// </summary>
+        protected DbDateTimeComparer()
+        {
+            // Do nothing
+        }
 
         public bool Equals(DateTime x, DateTime y)
         {
@@ -20,7 +28,5 @@ namespace OrderBot.Test
         {
             throw new NotImplementedException();
         }
-
-        public static DbDateTimeComparer Instance => _instance;
     }
 }
