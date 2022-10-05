@@ -7,13 +7,13 @@ namespace OrderBot.Reports
         /// <summary>
         /// Singleton.
         /// </summary>
-        public static ControlGoal Instance = new();
+        public static readonly ControlGoal Instance = new();
 
         /// <summary>
-        /// Create a new <see cref="ControlGoal"/>.
+        /// Prevent instantiation.
         /// </summary>
         private ControlGoal()
-            : base("Control", "Be the highest influence minor faction. Keep influence between 50% and 60%.")
+            : base("Control", $"Be the minor faction with the highest influence. Keep influence between {Math.Round(LowerInfluenceThreshold * 100, 0)}% and {Math.Round(UpperInfluenceThreshold * 100, 0)}%.")
         {
             // Do nothing
         }
@@ -21,12 +21,12 @@ namespace OrderBot.Reports
         /// <summary>
         /// Work for this minor faction if the influence drops below this level.
         /// </summary>
-        public static readonly double LowerInfluenceThreshold = 0.55;
+        public static double LowerInfluenceThreshold => 0.55;
 
         /// <summary>
         /// Work against this minor faction if the influence raises above this level.
         /// </summary>
-        public static readonly double UpperInfluenceThreshold = 0.65;
+        public static double UpperInfluenceThreshold => 0.65;
 
         /// <inheritdoc/>
         public override void AddActions(StarSystemMinorFaction starSystemMinorFaction, ToDoList toDoList)

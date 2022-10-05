@@ -3,7 +3,7 @@
     /// <summary>
     /// A To Do List, containing the various work for commanders to support a minor faction.
     /// </summary>
-    internal class ToDoList
+    internal record ToDoList
     {
         /// <summary>
         /// Create a new <see cref="ToDoList"/>.

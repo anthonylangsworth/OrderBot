@@ -102,7 +102,6 @@ namespace OrderBot.Test.Reports
             Assert.That(toDoList.Anti, Is.Empty);
         }
 
-
         [Test]
         public void Generate_SingleSystem_DefaultGoal_Anti()
         {
@@ -181,20 +180,5 @@ namespace OrderBot.Test.Reports
                 Is.EquivalentTo(new[] { new InfluenceInitiatedAction() { StarSystem = maia, Influence = purplePeopleEastersMaia.StarSystemMinorFaction.Influence } })
                   .Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
         }
-
-        //[Test]
-        //public void TestGenerate_Complex()
-        //{
-        //    DbContext.StarSystems.Add(new StarSystem() { Name = "Alpha Centauri", LastUpdated = DateTime.UtcNow });
-        //    DbContext.StarSystems.Add(new StarSystem() { Name = "Sol", LastUpdated = DateTime.UtcNow });
-        //    DbContext.SaveChanges();
-
-        //    DbContext.MinorFactions.Add(new MinorFaction() { Name = MinorFactionName });
-        //    DbContext.MinorFactions.Add(new MinorFaction() { Name = "Puff the Magic Dragons" });
-
-        //    ToDoListGenerator generator = new(logger, dbContextFactory);
-        //    ToDoList toDoList = generator.Generate("EDA Kunti League");
-        //    Assert.That(toDoList.Pro, Is.Not.Null);
-        //}
     }
 }
