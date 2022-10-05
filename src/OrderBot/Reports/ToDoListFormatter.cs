@@ -22,13 +22,15 @@ Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to EDA owned sta
 {electionList}
 ";
 
-        internal static string GetInfluenceList(IEnumerable<InfluenceInitiatedAction> actions)
+        internal static string GetInfluenceList(IEnumerable<InfluenceInitiatedAction> actions, bool ascending)
         {
             string result;
             if (actions.Any())
             {
-                result = string.Join('\n', actions.OrderByDescending(action => action.Influence)
-                                                  .Select(action => $"- {action.StarSystem.Name} - {Math.Round(action.Influence * 100, 0)}%"));
+                IEnumerable<InfluenceInitiatedAction> sortedActions =
+                    ascending ? actions.OrderBy(action => action.Influence) : actions.OrderByDescending(action => action.Influence);
+                result = string.Join(Environment.NewLine,
+                    sortedActions.Select(action => $"- {action.StarSystem.Name} - {Math.Round(action.Influence * 100, 0)}%"));
             }
             else
             {
@@ -39,7 +41,7 @@ Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to EDA owned sta
 
         public string Format(ToDoList toDoList)
         {
-            return GetOutput(toDoList.MinorFaction, GetInfluenceList(toDoList.Pro), GetInfluenceList(toDoList.Anti), "(None)", "(None)", "(None)");
+            return GetOutput(toDoList.MinorFaction, GetInfluenceList(toDoList.Pro, true), GetInfluenceList(toDoList.Anti, false), "(None)", "(None)", "(None)");
         }
     }
 }
