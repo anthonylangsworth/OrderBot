@@ -13,7 +13,7 @@ namespace OrderBot.Test.Reports
             Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
-Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to EDA owned stations:
+Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to *The Dark Wheel* controlled stations:
 (None)
 
 ***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to avoid an unwanted expansion.
@@ -42,7 +42,7 @@ Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to EDA owned sta
             Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
-Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to EDA owned stations:
+Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to *The Dark Wheel* controlled stations:
 - Shinrarta Dezhra - 10%
 - Tau Ceti - 20%
 

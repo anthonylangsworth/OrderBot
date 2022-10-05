@@ -5,7 +5,7 @@
         internal string GetOutput(string minorFactionName, string proList, string antiList, string otherList, string warList, string electionList) =>
 $@"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-{minorFactionName}** support required* - Work for EDA in these systems.
-Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to EDA owned stations:
+Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to *{minorFactionName}* controlled stations:
 {proList}
 
 ***Anti-{minorFactionName}** support required* - Work ONLY for the other factions in the listed systems to bring *{minorFactionName}*'s INF back to manageable levels and to avoid an unwanted expansion.
