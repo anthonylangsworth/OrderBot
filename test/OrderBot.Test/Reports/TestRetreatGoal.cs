@@ -31,10 +31,10 @@ namespace OrderBot.Test.Reports
             StarSystem polaris = new() { Name = "Polaris", LastUpdated = DateTime.UtcNow };
 
             return new[] {
-                new TestCaseData(polaris, 0.0, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.0 } }),
-                new TestCaseData(polaris, 0.04, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.04 } }),
-                new TestCaseData(polaris, 0.05, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.05 } }),
-                new TestCaseData(polaris, 0.06, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.06 } })
+                new TestCaseData(polaris, 0.00, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.0 } }).SetName("AddActions 00"),
+                new TestCaseData(polaris, 0.04, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.04 } }).SetName("AddActions 04"),
+                new TestCaseData(polaris, 0.05, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.05 } }).SetName("AddActions 05"),
+                new TestCaseData(polaris, 0.06, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.06 } }).SetName("AddActions 06")
             };
         }
     }

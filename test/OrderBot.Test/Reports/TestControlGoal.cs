@@ -32,12 +32,12 @@ namespace OrderBot.Test.Reports
             StarSystem polaris = new StarSystem() { Name = "Polaris", LastUpdated = DateTime.UtcNow };
 
             return new[] {
-                new TestCaseData(polaris, ControlGoal.LowerInfluenceThreshold - 0.01, new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 } }, Array.Empty<InfluenceInitiatedAction>()),
-                new TestCaseData(polaris, ControlGoal.LowerInfluenceThreshold, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()),
-                new TestCaseData(polaris, ControlGoal.LowerInfluenceThreshold + 0.01, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()),
-                new TestCaseData(polaris, ControlGoal.UpperInfluenceThreshold - 0.01, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()),
-                new TestCaseData(polaris, ControlGoal.UpperInfluenceThreshold, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()),
-                new TestCaseData(polaris, ControlGoal.UpperInfluenceThreshold + 0.01, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = ControlGoal.UpperInfluenceThreshold + 0.01} }),
+                new TestCaseData(polaris, ControlGoal.LowerInfluenceThreshold - 0.01, new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 } }, Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Below Lower"),
+                new TestCaseData(polaris, ControlGoal.LowerInfluenceThreshold, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Lower"),
+                new TestCaseData(polaris, ControlGoal.LowerInfluenceThreshold + 0.01, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Above lower"),
+                new TestCaseData(polaris, ControlGoal.UpperInfluenceThreshold - 0.01, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Below Upper"),
+                new TestCaseData(polaris, ControlGoal.UpperInfluenceThreshold, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Upper"),
+                new TestCaseData(polaris, ControlGoal.UpperInfluenceThreshold + 0.01, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = ControlGoal.UpperInfluenceThreshold + 0.01} }).SetName("AddActions Above Upper"),
             };
         }
     }
