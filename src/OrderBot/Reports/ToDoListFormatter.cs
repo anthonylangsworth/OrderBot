@@ -1,0 +1,45 @@
+﻿namespace OrderBot.Reports
+{
+    internal class ToDoListFormatter
+    {
+        internal string GetOutput(string minorFactionName, string proList, string antiList, string otherList, string warList, string electionList) =>
+$@"---------------------------------------------------------------------------------------------------------------------------------
+***Pro-{minorFactionName}** support required* - Work for EDA in these systems.
+Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to EDA owned stations:
+{proList}
+
+***Anti-{minorFactionName}** support required* - Work ONLY for the other factions in the listed systems to bring *{minorFactionName}*'s INF back to manageable levels and to avoid an unwanted expansion.
+{antiList}
+
+***Urgent Pro-Non-Native/Coalition Faction** support required* - Work for ONLY the listed factions in the listed systems to avoid a retreat or to disrupt system interference.
+{otherList}
+
+---------------------------------------------------------------------------------------------------------------------------------
+**War Systems**
+{warList}
+
+**Election Systems**
+{electionList}
+";
+
+        internal static string GetInfluenceList(IEnumerable<InfluenceInitiatedAction> actions)
+        {
+            string result;
+            if (actions.Any())
+            {
+                result = string.Join('\n', actions.OrderByDescending(action => action.Influence)
+                                                  .Select(action => $"- {action.StarSystem.Name} - {Math.Round(action.Influence * 100, 0)}%"));
+            }
+            else
+            {
+                result = "(None)";
+            }
+            return result;
+        }
+
+        public string Format(ToDoList toDoList)
+        {
+            return GetOutput(toDoList.MinorFaction, GetInfluenceList(toDoList.Pro), GetInfluenceList(toDoList.Anti), "(None)", "(None)", "(None)");
+        }
+    }
+}
