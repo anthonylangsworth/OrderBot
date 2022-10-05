@@ -12,7 +12,8 @@
 
         public static IDictionary<string, Goal> Map = new Dictionary<string, Goal>
         {
-            { ControlGoal.Instance.Name, ControlGoal.Instance }
+            { ControlGoal.Instance.Name, ControlGoal.Instance },
+            { RetreatGoal.Instance.Name, RetreatGoal.Instance }
         };
     }
 }
