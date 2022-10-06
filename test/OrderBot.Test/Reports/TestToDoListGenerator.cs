@@ -27,7 +27,7 @@ namespace OrderBot.Test.Reports
         }
 
         internal ILogger<ToDoListGenerator> Logger = new NullLogger<ToDoListGenerator>();
-        internal const string Snowflake = "ABCDEF12345";
+        internal const string GuildId = "ABCDEF12345";
         internal const string MinorFactionName = "Purple People Eaters";
         internal OrderBotDbContextFactory DbContextFactory { get; set; } = null!;
         internal TransactionScope TransactionScope { get; set; } = null!;
@@ -45,7 +45,7 @@ namespace OrderBot.Test.Reports
         public void Generate_Empty()
         {
             ToDoListGenerator generator = new(Logger, DbContextFactory);
-            ToDoList toDoList = generator.Generate(Snowflake, MinorFactionName);
+            ToDoList toDoList = generator.Generate(GuildId, MinorFactionName);
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
             Assert.That(toDoList.Pro, Is.Empty);
             Assert.That(toDoList.Anti, Is.Empty);
@@ -65,14 +65,14 @@ namespace OrderBot.Test.Reports
                 };
             DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
             {
-                DiscordGuild = new DiscordGuild() { Snowflake = Snowflake },
+                DiscordGuild = new DiscordGuild() { GuildId = GuildId },
                 StarSystemMinorFaction = starSystemMinorFaction
             };
             DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
             DbContext.SaveChanges();
 
             ToDoListGenerator generator = new(Logger, DbContextFactory);
-            ToDoList toDoList = generator.Generate(Snowflake, MinorFactionName);
+            ToDoList toDoList = generator.Generate(GuildId, MinorFactionName);
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
             Assert.That(toDoList.Pro, Is.Empty);
             Assert.That(toDoList.Anti, Is.Empty);
@@ -87,14 +87,14 @@ namespace OrderBot.Test.Reports
                 new() { MinorFaction = purplePeopleEaters, StarSystem = alphCentauri, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 };
             DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
             {
-                DiscordGuild = new() { Snowflake = Snowflake },
+                DiscordGuild = new() { GuildId = GuildId },
                 StarSystemMinorFaction = starSystemMinorFaction
             };
             DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
             DbContext.SaveChanges();
 
             ToDoListGenerator generator = new(Logger, DbContextFactory);
-            ToDoList toDoList = generator.Generate(Snowflake, MinorFactionName);
+            ToDoList toDoList = generator.Generate(GuildId, MinorFactionName);
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
             Assert.That(toDoList.Pro,
                 Is.EquivalentTo(new[] { new InfluenceInitiatedAction() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence } })
@@ -111,14 +111,14 @@ namespace OrderBot.Test.Reports
                 new() { MinorFaction = purplePeopleEaters, StarSystem = alphCentauri, Influence = ControlGoal.UpperInfluenceThreshold + 0.01 };
             DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
             {
-                DiscordGuild = new() { Snowflake = Snowflake },
+                DiscordGuild = new() { GuildId = GuildId },
                 StarSystemMinorFaction = starSystemMinorFaction
             };
             DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
             DbContext.SaveChanges();
 
             ToDoListGenerator generator = new(Logger, DbContextFactory);
-            ToDoList toDoList = generator.Generate(Snowflake, MinorFactionName);
+            ToDoList toDoList = generator.Generate(GuildId, MinorFactionName);
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
             Assert.That(toDoList.Pro, Is.Empty);
             Assert.That(toDoList.Anti,
@@ -136,14 +136,14 @@ namespace OrderBot.Test.Reports
                 new() { MinorFaction = purplePeopleEaters, StarSystem = alphCentauri, Influence = 0 };
             DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
             {
-                DiscordGuild = new DiscordGuild() { Snowflake = Snowflake },
+                DiscordGuild = new DiscordGuild() { GuildId = GuildId },
                 StarSystemMinorFaction = starSystemMinorFaction
             };
             DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
             DbContext.SaveChanges();
 
             ToDoListGenerator generator = new(Logger, DbContextFactory);
-            ToDoList toDoList = generator.Generate(Snowflake, MinorFactionName);
+            ToDoList toDoList = generator.Generate(GuildId, MinorFactionName);
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
             Assert.That(toDoList.Pro, Is.Empty);
             Assert.That(toDoList.Anti, Is.Empty);
@@ -155,7 +155,7 @@ namespace OrderBot.Test.Reports
             StarSystem alphCentauri = new() { Name = "Alpha Centauri", LastUpdated = DateTime.UtcNow };
             StarSystem maia = new() { Name = "Maia", LastUpdated = DateTime.UtcNow };
             MinorFaction purplePeopleEaters = new() { Name = MinorFactionName };
-            DiscordGuild discordGuild = new() { Snowflake = Snowflake };
+            DiscordGuild discordGuild = new() { GuildId = GuildId };
             DiscordGuildStarSystemMinorFactionGoal purplePeopleEastersAlphaCentauri = new()
             {
                 DiscordGuild = discordGuild,
@@ -171,7 +171,7 @@ namespace OrderBot.Test.Reports
             DbContext.SaveChanges();
 
             ToDoListGenerator generator = new(Logger, DbContextFactory);
-            ToDoList toDoList = generator.Generate(Snowflake, MinorFactionName);
+            ToDoList toDoList = generator.Generate(GuildId, MinorFactionName);
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
             Assert.That(toDoList.Pro,
                 Is.EquivalentTo(new[] { new InfluenceInitiatedAction() { StarSystem = alphCentauri, Influence = purplePeopleEastersAlphaCentauri.StarSystemMinorFaction.Influence } })

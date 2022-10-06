@@ -89,7 +89,7 @@ namespace OrderBot.Core
                 entity.Property(e => e.Id)
                       .UseIdentityColumn();
 
-                entity.Property(e => e.Snowflake)
+                entity.Property(e => e.GuildId)
                       .IsRequired();
             });
 

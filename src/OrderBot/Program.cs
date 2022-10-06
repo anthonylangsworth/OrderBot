@@ -1,9 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Discord.Interactions;
+using Discord.WebSocket;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OrderBot;
 using OrderBot.Core;
+using OrderBot.Discord;
 using OrderBot.MessageProcessors;
 
 const string environmentVariablePrefix = ""; // "OB__"
@@ -13,6 +16,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureHostConfiguration(configurationBuilder => configurationBuilder.AddEnvironmentVariables(environmentVariablePrefix))
     .ConfigureServices((hostContext, services) =>
     {
+        // Database Connection
         string dbConnectionString = hostContext.Configuration.GetConnectionString(databaseEnvironmentVariable);
         if (string.IsNullOrEmpty(dbConnectionString))
         {
@@ -23,9 +27,20 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddDbContextFactory<OrderBotDbContext>(
             dbContextOptionsBuilder => dbContextOptionsBuilder.UseSqlServer(dbConnectionString)); // "Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password"
                                                                                                   // options => options.EnableRetryOnFailure()));
-        services.AddHostedService<EddnMessageBackgroundService>();
+
+        // EDDN Message Processor
         services.AddSingleton<MinorFactionNameFilter, FixedMinorFactionNameFilter>(sp => new FixedMinorFactionNameFilter(new[] { "EDA Kunti League" }));
         services.AddSingleton<EddnMessageProcessor, SystemMinorFactionMessageProcessor>();
+        services.AddHostedService<EddnMessageBackgroundService>();
+
+        // Discord Bot
+        services.AddSingleton(sp => new DiscordSocketClient(new DiscordSocketConfig()
+        {
+            GatewayIntents = BotBackgroundService.Intents
+        }));
+        services.AddSingleton<InteractionService>();
+        services.AddHostedService<BotBackgroundService>();
+        ;
     })
     .Build();
 

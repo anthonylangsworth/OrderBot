@@ -17,7 +17,7 @@ namespace OrderBot.Reports
         public ILogger<ToDoListGenerator> Logger { get; }
         public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
 
-        public ToDoList Generate(string snowflake, string minorFactionName)
+        public ToDoList Generate(string guildId, string minorFactionName)
         {
             ToDoList toDoList = new(minorFactionName);
 
@@ -29,7 +29,7 @@ namespace OrderBot.Reports
                                                                  .Include(dgssmf => dgssmf.StarSystemMinorFaction)
                                                                  .Include(dgssmf => dgssmf.StarSystemMinorFaction.MinorFaction)
                                                                  .Include(dgssmf => dgssmf.StarSystemMinorFaction.StarSystem)
-                                                                 .Where(dgssmf => dgssmf.DiscordGuild.Snowflake == snowflake
+                                                                 .Where(dgssmf => dgssmf.DiscordGuild.GuildId == guildId
                                                                                && dgssmf.StarSystemMinorFaction.MinorFaction.Name == minorFactionName);
 
             // TODO: Consider Aggregate()

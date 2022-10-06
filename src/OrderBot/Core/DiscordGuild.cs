@@ -3,6 +3,6 @@
     public record DiscordGuild
     {
         public int Id { init; get; }
-        public string Snowflake { init; get; } = null!;
+        public string GuildId { init; get; } = null!;
     }
 }

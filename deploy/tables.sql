@@ -22,11 +22,11 @@ GO
 
 CREATE TABLE [dbo].[DiscordGuild](
 	[Id] [int] IdENTITY(1,1) PRIMARY KEY,
-	[Snowflake] [nvarchar](20) NOT NULL,
+	[GuildId] [varchar](20) NOT NULL,
 )
 
-CREATE UNIQUE INDEX [IX_DiscordGuild_Snowflake] 
-ON [dbo].[DiscordGuild]([Snowflake])
+CREATE UNIQUE INDEX [IX_DiscordGuild_GuildId] 
+ON [dbo].[DiscordGuild]([GuildId])
 
 CREATE TABLE [dbo].[StarSystem](
 	[Id] [int] IdENTITY(1,1) PRIMARY KEY,
