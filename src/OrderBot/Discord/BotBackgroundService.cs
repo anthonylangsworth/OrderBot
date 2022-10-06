@@ -73,38 +73,44 @@ namespace OrderBot.Discord
             Client.Log += LogAsync;
             InteractionService.Log += LogAsync;
 
-            IEnumerable<ModuleInfo> modules = InteractionService.AddModulesAsync(Assembly.GetExecutingAssembly(), ServiceProvider).GetAwaiter().GetResult();
             Client.SlashCommandExecuted += Client_SlashCommandExecutedAsync;
-            Client.GuildAvailable += Client_GuildAvailableAsync;
+            Client.Ready += Client_ReadyAsync;
 
             await Client.LoginAsync(TokenType.Bot, ApiKey);
             await Client.StartAsync();
-            await InteractionService.RegisterCommandsGloballyAsync();
 
             Logger.LogInformation("Started");
 
             await Task.Delay(Timeout.Infinite, stoppingToken);
         }
 
+        private async Task Client_ReadyAsync()
+        {
+            foreach (SocketGuild guild in Client.Guilds)
+            {
+                await InteractionService.AddModulesAsync(Assembly.GetExecutingAssembly(), ServiceProvider);
+                await InteractionService.RegisterCommandsToGuildAsync(guild.Id);
+
+                string guildId = guild.Id.ToString();
+                AddDiscordGuild(ContextFactory, guildId);
+
+                Logger.LogInformation("Guild {name} ({guildId}) added and commands registered", guild.Name, guildId);
+            }
+        }
+
         private Task LogAsync(LogMessage message)
         {
 #pragma warning disable CA2254
             // TODO: Convert message.Severity
-            Logger.LogInformation(message.Message);
+            Logger.LogInformation(message.ToString());
 #pragma warning restore CA2254
-            return Task.CompletedTask;
-        }
-
-        private Task Client_GuildAvailableAsync(SocketGuild guild)
-        {
-            AddDiscordGuild(ContextFactory, guild.Id.ToString());
             return Task.CompletedTask;
         }
 
         private async Task Client_SlashCommandExecutedAsync(SocketSlashCommand socketSlashCommand)
         {
             await InteractionService.ExecuteCommandAsync(
-                new InteractionContext(Client, socketSlashCommand),
+                new SocketInteractionContext(Client, socketSlashCommand),
                 ServiceProvider);
         }
 

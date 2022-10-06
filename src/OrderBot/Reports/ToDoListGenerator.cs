@@ -5,7 +5,7 @@ using System.Transactions;
 
 namespace OrderBot.Reports
 {
-    internal class ToDoListGenerator
+    public class ToDoListGenerator
     {
         public ToDoListGenerator(ILogger<ToDoListGenerator> logger,
             IDbContextFactory<OrderBotDbContext> dbContextFactory)

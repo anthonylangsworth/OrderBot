@@ -1,6 +1,6 @@
 ﻿namespace OrderBot.Reports
 {
-    internal class ToDoListFormatter
+    public class ToDoListFormatter
     {
         internal string GetOutput(string minorFactionName, string proList, string antiList, string otherList, string warList, string electionList) =>
 $@"---------------------------------------------------------------------------------------------------------------------------------

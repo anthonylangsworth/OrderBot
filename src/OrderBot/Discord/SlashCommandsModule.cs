@@ -9,7 +9,7 @@ namespace OrderBot.Discord
 {
     public class SlashCommandsModule : InteractionModuleBase<InteractionContext>
     {
-        internal SlashCommandsModule(IDbContextFactory<OrderBotDbContext> contextFactory, ToDoListGenerator generator, ToDoListFormatter formatter)
+        public SlashCommandsModule(IDbContextFactory<OrderBotDbContext> contextFactory, ToDoListGenerator generator, ToDoListFormatter formatter)
         {
             ContextFactory = contextFactory;
             Generator = generator;
@@ -17,15 +17,16 @@ namespace OrderBot.Discord
         }
 
         public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
-        internal ToDoListGenerator Generator { get; }
-        internal ToDoListFormatter Formatter { get; }
+        public ToDoListGenerator Generator { get; }
+        public ToDoListFormatter Formatter { get; }
 
         // public async Task
 
         [SlashCommand("todo-list", "List the work required for supporting a minor faction")]
         [RequireUserPermission(GuildPermission.ManageRoles | GuildPermission.ManageChannels)]
-        public async Task ToDoList([Summary("True if the data is quoted, allowing easy coping, false (default) if formatted")] bool raw = false)
+        public async Task ToDoList()
         {
+            // [Summary("raw", "True if the data is quoted, allowing easy coping, false (default) if formatted")] bool raw = false
             await Context.Interaction.DeferAsync(ephemeral: true);
 
             try
@@ -46,11 +47,6 @@ namespace OrderBot.Discord
                 await Context.Interaction.ModifyOriginalResponseAsync(messageProperties => messageProperties.Content = "I have failed.");
                 throw;
             }
-        }
-
-        public static string GetDisplayName(IGuildUser user)
-        {
-            return user.Nickname ?? user.Username;
         }
     }
 }
