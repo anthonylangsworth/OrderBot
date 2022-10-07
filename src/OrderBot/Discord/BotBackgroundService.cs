@@ -76,6 +76,8 @@ namespace OrderBot.Discord
             Client.SlashCommandExecuted += Client_SlashCommandExecutedAsync;
             Client.Ready += Client_ReadyAsync;
 
+            await InteractionService.AddModulesAsync(Assembly.GetExecutingAssembly(), ServiceProvider);
+
             await Client.LoginAsync(TokenType.Bot, ApiKey);
             await Client.StartAsync();
 
@@ -88,7 +90,6 @@ namespace OrderBot.Discord
         {
             foreach (SocketGuild guild in Client.Guilds)
             {
-                await InteractionService.AddModulesAsync(Assembly.GetExecutingAssembly(), ServiceProvider);
                 await InteractionService.RegisterCommandsToGuildAsync(guild.Id);
 
                 string guildId = guild.Id.ToString();
@@ -109,9 +110,17 @@ namespace OrderBot.Discord
 
         private async Task Client_SlashCommandExecutedAsync(SocketSlashCommand socketSlashCommand)
         {
-            await InteractionService.ExecuteCommandAsync(
+            IResult result = await InteractionService.ExecuteCommandAsync(
                 new SocketInteractionContext(Client, socketSlashCommand),
                 ServiceProvider);
+            if (!result.IsSuccess)
+            {
+                Logger.LogError("Command failed: {message}", result.Error.ToString());
+            }
+            else
+            {
+                Logger.LogInformation("Command succeeded: {message}", socketSlashCommand.CommandName);
+            }
         }
 
         internal static void AddDiscordGuild(IDbContextFactory<OrderBotDbContext> contextFactory, string guildId)

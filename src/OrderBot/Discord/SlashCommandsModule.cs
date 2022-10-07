@@ -2,21 +2,25 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using OrderBot.Reports;
 
 namespace OrderBot.Discord
 {
-    public class SlashCommandsModule : InteractionModuleBase<InteractionContext>
+    public class SlashCommandsModule : InteractionModuleBase<SocketInteractionContext>
     {
-        public SlashCommandsModule(IDbContextFactory<OrderBotDbContext> contextFactory, ToDoListGenerator generator, ToDoListFormatter formatter)
+        public SlashCommandsModule(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<SlashCommandsModule> logger,
+            ToDoListGenerator generator, ToDoListFormatter formatter)
         {
             ContextFactory = contextFactory;
+            Logger = logger;
             Generator = generator;
             Formatter = formatter;
         }
 
         public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
+        public ILogger<SlashCommandsModule> Logger { get; }
         public ToDoListGenerator Generator { get; }
         public ToDoListFormatter Formatter { get; }
 
@@ -26,6 +30,8 @@ namespace OrderBot.Discord
         [RequireUserPermission(GuildPermission.ManageRoles | GuildPermission.ManageChannels)]
         public async Task ToDoList()
         {
+            Logger.LogInformation("ToDoList called");
+
             // [Summary("raw", "True if the data is quoted, allowing easy coping, false (default) if formatted")] bool raw = false
             await Context.Interaction.DeferAsync(ephemeral: true);
 
