@@ -180,5 +180,12 @@ namespace OrderBot.Test.Reports
                 Is.EquivalentTo(new[] { new InfluenceInitiatedAction() { StarSystem = maia, Influence = purplePeopleEastersMaia.StarSystemMinorFaction.Influence } })
                   .Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
         }
+
+        [Test]
+        public void Generate()
+        {
+            ToDoListGenerator generator = new(Logger, DbContextFactory);
+            ToDoList toDoList = generator.Generate(GuildId, "EDA Kunti League");
+        }
     }
 }

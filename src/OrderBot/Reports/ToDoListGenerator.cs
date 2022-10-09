@@ -53,6 +53,16 @@ namespace OrderBot.Reports
                 }
             }
 
+            IQueryable<StarSystemMinorFaction> ssmfs =
+                dbContext.StarSystemMinorFactions.Include(ssmf => ssmf.MinorFaction)
+                                                 .Include(ssmf => ssmf.StarSystem)
+                                                 .Where(ssmf => !(dgssmfgs.Select(dgssmfg => dgssmfg.StarSystemMinorFaction.Id).Contains(ssmf.Id))
+                                                                && ssmf.MinorFaction.Name == minorFactionName);
+            foreach (StarSystemMinorFaction ssmf in ssmfs)
+            {
+                Goals.Default.AddActions(ssmf, toDoList);
+            }
+
             return toDoList;
         }
     }
