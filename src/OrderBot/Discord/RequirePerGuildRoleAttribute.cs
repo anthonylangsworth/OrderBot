@@ -4,6 +4,8 @@ using Discord.WebSocket;
 
 namespace OrderBot.Discord
 {
+    // TODO: Change this to load the required roles for a Guild from the database
+
     internal class RequirePerGuildRoleAttribute : PreconditionAttribute
     {
         public RequirePerGuildRoleAttribute(params string[] roles)

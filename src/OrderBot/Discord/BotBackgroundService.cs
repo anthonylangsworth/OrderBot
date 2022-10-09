@@ -49,10 +49,13 @@ namespace OrderBot.Discord
             Client.Ready += Client_ReadyAsync;
         }
 
+        // TODO: Confirm whether the GuildMembers intent is required or I just need to move the bot role
+        // above most other roles.
+
         /// <summary>
         /// Discord features the bot uses, which must be requested up front.
         /// </summary>
-        public static GatewayIntents Intents => GatewayIntents.None;
+        public static GatewayIntents Intents => GatewayIntents.GuildMembers;
 
         /// <summary>
         /// The Discord client.
