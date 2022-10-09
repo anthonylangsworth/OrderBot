@@ -52,6 +52,10 @@ IHost host = Host.CreateDefaultBuilder(args)
             GatewayIntents = BotBackgroundService.Intents
         }));
         services.AddSingleton<InteractionService>();
+        services.AddSingleton(new InteractionServiceConfig()
+        {
+            DefaultRunMode = RunMode.Sync
+        });
         services.AddHostedService<BotBackgroundService>(
             sp => new(sp.GetRequiredService<ILogger<BotBackgroundService>>(),
                 sp.GetRequiredService<DiscordSocketClient>(),

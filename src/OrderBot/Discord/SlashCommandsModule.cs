@@ -1,5 +1,4 @@
-﻿using Discord;
-using Discord.Interactions;
+﻿using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -24,10 +23,8 @@ namespace OrderBot.Discord
         public ToDoListGenerator Generator { get; }
         public ToDoListFormatter Formatter { get; }
 
-        // public async Task
-
         [SlashCommand("todo-list", "List the work required for supporting a minor faction")]
-        [RequireUserPermission(GuildPermission.ManageRoles | GuildPermission.ManageChannels)]
+        // [RequirePerGuildRole("EDAKL Leaders", "EDAKL Veterans")]
         public async Task ToDoList()
         {
             Logger.LogInformation("ToDoList called");
