@@ -13,7 +13,7 @@ namespace OrderBot.Discord
     /// <summary>
     /// A Discord bot.
     /// </summary>
-    internal class BotBackgroundService : BackgroundService
+    internal class BotBackgroundService : IHostedService
     {
         /// <summary>
         /// Construct a <see cref="Bot"/>.
@@ -30,6 +30,8 @@ namespace OrderBot.Discord
         /// <param name="serviceProvider">
         /// The <see cref="IServiceProvider"/> to instantiate other classes.
         /// </param>
+        /// <param name="contextFactory"></param>
+        /// <param name="apiKey"></param>
         public BotBackgroundService(ILogger<BotBackgroundService> logger, DiscordSocketClient discordClient,
             InteractionService interactionService, IServiceProvider serviceProvider,
             IDbContextFactory<OrderBotDbContext> contextFactory, string apiKey)
@@ -40,6 +42,11 @@ namespace OrderBot.Discord
             ServiceProvider = serviceProvider;
             ContextFactory = contextFactory;
             ApiKey = apiKey;
+
+            Client.Log += LogAsync;
+            InteractionService.Log += LogAsync;
+            Client.SlashCommandExecuted += Client_SlashCommandExecutedAsync;
+            Client.Ready += Client_ReadyAsync;
         }
 
         /// <summary>
@@ -58,23 +65,17 @@ namespace OrderBot.Discord
         internal ILogger<BotBackgroundService> Logger { get; }
 
         /// <summary>
-        /// Start the bot.
+        /// Start
         /// </summary>
-        /// <exception cref="InvalidOperationException">
-        /// The bot was already started.
-        /// </exception>
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             if (Client.ConnectionState == ConnectionState.Connected)
             {
                 throw new InvalidOperationException("Already started");
             }
-
-            Client.Log += LogAsync;
-            InteractionService.Log += LogAsync;
-
-            Client.SlashCommandExecuted += Client_SlashCommandExecutedAsync;
-            Client.Ready += Client_ReadyAsync;
 
             await InteractionService.AddModulesAsync(Assembly.GetExecutingAssembly(), ServiceProvider);
 
@@ -82,8 +83,16 @@ namespace OrderBot.Discord
             await Client.StartAsync();
 
             Logger.LogInformation("Started");
+        }
 
-            await Task.Delay(Timeout.Infinite, stoppingToken);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task StopAsync(CancellationToken cancellationToken)
+        {
+            await Client.StopAsync();
         }
 
         private async Task Client_ReadyAsync()
