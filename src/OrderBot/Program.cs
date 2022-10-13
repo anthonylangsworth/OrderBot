@@ -38,6 +38,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         // EDDN Message Processor
         services.AddSingleton<MinorFactionNameFilter, FixedMinorFactionNameFilter>(sp => new FixedMinorFactionNameFilter(new[] { "EDA Kunti League" }));
         services.AddSingleton<EddnMessageProcessor, SystemMinorFactionMessageProcessor>();
+        // services.AddSingleton<EddnMessageProcessor, CarrierMovementMessageProcessor>();
         services.AddHostedService<EddnMessageBackgroundService>();
 
         // Discord Bot
