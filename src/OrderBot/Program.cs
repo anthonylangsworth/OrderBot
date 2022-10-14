@@ -12,7 +12,7 @@ IHost host = Host.CreateDefaultBuilder(args)
         services.AddDatabase(hostContext.Configuration);
         services.AddReports();
         services.AddTodoListMessageProcessor();
-        services.AddCarrierMovementMessageProcessor();
+        // services.AddCarrierMovementMessageProcessor();
         services.AddDiscordBot(hostContext.Configuration);
     })
     .Build();
