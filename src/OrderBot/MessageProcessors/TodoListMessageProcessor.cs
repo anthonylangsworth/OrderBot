@@ -7,9 +7,9 @@ using System.Transactions;
 
 namespace OrderBot.MessageProcessors
 {
-    internal class SystemMinorFactionMessageProcessor : EddnMessageProcessor
+    internal class TodoListMessageProcessor : EddnMessageProcessor
     {
-        public SystemMinorFactionMessageProcessor(ILogger<SystemMinorFactionMessageProcessor> logger,
+        public TodoListMessageProcessor(ILogger<TodoListMessageProcessor> logger,
             IDbContextFactory<OrderBotDbContext> dbContextFactory, MinorFactionNameFilter filter)
         {
             Logger = logger;
@@ -17,7 +17,7 @@ namespace OrderBot.MessageProcessors
             Filter = filter;
         }
 
-        public ILogger<SystemMinorFactionMessageProcessor> Logger { get; }
+        public ILogger<TodoListMessageProcessor> Logger { get; }
         public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
         public MinorFactionNameFilter Filter { get; }
 

@@ -1,7 +1,7 @@
 ﻿namespace OrderBot.MessageProcessors
 {
     /// <summary>
-    /// Minor factions used to filter messages processed by <see cref="SystemMinorFactionMessageProcessor"/>.
+    /// Minor factions used to filter messages processed by <see cref="TodoListMessageProcessor"/>.
     /// </summary>
     internal abstract class MinorFactionNameFilter
     {
