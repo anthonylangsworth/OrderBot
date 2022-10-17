@@ -16,6 +16,9 @@ GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[StarSystemMinorFaction]') AND type in (N'U'))
 DROP TABLE [dbo].[StarSystemMinorFaction]
 GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuildMinorFaction]') AND type in (N'U'))
+DROP TABLE [dbo].[DiscordGuildMinorFaction]
+GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuild]') AND type in (N'U'))
 DROP TABLE [dbo].[DiscordGuild]
 GO
@@ -37,6 +40,15 @@ CREATE TABLE [dbo].[DiscordGuild](
 GO
 CREATE UNIQUE INDEX [IX_DiscordGuild_GuildId] 
 ON [dbo].[DiscordGuild]([GuildId])
+GO
+CREATE TABLE [dbo].[DiscordGuildMinorFaction](
+	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
+	[GuildId] [int] NOT NULL,
+	[MinorFactionId] [int] NOT NULL,
+)
+GO
+CREATE UNIQUE INDEX [IX_DiscordGuild_GuildMinorFaction]
+ON [dbo].[DiscordGuildMinorFaction]([GuildId], [MinorFactionId])
 GO
 CREATE TABLE [dbo].[StarSystem](
 	[Id] [int] IdENTITY(1,1) PRIMARY KEY,

@@ -115,11 +115,13 @@ namespace OrderBot.Core
 
             modelBuilder.Entity<DiscordGuildStarSystemMinorFactionGoal>()
                         .HasOne(e => e.DiscordGuild)
-                        .WithMany();
+                        .WithMany()
+                        .IsRequired();
 
             modelBuilder.Entity<DiscordGuildStarSystemMinorFactionGoal>()
                         .HasOne(e => e.StarSystemMinorFaction)
-                        .WithMany();
+                        .WithMany()
+                        .IsRequired();
 
             modelBuilder.Entity<Carrier>(entity =>
             {
@@ -132,6 +134,57 @@ namespace OrderBot.Core
                       .IsRequired();
             });
 
+            modelBuilder.Entity<StarSystemCarrier>(entity =>
+            {
+                entity.ToTable("StarSystemCarrier");
+
+                entity.Property(e => e.Id)
+                      .UseIdentityColumn();
+
+                entity.Property(e => e.FirstSeen)
+                      .IsRequired();
+            });
+
+            modelBuilder.Entity<StarSystemCarrier>()
+                        .HasOne(e => e.StarSystem)
+                        .WithMany()
+                        .IsRequired();
+
+            modelBuilder.Entity<StarSystemCarrier>()
+                        .HasOne(e => e.Carrier)
+                        .WithMany()
+                        .IsRequired();
+
+            modelBuilder.Entity<TrustedCarrier>(entity =>
+            {
+                entity.ToTable("TrustedCarrier");
+
+                entity.Property(e => e.Id)
+                      .UseIdentityColumn();
+            });
+
+            modelBuilder.Entity<TrustedCarrier>()
+                        .HasOne(e => e.DiscordGuild)
+                        .WithMany()
+                        .IsRequired();
+
+            modelBuilder.Entity<DiscordGuildMinorFaction>(entity =>
+            {
+                entity.ToTable("DiscordGuildMinorFaction");
+
+                entity.Property(e => e.Id)
+                      .UseIdentityColumn();
+            });
+
+            modelBuilder.Entity<DiscordGuildMinorFaction>()
+                        .HasOne(e => e.DiscordGuild)
+                        .WithMany()
+                        .IsRequired();
+
+            modelBuilder.Entity<DiscordGuildMinorFaction>()
+                        .HasOne(e => e.MinorFaction)
+                        .WithMany()
+                        .IsRequired();
 
             // May need to configure correct pluralization of many-to-many field names.
             // Possibly related to https://docs.microsoft.com/en-us/ef/core/what-is-new/ef-core-6.0/whatsnew#less-configuration-for-many-to-many-relationships.
