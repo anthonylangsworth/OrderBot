@@ -1,6 +1,14 @@
-﻿/*
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuildSystemMinorFactionGoal]') AND type in (N'U'))
-DROP TABLE [dbo].[DiscordGuildSystemMinorFactionGoal]
+﻿IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[TrustedCarrier]') AND type in (N'U'))
+DROP TABLE [dbo].[TrustedCarrier]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[StarSystemCarrier]') AND type in (N'U'))
+DROP TABLE [dbo].[StarSystemCarrier]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[Carrier]') AND type in (N'U'))
+DROP TABLE [dbo].[Carrier]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuildStarSystemMinorFactionGoal]') AND type in (N'U'))
+DROP TABLE [dbo].[DiscordGuildStarSystemMinorFactionGoal]
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[StarSystemMinorFactionState]') AND type in (N'U'))
 DROP TABLE [dbo].[StarSystemMinorFactionState]
@@ -20,88 +28,96 @@ GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[State]') AND type in (N'U'))
 DROP TABLE [dbo].[State]
 GO
-*/
+
 
 CREATE TABLE [dbo].[DiscordGuild](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[GuildId] [varchar](20) NOT NULL,
 )
-
+GO
 CREATE UNIQUE INDEX [IX_DiscordGuild_GuildId] 
 ON [dbo].[DiscordGuild]([GuildId])
-
+GO
 CREATE TABLE [dbo].[StarSystem](
 	[Id] [int] IdENTITY(1,1) PRIMARY KEY,
 	[Name] [nvarchar](100) NOT NULL,
 	[LastUpdated] [datetime] NOT NULL
 )
-
+GO
 CREATE UNIQUE INDEX [IX_StarSystem_Name] 
 ON [dbo].[StarSystem]([Name])
-
+GO
 CREATE TABLE [dbo].[MinorFaction](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[Name] [nvarchar](100) NOT NULL,
 )
-
+GO
 CREATE UNIQUE INDEX [IX_MinorFaction_Name] 
 ON [dbo].[MinorFaction]([Name])
-
+GO
 CREATE TABLE [dbo].[State](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[Name] [nvarchar](100) NOT NULL,
 )
-
+GO
 CREATE UNIQUE INDEX [IX_State] 
 ON [dbo].[State]([Name])
-
+GO
 CREATE TABLE [dbo].[StarSystemMinorFaction](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[StarSystemId] [int] NOT NULL FOREIGN KEY REFERENCES [StarSystem]([Id]) ON DELETE CASCADE,
 	[MinorFactionId] [int] NOT NULL FOREIGN KEY REFERENCES [MinorFaction]([Id]) ON DELETE CASCADE,
 	[Influence] [float] NULL,
 )
-
+GO
 CREATE UNIQUE INDEX [IX_StarSystemMinorFaction_SystemMinorFaction] 
 ON [dbo].[StarSystemMinorFaction]([StarSystemId], [MinorFactionId])
-
+GO
 -- Column name plurals required for EF Core name inference. Will fix later.
 CREATE TABLE [dbo].[StarSystemMinorFactionState](
 	[StarSystemMinorFactionsId] [int] NOT NULL FOREIGN KEY REFERENCES [StarSystemMinorFaction]([Id]) ON DELETE CASCADE,
 	[StatesId] [int] NOT NULL FOREIGN KEY REFERENCES [State]([Id]) ON DELETE CASCADE,
 	PRIMARY KEY ([StarSystemMinorFactionsId], [StatesId])
 )
-
+GO
 CREATE INDEX [IX_StarSystemMinorFactionState_SystemMinorFaction] 
 ON [dbo].[StarSystemMinorFactionState]([StarSystemMinorFactionsId])
-
+GO
 CREATE TABLE [dbo].[DiscordGuildStarSystemMinorFactionGoal](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[DiscordGuildId] [int] FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE,
 	[StarSystemMinorFactionId] [int] FOREIGN KEY REFERENCES [StarSystemMinorFaction]([Id]) ON DELETE CASCADE,
 	[Goal] [nvarchar](100)
 )
-
+GO
 CREATE INDEX [IX_DiscordGuildStarSystemMinorFactionGoal_SystemMinorFaction] 
 ON [dbo].[DiscordGuildStarSystemMinorFactionGoal]([DiscordGuildId], [StarSystemMinorFactionId])
-
+GO
+CREATE TABLE [dbo].[Carrier](
+	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
+	[CarrierSerialNumber] [nchar](7) NOT NULL,
+	[Name] [nvarchar](100) NOT NULL
+)
+GO
+CREATE UNIQUE INDEX [IX_Carrier_CarrierSerialNumber] 
+ON [dbo].[Carrier]([CarrierSerialNumber])
+GO
 CREATE TABLE [dbo].[StarSystemCarrier](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[StarSystemId] [int] NOT NULL FOREIGN KEY REFERENCES [StarSystem]([Id]) ON DELETE CASCADE,
-	[CarrierSerialNumber] [nchar](7) NOT NULL,
+	[CarrierId] [int] NOT NULL FOREIGN KEY REFERENCES Carrier([Id]) ON DELETE CASCADE,
 	[FirstSeen] [datetime] NOT NULL
 )
-
+GO
 CREATE UNIQUE INDEX [IX_StarSystemCarrier_StarSystemCarrierSerialNumber] 
-ON [dbo].[StarSystemCarrier]([StarSystemId], [CarrierSerialNumber])
-
-CREATE TABLE [dbo].[TrustedCarriers](
+ON [dbo].[StarSystemCarrier]([StarSystemId], [CarrierId])
+GO
+CREATE TABLE [dbo].[TrustedCarrier](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
-	[CarrierSerialNumber] [nchar](7) NOT NULL,
+	[CarrierId] [int] NOT NULL FOREIGN KEY REFERENCES Carrier([Id]) ON DELETE CASCADE,
 	[DiscordGuildId] [int] NOT NULL FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE
 )
-
-CREATE UNIQUE INDEX [IX_TrustedCarriers_SCarrierSerialNumberDiscordGuild] 
-ON [dbo].[StarSystemCarrier]([StarSystemId], [CarrierSerialNumber])
-
-
+GO
+CREATE UNIQUE INDEX [IX_TrustedCarriers_CarrierSerialNumberDiscordGuild] 
+ON [dbo].[StarSystemCarrier]([StarSystemId], [CarrierId])
+GO

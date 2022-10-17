@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
+﻿using OrderBot.Core;
+using System.Diagnostics;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace OrderBot.MessageProcessors
 {
@@ -27,17 +27,11 @@ namespace OrderBot.MessageProcessors
                 Signal[]? signals = signalsElement.Deserialize<Signal[]>();
                 if (signals != null)
                 {
-                    Debug.WriteLine(starSystemProperty.GetString() + ": " + string.Join("\n", signals.Where(s => s.IsStation && IsCarrier(s.SignalName))));
+                    Debug.WriteLine(starSystemProperty.GetString() + ": " + string.Join("\n", signals.Where(s => s.IsStation && Carrier.IsCarrier(s.SignalName))));
                 }
 
                 // Debug.WriteLine(messageElement.ToString());
             }
-        }
-
-        public static bool IsCarrier(string signalName)
-        {
-            Regex regex = new("\\w\\w\\w-\\w\\w\\w$");
-            return regex.Match(signalName.Trim()).Success;
         }
     }
 }
