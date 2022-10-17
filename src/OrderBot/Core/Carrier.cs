@@ -2,21 +2,15 @@
 
 namespace OrderBot.Core
 {
-    // TODO: Handle carrier renaming
-
     public record Carrier
     {
         private string _name = null!;
 
         public int Id { get; }
 
-        public string SerialNumber
-        {
-            get
-            {
-                return Name.Substring(Name.Length - 7);
-            }
-        }
+        public ICollection<DiscordGuild> IgnoredBy { get; init; } = null!;
+
+        public string SerialNumber { get; private set; } = null!;
 
         public string Name
         {
@@ -24,20 +18,36 @@ namespace OrderBot.Core
             {
                 return _name;
             }
-            init
+            set
             {
-                if (!IsCarrier(value))
+                string newSerialNumber = GetSerialNumber(value);
+                if (SerialNumber != null && newSerialNumber != SerialNumber)
                 {
-                    throw new ArgumentException($"{value} is not a carrier");
+                    throw new ArgumentException($"{value} is a different carrier");
                 }
                 _name = value;
+                SerialNumber = newSerialNumber;
             }
         }
 
+        private readonly static Regex SerialNumberRegex = new("\\w\\w\\w-\\w\\w\\w$");
+
         public static bool IsCarrier(string signalName)
         {
-            Regex regex = new("\\w\\w\\w-\\w\\w\\w$");
-            return regex.Match(signalName.Trim()).Success;
+            return SerialNumberRegex.Match(signalName.Trim()).Success;
+        }
+
+        public static string GetSerialNumber(string signalName)
+        {
+            Match match = SerialNumberRegex.Match(signalName);
+            if (match.Success)
+            {
+                return match.Value;
+            }
+            else
+            {
+                throw new ArgumentException($"{signalName} is not a carrier");
+            }
         }
     }
 }

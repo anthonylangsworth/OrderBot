@@ -14,7 +14,7 @@ namespace OrderBot.MessageProcessors
         public bool IsStation { get; set; }
         [JsonRequired]
         [JsonPropertyName("SignalName")]
-        public string SignalName { get; set; } = null!;
+        public string Name { get; set; } = null!;
         [JsonRequired]
         [JsonPropertyName("timestamp")]
 #pragma warning disable IDE1006

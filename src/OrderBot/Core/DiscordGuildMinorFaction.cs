@@ -1,6 +1,6 @@
 ﻿namespace OrderBot.Core
 {
-    internal record DiscordGuildMinorFaction
+    public record DiscordGuildMinorFaction
     {
         public int Id { get; }
         public DiscordGuild DiscordGuild { get; init; } = null!;

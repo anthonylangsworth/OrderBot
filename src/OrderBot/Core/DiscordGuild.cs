@@ -3,6 +3,8 @@
     public record DiscordGuild
     {
         public int Id { init; get; }
-        public string GuildId { init; get; } = null!;
+        public long GuildId { init; get; }
+        public long? CarrierMovementChannel { set; get; }
+        public ICollection<Carrier> IgnoredCarriers { init; get; } = null!;
     }
 }

@@ -1,5 +1,5 @@
-﻿IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[TrustedCarrier]') AND type in (N'U'))
-DROP TABLE [dbo].[TrustedCarrier]
+﻿IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[IgnoredCarrier]') AND type in (N'U'))
+DROP TABLE [dbo].[IgnoredCarrier]
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[StarSystemCarrier]') AND type in (N'U'))
 DROP TABLE [dbo].[StarSystemCarrier]
@@ -35,7 +35,8 @@ GO
 
 CREATE TABLE [dbo].[DiscordGuild](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
-	[GuildId] [varchar](20) NOT NULL,
+	[GuildId] [bigint] NOT NULL,
+	[CarrierMovementChannel] [bigint] NULL 
 )
 GO
 CREATE UNIQUE INDEX [IX_DiscordGuild_GuildId] 
@@ -107,11 +108,15 @@ ON [dbo].[DiscordGuildStarSystemMinorFactionGoal]([DiscordGuildId], [StarSystemM
 GO
 CREATE TABLE [dbo].[Carrier](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
+	[SerialNumber] [char](7) NOT NULL,
 	[Name] [nvarchar](100) NOT NULL
 )
 GO
-CREATE UNIQUE INDEX [IX_Carrier_CarrierSerialNumber] 
+CREATE UNIQUE INDEX [IX_Carrier_Name] 
 ON [dbo].[Carrier]([Name])
+GO
+CREATE UNIQUE INDEX [IX_Carrier_SerialNumber]
+ON [dbo].[Carrier]([SerialNumber])
 GO
 CREATE TABLE [dbo].[StarSystemCarrier](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
@@ -123,12 +128,12 @@ GO
 CREATE UNIQUE INDEX [IX_StarSystemCarrier_StarSystemCarrierSerialNumber] 
 ON [dbo].[StarSystemCarrier]([StarSystemId], [CarrierId])
 GO
-CREATE TABLE [dbo].[TrustedCarrier](
+CREATE TABLE [dbo].[IgnoredCarrier](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[CarrierId] [int] NOT NULL FOREIGN KEY REFERENCES Carrier([Id]) ON DELETE CASCADE,
 	[DiscordGuildId] [int] NOT NULL FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE
 )
 GO
-CREATE UNIQUE INDEX [IX_TrustedCarriers_CarrierSerialNumberDiscordGuild] 
+CREATE UNIQUE INDEX [IX_IgnoredCarriers_CarrierSerialNumberDiscordGuild] 
 ON [dbo].[StarSystemCarrier]([StarSystemId], [CarrierId])
 GO

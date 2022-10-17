@@ -1,6 +1,6 @@
 ﻿namespace OrderBot.Core
 {
-    internal class TrustedCarrier
+    public class IgnoredCarrier
     {
         public int Id { get; init; }
         public DiscordGuild DiscordGuild { get; init; } = null!;

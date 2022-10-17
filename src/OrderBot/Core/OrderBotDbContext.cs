@@ -26,6 +26,8 @@ namespace OrderBot.Core
         public DbSet<DiscordGuild> DiscordGuilds { get; protected set; } = null!;
         public DbSet<DiscordGuildStarSystemMinorFactionGoal> DiscordGuildStarSystemMinorFactionGoals { get; protected set; } = null!;
         public DbSet<Carrier> Carriers { get; protected set; } = null!;
+        // public DbSet<IgnoredCarrier> IgnoredCarriers { get; protected set; } = null!;
+        public DbSet<DiscordGuildMinorFaction> DiscordGuildMinorFaction { get; protected set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -155,7 +157,7 @@ namespace OrderBot.Core
                         .WithMany()
                         .IsRequired();
 
-            modelBuilder.Entity<TrustedCarrier>(entity =>
+            modelBuilder.Entity<IgnoredCarrier>(entity =>
             {
                 entity.ToTable("TrustedCarrier");
 
@@ -163,10 +165,15 @@ namespace OrderBot.Core
                       .UseIdentityColumn();
             });
 
-            modelBuilder.Entity<TrustedCarrier>()
+            modelBuilder.Entity<IgnoredCarrier>()
                         .HasOne(e => e.DiscordGuild)
                         .WithMany()
                         .IsRequired();
+
+            modelBuilder.Entity<Carrier>()
+                        .HasMany(e => e.IgnoredBy)
+                        .WithMany(e => e.IgnoredCarriers)
+                        .UsingEntity<IgnoredCarrier>();
 
             modelBuilder.Entity<DiscordGuildMinorFaction>(entity =>
             {

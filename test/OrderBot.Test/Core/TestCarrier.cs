@@ -34,9 +34,17 @@ namespace OrderBot.Test.Core
             }
             else
             {
-                Carrier carrier = new Carrier() { Name = name };
+                Carrier carrier = new() { Name = name };
                 Assert.That(carrier.Name, Is.EqualTo(name));
             }
+        }
+
+        [Test]
+        [TestCase("abc-def", ExpectedResult = "abc-def")]
+        [TestCase("Ship a1c-de2", ExpectedResult = "a1c-de2")]
+        public string GetSerialNumber(string signalName)
+        {
+            return Carrier.GetSerialNumber(signalName);
         }
     }
 }
