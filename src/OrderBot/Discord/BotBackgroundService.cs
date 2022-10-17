@@ -104,7 +104,7 @@ namespace OrderBot.Discord
             {
                 await InteractionService.RegisterCommandsToGuildAsync(guild.Id);
 
-                string guildId = guild.Id.ToString();
+                ulong guildId = guild.Id;
                 AddDiscordGuild(ContextFactory, guildId);
 
                 Logger.LogInformation("Guild {name} ({guildId}) added and commands registered", guild.Name, guildId);
@@ -135,7 +135,7 @@ namespace OrderBot.Discord
             }
         }
 
-        internal static void AddDiscordGuild(IDbContextFactory<OrderBotDbContext> contextFactory, string guildId)
+        internal static void AddDiscordGuild(IDbContextFactory<OrderBotDbContext> contextFactory, ulong guildId)
         {
             using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();

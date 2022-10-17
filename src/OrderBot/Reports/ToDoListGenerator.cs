@@ -17,7 +17,7 @@ namespace OrderBot.Reports
         public ILogger<ToDoListGenerator> Logger { get; }
         public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
 
-        public ToDoList Generate(string guildId, string minorFactionName)
+        public ToDoList Generate(ulong guildId, string minorFactionName)
         {
             ToDoList toDoList = new(minorFactionName);
 

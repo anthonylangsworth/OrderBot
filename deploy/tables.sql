@@ -35,8 +35,8 @@ GO
 
 CREATE TABLE [dbo].[DiscordGuild](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
-	[GuildId] [bigint] NOT NULL,
-	[CarrierMovementChannel] [bigint] NULL 
+	[GuildId] [numeric](20,0) NOT NULL,
+	[CarrierMovementChannel] [numeric](20,0) NULL 
 )
 GO
 CREATE UNIQUE INDEX [IX_DiscordGuild_GuildId] 

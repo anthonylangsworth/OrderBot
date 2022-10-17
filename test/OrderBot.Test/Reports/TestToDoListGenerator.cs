@@ -27,7 +27,7 @@ namespace OrderBot.Test.Reports
         }
 
         internal ILogger<ToDoListGenerator> Logger = new NullLogger<ToDoListGenerator>();
-        internal const string GuildId = "ABCDEF12345";
+        internal const ulong GuildId = 382284915670253569;
         internal const string MinorFactionName = "Purple People Eaters";
         internal OrderBotDbContextFactory DbContextFactory { get; set; } = null!;
         internal TransactionScope TransactionScope { get; set; } = null!;
@@ -182,11 +182,11 @@ namespace OrderBot.Test.Reports
         }
 
         // Generate sample report on current DB
-        //[Test]
-        //public void Generate()
-        //{
-        //    ToDoListGenerator generator = new(Logger, DbContextFactory);
-        //    ToDoList toDoList = generator.Generate(GuildId, "EDA Kunti League");
-        //}
+        [Test]
+        public void Generate()
+        {
+            ToDoListGenerator generator = new(Logger, DbContextFactory);
+            ToDoList toDoList = generator.Generate(GuildId, "EDA Kunti League");
+        }
     }
 }

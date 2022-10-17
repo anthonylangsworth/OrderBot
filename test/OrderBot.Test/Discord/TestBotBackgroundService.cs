@@ -10,7 +10,7 @@ namespace OrderBot.Test.Discord
         [Test]
         public void AddDiscordGuild_None()
         {
-            string guildId = "a";
+            ulong guildId = 993002946415558726;
             using OrderBotDbContextFactory contextFactory = new();
             using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -23,7 +23,7 @@ namespace OrderBot.Test.Discord
         [Test]
         public void AddDiscordGuild_Existing()
         {
-            string guildId = "b";
+            ulong guildId = 993202956415658726;
             using OrderBotDbContextFactory contextFactory = new();
             using TransactionScope transactionScope = new();
 

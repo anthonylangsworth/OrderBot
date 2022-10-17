@@ -38,7 +38,7 @@ namespace OrderBot.Discord
                 SocketGuild guild = ((SocketGuildUser)Context.User).Guild;
 
                 const string minorFactionName = "EDA Kunti League";
-                string report = Formatter.Format(Generator.Generate(guild.Id.ToString(), minorFactionName));
+                string report = Formatter.Format(Generator.Generate(guild.Id, minorFactionName));
 
                 await Context.Interaction.FollowupAsync(
                     text: report,
