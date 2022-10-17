@@ -106,6 +106,8 @@ namespace OrderBot.Core
 
                 entity.Property(e => e.GuildId)
                       .IsRequired();
+
+                entity.Property(e => e.CarrierMovementChannel);
             });
 
             modelBuilder.Entity<DiscordGuildStarSystemMinorFactionGoal>(entity =>

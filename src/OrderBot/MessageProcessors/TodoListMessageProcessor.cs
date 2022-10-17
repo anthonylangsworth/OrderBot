@@ -33,10 +33,10 @@ namespace OrderBot.MessageProcessors
                 //IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();
                 //executionStrategy.Execute(() => InnerSink(timestamp, starSystemName, minorFactionDetails, dbContext));
                 Update(timestamp, starSystemName, minorFactionDetails, dbContext);
-                transactionScope.Complete();
 
                 Logger.LogInformation("System {system} updated", starSystemName);
             }
+            transactionScope.Complete();
         }
 
         /// <summary>

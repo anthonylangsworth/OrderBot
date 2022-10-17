@@ -55,7 +55,11 @@ namespace OrderBot.Discord
         /// <summary>
         /// Discord features the bot uses, which must be requested up front.
         /// </summary>
-        public static GatewayIntents Intents => GatewayIntents.GuildMembers;
+        /// <remarks>
+        /// The intent GatewayIntents.GuildMembers is required to get information about users, e.g. their roles.
+        /// The intent GatewayIntents.Guilds is required to get information about roles.
+        /// </remarks>
+        public static GatewayIntents Intents => GatewayIntents.GuildMembers | GatewayIntents.Guilds;
 
         /// <summary>
         /// The Discord client.
@@ -103,11 +107,9 @@ namespace OrderBot.Discord
             foreach (SocketGuild guild in Client.Guilds)
             {
                 await InteractionService.RegisterCommandsToGuildAsync(guild.Id);
+                AddDiscordGuild(ContextFactory, guild.Id);
 
-                ulong guildId = guild.Id;
-                AddDiscordGuild(ContextFactory, guildId);
-
-                Logger.LogInformation("Guild {name} ({guildId}) added and commands registered", guild.Name, guildId);
+                Logger.LogInformation("Guild {name} ({guildId}) added and commands registered", guild.Name, guild.Id);
             }
         }
 
@@ -140,8 +142,7 @@ namespace OrderBot.Discord
             using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();
 
-            DiscordGuild? discordGuild = dbContext.DiscordGuilds.Where(dg => dg.GuildId == guildId)
-                                                                .FirstOrDefault();
+            DiscordGuild? discordGuild = dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == guildId);
             if (discordGuild == null)
             {
                 dbContext.DiscordGuilds.Add(new DiscordGuild() { GuildId = guildId });

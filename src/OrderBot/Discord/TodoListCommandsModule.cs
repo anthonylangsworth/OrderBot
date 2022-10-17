@@ -7,9 +7,9 @@ using OrderBot.Reports;
 
 namespace OrderBot.Discord
 {
-    public class SlashCommandsModule : InteractionModuleBase<SocketInteractionContext>
+    public class TodoListCommandsModule : InteractionModuleBase<SocketInteractionContext>
     {
-        public SlashCommandsModule(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<SlashCommandsModule> logger,
+        public TodoListCommandsModule(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<TodoListCommandsModule> logger,
             ToDoListGenerator generator, ToDoListFormatter formatter)
         {
             ContextFactory = contextFactory;
@@ -19,7 +19,7 @@ namespace OrderBot.Discord
         }
 
         public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
-        public ILogger<SlashCommandsModule> Logger { get; }
+        public ILogger<TodoListCommandsModule> Logger { get; }
         public ToDoListGenerator Generator { get; }
         public ToDoListFormatter Formatter { get; }
 
