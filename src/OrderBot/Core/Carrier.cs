@@ -2,6 +2,8 @@
 
 namespace OrderBot.Core
 {
+    // TODO: Handle carrier renaming
+
     public record Carrier
     {
         private string _name = null!;

@@ -95,12 +95,11 @@ ON [dbo].[DiscordGuildStarSystemMinorFactionGoal]([DiscordGuildId], [StarSystemM
 GO
 CREATE TABLE [dbo].[Carrier](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
-	[CarrierSerialNumber] [nchar](7) NOT NULL,
 	[Name] [nvarchar](100) NOT NULL
 )
 GO
 CREATE UNIQUE INDEX [IX_Carrier_CarrierSerialNumber] 
-ON [dbo].[Carrier]([CarrierSerialNumber])
+ON [dbo].[Carrier]([Name])
 GO
 CREATE TABLE [dbo].[StarSystemCarrier](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,

@@ -2,8 +2,17 @@
 
 namespace OrderBot.Core
 {
+    /// <summary>
+    /// The Entity Framework context used to interact with the database.
+    /// </summary>
     public class OrderBotDbContext : DbContext
     {
+        /// <summary>
+        /// Create a new <see cref="OrderBotDbContext"/>.
+        /// </summary>
+        /// <param name="dbContextOptions">
+        /// Configuration options.
+        /// </param>
         public OrderBotDbContext(DbContextOptions dbContextOptions)
             : base(dbContextOptions)
         {
@@ -16,6 +25,7 @@ namespace OrderBot.Core
         public DbSet<StarSystemMinorFaction> StarSystemMinorFactions { get; protected set; } = null!;
         public DbSet<DiscordGuild> DiscordGuilds { get; protected set; } = null!;
         public DbSet<DiscordGuildStarSystemMinorFactionGoal> DiscordGuildStarSystemMinorFactionGoals { get; protected set; } = null!;
+        public DbSet<Carrier> Carriers { get; protected set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -110,6 +120,18 @@ namespace OrderBot.Core
             modelBuilder.Entity<DiscordGuildStarSystemMinorFactionGoal>()
                         .HasOne(e => e.StarSystemMinorFaction)
                         .WithMany();
+
+            modelBuilder.Entity<Carrier>(entity =>
+            {
+                entity.ToTable("Carrier");
+
+                entity.Property(e => e.Id)
+                      .UseIdentityColumn();
+
+                entity.Property(e => e.Name)
+                      .IsRequired();
+            });
+
 
             // May need to configure correct pluralization of many-to-many field names.
             // Possibly related to https://docs.microsoft.com/en-us/ef/core/what-is-new/ef-core-6.0/whatsnew#less-configuration-for-many-to-many-relationships.
