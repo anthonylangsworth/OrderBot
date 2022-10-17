@@ -31,7 +31,7 @@ namespace OrderBot.Discord
             IChannel channel
         )
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
+            // await Context.Interaction.DeferAsync(ephemeral: true);
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             DiscordGuild? discordGuild = dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
             if (discordGuild == null)
@@ -44,7 +44,7 @@ namespace OrderBot.Discord
             }
             await dbContext.SaveChangesAsync();
             await Context.Interaction.FollowupAsync(
-                text: $"Carrier movements will be mentioned in {channel.Name}",
+                text: $"Carrier movements will be mentioned in #{channel.Name}. Ensure this bot can send mssages to that channel.",
                 ephemeral: true
             );
         }
@@ -53,7 +53,7 @@ namespace OrderBot.Discord
         [SlashCommand("get-channel", "Retrieve the channel that receives carrier jump alerts")]
         public async Task GetChannel()
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
+            // await Context.Interaction.DeferAsync(ephemeral: true);
             OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             DiscordGuild? discordGuild = dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
             string message;
@@ -76,7 +76,7 @@ namespace OrderBot.Discord
         [SlashCommand("mute", "Turn off alerts for carrier jumps")]
         public async Task Mute()
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
+            // await Context.Interaction.DeferAsync(ephemeral: true);
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             DiscordGuild? discordGuild = dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
             if (discordGuild != null && discordGuild.CarrierMovementChannel != null)

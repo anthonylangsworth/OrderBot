@@ -10,6 +10,8 @@ namespace OrderBot.Core
 
         public ICollection<DiscordGuild> IgnoredBy { get; init; } = null!;
 
+        public StarSystem StarSystem { get; set; } = null!;
+
         public string SerialNumber { get; private set; } = null!;
 
         public string Name

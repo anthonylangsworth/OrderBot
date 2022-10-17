@@ -29,8 +29,8 @@ namespace OrderBot.Core
         public DbSet<DiscordGuild> DiscordGuilds { get; protected set; } = null!;
         public DbSet<DiscordGuildStarSystemMinorFactionGoal> DiscordGuildStarSystemMinorFactionGoals { get; protected set; } = null!;
         public DbSet<Carrier> Carriers { get; protected set; } = null!;
-        // public DbSet<IgnoredCarrier> IgnoredCarriers { get; protected set; } = null!;
-        public DbSet<DiscordGuildMinorFaction> DiscordGuildMinorFaction { get; protected set; } = null!;
+        public DbSet<DiscordGuildMinorFaction> DiscordGuildMinorFactions { get; protected set; } = null!;
+        public DbSet<StarSystemCarrier> StarSystemCarriers { get; protected set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
