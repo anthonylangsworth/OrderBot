@@ -1,4 +1,5 @@
-﻿IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuildSystemMinorFactionGoal]') AND type in (N'U'))
+﻿/*
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuildSystemMinorFactionGoal]') AND type in (N'U'))
 DROP TABLE [dbo].[DiscordGuildSystemMinorFactionGoal]
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[StarSystemMinorFactionState]') AND type in (N'U'))
@@ -19,6 +20,7 @@ GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[State]') AND type in (N'U'))
 DROP TABLE [dbo].[State]
 GO
+*/
 
 CREATE TABLE [dbo].[DiscordGuild](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
