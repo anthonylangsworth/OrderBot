@@ -181,11 +181,12 @@ namespace OrderBot.Test.Reports
                   .Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
         }
 
-        [Test]
-        public void Generate()
-        {
-            ToDoListGenerator generator = new(Logger, DbContextFactory);
-            ToDoList toDoList = generator.Generate(GuildId, "EDA Kunti League");
-        }
+        // Generate sample report on current DB
+        //[Test]
+        //public void Generate()
+        //{
+        //    ToDoListGenerator generator = new(Logger, DbContextFactory);
+        //    ToDoList toDoList = generator.Generate(GuildId, "EDA Kunti League");
+        //}
     }
 }
