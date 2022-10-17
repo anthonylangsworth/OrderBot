@@ -5,6 +5,9 @@ namespace OrderBot.Core
     /// <summary>
     /// The Entity Framework context used to interact with the database.
     /// </summary>
+    /// <remarks>
+    /// Useful: https://learn.microsoft.com/en-us/ef/core/modeling/relationships?tabs=fluent-api%2Cfluent-api-simple-key%2Csimple-key#many-to-many
+    /// </remarks>
     public class OrderBotDbContext : DbContext
     {
         /// <summary>
