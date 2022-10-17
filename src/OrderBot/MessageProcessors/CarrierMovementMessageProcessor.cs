@@ -43,6 +43,9 @@ namespace OrderBot.MessageProcessors
                 {
                     using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
 
+                    // TODO: Restrict to systems we care about, i.e. where there is a supported minor faction or a goal
+                    // TODO: Rename StarSystemCarrier to CarrierLocation?
+
                     string starSystemName = starSystemProperty.GetProperty("name").GetString() ?? "";
                     IReadOnlyList<StarSystemCarrier> starSystemCarrier = dbContext.StarSystemCarriers.Include(ssc => ssc.Carrier)
                                                                                                      .Include(ssc => ssc.StarSystem)
