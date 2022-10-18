@@ -40,7 +40,7 @@ namespace OrderBot.Discord
             services.AddSingleton<InteractionService>();
             services.AddSingleton(new InteractionServiceConfig()
             {
-                DefaultRunMode = RunMode.Sync
+                DefaultRunMode = RunMode.Async // Default is Async. Sync provides better error reporting.
             });
             services.AddHostedService<BotBackgroundService>(
                 sp => new(sp.GetRequiredService<ILogger<BotBackgroundService>>(),

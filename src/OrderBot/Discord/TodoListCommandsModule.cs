@@ -7,9 +7,9 @@ using OrderBot.Reports;
 
 namespace OrderBot.Discord
 {
-    public class TodoListCommandsModule : InteractionModuleBase<SocketInteractionContext>
+    public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionContext>
     {
-        public TodoListCommandsModule(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<TodoListCommandsModule> logger,
+        public ToDoListCommandsModule(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<ToDoListCommandsModule> logger,
             ToDoListGenerator generator, ToDoListFormatter formatter)
         {
             ContextFactory = contextFactory;
@@ -19,7 +19,7 @@ namespace OrderBot.Discord
         }
 
         public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
-        public ILogger<TodoListCommandsModule> Logger { get; }
+        public ILogger<ToDoListCommandsModule> Logger { get; }
         public ToDoListGenerator Generator { get; }
         public ToDoListFormatter Formatter { get; }
 
@@ -27,10 +27,10 @@ namespace OrderBot.Discord
         // [RequirePerGuildRole("EDAKL Leaders", "EDAKL Veterans")]
         public async Task ToDoList()
         {
-            Logger.LogInformation("ToDoList called");
-
             // [Summary("raw", "True if the data is quoted, allowing easy coping, false (default) if formatted")] bool raw = false
             await Context.Interaction.DeferAsync(ephemeral: true);
+
+            Logger.LogInformation("ToDoList called");
 
             try
             {

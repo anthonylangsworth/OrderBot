@@ -75,7 +75,7 @@ namespace OrderBot.MessageProcessors
                                     {
                                         try
                                         {
-                                            channel.SendMessageAsync(text: $"New carrier '{signal.Name}' seen in '{starSystemName}'");
+                                            channel.SendMessageAsync(text: $"New carrier '{signal.Name}' seen in '{starSystemName}'").GetAwaiter().GetResult();
                                         }
                                         catch (Exception ex)
                                         {
