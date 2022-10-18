@@ -55,7 +55,7 @@ namespace OrderBot.Discord
         public async Task GetChannel()
         {
             await Context.Interaction.DeferAsync(ephemeral: true);
-            OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
+            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             DiscordGuild? discordGuild = dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
             string message;
             if (discordGuild == null || discordGuild.CarrierMovementChannel == null)
@@ -78,7 +78,7 @@ namespace OrderBot.Discord
         public async Task Mute()
         {
             await Context.Interaction.DeferAsync(ephemeral: true);
-            OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
+            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             DiscordGuild? discordGuild = dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
             if (discordGuild != null && discordGuild.CarrierMovementChannel != null)
             {
@@ -108,7 +108,7 @@ namespace OrderBot.Discord
             else
             {
                 string serialNumber = Carrier.GetSerialNumber(name);
-                OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                 DiscordGuild? discordGuild = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
                                                                     .FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
                 if (discordGuild == null)
@@ -128,7 +128,7 @@ namespace OrderBot.Discord
                 }
                 dbContext.SaveChanges();
                 await Context.Interaction.FollowupAsync(
-                    text: $"Fleet carrier '{name}' will not be tracked or its location reported",
+                    text: $"Fleet carrier '{name}' will **NOT** be tracked or its location reported",
                     ephemeral: true
                 );
             }
@@ -151,7 +151,7 @@ namespace OrderBot.Discord
             else
             {
                 string serialNumber = Carrier.GetSerialNumber(name);
-                OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                 DiscordGuild? discordGuild = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
                                                                     .FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
                 if (discordGuild == null)
@@ -170,6 +170,29 @@ namespace OrderBot.Discord
                     ephemeral: true
                 );
             }
+        }
+
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
+        [SlashCommand("list-ignored-carriers", "List ignored fleet carriers")]
+        public async Task ListIgnoredCarriers()
+        {
+            await Context.Interaction.DeferAsync(ephemeral: true);
+            using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+            DiscordGuild? discordGuild = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
+                                                                .FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
+            string result = "";
+            if (discordGuild != null)
+            {
+                result = string.Join("\n", discordGuild.IgnoredCarriers.Select(c => c.Name));
+            }
+            if (!result.Any())
+            {
+                result = "No ignored fleet carriers";
+            }
+            await Context.Interaction.FollowupAsync(
+                text: result,
+                ephemeral: true
+            );
         }
     }
 }
