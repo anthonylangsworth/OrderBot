@@ -44,7 +44,7 @@ namespace OrderBot.Discord
             }
             await dbContext.SaveChangesAsync();
             await Context.Interaction.FollowupAsync(
-                text: $"Carrier movements will be mentioned in #{channel.Name}. Ensure this bot can send mssages to that channel.",
+                text: $"Carrier movements will be mentioned in #{channel.Name}. Ensure this bot has 'Send Messages' permission to that channel.",
                 ephemeral: true
             );
         }

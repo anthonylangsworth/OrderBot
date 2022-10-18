@@ -30,7 +30,6 @@ namespace OrderBot.Core
         public DbSet<DiscordGuildStarSystemMinorFactionGoal> DiscordGuildStarSystemMinorFactionGoals { get; protected set; } = null!;
         public DbSet<Carrier> Carriers { get; protected set; } = null!;
         public DbSet<DiscordGuildMinorFaction> DiscordGuildMinorFactions { get; protected set; } = null!;
-        public DbSet<StarSystemCarrier> StarSystemCarriers { get; protected set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -139,32 +138,23 @@ namespace OrderBot.Core
 
                 entity.Property(e => e.Name)
                       .IsRequired();
-            });
 
-            modelBuilder.Entity<StarSystemCarrier>(entity =>
-            {
-                entity.ToTable("StarSystemCarrier");
-
-                entity.Property(e => e.Id)
-                      .UseIdentityColumn();
-
-                entity.Property(e => e.FirstSeen)
+                entity.Property(e => e.SerialNumber)
                       .IsRequired();
+
+                entity.Property(e => e.Owner);
+
+                entity.Property(e => e.FirstSeen);
             });
 
-            modelBuilder.Entity<StarSystemCarrier>()
+            modelBuilder.Entity<Carrier>()
                         .HasOne(e => e.StarSystem)
-                        .WithMany()
-                        .IsRequired();
-
-            modelBuilder.Entity<StarSystemCarrier>()
-                        .HasOne(e => e.Carrier)
                         .WithMany()
                         .IsRequired();
 
             modelBuilder.Entity<IgnoredCarrier>(entity =>
             {
-                entity.ToTable("TrustedCarrier");
+                entity.ToTable("IgnoredCarrier");
 
                 entity.Property(e => e.Id)
                       .UseIdentityColumn();

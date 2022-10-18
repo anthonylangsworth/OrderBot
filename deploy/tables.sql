@@ -109,7 +109,10 @@ GO
 CREATE TABLE [dbo].[Carrier](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[SerialNumber] [char](7) NOT NULL,
-	[Name] [nvarchar](100) NOT NULL
+	[Name] [nvarchar](100) NOT NULL,
+	[Owner] [nvarchar](100) NULL,
+	[StarSystemId] [int] NULL FOREIGN KEY REFERENCES [StarSystem]([Id]) ON DELETE CASCADE,
+	[FirstSeen] [datetime] NULL
 )
 GO
 CREATE UNIQUE INDEX [IX_Carrier_Name] 
@@ -118,22 +121,9 @@ GO
 CREATE UNIQUE INDEX [IX_Carrier_SerialNumber]
 ON [dbo].[Carrier]([SerialNumber])
 GO
-CREATE TABLE [dbo].[StarSystemCarrier](
-	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
-	[StarSystemId] [int] NOT NULL FOREIGN KEY REFERENCES [StarSystem]([Id]) ON DELETE CASCADE,
-	[CarrierId] [int] NOT NULL FOREIGN KEY REFERENCES Carrier([Id]) ON DELETE CASCADE,
-	[FirstSeen] [datetime] NOT NULL
-)
-GO
-CREATE UNIQUE INDEX [IX_StarSystemCarrier_StarSystemCarrierSerialNumber] 
-ON [dbo].[StarSystemCarrier]([StarSystemId], [CarrierId])
-GO
 CREATE TABLE [dbo].[IgnoredCarrier](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[CarrierId] [int] NOT NULL FOREIGN KEY REFERENCES Carrier([Id]) ON DELETE CASCADE,
 	[DiscordGuildId] [int] NOT NULL FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE
 )
-GO
-CREATE UNIQUE INDEX [IX_IgnoredCarriers_CarrierSerialNumberDiscordGuild] 
-ON [dbo].[StarSystemCarrier]([StarSystemId], [CarrierId])
 GO

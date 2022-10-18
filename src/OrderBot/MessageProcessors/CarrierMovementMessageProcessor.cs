@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using System.Text.Json;
+using System.Transactions;
 
 namespace OrderBot.MessageProcessors
 {
@@ -41,55 +42,86 @@ namespace OrderBot.MessageProcessors
                 if (signals != null)
                 {
                     using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-
-                    // TODO: Rename StarSystemCarrier to CarrierLocation?
-
-                    string starSystemName = starSystemProperty.GetProperty("name").GetString() ?? "";
+                    string starSystemName = starSystemProperty.GetString() ?? "";
                     StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
                     if (starSystem != null)
                     {
-                        IReadOnlyList<StarSystemCarrier> starSystemCarrier = dbContext.StarSystemCarriers.Include(ssc => ssc.Carrier)
-                                                                                                         .Include(ssc => ssc.StarSystem)
-                                                                                                         .Where(ss => ss.StarSystem.Name == starSystemName)
-                                                                                                         .ToList();
-                        IReadOnlyList<DiscordGuild> ignoredCarriers = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
-                                                                                             .ToList();
-                        foreach (Signal signal in signals.Where(s => s.IsStation && Carrier.IsCarrier(s.Name)))
+                        using TransactionScope transactionScope = new();
+                        IReadOnlyList<DiscordGuild> discordGuilds = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
+                                                                                           .Where(dg => dg.CarrierMovementChannel != null)
+                                                                                           .ToList();
+                        Carrier[] observedCarriers = UpdateNewCarrierLocations(dbContext, starSystem, discordGuilds, timestamp, signals);
+                        RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, timestamp, observedCarriers);
+                        transactionScope.Complete();
+                    }
+                }
+            }
+        }
+
+        private Carrier[] UpdateNewCarrierLocations(OrderBotDbContext dbContext, StarSystem starSystem, IReadOnlyList<DiscordGuild> discordGuilds, DateTime timestamp, Signal[] signals)
+        {
+            List<Carrier> observedCarriers = new List<Carrier>();
+            foreach (Signal signal in signals.Where(s => s.IsStation && Carrier.IsCarrier(s.Name)))
+            {
+                string serialNumber = Carrier.GetSerialNumber(signal.Name);
+                Carrier? carrier = dbContext.Carriers.Include(c => c.StarSystem)
+                                                     .FirstOrDefault(c => c.SerialNumber == serialNumber);
+                if (carrier == null)
+                {
+                    carrier = new Carrier() { Name = signal.Name };
+                    dbContext.Carriers.Add(carrier);
+                }
+                observedCarriers.Add(carrier);
+                if (carrier.StarSystem != starSystem)
+                {
+                    carrier.StarSystem = starSystem;
+                    carrier.FirstSeen = timestamp;
+
+                    foreach (DiscordGuild discordGuild in
+                        discordGuilds.Where(dg => !dg.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber)))
+                    {
+                        if (DiscordClient.GetChannel(discordGuild.CarrierMovementChannel ?? 0) is ISocketMessageChannel channel)
                         {
-                            string serialNumber = Carrier.GetSerialNumber(signal.Name);
-                            foreach (DiscordGuild discordGuild in
-                                ignoredCarriers.Where(dg => !dg.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber)
-                                                          && dg.CarrierMovementChannel != null))
+                            try
                             {
-                                StarSystemCarrier? carrierLocation = starSystemCarrier.FirstOrDefault(ssc => ssc.Carrier.SerialNumber == serialNumber);
-                                if (carrierLocation == null)
-                                {
-                                    Carrier? carrier = dbContext.Carriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
-                                    if (carrier == null)
-                                    {
-                                        carrier = new Carrier() { Name = signal.Name };
-                                    }
-
-                                    dbContext.StarSystemCarriers.Add(new StarSystemCarrier() { Carrier = carrier, StarSystem = starSystem, FirstSeen = timestamp });
-                                    if (DiscordClient.GetChannel(discordGuild.CarrierMovementChannel ?? 0) is ISocketMessageChannel channel)
-                                    {
-                                        try
-                                        {
-                                            channel.SendMessageAsync(text: $"New carrier '{signal.Name}' seen in '{starSystemName}'").GetAwaiter().GetResult();
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Logger.LogError(ex, "Updating channel '{channelId}' for discord Guid '{discordGuildId}' failed", channel.Id, discordGuild.Id);
-                                        }
-                                    }
-
-                                    // TODO: Remove old signal sources
-                                }
+                                channel.SendMessageAsync(text: $"New fleet carrier '{signal.Name}' seen in '{starSystem.Name}'").GetAwaiter().GetResult();
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError(ex, "Updating channel '{channelId}' for discord Guid '{discordGuildId}' failed", channel.Id, discordGuild.Id);
                             }
                         }
                     }
                 }
             }
+            dbContext.SaveChanges();
+            return observedCarriers.ToArray();
+        }
+
+        private void RemoveAbsentCarrierLocations(OrderBotDbContext dbContext, StarSystem starSystem, IReadOnlyList<DiscordGuild> discordGuilds, DateTime timestamp, Carrier[] observedCarriers)
+        {
+            foreach (Carrier carrier in dbContext.Carriers.Where(c => c.StarSystem == starSystem && !observedCarriers.Contains(c)))
+            {
+                carrier.StarSystem = null;
+                carrier.FirstSeen = null;
+
+                foreach (DiscordGuild discordGuild in
+                    discordGuilds.Where(dg => !dg.IgnoredCarriers.Any(c => c.SerialNumber == carrier.SerialNumber)))
+                {
+                    if (DiscordClient.GetChannel(discordGuild.CarrierMovementChannel ?? 0) is ISocketMessageChannel channel)
+                    {
+                        try
+                        {
+                            channel.SendMessageAsync(text: $"Fleet carrier '{carrier.Name}' has left '{starSystem.Name}'").GetAwaiter().GetResult();
+                        }
+                        catch (Exception ex)
+                        {
+                            Logger.LogError(ex, "Updating channel '{channelId}' for discord Guid '{discordGuildId}' failed", channel.Id, discordGuild.Id);
+                        }
+                    }
+                }
+            }
+            dbContext.SaveChanges();
         }
     }
 }
