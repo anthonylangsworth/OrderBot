@@ -6,7 +6,7 @@ using OrderBot.Core;
 
 namespace OrderBot.Discord
 {
-    [Group("carrer-movement", "Monitor carrier movements")]
+    [Group("carrier-movement", "Monitor carrier movements")]
     public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInteractionContext>
     {
         /// <summary>
