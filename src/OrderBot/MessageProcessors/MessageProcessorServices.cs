@@ -7,7 +7,7 @@ namespace OrderBot.MessageProcessors
         internal static void AddTodoListMessageProcessor(this IServiceCollection services)
         {
             services.AddSingleton<MinorFactionNameFilter, FixedMinorFactionNameFilter>(sp => new FixedMinorFactionNameFilter(new[] { "EDA Kunti League" }));
-            services.AddSingleton<EddnMessageProcessor, TodoListMessageProcessor>();
+            services.AddSingleton<EddnMessageProcessor, ToDoListMessageProcessor>();
             services.AddBackgroundService();
         }
 

@@ -13,11 +13,11 @@ namespace OrderBot.Test.MessageProcessors
         [Test]
         public void Ctor()
         {
-            ILogger<TodoListMessageProcessor> logger = new NullLogger<TodoListMessageProcessor>();
+            ILogger<ToDoListMessageProcessor> logger = new NullLogger<ToDoListMessageProcessor>();
             OrderBotDbContextFactory dbContextFactory = new();
             FixedMinorFactionNameFilter filter = new(new[] { "a" });
 
-            TodoListMessageProcessor systemMinorFactionMessageProcessor = new(logger, dbContextFactory, filter);
+            ToDoListMessageProcessor systemMinorFactionMessageProcessor = new(logger, dbContextFactory, filter);
             Assert.That(systemMinorFactionMessageProcessor.Logger, Is.EqualTo(logger));
             Assert.That(systemMinorFactionMessageProcessor.DbContextFactory, Is.EqualTo(dbContextFactory));
             Assert.That(systemMinorFactionMessageProcessor.Filter, Is.EqualTo(filter));
@@ -32,7 +32,7 @@ namespace OrderBot.Test.MessageProcessors
             string[] states = new string[] { "C", "D" };
             DateTime timestamp = DateTime.UtcNow.ToUniversalTime();
 
-            ILogger<TodoListMessageProcessor> logger = new NullLogger<TodoListMessageProcessor>();
+            ILogger<ToDoListMessageProcessor> logger = new NullLogger<ToDoListMessageProcessor>();
             OrderBotDbContextFactory dbContextFactory = new();
             FixedMinorFactionNameFilter filter = new(new[] { "a" });
 
@@ -40,7 +40,7 @@ namespace OrderBot.Test.MessageProcessors
             using TransactionScope transactionScope = new();
             using OrderBotDbContext dbContext = dbContextFactory.CreateDbContext();
 
-            TodoListMessageProcessor.Update(timestamp, starSystem, new MinorFactionInfluence[]
+            ToDoListMessageProcessor.Update(timestamp, starSystem, new MinorFactionInfluence[]
             {
                 new MinorFactionInfluence(minorFaction, newInfluence, states)
             }, dbContext);
@@ -68,7 +68,7 @@ namespace OrderBot.Test.MessageProcessors
             MinorFactionInfluence systemTwoMinorFactionInfo = new("MF2", 0.5, new string[] { "B" }); string[] states = new string[] { "C", "D" };
             DateTime timestamp = DateTime.UtcNow.ToUniversalTime();
 
-            ILogger<TodoListMessageProcessor> logger = new NullLogger<TodoListMessageProcessor>();
+            ILogger<ToDoListMessageProcessor> logger = new NullLogger<ToDoListMessageProcessor>();
             OrderBotDbContextFactory dbContextFactory = new();
             FixedMinorFactionNameFilter filter = new(new[] { "a" });
 
@@ -76,11 +76,11 @@ namespace OrderBot.Test.MessageProcessors
             using TransactionScope transactionScope = new();
             using OrderBotDbContext dbContext = dbContextFactory.CreateDbContext();
 
-            TodoListMessageProcessor.Update(timestamp, starSystem1, new MinorFactionInfluence[]
+            ToDoListMessageProcessor.Update(timestamp, starSystem1, new MinorFactionInfluence[]
             {
                 systemOneMinorFactionInfo
             }, dbContext);
-            TodoListMessageProcessor.Update(timestamp, starSystem2, new MinorFactionInfluence[]
+            ToDoListMessageProcessor.Update(timestamp, starSystem2, new MinorFactionInfluence[]
             {
                 systemTwoMinorFactionInfo
             }, dbContext);
