@@ -51,7 +51,7 @@ namespace OrderBot.MessageProcessors
                                                                                            .Where(dg => dg.CarrierMovementChannel != null)
                                                                                            .ToList();
                         Carrier[] observedCarriers = UpdateNewCarrierLocations(dbContext, starSystem, discordGuilds, timestamp, signals);
-                        RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, timestamp, observedCarriers);
+                        RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, observedCarriers);
                         transactionScope.Complete();
                     }
                 }
@@ -60,7 +60,7 @@ namespace OrderBot.MessageProcessors
 
         private Carrier[] UpdateNewCarrierLocations(OrderBotDbContext dbContext, StarSystem starSystem, IReadOnlyList<DiscordGuild> discordGuilds, DateTime timestamp, Signal[] signals)
         {
-            List<Carrier> observedCarriers = new List<Carrier>();
+            List<Carrier> observedCarriers = new();
             foreach (Signal signal in signals.Where(s => s.IsStation && Carrier.IsCarrier(s.Name)))
             {
                 string serialNumber = Carrier.GetSerialNumber(signal.Name);
@@ -84,7 +84,7 @@ namespace OrderBot.MessageProcessors
                         {
                             try
                             {
-                                channel.SendMessageAsync(text: $"New fleet carrier '{signal.Name}' seen in '{starSystem.Name}'").GetAwaiter().GetResult();
+                                channel.SendMessageAsync(text: $"New fleet carrier '{signal.Name}' seen in '{starSystem.Name}'. Inara: https://inara.cz/elite/search/?search={serialNumber}").GetAwaiter().GetResult();
                             }
                             catch (Exception ex)
                             {
@@ -98,7 +98,7 @@ namespace OrderBot.MessageProcessors
             return observedCarriers.ToArray();
         }
 
-        private void RemoveAbsentCarrierLocations(OrderBotDbContext dbContext, StarSystem starSystem, IReadOnlyList<DiscordGuild> discordGuilds, DateTime timestamp, Carrier[] observedCarriers)
+        private void RemoveAbsentCarrierLocations(OrderBotDbContext dbContext, StarSystem starSystem, IReadOnlyList<DiscordGuild> discordGuilds, Carrier[] observedCarriers)
         {
             foreach (Carrier carrier in dbContext.Carriers.Where(c => c.StarSystem == starSystem && !observedCarriers.Contains(c)))
             {
@@ -112,7 +112,7 @@ namespace OrderBot.MessageProcessors
                     {
                         try
                         {
-                            channel.SendMessageAsync(text: $"Fleet carrier '{carrier.Name}' has left '{starSystem.Name}'").GetAwaiter().GetResult();
+                            channel.SendMessageAsync(text: $"Fleet carrier '{carrier.Name}' has left '{starSystem.Name}'. Inara: https://inara.cz/elite/search/?search={carrier.SerialNumber}").GetAwaiter().GetResult();
                         }
                         catch (Exception ex)
                         {
