@@ -43,52 +43,49 @@ namespace OrderBot.MessageProcessors
                 {
                     using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
 
-                    // TODO: Restrict to systems we care about, i.e. where there is a supported minor faction or a goal
                     // TODO: Rename StarSystemCarrier to CarrierLocation?
 
                     string starSystemName = starSystemProperty.GetProperty("name").GetString() ?? "";
-                    IReadOnlyList<StarSystemCarrier> starSystemCarrier = dbContext.StarSystemCarriers.Include(ssc => ssc.Carrier)
-                                                                                                     .Include(ssc => ssc.StarSystem)
-                                                                                                     .Where(ss => ss.StarSystem.Name == starSystemName)
-                                                                                                     .ToList();
-                    IReadOnlyList<DiscordGuild> ignoredCarriers = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
-                                                                                         .ToList();
-                    foreach (Signal signal in signals.Where(s => s.IsStation && Carrier.IsCarrier(s.Name)))
+                    StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
+                    if (starSystem != null)
                     {
-                        string serialNumber = Carrier.GetSerialNumber(signal.Name);
-                        foreach (DiscordGuild discordGuild in
-                            ignoredCarriers.Where(dg => !dg.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber)
-                                                      && dg.CarrierMovementChannel != null))
+                        IReadOnlyList<StarSystemCarrier> starSystemCarrier = dbContext.StarSystemCarriers.Include(ssc => ssc.Carrier)
+                                                                                                         .Include(ssc => ssc.StarSystem)
+                                                                                                         .Where(ss => ss.StarSystem.Name == starSystemName)
+                                                                                                         .ToList();
+                        IReadOnlyList<DiscordGuild> ignoredCarriers = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
+                                                                                             .ToList();
+                        foreach (Signal signal in signals.Where(s => s.IsStation && Carrier.IsCarrier(s.Name)))
                         {
-                            StarSystemCarrier? carrierLocation = starSystemCarrier.FirstOrDefault(ssc => ssc.Carrier.SerialNumber == serialNumber);
-                            if (carrierLocation == null)
+                            string serialNumber = Carrier.GetSerialNumber(signal.Name);
+                            foreach (DiscordGuild discordGuild in
+                                ignoredCarriers.Where(dg => !dg.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber)
+                                                          && dg.CarrierMovementChannel != null))
                             {
-                                Carrier? carrier = dbContext.Carriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
-                                if (carrier == null)
+                                StarSystemCarrier? carrierLocation = starSystemCarrier.FirstOrDefault(ssc => ssc.Carrier.SerialNumber == serialNumber);
+                                if (carrierLocation == null)
                                 {
-                                    carrier = new Carrier() { Name = signal.Name };
-                                }
-
-                                StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
-                                if (starSystem == null)
-                                {
-                                    starSystem = new StarSystem() { Name = signal.Name, LastUpdated = timestamp };
-                                }
-
-                                dbContext.StarSystemCarriers.Add(new StarSystemCarrier() { Carrier = carrier, StarSystem = starSystem, FirstSeen = timestamp });
-                                if (DiscordClient.GetChannel(discordGuild.CarrierMovementChannel ?? 0) is ISocketMessageChannel channel)
-                                {
-                                    try
+                                    Carrier? carrier = dbContext.Carriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
+                                    if (carrier == null)
                                     {
-                                        channel.SendMessageAsync(text: $"New carrier '{signal.Name}' seen in '{starSystemName}'");
+                                        carrier = new Carrier() { Name = signal.Name };
                                     }
-                                    catch (Exception ex)
-                                    {
-                                        Logger.LogError(ex, "Updating channel '{channelId}' for discord Guid '{discordGuildId}' failed", channel.Id, discordGuild.Id);
-                                    }
-                                }
 
-                                // TODO: Remove old signal sources
+                                    dbContext.StarSystemCarriers.Add(new StarSystemCarrier() { Carrier = carrier, StarSystem = starSystem, FirstSeen = timestamp });
+                                    if (DiscordClient.GetChannel(discordGuild.CarrierMovementChannel ?? 0) is ISocketMessageChannel channel)
+                                    {
+                                        try
+                                        {
+                                            channel.SendMessageAsync(text: $"New carrier '{signal.Name}' seen in '{starSystemName}'");
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Logger.LogError(ex, "Updating channel '{channelId}' for discord Guid '{discordGuildId}' failed", channel.Id, discordGuild.Id);
+                                        }
+                                    }
+
+                                    // TODO: Remove old signal sources
+                                }
                             }
                         }
                     }
