@@ -48,7 +48,7 @@ namespace OrderBot
                     {
                         try
                         {
-                            await Task.Factory.StartNew(() => messageProcessor.Process(message));
+                            await Task.Factory.StartNew(() => messageProcessor.Process(JsonDocument.Parse(message)));
                         }
                         catch (JsonException)
                         {

@@ -21,7 +21,7 @@ namespace OrderBot.MessageProcessors
         public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
         public MinorFactionNameFilter Filter { get; }
 
-        public override void Process(string message)
+        public override void Process(JsonDocument message)
         {
             using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();
@@ -61,17 +61,16 @@ namespace OrderBot.MessageProcessors
         /// <exception cref="FormatException">
         /// One or more fields are not of the expected format.
         /// </exception>
-        internal static (DateTime, string?, MinorFactionInfluence[]) GetTimestampAndFactionInfo(string message,
+        internal static (DateTime, string?, MinorFactionInfluence[]) GetTimestampAndFactionInfo(JsonDocument message,
             MinorFactionNameFilter minorFactionNameFilters)
         {
-            JsonDocument document = JsonDocument.Parse(message);
-            DateTime timestamp = document.RootElement
+            DateTime timestamp = message.RootElement
                     .GetProperty("header")
                     .GetProperty("gatewayTimestamp")
                     .GetDateTime()
                     .ToUniversalTime();
 
-            JsonElement messageElement = document.RootElement.GetProperty("message");
+            JsonElement messageElement = message.RootElement.GetProperty("message");
             string? starSystemName = null;
             MinorFactionInfluence[] minorFactionInfos = Array.Empty<MinorFactionInfluence>();
             if (messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty))

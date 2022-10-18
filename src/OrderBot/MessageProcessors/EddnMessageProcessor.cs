@@ -1,4 +1,6 @@
-﻿namespace OrderBot.MessageProcessors
+﻿using System.Text.Json;
+
+namespace OrderBot.MessageProcessors
 {
     /// <summary>
     /// Process a message received by <see cref="EddnMessageBackgroundService"/>.
@@ -11,6 +13,6 @@
         /// <param name="message">
         /// The message to process.
         /// </param>
-        public abstract void Process(string message);
+        public abstract void Process(JsonDocument message);
     }
 }
