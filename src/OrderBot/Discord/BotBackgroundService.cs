@@ -46,6 +46,7 @@ namespace OrderBot.Discord
             Client.Log += LogAsync;
             InteractionService.Log += LogAsync;
             Client.SlashCommandExecuted += Client_SlashCommandExecutedAsync;
+            Client.AutocompleteExecuted += Client_AutocompleteExecuted;
             Client.Ready += Client_ReadyAsync;
         }
 
@@ -129,12 +130,26 @@ namespace OrderBot.Discord
                 ServiceProvider);
             if (!result.IsSuccess)
             {
-                Logger.LogError("Command failed: {message}", result.Error.ToString());
+                Logger.LogError("Command failed: {message}", result.ToString());
             }
             else
             {
                 Logger.LogInformation("Command succeeded: {message}", socketSlashCommand.CommandName);
             }
+        }
+
+        private Task Client_AutocompleteExecuted(SocketAutocompleteInteraction arg)
+        {
+            SearchResult<AutocompleteCommandInfo> result = InteractionService.SearchAutocompleteCommand(arg);
+            if (!result.IsSuccess)
+            {
+                Logger.LogError("Autocompletion failed: {message}", result.ToString());
+            }
+            else
+            {
+                Logger.LogInformation("Autocompletion succeeded");
+            }
+            return Task.CompletedTask;
         }
 
         internal static void AddDiscordGuild(IDbContextFactory<OrderBotDbContext> contextFactory, ulong guildId)

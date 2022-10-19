@@ -94,6 +94,7 @@ namespace OrderBot.Discord
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         [SlashCommand("ignore-carrier", "Do not track this carrier or report its movements")]
         public async Task IgnoreCarrier(
+            [Autocomplete(typeof(TrackedCarriersAutocompleteHandler))]
             [Summary("Name", "The full name or just the ending serial number of the carrier to ignore")]
             string name)
         {
