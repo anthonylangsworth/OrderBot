@@ -14,12 +14,13 @@ namespace OrderBot.Discord
 
         public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
 
-        public override async Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context, IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter, IServiceProvider services)
+        public override async Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context,
+            IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter, IServiceProvider services)
         {
             // See https://discordnet.dev/guides/int_framework/autocompletion.html
 
             string currentValue = autocompleteInteraction.Data.Current.Value.ToString() ?? "";
-            using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
+            using OrderBotDbContext dbContext = await DbContextFactory.CreateDbContextAsync();
             DiscordGuild? discordGuild = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
                                                                 .FirstOrDefault(dg => dg.GuildId == context.Guild.Id);
             IList<AutocompleteResult> carrierNames;
