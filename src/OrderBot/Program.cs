@@ -5,16 +5,22 @@ using OrderBot.Discord;
 using OrderBot.MessageProcessors;
 using OrderBot.Reports;
 
-IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureHostConfiguration(configurationBuilder => configurationBuilder.AddEnvironmentVariables())
-    .ConfigureServices((hostContext, services) =>
+internal class Program
+{
+    private static async Task Main(string[] args)
     {
-        services.AddDatabase(hostContext.Configuration);
-        services.AddReports();
-        // services.AddTodoListMessageProcessor();
-        services.AddCarrierMovementMessageProcessor();
-        services.AddDiscordBot(hostContext.Configuration);
-    })
-    .Build();
+        IHost host = Host.CreateDefaultBuilder(args)
+                         .ConfigureHostConfiguration(configurationBuilder => configurationBuilder.AddEnvironmentVariables())
+                         .ConfigureServices((hostContext, services) =>
+                         {
+                             services.AddDatabase(hostContext.Configuration);
+                             services.AddReports();
+                             services.AddTodoListMessageProcessor();
+                             services.AddCarrierMovementMessageProcessor();
+                             services.AddDiscordBot(hostContext.Configuration);
+                         })
+                         .Build();
 
-await host.RunAsync();
+        await host.RunAsync();
+    }
+}

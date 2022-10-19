@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Discord.Interactions;
-using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
@@ -97,7 +96,7 @@ namespace OrderBot.Discord
         public async Task IgnoreCarrier(
             [
              Summary("name", "The full name or just the ending serial number of the carrier to ignore"),
-             Autocomplete // Autocomplete(typeof(TrackedCarriersAutocompleteHandler))
+             Autocomplete(typeof(TrackedCarriersAutocompleteHandler))
             ]
             string name)
         {
@@ -200,31 +199,31 @@ namespace OrderBot.Discord
         }
 
         //// TODO: Use constants
-        [AutocompleteCommand("ignore-carrier", "name")]
-        public async Task TrackedCarriersAutocomplete()
-        {
-            // See https://discordnet.dev/guides/int_framework/autocompletion.html
+        //[AutocompleteCommand("ignore-carrier", "name")]
+        //public async Task TrackedCarriersAutocomplete()
+        //{
+        //    // See https://discordnet.dev/guides/int_framework/autocompletion.html
 
-            if (Context.Interaction != null && Context.Interaction is SocketAutocompleteInteraction interaction)
-            {
-                string currentValue = interaction.Data.Current.Value.ToString() ?? "";
-                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                DiscordGuild? discordGuild = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
-                                                                    .FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
-                IList<AutocompleteResult> carrierNames;
-                carrierNames = (discordGuild != null ? dbContext.Carriers.Except(discordGuild.IgnoredCarriers) : dbContext.Carriers)
-                                    .Where(c => c.Name.StartsWith(currentValue))
-                                    .OrderBy(c => c.Name)
-                                    .Select(c => new AutocompleteResult(c.Name, c.Name))
-                                    .ToList();
+        //    if (Context.Interaction != null && Context.Interaction is SocketAutocompleteInteraction interaction)
+        //    {
+        //        string currentValue = interaction.Data.Current.Value.ToString() ?? "";
+        //        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+        //        DiscordGuild? discordGuild = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
+        //                                                            .FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
+        //        IList<AutocompleteResult> carrierNames;
+        //        carrierNames = (discordGuild != null ? dbContext.Carriers.Except(discordGuild.IgnoredCarriers) : dbContext.Carriers)
+        //                            .Where(c => c.Name.StartsWith(currentValue))
+        //                            .OrderBy(c => c.Name)
+        //                            .Select(c => new AutocompleteResult(c.Name, c.Name))
+        //                            .ToList();
 
-                // max - 25 suggestions at a time (API limit)
-                await interaction.RespondAsync(carrierNames.Take(25));
-            }
-            else
-            {
-                Logger.LogWarning("Invalid interaction");
-            }
-        }
+        //        // max - 25 suggestions at a time (API limit)
+        //        await interaction.RespondAsync(carrierNames.Take(25));
+        //    }
+        //    else
+        //    {
+        //        Logger.LogWarning("Invalid interaction");
+        //    }
+        //}
     }
 }

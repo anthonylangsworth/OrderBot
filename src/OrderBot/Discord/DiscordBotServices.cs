@@ -37,11 +37,12 @@ namespace OrderBot.Discord
             {
                 GatewayIntents = BotBackgroundService.Intents
             }));
-            services.AddSingleton<InteractionService>();
-            services.AddSingleton(new InteractionServiceConfig()
-            {
-                DefaultRunMode = RunMode.Async // Default is Async. Sync provides better error reporting.
-            });
+            services.AddSingleton(sp => new InteractionService(
+                sp.GetRequiredService<DiscordSocketClient>(),
+                new InteractionServiceConfig()
+                {
+                    DefaultRunMode = RunMode.Sync // Default is Async. Sync provides better error reporting.
+                }));
             services.AddHostedService<BotBackgroundService>(
                 sp => new(sp.GetRequiredService<ILogger<BotBackgroundService>>(),
                     sp.GetRequiredService<DiscordSocketClient>(),
