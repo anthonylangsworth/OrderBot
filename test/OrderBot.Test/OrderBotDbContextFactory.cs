@@ -9,10 +9,10 @@ namespace OrderBot.Test
     {
         private bool disposedValue;
 
-        public OrderBotDbContextFactory(bool useInMemory = false)
+        public OrderBotDbContextFactory(bool useInMemory = false, string? connectionString = null)
         {
             // Share the same connection to enable transactions
-            SqlConnection = new(@"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password");
+            SqlConnection = new(connectionString ?? @"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password");
             DbContextOptionsBuilder<OrderBotDbContext> optionsBuilder = new();
             DbContextOptions = (useInMemory
                 ? optionsBuilder.UseInMemoryDatabase("OrderBot").ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))

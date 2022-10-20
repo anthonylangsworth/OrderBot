@@ -39,3 +39,8 @@ delete from MinorFaction
 delete from StarSystemMinorFaction
 delete from StarSystemMinorFactionState
 */
+
+-- Ignored carriers
+select dg.GuildId, c.SerialNumber, c.Name
+from IgnoredCarrier ic left join DiscordGuild dg on ic.DiscordGuildId = dg.Id
+	left join Carrier c on ic.CarrierId = c.Id

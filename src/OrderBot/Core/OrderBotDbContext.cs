@@ -149,8 +149,7 @@ namespace OrderBot.Core
 
             modelBuilder.Entity<Carrier>()
                         .HasOne(e => e.StarSystem)
-                        .WithMany()
-                        .IsRequired();
+                        .WithMany();
 
             modelBuilder.Entity<IgnoredCarrier>(entity =>
             {
