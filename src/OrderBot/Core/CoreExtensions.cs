@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace OrderBot.Core
 {
-    internal static class CoreServices
+    internal static class CoreExtensions
     {
         internal const string DatabaseEnvironmentVariable = "OrderBot";
 

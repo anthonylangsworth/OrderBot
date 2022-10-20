@@ -2,7 +2,7 @@
 
 namespace OrderBot.Reports
 {
-    internal static class ReportServices
+    internal static class ReportExtensions
     {
         public static void AddReports(this IServiceCollection services)
         {

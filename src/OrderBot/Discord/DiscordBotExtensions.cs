@@ -8,7 +8,7 @@ using OrderBot.Core;
 
 namespace OrderBot.Discord
 {
-    internal static class DiscordBotServices
+    internal static class DiscordBotExtensions
     {
 
         const string DiscordApiKeyEnvironmentVariable = "DiscordApiKey";

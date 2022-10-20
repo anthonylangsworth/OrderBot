@@ -2,7 +2,7 @@
 
 namespace OrderBot.MessageProcessors
 {
-    internal static class MessageProcessorServices
+    internal static class MessageProcessorExtensions
     {
         internal static void AddTodoListMessageProcessor(this IServiceCollection services)
         {
