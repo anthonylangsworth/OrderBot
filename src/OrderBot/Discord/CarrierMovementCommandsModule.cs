@@ -92,7 +92,7 @@ namespace OrderBot.Discord
         }
 
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
-        [SlashCommand("ignore-carrier", "Do not track this carrier or report its movements")]
+        [SlashCommand("ignore-carrier", "Do not track this carrier or report its movements. The name is case insensitive.")]
         public async Task IgnoreCarrier(
             [
              Summary("name", "The full name or just the ending serial number of the carrier to ignore"),
@@ -140,7 +140,7 @@ namespace OrderBot.Discord
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         [SlashCommand("track-carrier", "Track this carrier and report its movements")]
         public async Task TrackCarrier(
-            [Summary("Name", "The full name or just the ending serial number of the carrier to track")]
+            [Summary("Name", "The full name or just the ending serial number of the carrier to track. The name is case insensitive.")]
             string name)
         {
             await Context.Interaction.DeferAsync(ephemeral: true);
