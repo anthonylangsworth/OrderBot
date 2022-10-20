@@ -36,7 +36,7 @@ namespace OrderBot.Discord
             DiscordGuild? discordGuild = dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
             if (discordGuild == null)
             {
-                discordGuild = new DiscordGuild() { GuildId = Context.Guild.Id, CarrierMovementChannel = channel.Id };
+                discordGuild = new DiscordGuild() { GuildId = Context.Guild.Id, CarrierMovementChannel = channel.Id, Name = Context.Guild?.Name ?? "" };
                 dbContext.DiscordGuilds.Add(discordGuild);
             }
             else
@@ -116,7 +116,7 @@ namespace OrderBot.Discord
                                                                     .FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
                 if (discordGuild == null)
                 {
-                    discordGuild = new DiscordGuild() { GuildId = Context.Guild.Id };
+                    discordGuild = new DiscordGuild() { GuildId = Context.Guild.Id, Name = Context.Guild?.Name ?? "" };
                     dbContext.DiscordGuilds.Add(discordGuild);
                 }
                 if (!discordGuild.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber))
@@ -159,7 +159,7 @@ namespace OrderBot.Discord
                                                                     .FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
                 if (discordGuild == null)
                 {
-                    discordGuild = new DiscordGuild() { GuildId = Context.Guild.Id };
+                    discordGuild = new DiscordGuild() { GuildId = Context.Guild.Id, Name = Context.Guild?.Name ?? "" };
                     dbContext.DiscordGuilds.Add(discordGuild);
                 }
                 Carrier? ignoredCarrier = discordGuild.IgnoredCarriers.FirstOrDefault(c => c.SerialNumber == serialNumber);

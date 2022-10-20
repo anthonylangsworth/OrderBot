@@ -160,7 +160,7 @@ namespace OrderBot.Discord
             DiscordGuild? discordGuild = dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == guildId);
             if (discordGuild == null)
             {
-                dbContext.DiscordGuilds.Add(new DiscordGuild() { GuildId = guildId });
+                dbContext.DiscordGuilds.Add(new DiscordGuild() { GuildId = guildId, Name = discordGuild?.Name ?? "" });
                 dbContext.SaveChanges();
             }
 

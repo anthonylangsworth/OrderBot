@@ -50,7 +50,7 @@ namespace OrderBot.Test.Core
         }
 
         [Test]
-        // [Ignore("Only run manually")]
+        [Ignore("Only run manually")]
         public void IgnoreEDACarriers()
         {
             ulong edaGuildId = 141831692699566080;
