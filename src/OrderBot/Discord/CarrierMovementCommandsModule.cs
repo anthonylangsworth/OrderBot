@@ -186,7 +186,8 @@ namespace OrderBot.Discord
             string result = "";
             if (discordGuild != null)
             {
-                result = string.Join("\n", discordGuild.IgnoredCarriers.Select(c => c.Name));
+                result = string.Join("\n", discordGuild.IgnoredCarriers.OrderBy(c => c.Name)
+                                                                       .Select(c => c.Name));
             }
             if (!result.Any())
             {
