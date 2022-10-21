@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
-using System.Data;
+using OrderBot.MessageProcessors;
 using System.Text.Json;
 using System.Transactions;
 
-namespace OrderBot.MessageProcessors
+namespace OrderBot.ToDo
 {
     internal class ToDoListMessageProcessor : EddnMessageProcessor
     {

@@ -3,10 +3,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using OrderBot.Core;
-using OrderBot.MessageProcessors;
+using OrderBot.Test.MessageProcessors;
+using OrderBot.ToDo;
 using System.Transactions;
 
-namespace OrderBot.Test.MessageProcessors
+namespace OrderBot.Test.ToDo
 {
     internal class TestTodoListMessageProcessor
     {

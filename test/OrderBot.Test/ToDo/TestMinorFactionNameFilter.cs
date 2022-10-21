@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
-using OrderBot.MessageProcessors;
+using OrderBot.ToDo;
 
-namespace OrderBot.Test.MessageProcessors
+namespace OrderBot.Test.ToDo
 {
     internal class TestMinorFactionNameFilter
     {

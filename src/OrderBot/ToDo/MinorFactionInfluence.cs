@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace OrderBot.MessageProcessors
+namespace OrderBot.ToDo
 {
     /// <summary>
     /// A minor faction's influence and states in a star system.

@@ -3,11 +3,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetMQ;
 using NetMQ.Sockets;
-using OrderBot.MessageProcessors;
 using System.Text;
 using System.Text.Json;
 
-namespace OrderBot
+namespace OrderBot.MessageProcessors
 {
     internal class EddnMessageBackgroundService : BackgroundService
     {
