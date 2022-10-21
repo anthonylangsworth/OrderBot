@@ -2,10 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
+using OrderBot.MessageProcessors;
 using System.Text.Json;
 using System.Transactions;
 
-namespace OrderBot.MessageProcessors
+namespace OrderBot.CarrierMovement
 {
     internal class CarrierMovementMessageProcessor : EddnMessageProcessor
     {

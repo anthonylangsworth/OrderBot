@@ -3,8 +3,8 @@ using Discord.WebSocket;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NUnit.Framework;
+using OrderBot.CarrierMovement;
 using OrderBot.Core;
-using OrderBot.Discord;
 using System.Transactions;
 
 namespace OrderBot.Test.Discord

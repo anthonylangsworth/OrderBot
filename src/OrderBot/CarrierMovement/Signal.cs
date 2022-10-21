@@ -1,7 +1,6 @@
-﻿using Newtonsoft.Json;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
-namespace OrderBot.MessageProcessors
+namespace OrderBot.CarrierMovement
 {
     /// <summary>
     /// Based off https://github.com/EDCD/EDDN/blob/master/schemas/fsssignaldiscovered-v1.0.json for the schema
@@ -9,13 +8,13 @@ namespace OrderBot.MessageProcessors
     /// </summary>
     internal record Signal
     {
-        [JsonRequired]
+        [JsonInclude]
         [JsonPropertyName("IsStation")]
         public bool IsStation { get; set; }
-        [JsonRequired]
+        [JsonInclude]
         [JsonPropertyName("SignalName")]
         public string Name { get; set; } = null!;
-        [JsonRequired]
+        [JsonInclude]
         [JsonPropertyName("timestamp")]
 #pragma warning disable IDE1006
         public DateTime timeStamp { get; set; }

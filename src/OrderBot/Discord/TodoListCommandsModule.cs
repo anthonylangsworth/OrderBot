@@ -3,7 +3,7 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
-using OrderBot.Reports;
+using OrderBot.ToDo;
 
 namespace OrderBot.Discord
 {

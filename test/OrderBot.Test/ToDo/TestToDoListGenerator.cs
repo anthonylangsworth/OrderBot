@@ -2,10 +2,10 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using OrderBot.Core;
-using OrderBot.Reports;
+using OrderBot.ToDo;
 using System.Transactions;
 
-namespace OrderBot.Test.Reports
+namespace OrderBot.Test.ToDo
 {
     internal class TestToDoListGenerator
     {

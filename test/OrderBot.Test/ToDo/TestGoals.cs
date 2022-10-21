@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
-using OrderBot.Reports;
+using OrderBot.ToDo;
 
-namespace OrderBot.Test.Reports
+namespace OrderBot.Test.ToDo
 {
     internal class TestGoals
     {

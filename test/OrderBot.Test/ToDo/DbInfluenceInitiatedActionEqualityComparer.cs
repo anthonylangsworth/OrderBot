@@ -1,7 +1,7 @@
-﻿using OrderBot.Reports;
+﻿using OrderBot.ToDo;
 using System.Diagnostics.CodeAnalysis;
 
-namespace OrderBot.Test.Reports
+namespace OrderBot.Test.ToDo
 {
     /// <summary>
     /// Compare two <see cref="InfluenceInitiatedAction"/>s, ignoring database-induced 

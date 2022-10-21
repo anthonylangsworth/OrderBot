@@ -1,6 +1,6 @@
 ﻿using OrderBot.Core;
 
-namespace OrderBot.Reports
+namespace OrderBot.ToDo
 {
     public record InfluenceInitiatedAction : IEquatable<InfluenceInitiatedAction?>
     {

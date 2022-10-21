@@ -1,4 +1,4 @@
-﻿namespace OrderBot.Reports
+﻿namespace OrderBot.ToDo
 {
     internal class Goals
     {

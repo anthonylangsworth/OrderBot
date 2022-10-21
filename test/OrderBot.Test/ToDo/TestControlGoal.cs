@@ -1,8 +1,8 @@
 ﻿using NUnit.Framework;
 using OrderBot.Core;
-using OrderBot.Reports;
+using OrderBot.ToDo;
 
-namespace OrderBot.Test.Reports
+namespace OrderBot.Test.ToDo
 {
     internal class TestControlGoal
     {
@@ -20,16 +20,16 @@ namespace OrderBot.Test.Reports
         public void AddActions(StarSystem starSystem, double influence, IEnumerable<InfluenceInitiatedAction> expectedPro, IEnumerable<InfluenceInitiatedAction> expectedAnti)
         {
             MinorFaction minorFaction = new() { Name = "Flying Fish" };
-            StarSystemMinorFaction starSystemMinorFaction = new StarSystemMinorFaction() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence };
-            ToDoList toDoList = new(minorFaction.Name);
-            ControlGoal.Instance.AddActions(starSystemMinorFaction, toDoList);
-            Assert.That(toDoList.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
-            Assert.That(toDoList.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
+            StarSystemMinorFaction starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence };
+            ToDoList toDo = new(minorFaction.Name);
+            ControlGoal.Instance.AddActions(starSystemMinorFaction, toDo);
+            Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
+            Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()
         {
-            StarSystem polaris = new StarSystem() { Name = "Polaris", LastUpdated = DateTime.UtcNow };
+            StarSystem polaris = new() { Name = "Polaris", LastUpdated = DateTime.UtcNow };
 
             return new[] {
                 new TestCaseData(polaris, ControlGoal.LowerInfluenceThreshold - 0.01, new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 } }, Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Below Lower"),

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 
-namespace OrderBot.Discord
+namespace OrderBot.CarrierMovement
 {
     [Group("carrier-movement", "Monitor carrier movements")]
     public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInteractionContext>
@@ -92,7 +92,7 @@ namespace OrderBot.Discord
         }
 
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
-        [SlashCommand("ignore-carrier", "Do not track this carrier or report its movements. The name is case insensitive.")]
+        [SlashCommand("ignore-carrier", "Do not track this carrier or report its movements (case insensitive).")]
         public async Task IgnoreCarrier(
             [
              Summary("name", "The full name or just the ending serial number of the carrier to ignore"),
@@ -140,7 +140,7 @@ namespace OrderBot.Discord
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         [SlashCommand("track-carrier", "Track this carrier and report its movements")]
         public async Task TrackCarrier(
-            [Summary("Name", "The full name or just the ending serial number of the carrier to track. The name is case insensitive.")]
+            [Summary("Name", "The full name or just the ending serial number of the carrier to track (case insensitive).")]
             string name)
         {
             await Context.Interaction.DeferAsync(ephemeral: true);

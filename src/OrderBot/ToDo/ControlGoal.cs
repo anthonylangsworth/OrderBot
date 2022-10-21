@@ -1,6 +1,6 @@
 ﻿using OrderBot.Core;
 
-namespace OrderBot.Reports
+namespace OrderBot.ToDo
 {
     internal class ControlGoal : Goal
     {

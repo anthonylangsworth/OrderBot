@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using OrderBot.CarrierMovement;
 using OrderBot.Core;
 using OrderBot.Discord;
 using OrderBot.MessageProcessors;
-using OrderBot.Reports;
+using OrderBot.ToDo;
 
 internal class Program
 {
@@ -14,9 +15,9 @@ internal class Program
                          .ConfigureServices((hostContext, services) =>
                          {
                              services.AddDatabase(hostContext.Configuration);
-                             services.AddReports();
-                             services.AddTodoListMessageProcessor();
-                             services.AddCarrierMovementMessageProcessor();
+                             services.AddBaseMessageProcessor();
+                             services.AddTodoList();
+                             services.AddCarrierMovement();
                              services.AddDiscordBot(hostContext.Configuration);
                          })
                          .Build();

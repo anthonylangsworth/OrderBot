@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using System.Transactions;
 
-namespace OrderBot.Reports
+namespace OrderBot.ToDo
 {
     public class ToDoListGenerator
     {
@@ -56,7 +56,7 @@ namespace OrderBot.Reports
             IQueryable<StarSystemMinorFaction> ssmfs =
                 dbContext.StarSystemMinorFactions.Include(ssmf => ssmf.MinorFaction)
                                                  .Include(ssmf => ssmf.StarSystem)
-                                                 .Where(ssmf => !(dgssmfgs.Select(dgssmfg => dgssmfg.StarSystemMinorFaction.Id).Contains(ssmf.Id))
+                                                 .Where(ssmf => !dgssmfgs.Select(dgssmfg => dgssmfg.StarSystemMinorFaction.Id).Contains(ssmf.Id)
                                                                 && ssmf.MinorFaction.Name == minorFactionName);
             foreach (StarSystemMinorFaction ssmf in ssmfs)
             {

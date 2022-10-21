@@ -3,7 +3,7 @@ using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
 using OrderBot.Core;
 
-namespace OrderBot.Discord
+namespace OrderBot.CarrierMovement
 {
     public class TrackedCarriersAutocompleteHandler : AutocompleteHandler
     {

@@ -1,8 +1,8 @@
 ﻿using NUnit.Framework;
 using OrderBot.Core;
-using OrderBot.Reports;
+using OrderBot.ToDo;
 
-namespace OrderBot.Test.Reports
+namespace OrderBot.Test.ToDo
 {
     internal class TestRetreatGoal
     {
@@ -20,10 +20,10 @@ namespace OrderBot.Test.Reports
         {
             MinorFaction minorFaction = new() { Name = "Flying Fish" };
             StarSystemMinorFaction starSystemMinorFaction = new StarSystemMinorFaction() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence };
-            ToDoList toDoList = new(minorFaction.Name);
-            RetreatGoal.Instance.AddActions(starSystemMinorFaction, toDoList);
-            Assert.That(toDoList.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
-            Assert.That(toDoList.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
+            ToDoList toDo = new(minorFaction.Name);
+            RetreatGoal.Instance.AddActions(starSystemMinorFaction, toDo);
+            Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
+            Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()
