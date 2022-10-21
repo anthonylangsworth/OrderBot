@@ -118,7 +118,10 @@ namespace OrderBot.Test.Core
                 "The ******Maximum K3W-L9V",
                 "The Dogs Kennel K8B-NQZ",
                 "Where Am I Now Q0K-9QN",
-                "Your-Grandma X0J-N7B"
+                "Your-Grandma X0J-N7B",
+                "BUTT STALLION GHT-0QZ",
+                "E.D.A. Frank Walker V6T-4TZ",
+                "HMNZS RESOLUTE XHT-98W"
             };
 
             using OrderBotDbContextFactory orderBotDbContextFactory = new();

@@ -12,7 +12,7 @@ namespace OrderBot.Test.Discord
     internal class TestCarrierMovementCommandsModule
     {
         [Test]
-        [Ignore("Failing")]
+        [Ignore("Cannot mock Discord.Net")]
         public async Task ListIgnoredCarriers()
         {
             string[] ignoreCarriers =
@@ -32,18 +32,19 @@ namespace OrderBot.Test.Discord
 
             foreach (string ignoreCarrier in ignoreCarriers)
             {
-                Mock<SocketSlashCommand> mockSocketSlashCommand = new();
+                MockRepository mockRepository = new(MockBehavior.Default);
+                DiscordSocketClient discordSocketClient = new();
+                Mock<SocketSlashCommand> mockSocketSlashCommand = mockRepository.Create<SocketSlashCommand>(discordSocketClient, null, null, null);
                 mockSocketSlashCommand.Setup(si => si.DeferAsync(true, null));
                 mockSocketSlashCommand.Setup(si => si.RespondAsync($"Fleet carrier '{ignoreCarrier}' will **NOT** be tracked or its location reported", null, false, true, null, null, null, null));
-                Mock<DiscordSocketClient> mockDiscordSocketClient = new();
-                SocketInteractionContext socketInteractionContext = new(mockDiscordSocketClient.Object, mockSocketSlashCommand.Object);
+                SocketSlashCommand socketSlashCommand = mockSocketSlashCommand.Object;
+                SocketInteractionContext socketInteractionContext = new(discordSocketClient, null);
 
                 CarrierMovementCommandsModule module = new(contextFactory, new NullLogger<CarrierMovementCommandsModule>());
                 ((IInteractionModuleBase)module).SetContext(socketInteractionContext);
                 await module.IgnoreCarrier(ignoreCarrier);
 
-                mockSocketSlashCommand.Verify();
-                mockDiscordSocketClient.Verify();
+                mockRepository.VerifyAll();
                 Assert.That(() => dbContext.Carriers.First(c => c.Name == ignoreCarrier), Throws.Nothing);
             }
         }
