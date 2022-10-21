@@ -108,6 +108,7 @@ namespace OrderBot.Discord
             foreach (SocketGuild guild in Client.Guilds)
             {
                 await InteractionService.RegisterCommandsToGuildAsync(guild.Id);
+                await Client.Rest.DeleteAllGlobalCommandsAsync();
                 AddDiscordGuild(ContextFactory, guild.Id);
 
                 Logger.LogInformation("Guild {name} ({guildId}) added and commands registered", guild.Name, guild.Id);

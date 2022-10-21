@@ -3,10 +3,10 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
-using OrderBot.ToDo;
 
-namespace OrderBot.Discord
+namespace OrderBot.ToDo
 {
+    [Group("todo-list", "Work supporting minor faction(s)")]
     public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionContext>
     {
         public ToDoListCommandsModule(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<ToDoListCommandsModule> logger,
@@ -23,9 +23,9 @@ namespace OrderBot.Discord
         public ToDoListGenerator Generator { get; }
         public ToDoListFormatter Formatter { get; }
 
-        [SlashCommand("todo-list", "List the work required for supporting a minor faction")]
+        [SlashCommand("show", "List the work required for supporting a minor faction")]
         // [RequirePerGuildRole("EDAKL Leaders", "EDAKL Veterans")]
-        public async Task ToDoList()
+        public async Task ShowToDoList()
         {
             // [Summary("raw", "True if the data is quoted, allowing easy coping, false (default) if formatted")] bool raw = false
             await Context.Interaction.DeferAsync(ephemeral: true);
