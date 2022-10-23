@@ -6,7 +6,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using System.Reflection;
-using System.Transactions;
 
 namespace OrderBot.Discord
 {
@@ -109,7 +108,8 @@ namespace OrderBot.Discord
             {
                 await InteractionService.RegisterCommandsToGuildAsync(guild.Id);
                 await Client.Rest.DeleteAllGlobalCommandsAsync();
-                AddDiscordGuild(ContextFactory, guild.Id);
+                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                DiscordHelper.GetOrAddGuild(dbContext, guild);
 
                 Logger.LogInformation("Guild {name} ({guildId}) added and commands registered", guild.Name, guild.Id);
             }
@@ -151,21 +151,6 @@ namespace OrderBot.Discord
                 Logger.LogInformation("Autocompletion succeeded");
             }
             return Task.CompletedTask;
-        }
-
-        internal static void AddDiscordGuild(IDbContextFactory<OrderBotDbContext> contextFactory, ulong guildId)
-        {
-            using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
-            using TransactionScope transactionScope = new();
-
-            DiscordGuild? discordGuild = dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == guildId);
-            if (discordGuild == null)
-            {
-                dbContext.DiscordGuilds.Add(new DiscordGuild() { GuildId = guildId, Name = discordGuild?.Name ?? "" });
-                dbContext.SaveChanges();
-            }
-
-            transactionScope.Complete();
         }
     }
 }
