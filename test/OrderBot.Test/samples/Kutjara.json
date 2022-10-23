@@ -1,0 +1,95 @@
+﻿{
+  "$schemaRef": "https://eddn.edcd.io/schemas/journal/1",
+  "header": {
+    "gatewayTimestamp": "2022-10-23T11:34:02.531294Z",
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "5.5.0",
+    "uploaderID": "413b5d29ab262afcfd5d8dbadc7053717c3ab2d9"
+  },
+  "message": {
+    "Body": "Kutjara A",
+    "BodyID": 2,
+    "BodyType": "Star",
+    "Factions": [
+      {
+        "Allegiance": "Empire",
+        "FactionState": "None",
+        "Government": "Patronage",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.054835,
+        "Name": "Kokobii Empire League"
+      },
+      {
+        "Allegiance": "Empire",
+        "FactionState": "None",
+        "Government": "Patronage",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.03988,
+        "Name": "Vodyanes Emperor's Grace"
+      },
+      {
+        "ActiveStates": [ { "State": "Boom" } ],
+        "Allegiance": "Empire",
+        "FactionState": "Boom",
+        "Government": "Corporate",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.063809,
+        "Name": "Kutjara United PLC"
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "Anarchy",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.00997,
+        "Name": "Kutjara Rats"
+      },
+      {
+        "Allegiance": "Empire",
+        "FactionState": "None",
+        "Government": "Feudal",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.047856,
+        "Name": "Kutjara Dominion"
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "PrisonColony",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.66999,
+        "Name": "EDA Kunti League",
+        "PendingStates": [
+          {
+            "State": "Expansion",
+            "Trend": 0
+          }
+        ]
+      },
+      {
+        "Allegiance": "Empire",
+        "FactionState": "None",
+        "Government": "Corporate",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.113659,
+        "Name": "The Empires Fleet"
+      }
+    ],
+    "Multicrew": false,
+    "Population": 23342,
+    "StarPos": [ 93.53125, -57.84375, -14.375 ],
+    "StarSystem": "Kutjara",
+    "SystemAddress": 13866167575969,
+    "SystemAllegiance": "Independent",
+    "SystemEconomy": "$economy_Industrial;",
+    "SystemFaction": { "Name": "EDA Kunti League" },
+    "SystemGovernment": "$government_PrisonColony;",
+    "SystemSecondEconomy": "$economy_Agri;",
+    "SystemSecurity": "$SYSTEM_SECURITY_low;",
+    "Taxi": false,
+    "event": "FSDJump",
+    "horizons": true,
+    "odyssey": true,
+    "timestamp": "2022-10-23T11:34:00Z"
+  }
+}

@@ -1,0 +1,94 @@
+﻿{
+  "$schemaRef": "https://eddn.edcd.io/schemas/journal/1",
+  "header": {
+    "gatewayTimestamp": "2022-10-23T11:33:12.268059Z",
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "5.5.0",
+    "uploaderID": "413b5d29ab262afcfd5d8dbadc7053717c3ab2d9"
+  },
+  "message": {
+    "Body": "LTT 2412 A",
+    "BodyID": 1,
+    "BodyType": "Star",
+    "Factions": [
+      {
+        "Allegiance": "Empire",
+        "FactionState": "None",
+        "Government": "Patronage",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.11477,
+        "Name": "Mors Citizens of Tradition"
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "Patronage",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.060878,
+        "Name": "LTT 2412 Independent Consulate"
+      },
+      {
+        "Allegiance": "Empire",
+        "FactionState": "None",
+        "Government": "Corporate",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.066866,
+        "Name": "Anukan Allied Network"
+      },
+      {
+        "Allegiance": "Empire",
+        "FactionState": "None",
+        "Government": "Corporate",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.077844,
+        "Name": "LTT 2412 Partners"
+      },
+      {
+        "Allegiance": "Federation",
+        "FactionState": "None",
+        "Government": "Confederacy",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.083832,
+        "Name": "LTT 2412 Alliance"
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "Anarchy",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.021956,
+        "Name": "LTT 2412 Raiders"
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "PrisonColony",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.573852,
+        "Name": "EDA Kunti League",
+        "PendingStates": [
+          {
+            "State": "Expansion",
+            "Trend": 0
+          }
+        ]
+      }
+    ],
+    "Multicrew": false,
+    "Population": 30169,
+    "StarPos": [ 97.125, -55.6875, -16.5625 ],
+    "StarSystem": "LTT 2412",
+    "SystemAddress": 319748557163,
+    "SystemAllegiance": "Independent",
+    "SystemEconomy": "$economy_Refinery;",
+    "SystemFaction": { "Name": "EDA Kunti League" },
+    "SystemGovernment": "$government_PrisonColony;",
+    "SystemSecondEconomy": "$economy_None;",
+    "SystemSecurity": "$SYSTEM_SECURITY_low;",
+    "Taxi": false,
+    "event": "FSDJump",
+    "horizons": true,
+    "odyssey": true,
+    "timestamp": "2022-10-23T11:33:10Z"
+  }
+}
