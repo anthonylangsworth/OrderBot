@@ -2,11 +2,10 @@
 
 namespace OrderBot.MessageProcessors
 {
-    internal static class MessageProcessorExtensions
+    internal static class EddnMessageProcessorExtensions
     {
-        internal static void AddBaseMessageProcessor(this IServiceCollection services)
+        internal static void AddEddnMessageProcessor(this IServiceCollection services)
         {
-            // Multiple registrations do nothing
             services.AddHostedService<EddnMessageHostedService>();
         }
     }

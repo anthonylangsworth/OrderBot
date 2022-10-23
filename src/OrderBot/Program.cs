@@ -15,7 +15,7 @@ internal class Program
                          .ConfigureServices((hostContext, services) =>
                          {
                              services.AddDatabase(hostContext.Configuration);
-                             services.AddBaseMessageProcessor();
+                             services.AddEddnMessageProcessor();
                              services.AddTodoList();
                              services.AddCarrierMovement();
                              services.AddDiscordBot(hostContext.Configuration);
