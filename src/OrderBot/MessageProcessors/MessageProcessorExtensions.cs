@@ -7,7 +7,7 @@ namespace OrderBot.MessageProcessors
         internal static void AddBaseMessageProcessor(this IServiceCollection services)
         {
             // Multiple registrations do nothing
-            services.AddHostedService<EddnMessageBackgroundService>();
+            services.AddHostedService<EddnMessageHostedService>();
         }
     }
 }

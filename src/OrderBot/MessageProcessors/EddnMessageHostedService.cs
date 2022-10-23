@@ -8,16 +8,16 @@ using System.Text.Json;
 
 namespace OrderBot.MessageProcessors
 {
-    internal class EddnMessageBackgroundService : BackgroundService
+    internal class EddnMessageHostedService : BackgroundService
     {
-        public EddnMessageBackgroundService(ILogger<EddnMessageBackgroundService> logger, IEnumerable<EddnMessageProcessor> messageProcessors)
+        public EddnMessageHostedService(ILogger<EddnMessageHostedService> logger, IEnumerable<EddnMessageProcessor> messageProcessors)
         {
             MessageProcessors = messageProcessors.ToArray();
             Logger = logger;
         }
 
         public IReadOnlyList<EddnMessageProcessor> MessageProcessors { get; }
-        public ILogger<EddnMessageBackgroundService> Logger { get; }
+        public ILogger<EddnMessageHostedService> Logger { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

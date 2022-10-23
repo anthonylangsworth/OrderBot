@@ -3,7 +3,7 @@
 namespace OrderBot.MessageProcessors
 {
     /// <summary>
-    /// Process a message received by <see cref="EddnMessageBackgroundService"/>.
+    /// Process a message received by <see cref="EddnMessageHostedService"/>.
     /// </summary>
     internal abstract class EddnMessageProcessor
     {

@@ -35,7 +35,7 @@ namespace OrderBot.Discord
             }
             services.AddSingleton(sp => new DiscordSocketClient(new DiscordSocketConfig()
             {
-                GatewayIntents = BotBackgroundService.Intents
+                GatewayIntents = BotHostedService.Intents
             }));
             services.AddSingleton(sp => new InteractionService(
                 sp.GetRequiredService<DiscordSocketClient>(),
@@ -43,8 +43,8 @@ namespace OrderBot.Discord
                 {
                     DefaultRunMode = RunMode.Sync // Default is Async. Sync provides better error reporting.
                 }));
-            services.AddHostedService<BotBackgroundService>(
-                sp => new(sp.GetRequiredService<ILogger<BotBackgroundService>>(),
+            services.AddHostedService<BotHostedService>(
+                sp => new(sp.GetRequiredService<ILogger<BotHostedService>>(),
                     sp.GetRequiredService<DiscordSocketClient>(),
                     sp.GetRequiredService<InteractionService>(),
                     sp,

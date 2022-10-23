@@ -14,7 +14,7 @@ namespace OrderBot.Test.Discord
             using OrderBotDbContextFactory contextFactory = new();
             using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-            BotBackgroundService.AddDiscordGuild(contextFactory, guildId);
+            BotHostedService.AddDiscordGuild(contextFactory, guildId);
 
             using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
             Assert.That(dbContext.DiscordGuilds.Where(dg => dg.GuildId == guildId).Count(), Is.EqualTo(1));
@@ -31,7 +31,7 @@ namespace OrderBot.Test.Discord
             dbContext.DiscordGuilds.Add(new DiscordGuild() { GuildId = guildId });
             dbContext.SaveChanges();
 
-            BotBackgroundService.AddDiscordGuild(contextFactory, guildId);
+            BotHostedService.AddDiscordGuild(contextFactory, guildId);
 
             Assert.That(dbContext.DiscordGuilds.Where(dg => dg.GuildId == guildId).Count(), Is.EqualTo(1));
         }

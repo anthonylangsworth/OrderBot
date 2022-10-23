@@ -13,7 +13,7 @@ namespace OrderBot.Discord
     /// <summary>
     /// A Discord bot.
     /// </summary>
-    internal class BotBackgroundService : IHostedService
+    internal class BotHostedService : IHostedService
     {
         /// <summary>
         /// Construct a <see cref="Bot"/>.
@@ -32,7 +32,7 @@ namespace OrderBot.Discord
         /// </param>
         /// <param name="contextFactory"></param>
         /// <param name="apiKey"></param>
-        public BotBackgroundService(ILogger<BotBackgroundService> logger, DiscordSocketClient discordClient,
+        public BotHostedService(ILogger<BotHostedService> logger, DiscordSocketClient discordClient,
             InteractionService interactionService, IServiceProvider serviceProvider,
             IDbContextFactory<OrderBotDbContext> contextFactory, string apiKey)
         {
@@ -70,7 +70,7 @@ namespace OrderBot.Discord
         internal IServiceProvider ServiceProvider { get; }
         internal IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
         internal string ApiKey { get; }
-        internal ILogger<BotBackgroundService> Logger { get; }
+        internal ILogger<BotHostedService> Logger { get; }
 
         /// <summary>
         /// Start
