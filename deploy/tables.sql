@@ -45,12 +45,12 @@ ON [dbo].[DiscordGuild]([GuildId])
 GO
 CREATE TABLE [dbo].[DiscordGuildMinorFaction](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
-	[GuildId] [int] NOT NULL,
+	[DiscordGuildId] [int] NOT NULL,
 	[MinorFactionId] [int] NOT NULL,
 )
 GO
 CREATE UNIQUE INDEX [IX_DiscordGuild_GuildMinorFaction]
-ON [dbo].[DiscordGuildMinorFaction]([GuildId], [MinorFactionId])
+ON [dbo].[DiscordGuildMinorFaction]([DiscordGuildId], [MinorFactionId])
 GO
 CREATE TABLE [dbo].[StarSystem](
 	[Id] [int] IdENTITY(1,1) PRIMARY KEY,

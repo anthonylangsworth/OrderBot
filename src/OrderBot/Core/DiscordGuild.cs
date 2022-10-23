@@ -7,5 +7,6 @@
         public string? Name { set; get; }
         public ulong? CarrierMovementChannel { set; get; }
         public ICollection<Carrier> IgnoredCarriers { init; get; } = null!;
+        public ICollection<MinorFaction> SupportedMinorFactions { init; get; } = null!;
     }
 }

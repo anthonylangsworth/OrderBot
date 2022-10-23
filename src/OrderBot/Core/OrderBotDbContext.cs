@@ -111,6 +111,11 @@ namespace OrderBot.Core
                 entity.Property(e => e.CarrierMovementChannel);
             });
 
+            modelBuilder.Entity<DiscordGuild>()
+                        .HasMany(e => e.SupportedMinorFactions)
+                        .WithMany(e => e.SupportedBy)
+                        .UsingEntity<DiscordGuildMinorFaction>();
+
             modelBuilder.Entity<DiscordGuildStarSystemMinorFactionGoal>(entity =>
             {
                 entity.ToTable("DiscordGuildStarSystemMinorFactionGoal");
