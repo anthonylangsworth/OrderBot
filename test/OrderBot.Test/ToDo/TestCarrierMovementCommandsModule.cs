@@ -40,9 +40,9 @@ namespace OrderBot.Test.ToDo
                 SocketSlashCommand socketSlashCommand = mockSocketSlashCommand.Object;
                 SocketInteractionContext socketInteractionContext = new(discordSocketClient, null);
 
-                CarrierMovementCommandsModule module = new(contextFactory, new NullLogger<CarrierMovementCommandsModule>());
+                CarrierMovementCommandsModule.IgnoredCarriers module = new(contextFactory, new NullLogger<CarrierMovementCommandsModule.IgnoredCarriers>());
                 ((IInteractionModuleBase)module).SetContext(socketInteractionContext);
-                await module.IgnoreCarrier(ignoreCarrier);
+                await module.AddIgnoredCarrier(ignoreCarrier);
 
                 mockRepository.VerifyAll();
                 Assert.That(() => dbContext.Carriers.First(c => c.Name == ignoreCarrier), Throws.Nothing);

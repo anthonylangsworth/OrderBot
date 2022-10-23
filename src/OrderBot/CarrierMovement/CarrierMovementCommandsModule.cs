@@ -3,200 +3,202 @@ using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
+using OrderBot.Discord;
 
 namespace OrderBot.CarrierMovement
 {
     [Group("carrier-movement", "Monitor carrier movements")]
     public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInteractionContext>
     {
-        /// <summary>
-        /// Create a new <see cref="CarrierMovementCommandsModule"/>.
-        /// </summary>
-        /// <param name="contextFactory"></param>
-        /// <param name="logger"></param>
-        public CarrierMovementCommandsModule(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<CarrierMovementCommandsModule> logger)
+        [Group("channel", "Send carrier movement alerts")]
+        public class Channel : InteractionModuleBase<SocketInteractionContext>
         {
-            ContextFactory = contextFactory;
-            Logger = logger;
-        }
-
-        public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
-        public ILogger<CarrierMovementCommandsModule> Logger { get; }
-
-        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
-        // [RequirePerGuildRole("EDAKL Leaders", "EDAKL Veterans")]
-        [SlashCommand("set-channel", "Set the channel to receive carrier jump alerts")]
-        public async Task SetChannel(
-            [Summary("Channel", "Send carrier movement alerts to this channel")]
-            IChannel channel
-        )
-        {
-            await Context.Interaction.DeferAsync(ephemeral: true);
-            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            DiscordGuild? discordGuild = dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
-            if (discordGuild == null)
+            /// <summary>
+            /// Create a new <see cref="IgnoredCarriers"/>.
+            /// </summary>
+            /// <param name="contextFactory"></param>
+            /// <param name="logger"></param>
+            public Channel(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Channel> logger)
             {
-                discordGuild = new DiscordGuild() { GuildId = Context.Guild.Id, CarrierMovementChannel = channel.Id, Name = Context.Guild?.Name ?? "" };
-                dbContext.DiscordGuilds.Add(discordGuild);
+                ContextFactory = contextFactory;
+                Logger = logger;
             }
-            else
+
+            public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
+            public ILogger<Channel> Logger { get; }
+
+            [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
+            // [RequirePerGuildRole("EDAKL Leaders", "EDAKL Veterans")]
+            [SlashCommand("set", "Set the channel to receive carrier jump alerts")]
+            public async Task Set(
+                [Summary("Channel", "Send carrier movement alerts to this channel")]
+                IChannel channel
+            )
             {
+                await Context.Interaction.DeferAsync(ephemeral: true);
+                using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
                 discordGuild.CarrierMovementChannel = channel.Id;
-            }
-            await dbContext.SaveChangesAsync();
-            await Context.Interaction.FollowupAsync(
-                text: $"Carrier movements will be mentioned in #{channel.Name}. Ensure this bot has 'Send Messages' permission to that channel.",
-                ephemeral: true
-            );
-        }
-
-        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
-        [SlashCommand("get-channel", "Retrieve the channel that receives carrier jump alerts")]
-        public async Task GetChannel()
-        {
-            await Context.Interaction.DeferAsync(ephemeral: true);
-            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            DiscordGuild? discordGuild = dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
-            string message;
-            if (discordGuild == null || discordGuild.CarrierMovementChannel == null)
-            {
-                message = $"No channel set for carrier movements";
-            }
-            else
-            {
-                IChannel channel = Context.Guild.GetChannel(discordGuild.CarrierMovementChannel ?? 0);
-                message = $"Carrier movements will be mentioned in #{channel.Name}";
-            }
-            await Context.Interaction.FollowupAsync(
-                text: message,
-                ephemeral: true
-            );
-        }
-
-        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
-        [SlashCommand("mute", "Turn off alerts for carrier jumps")]
-        public async Task Mute()
-        {
-            await Context.Interaction.DeferAsync(ephemeral: true);
-            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            DiscordGuild? discordGuild = dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
-            if (discordGuild != null && discordGuild.CarrierMovementChannel != null)
-            {
-                discordGuild.CarrierMovementChannel = null;
                 await dbContext.SaveChangesAsync();
-            }
-            await Context.Interaction.FollowupAsync(
-                text: "No alerts sent for carrier movements",
-                ephemeral: true
-            );
-        }
-
-        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
-        [SlashCommand("ignore-carrier", "Do not track this carrier or report its movements (case insensitive).")]
-        public async Task IgnoreCarrier(
-            [
-             Summary("name", "The full name or just the ending serial number of the carrier to ignore"),
-             Autocomplete(typeof(TrackedCarriersAutocompleteHandler))
-            ]
-            string name)
-        {
-            await Context.Interaction.DeferAsync(ephemeral: true);
-            if (!Carrier.IsCarrier(name))
-            {
                 await Context.Interaction.FollowupAsync(
-                    text: $"'{name}' is not a valid carrier name",
+                    text: $"Carrier movements will be mentioned in #{channel.Name}. Ensure this bot has 'Send Messages' permission to that channel.",
                     ephemeral: true
                 );
             }
-            else
+
+            [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
+            [SlashCommand("get", "Retrieve the channel that receives carrier jump alerts")]
+            public async Task Get()
             {
-                string serialNumber = Carrier.GetSerialNumber(name);
-                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                DiscordGuild? discordGuild = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
-                                                                    .FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
-                if (discordGuild == null)
+                await Context.Interaction.DeferAsync(ephemeral: true);
+                using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
+                string message;
+                if (discordGuild.CarrierMovementChannel == null)
                 {
-                    discordGuild = new DiscordGuild() { GuildId = Context.Guild.Id, Name = Context.Guild?.Name ?? "" };
-                    dbContext.DiscordGuilds.Add(discordGuild);
+                    message = $"No channel set for carrier movements";
                 }
-                if (!discordGuild.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber))
+                else
                 {
-                    Carrier? carrier = dbContext.Carriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
-                    if (carrier == null)
+                    IChannel channel = Context.Guild.GetChannel(discordGuild.CarrierMovementChannel ?? 0);
+                    message = $"Carrier movements will be mentioned in #{channel.Name}";
+                }
+                await Context.Interaction.FollowupAsync(
+                    text: message,
+                    ephemeral: true
+                );
+            }
+
+            [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
+            [SlashCommand("clear", "Turn off alerts for carrier jumps")]
+            public async Task Clear()
+            {
+                await Context.Interaction.DeferAsync(ephemeral: true);
+                using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
+                if (discordGuild.CarrierMovementChannel != null)
+                {
+                    discordGuild.CarrierMovementChannel = null;
+                    await dbContext.SaveChangesAsync();
+                }
+                await Context.Interaction.FollowupAsync(
+                    text: "No alerts sent for carrier movements",
+                    ephemeral: true
+                );
+            }
+        }
+
+        [Group("ignored-carriers", "Monitor carrier movements")]
+        public class IgnoredCarriers : InteractionModuleBase<SocketInteractionContext>
+        {
+            /// <summary>
+            /// Create a new <see cref="IgnoredCarriers"/>.
+            /// </summary>
+            /// <param name="contextFactory"></param>
+            /// <param name="logger"></param>
+            public IgnoredCarriers(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<IgnoredCarriers> logger)
+            {
+                ContextFactory = contextFactory;
+                Logger = logger;
+            }
+
+            public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
+            public ILogger<IgnoredCarriers> Logger { get; }
+
+            [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
+            [SlashCommand("add", "Do not track this carrier or report its movements (case insensitive).")]
+            public async Task AddIgnoredCarrier(
+                [
+                     Summary("name", "The full name or just the ending serial number of the carrier to ignore"),
+                     Autocomplete(typeof(TrackedCarriersAutocompleteHandler))
+                ]
+                string name)
+            {
+                await Context.Interaction.DeferAsync(ephemeral: true);
+                if (!Carrier.IsCarrier(name))
+                {
+                    await Context.Interaction.FollowupAsync(
+                        text: $"'{name}' is not a valid carrier name",
+                        ephemeral: true
+                    );
+                }
+                else
+                {
+                    string serialNumber = Carrier.GetSerialNumber(name);
+                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                    DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
+                        dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
+                    if (!discordGuild.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber))
                     {
-                        carrier = new Carrier() { Name = name };
-                        dbContext.Carriers.Add(carrier);
+                        Carrier? carrier = dbContext.Carriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
+                        if (carrier == null)
+                        {
+                            carrier = new Carrier() { Name = name };
+                            dbContext.Carriers.Add(carrier);
+                        }
+                        discordGuild.IgnoredCarriers.Add(carrier);
                     }
-                    discordGuild.IgnoredCarriers.Add(carrier);
+                    dbContext.SaveChanges();
+                    await Context.Interaction.FollowupAsync(
+                        text: $"Fleet carrier '{name}' will **NOT** be tracked or its location reported",
+                        ephemeral: true
+                    );
                 }
-                dbContext.SaveChanges();
-                await Context.Interaction.FollowupAsync(
-                    text: $"Fleet carrier '{name}' will **NOT** be tracked or its location reported",
-                    ephemeral: true
-                );
             }
-        }
 
-        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
-        [SlashCommand("track-carrier", "Track this carrier and report its movements")]
-        public async Task TrackCarrier(
-            [Summary("Name", "The full name or just the ending serial number of the carrier to track (case insensitive).")]
-            string name)
-        {
-            await Context.Interaction.DeferAsync(ephemeral: true);
-            if (!Carrier.IsCarrier(name))
+            [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
+            [SlashCommand("remove", "Track this carrier and report its movements")]
+            public async Task RemoveIgnoredCarrier(
+                [Summary("Name", "The full name or just the ending serial number of the carrier to track (case insensitive).")]
+                string name
+            )
             {
-                await Context.Interaction.FollowupAsync(
-                    text: $"'{name}' is not a valid carrier name",
-                    ephemeral: true
-                );
+                await Context.Interaction.DeferAsync(ephemeral: true);
+                if (!Carrier.IsCarrier(name))
+                {
+                    await Context.Interaction.FollowupAsync(
+                        text: $"'{name}' is not a valid carrier name",
+                        ephemeral: true
+                    );
+                }
+                else
+                {
+                    string serialNumber = Carrier.GetSerialNumber(name);
+                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                    DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
+                        dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
+                    Carrier? ignoredCarrier = discordGuild.IgnoredCarriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
+                    if (ignoredCarrier != null)
+                    {
+                        discordGuild.IgnoredCarriers.Remove(ignoredCarrier);
+                    }
+                    dbContext.SaveChanges();
+                    await Context.Interaction.FollowupAsync(
+                        text: $"Fleet carrier '{name}' will be tracked and its location reported",
+                        ephemeral: true
+                    );
+                }
             }
-            else
+
+            [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
+            [SlashCommand("list", "List ignored fleet carriers")]
+            public async Task ListIgnoredCarriers()
             {
-                string serialNumber = Carrier.GetSerialNumber(name);
+                await Context.Interaction.DeferAsync(ephemeral: true);
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                DiscordGuild? discordGuild = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
-                                                                    .FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
-                if (discordGuild == null)
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
+                    dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
+                string result = string.Join("\n", discordGuild.IgnoredCarriers.OrderBy(c => c.Name)
+                                                                              .Select(c => c.Name));
+                if (!result.Any())
                 {
-                    discordGuild = new DiscordGuild() { GuildId = Context.Guild.Id, Name = Context.Guild?.Name ?? "" };
-                    dbContext.DiscordGuilds.Add(discordGuild);
+                    result = "No ignored fleet carriers";
                 }
-                Carrier? ignoredCarrier = discordGuild.IgnoredCarriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
-                if (ignoredCarrier != null)
-                {
-                    discordGuild.IgnoredCarriers.Remove(ignoredCarrier);
-                }
-                dbContext.SaveChanges();
                 await Context.Interaction.FollowupAsync(
-                    text: $"Fleet carrier '{name}' will be tracked and its location reported",
+                    text: result,
                     ephemeral: true
                 );
             }
-        }
-
-        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
-        [SlashCommand("list-ignored-carriers", "List ignored fleet carriers")]
-        public async Task ListIgnoredCarriers()
-        {
-            await Context.Interaction.DeferAsync(ephemeral: true);
-            using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-            DiscordGuild? discordGuild = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
-                                                                .FirstOrDefault(dg => dg.GuildId == Context.Guild.Id);
-            string result = "";
-            if (discordGuild != null)
-            {
-                result = string.Join("\n", discordGuild.IgnoredCarriers.OrderBy(c => c.Name)
-                                                                       .Select(c => c.Name));
-            }
-            if (!result.Any())
-            {
-                result = "No ignored fleet carriers";
-            }
-            await Context.Interaction.FollowupAsync(
-                text: result,
-                ephemeral: true
-            );
         }
 
         //// TODO: Use constants
