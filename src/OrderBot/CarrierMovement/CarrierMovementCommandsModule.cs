@@ -208,7 +208,7 @@ namespace OrderBot.CarrierMovement
                 }
                 else
                 {
-                    using MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(result));
+                    using MemoryStream memoryStream = new(Encoding.UTF8.GetBytes(result));
                     await Context.Interaction.FollowupWithFileAsync(
                         fileStream: memoryStream,
                         fileName: "IgnoredCarriers.txt",

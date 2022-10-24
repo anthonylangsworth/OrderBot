@@ -17,7 +17,8 @@ namespace OrderBot.Test.ToDo
             Assert.That(Goals.Map, Is.EquivalentTo(new Dictionary<string, Goal>
             {
                 { ControlGoal.Instance.Name, ControlGoal.Instance },
-                { RetreatGoal.Instance.Name, RetreatGoal.Instance }
+                { RetreatGoal.Instance.Name, RetreatGoal.Instance },
+                { IgnoreGoal.Instance.Name, IgnoreGoal.Instance }
             }));
         }
     }

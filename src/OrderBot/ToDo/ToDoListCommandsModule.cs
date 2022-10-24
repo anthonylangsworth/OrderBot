@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using OrderBot.Discord;
+using System.Text;
 
 namespace OrderBot.ToDo
 {
@@ -188,37 +189,40 @@ namespace OrderBot.ToDo
             public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
             public ILogger<Goals> Logger { get; }
 
-            [SlashCommand("add", "Start supporting this minor faction")]
+            [SlashCommand("add", "Set a specific goal for this minor faction in this system")]
             public async Task Add(
-                [Summary("minor-faction", "Start supporting this minor faction")]
+                [Summary("minor-faction", "The minor faction")]
                 string minorFactionName,
-                [Summary("starSystem", "Start supporting this minor faction")]
+                [Summary("star-system", "The star system")]
                 string starSystemName,
-                [Summary("goal", "Start supporting this minor faction")]
+                [Summary("goal", "The intenion or aim")]
                 string goalName
             )
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
-                string message;
-                try
+                using (Logger.BeginScope(("Add", Context.Guild.Name, minorFactionName, starSystemName, goalName)))
                 {
-                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    AddImplementation(dbContext, Context.Guild, minorFactionName, starSystemName, goalName);
-                    message = $"Now supporting *{minorFactionName}*";
+                    string message;
+                    try
+                    {
+                        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                        AddImplementation(dbContext, Context.Guild, minorFactionName, starSystemName, goalName);
+                        message = $"Goal {goalName} for *{minorFactionName}* in {starSystemName} added";
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        message = ex.Message;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Add failed");
+                        message = "Add failed";
+                    }
+                    await Context.Interaction.FollowupAsync(
+                           text: message,
+                           ephemeral: true
+                    );
                 }
-                catch (ArgumentException ex)
-                {
-                    message = ex.Message;
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Add Failed");
-                    message = "Failed";
-                }
-                await Context.Interaction.FollowupAsync(
-                       text: message,
-                       ephemeral: true
-                );
             }
 
             internal static void AddImplementation(OrderBotDbContext dbContext, IGuild guild, string minorFactionName, string starSystemName, string goalName)
@@ -270,6 +274,129 @@ namespace OrderBot.ToDo
                 }
                 discordGuildStarSystemMinorFactionGoal.Goal = goalName;
                 dbContext.SaveChanges();
+            }
+
+            [SlashCommand("remove", "Remove the specific goal for this minor faction in this system")]
+            public async Task Remove(
+                [Summary("minor-faction", "The minor faction")]
+                string minorFactionName,
+                [Summary("star-system", "The star system")]
+                string starSystemName
+            )
+            {
+                await Context.Interaction.DeferAsync(ephemeral: true);
+                using (Logger.BeginScope(("Remove", Context.Guild.Name, minorFactionName, starSystemName)))
+                {
+                    string message;
+                    try
+                    {
+                        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                        RemoveImplementation(dbContext, Context.Guild, minorFactionName, starSystemName);
+                        message = $"Goal for *{minorFactionName}* in {starSystemName} removed";
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        message = ex.Message;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Remove failed");
+                        message = "Remove failed";
+                    }
+                    await Context.Interaction.FollowupAsync(
+                           text: message,
+                           ephemeral: true
+                    );
+                }
+            }
+
+            internal static void RemoveImplementation(OrderBotDbContext dbContext, IGuild guild, string minorFactionName, string starSystemName)
+            {
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild);
+
+                MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
+                if (minorFaction == null)
+                {
+                    throw new ArgumentException($"*{minorFactionName}* is not a known minor faction");
+                }
+
+                StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
+                if (starSystem == null)
+                {
+                    throw new ArgumentException($"{starSystemName} is not a known star system");
+                }
+
+                DiscordGuildStarSystemMinorFactionGoal? discordGuildStarSystemMinorFactionGoal =
+                    dbContext.DiscordGuildStarSystemMinorFactionGoals
+                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction)
+                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.StarSystem)
+                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.MinorFaction)
+                                .FirstOrDefault(
+                                dgssmfg => dgssmfg.DiscordGuild == discordGuild
+                                            && dgssmfg.StarSystemMinorFaction.MinorFaction == minorFaction
+                                            && dgssmfg.StarSystemMinorFaction.StarSystem == starSystem);
+                if (discordGuildStarSystemMinorFactionGoal != null)
+                {
+                    dbContext.DiscordGuildStarSystemMinorFactionGoals.Remove(discordGuildStarSystemMinorFactionGoal);
+                }
+                dbContext.SaveChanges();
+            }
+
+            [SlashCommand("list", "List any specific goals per minor faction and per system")]
+            public async Task List()
+            {
+                await Context.Interaction.DeferAsync(ephemeral: true);
+                using (Logger.BeginScope(("List", Context.Guild.Name)))
+                {
+                    string message = "";
+                    string result = "";
+                    try
+                    {
+                        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                        result = string.Join(Environment.NewLine,
+                            ListImplementation(dbContext, Context.Guild).Select(
+                                dgssmfg => $"{dgssmfg.Goal} {dgssmfg.StarSystemMinorFaction.MinorFaction.Name} in {dgssmfg.StarSystemMinorFaction.StarSystem.Name}"));
+                        if (result.Length == 0)
+                        {
+                            message = "No goals specified";
+                        }
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        message = ex.Message;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "List failed");
+                        message = "List failed";
+                    }
+
+                    if (result.Length > 0)
+                    {
+                        using MemoryStream memoryStream = new(Encoding.UTF8.GetBytes(result));
+                        await Context.Interaction.FollowupWithFileAsync(
+                            fileStream: memoryStream,
+                            fileName: "Goals.txt",
+                            ephemeral: true
+                        );
+                    }
+                    else
+                    {
+                        await Context.Interaction.FollowupAsync(
+                               text: message,
+                               ephemeral: true
+                        );
+                    }
+                }
+            }
+
+            internal static IEnumerable<DiscordGuildStarSystemMinorFactionGoal> ListImplementation(OrderBotDbContext dbContext, IGuild guild)
+            {
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild);
+                return dbContext.DiscordGuildStarSystemMinorFactionGoals
+                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction)
+                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.StarSystem)
+                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.MinorFaction);
             }
         }
     }

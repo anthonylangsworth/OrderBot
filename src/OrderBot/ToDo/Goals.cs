@@ -13,7 +13,8 @@
         public static IDictionary<string, Goal> Map => new Dictionary<string, Goal>
         {
             { ControlGoal.Instance.Name, ControlGoal.Instance },
-            { RetreatGoal.Instance.Name, RetreatGoal.Instance }
+            { RetreatGoal.Instance.Name, RetreatGoal.Instance },
+            { IgnoreGoal.Instance.Name, IgnoreGoal.Instance }
         };
     }
 }
