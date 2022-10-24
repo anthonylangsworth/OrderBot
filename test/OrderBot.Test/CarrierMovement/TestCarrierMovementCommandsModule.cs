@@ -7,7 +7,7 @@ using OrderBot.CarrierMovement;
 using OrderBot.Core;
 using System.Transactions;
 
-namespace OrderBot.Test.ToDo
+namespace OrderBot.Test.CarrierMovement
 {
     internal class TestCarrierMovementCommandsModule
     {

@@ -44,8 +44,7 @@ namespace OrderBot.Core
                       .HasMaxLength(100)
                       .IsRequired();
 
-                entity.Property(e => e.LastUpdated)
-                      .IsRequired();
+                entity.Property(e => e.LastUpdated);
             });
 
             modelBuilder.Entity<MinorFaction>(entity =>
@@ -106,7 +105,8 @@ namespace OrderBot.Core
                 entity.Property(e => e.GuildId)
                       .IsRequired();
 
-                entity.Property(e => e.Name);
+                entity.Property(e => e.Name)
+                      .HasMaxLength(100);
 
                 entity.Property(e => e.CarrierMovementChannel);
             });
@@ -123,7 +123,8 @@ namespace OrderBot.Core
                 entity.Property(e => e.Id)
                       .UseIdentityColumn();
 
-                entity.Property(e => e.Goal);
+                entity.Property(e => e.Goal)
+                      .IsRequired();
             });
 
             modelBuilder.Entity<DiscordGuildStarSystemMinorFactionGoal>()
@@ -144,12 +145,15 @@ namespace OrderBot.Core
                       .UseIdentityColumn();
 
                 entity.Property(e => e.Name)
+                      .HasMaxLength(100)
                       .IsRequired();
 
                 entity.Property(e => e.SerialNumber)
+                      .HasMaxLength(7)
                       .IsRequired();
 
-                entity.Property(e => e.Owner);
+                entity.Property(e => e.Owner)
+                      .HasMaxLength(100);
 
                 entity.Property(e => e.FirstSeen);
             });

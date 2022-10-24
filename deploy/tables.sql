@@ -55,7 +55,7 @@ GO
 CREATE TABLE [dbo].[StarSystem](
 	[Id] [int] IdENTITY(1,1) PRIMARY KEY,
 	[Name] [nvarchar](100) NOT NULL,
-	[LastUpdated] [datetime] NOT NULL
+	[LastUpdated] [datetime] NULL
 )
 GO
 CREATE UNIQUE INDEX [IX_StarSystem_Name] 
@@ -99,12 +99,12 @@ ON [dbo].[StarSystemMinorFactionState]([StarSystemMinorFactionsId])
 GO
 CREATE TABLE [dbo].[DiscordGuildStarSystemMinorFactionGoal](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
-	[DiscordGuildId] [int] FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE,
-	[StarSystemMinorFactionId] [int] FOREIGN KEY REFERENCES [StarSystemMinorFaction]([Id]) ON DELETE CASCADE,
-	[Goal] [nvarchar](100)
+	[DiscordGuildId] [int] NOT NULL FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE,
+	[StarSystemMinorFactionId] [int] NOT NULL FOREIGN KEY REFERENCES [StarSystem]([Id]) ON DELETE CASCADE,
+	[Goal] [nvarchar](100) NOT NULL
 )
 GO
-CREATE INDEX [IX_DiscordGuildStarSystemMinorFactionGoal_SystemMinorFaction] 
+CREATE UNIQUE INDEX [IX_DiscordGuildStarSystemMinorFactionGoal_StarSystemMinorFaction] 
 ON [dbo].[DiscordGuildStarSystemMinorFactionGoal]([DiscordGuildId], [StarSystemMinorFactionId])
 GO
 CREATE TABLE [dbo].[Carrier](

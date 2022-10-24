@@ -66,7 +66,8 @@ namespace OrderBot.Test.ToDo
             DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
             {
                 DiscordGuild = new DiscordGuild() { GuildId = GuildId },
-                StarSystemMinorFaction = starSystemMinorFaction
+                StarSystemMinorFaction = starSystemMinorFaction,
+                Goal = Goals.Default.Name
             };
             DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
             DbContext.SaveChanges();
@@ -88,7 +89,8 @@ namespace OrderBot.Test.ToDo
             DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
             {
                 DiscordGuild = new() { GuildId = GuildId },
-                StarSystemMinorFaction = starSystemMinorFaction
+                StarSystemMinorFaction = starSystemMinorFaction,
+                Goal = Goals.Default.Name
             };
             DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
             DbContext.SaveChanges();
@@ -112,7 +114,8 @@ namespace OrderBot.Test.ToDo
             DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
             {
                 DiscordGuild = new() { GuildId = GuildId },
-                StarSystemMinorFaction = starSystemMinorFaction
+                StarSystemMinorFaction = starSystemMinorFaction,
+                Goal = Goals.Default.Name
             };
             DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
             DbContext.SaveChanges();
@@ -137,7 +140,8 @@ namespace OrderBot.Test.ToDo
             DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
             {
                 DiscordGuild = new DiscordGuild() { GuildId = GuildId },
-                StarSystemMinorFaction = starSystemMinorFaction
+                StarSystemMinorFaction = starSystemMinorFaction,
+                Goal = Goals.Default.Name
             };
             DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
             DbContext.SaveChanges();
@@ -159,13 +163,15 @@ namespace OrderBot.Test.ToDo
             DiscordGuildStarSystemMinorFactionGoal purplePeopleEastersAlphaCentauri = new()
             {
                 DiscordGuild = discordGuild,
-                StarSystemMinorFaction = new() { MinorFaction = purplePeopleEaters, StarSystem = alphCentauri, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 }
+                StarSystemMinorFaction = new() { MinorFaction = purplePeopleEaters, StarSystem = alphCentauri, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 },
+                Goal = Goals.Default.Name
             };
             DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(purplePeopleEastersAlphaCentauri);
             DiscordGuildStarSystemMinorFactionGoal purplePeopleEastersMaia = new()
             {
                 DiscordGuild = discordGuild,
-                StarSystemMinorFaction = new() { MinorFaction = purplePeopleEaters, StarSystem = maia, Influence = ControlGoal.UpperInfluenceThreshold + 0.01 }
+                StarSystemMinorFaction = new() { MinorFaction = purplePeopleEaters, StarSystem = maia, Influence = ControlGoal.UpperInfluenceThreshold + 0.01 },
+                Goal = Goals.Default.Name
             };
             DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(purplePeopleEastersMaia);
             DbContext.SaveChanges();

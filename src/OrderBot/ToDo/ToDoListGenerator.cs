@@ -24,30 +24,24 @@ namespace OrderBot.ToDo
             using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();
 
-            IQueryable<DiscordGuildStarSystemMinorFactionGoal> dgssmfgs =
+            IReadOnlyList<DiscordGuildStarSystemMinorFactionGoal> dgssmfgs =
                 dbContext.DiscordGuildStarSystemMinorFactionGoals.Include(dgssmf => dgssmf.DiscordGuild)
-                                                                 .Include(dgssmf => dgssmf.StarSystemMinorFaction)
-                                                                 .Include(dgssmf => dgssmf.StarSystemMinorFaction.MinorFaction)
                                                                  .Include(dgssmf => dgssmf.StarSystemMinorFaction.StarSystem)
+                                                                 .Include(dgssmf => dgssmf.StarSystemMinorFaction.MinorFaction)
                                                                  .Where(dgssmf => dgssmf.DiscordGuild.GuildId == guildId
-                                                                               && dgssmf.StarSystemMinorFaction.MinorFaction.Name == minorFactionName);
+                                                                               && dgssmf.StarSystemMinorFaction.MinorFaction.Name == minorFactionName)
+                                                                 .ToList();
 
             // TODO: Consider Aggregate()
 
             foreach (DiscordGuildStarSystemMinorFactionGoal dgssmfg in dgssmfgs)
             {
-                Goal? goal;
-                if (dgssmfg.Goal == null)
-                {
-                    goal = Goals.Default;
-                }
-                else if (!Goals.Map.TryGetValue(dgssmfg.Goal, out goal))
+                if (!Goals.Map.TryGetValue(dgssmfg.Goal, out Goal? goal))
                 {
                     Logger.LogError("Skipping unknown goal '{goal}' for star system '{starSystem}' for minor faction '{minorFaction}'",
                         dgssmfg.Goal, dgssmfg.StarSystemMinorFaction.StarSystem.Name, dgssmfg.StarSystemMinorFaction.MinorFaction.Name);
                 }
-
-                if (goal != null)
+                else
                 {
                     goal.AddActions(dgssmfg.StarSystemMinorFaction, toDoList);
                 }

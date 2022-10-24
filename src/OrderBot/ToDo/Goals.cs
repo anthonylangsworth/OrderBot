@@ -1,6 +1,6 @@
 ﻿namespace OrderBot.ToDo
 {
-    internal class Goals
+    internal static class Goals
     {
         // public static Goal Ignore => new Goal("Ignore", "Generate no orders for this system. Useful systems that you do not care about.");
 
@@ -10,7 +10,7 @@
 
         public static Goal Default => ControlGoal.Instance;
 
-        public static IDictionary<string, Goal> Map = new Dictionary<string, Goal>
+        public static IDictionary<string, Goal> Map => new Dictionary<string, Goal>
         {
             { ControlGoal.Instance.Name, ControlGoal.Instance },
             { RetreatGoal.Instance.Name, RetreatGoal.Instance }
