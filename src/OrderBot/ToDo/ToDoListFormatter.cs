@@ -30,7 +30,7 @@ Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to *{minorFactio
                 IEnumerable<InfluenceInitiatedAction> sortedActions =
                     ascending ? actions.OrderBy(action => action.Influence) : actions.OrderByDescending(action => action.Influence);
                 result = string.Join(Environment.NewLine,
-                    sortedActions.Select(action => $"- {action.StarSystem.Name} - {Math.Round(action.Influence * 100, 0)}%"));
+                    sortedActions.Select(action => $"- {action.StarSystem.Name} - {Math.Round(action.Influence * 100, 1)}%"));
             }
             else
             {
