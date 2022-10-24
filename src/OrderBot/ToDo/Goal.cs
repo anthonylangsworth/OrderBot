@@ -26,9 +26,13 @@ namespace OrderBot.ToDo
         /// <param name="starSystemMinorFaction">
         /// The star system and minor faction to determine whether there are actions to perform.
         /// </param>
+        /// <param name="systemMinorFactions">
+        /// BGS details for all minor factions in the system..
+        /// </param>
         /// <param name="toDoList">
         /// Add actions to this.
         /// </param>
-        public abstract void AddActions(StarSystemMinorFaction starSystemMinorFaction, ToDoList toDoList);
+        public abstract void AddActions(StarSystemMinorFaction starSystemMinorFaction,
+            IReadOnlyList<StarSystemMinorFaction> systemBgsData, ToDoList toDoList);
     }
 }

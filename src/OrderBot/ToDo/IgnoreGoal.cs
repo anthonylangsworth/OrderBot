@@ -19,7 +19,8 @@ namespace OrderBot.ToDo
         }
 
         /// <inheritdoc/>
-        public override void AddActions(StarSystemMinorFaction starSystemMinorFaction, ToDoList toDoList)
+        public override void AddActions(StarSystemMinorFaction starSystemMinorFaction,
+            IReadOnlyList<StarSystemMinorFaction> systemBgsData, ToDoList toDoList)
         {
             // Do nothing
         }

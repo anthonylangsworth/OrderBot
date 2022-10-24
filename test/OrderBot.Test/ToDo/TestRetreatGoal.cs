@@ -21,7 +21,7 @@ namespace OrderBot.Test.ToDo
             MinorFaction minorFaction = new() { Name = "Flying Fish" };
             StarSystemMinorFaction starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence };
             ToDoList toDo = new(minorFaction.Name);
-            RetreatGoal.Instance.AddActions(starSystemMinorFaction, toDo);
+            RetreatGoal.Instance.AddActions(starSystemMinorFaction, new[] { starSystemMinorFaction }, toDo);
             Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
             Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
         }

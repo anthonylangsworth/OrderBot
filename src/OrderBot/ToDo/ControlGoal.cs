@@ -29,7 +29,8 @@ namespace OrderBot.ToDo
         public static double UpperInfluenceThreshold => 0.65;
 
         /// <inheritdoc/>
-        public override void AddActions(StarSystemMinorFaction starSystemMinorFaction, ToDoList toDoList)
+        public override void AddActions(StarSystemMinorFaction starSystemMinorFaction,
+            IReadOnlyList<StarSystemMinorFaction> systemBgsData, ToDoList toDoList)
         {
             if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
             {

@@ -24,6 +24,11 @@ namespace OrderBot.ToDo
             using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();
 
+            IReadOnlyList<StarSystemMinorFaction> systemBgsData =
+                dbContext.StarSystemMinorFactions.Include(ssmf => ssmf.MinorFaction)
+                                                 .Include(ssmf => ssmf.StarSystem)
+                                                 .ToList();
+
             IReadOnlyList<DiscordGuildStarSystemMinorFactionGoal> dgssmfgs =
                 dbContext.DiscordGuildStarSystemMinorFactionGoals.Include(dgssmf => dgssmf.DiscordGuild)
                                                                  .Include(dgssmf => dgssmf.StarSystemMinorFaction.StarSystem)
@@ -43,18 +48,17 @@ namespace OrderBot.ToDo
                 }
                 else
                 {
-                    goal.AddActions(dgssmfg.StarSystemMinorFaction, toDoList);
+                    goal.AddActions(dgssmfg.StarSystemMinorFaction, systemBgsData, toDoList);
                 }
             }
 
-            IQueryable<StarSystemMinorFaction> ssmfs =
-                dbContext.StarSystemMinorFactions.Include(ssmf => ssmf.MinorFaction)
-                                                 .Include(ssmf => ssmf.StarSystem)
-                                                 .Where(ssmf => !dgssmfgs.Select(dgssmfg => dgssmfg.StarSystemMinorFaction.Id).Contains(ssmf.Id)
-                                                                && ssmf.MinorFaction.Name == minorFactionName);
-            foreach (StarSystemMinorFaction ssmf in ssmfs)
+            IReadOnlyList<StarSystemMinorFaction> filtered =
+                systemBgsData.Where(ssmf => !dgssmfgs.Select(dgssmfg => dgssmfg.StarSystemMinorFaction.Id).Contains(ssmf.Id)
+                                                                        && ssmf.MinorFaction.Name == minorFactionName)
+                             .ToList();
+            foreach (StarSystemMinorFaction ssmf in filtered)
             {
-                Goals.Default.AddActions(ssmf, toDoList);
+                Goals.Default.AddActions(ssmf, systemBgsData, toDoList);
             }
 
             return toDoList;

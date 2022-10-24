@@ -6,5 +6,6 @@ namespace OrderBot.ToDo
     {
         public StarSystem StarSystem { get; init; } = null!;
         public double Influence { get; set; }
+        public string? Description { get; set; } = null;
     }
 }

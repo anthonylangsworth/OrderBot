@@ -8,7 +8,6 @@ namespace OrderBot.Test.Core
 {
     internal class TestDiscordGuildStarSystemMinorFactionGoals
     {
-
         [Test]
         [Ignore("Only run manually")]
         [TestCase("Gally Bese", "EDA Kunti League", "Ignore")]
