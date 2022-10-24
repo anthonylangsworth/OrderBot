@@ -1,6 +1,4 @@
-﻿using Discord.Interactions;
-using Discord.WebSocket;
-using Microsoft.Extensions.Logging.Abstractions;
+﻿using Discord;
 using Moq;
 using NUnit.Framework;
 using OrderBot.CarrierMovement;
@@ -12,8 +10,7 @@ namespace OrderBot.Test.CarrierMovement
     internal class TestCarrierMovementCommandsModule
     {
         [Test]
-        [Ignore("Cannot mock Discord.Net")]
-        public async Task ListIgnoredCarriers()
+        public void IgnoreCarriers()
         {
             string[] ignoreCarriers =
             {
@@ -26,27 +23,35 @@ namespace OrderBot.Test.CarrierMovement
             using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();
 
-            DiscordGuild discordGuild = new() { GuildId = 1234567890, Name = "Test Guild" };
-            dbContext.DiscordGuilds.Add(discordGuild);
-            dbContext.SaveChanges();
+            IGuild guild = Mock.Of<IGuild>(g => g.Id == 1234567890 && g.Name == "Test Guild");
+
+            Assert.That(
+                CarrierMovementCommandsModule.IgnoredCarriers.ListImplementation(dbContext, guild).Select(c => c.Name),
+                Is.Empty);
 
             foreach (string ignoreCarrier in ignoreCarriers)
             {
-                MockRepository mockRepository = new(MockBehavior.Default);
-                DiscordSocketClient discordSocketClient = new();
-                Mock<SocketSlashCommand> mockSocketSlashCommand = mockRepository.Create<SocketSlashCommand>(discordSocketClient, null, null, null);
-                mockSocketSlashCommand.Setup(si => si.DeferAsync(true, null));
-                mockSocketSlashCommand.Setup(si => si.RespondAsync($"Fleet carrier '{ignoreCarrier}' will **NOT** be tracked or its location reported", null, false, true, null, null, null, null));
-                SocketSlashCommand socketSlashCommand = mockSocketSlashCommand.Object;
-                SocketInteractionContext socketInteractionContext = new(discordSocketClient, null);
-
-                CarrierMovementCommandsModule.IgnoredCarriers module = new(contextFactory, new NullLogger<CarrierMovementCommandsModule.IgnoredCarriers>());
-                ((IInteractionModuleBase)module).SetContext(socketInteractionContext);
-                await module.AddIgnoredCarrier(ignoreCarrier);
-
-                mockRepository.VerifyAll();
-                Assert.That(() => dbContext.Carriers.First(c => c.Name == ignoreCarrier), Throws.Nothing);
+                CarrierMovementCommandsModule.IgnoredCarriers.AddImplementation(dbContext, guild, ignoreCarrier);
+                Assert.That(
+                    CarrierMovementCommandsModule.IgnoredCarriers.ListImplementation(dbContext, guild)
+                                                                 .Any(c => c.Name == ignoreCarrier), Is.True);
             }
+
+            Assert.That(
+                CarrierMovementCommandsModule.IgnoredCarriers.ListImplementation(dbContext, guild).Select(c => c.Name),
+                Is.EqualTo(ignoreCarriers.OrderBy(s => s)));
+
+            foreach (string ignoreCarrier in ignoreCarriers)
+            {
+                CarrierMovementCommandsModule.IgnoredCarriers.RemoveImplementation(dbContext, guild, ignoreCarrier);
+                Assert.That(
+                    CarrierMovementCommandsModule.IgnoredCarriers.ListImplementation(dbContext, guild)
+                                                                 .All(c => c.Name != ignoreCarrier), Is.True);
+            }
+
+            Assert.That(
+                CarrierMovementCommandsModule.IgnoredCarriers.ListImplementation(dbContext, guild).Select(c => c.Name),
+                Is.Empty);
         }
     }
 }

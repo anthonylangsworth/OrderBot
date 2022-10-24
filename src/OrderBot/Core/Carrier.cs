@@ -52,7 +52,7 @@ namespace OrderBot.Core
             }
             else
             {
-                throw new ArgumentException($"{signalName} is not a carrier");
+                throw new ArgumentException($"{signalName} is not a valid carrier name");
             }
         }
     }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using OrderBot.Discord;
+using System.Text;
 
 namespace OrderBot.CarrierMovement
 {
@@ -115,89 +116,112 @@ namespace OrderBot.CarrierMovement
                 string name)
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
-                if (!Carrier.IsCarrier(name))
+                try
                 {
+                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                    AddImplementation(dbContext, Context.Guild, name);
                     await Context.Interaction.FollowupAsync(
-                        text: $"'{name}' is not a valid carrier name",
+                        text: $"Fleet carrier '{name}' will **NOT** be tracked and its location reported",
                         ephemeral: true
                     );
                 }
-                else
+                catch (ArgumentException ex)
                 {
-                    string serialNumber = Carrier.GetSerialNumber(name);
-                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
-                        dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
-                    if (!discordGuild.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber))
-                    {
-                        Carrier? carrier = dbContext.Carriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
-                        if (carrier == null)
-                        {
-                            carrier = new Carrier() { Name = name };
-                            dbContext.Carriers.Add(carrier);
-                        }
-                        discordGuild.IgnoredCarriers.Add(carrier);
-                    }
-                    dbContext.SaveChanges();
                     await Context.Interaction.FollowupAsync(
-                        text: $"Fleet carrier '{name}' will **NOT** be tracked or its location reported",
+                        text: ex.Message,
                         ephemeral: true
                     );
                 }
             }
 
+            internal static void AddImplementation(OrderBotDbContext dbContext, IGuild guild, string name)
+            {
+                string serialNumber = Carrier.GetSerialNumber(name);
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
+                    dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
+                Carrier? ignoredCarrier = discordGuild.IgnoredCarriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
+                if (!discordGuild.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber))
+                {
+                    Carrier? carrier = dbContext.Carriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
+                    if (carrier == null)
+                    {
+                        carrier = new Carrier() { Name = name };
+                        dbContext.Carriers.Add(carrier);
+                    }
+                    discordGuild.IgnoredCarriers.Add(carrier);
+                }
+                dbContext.SaveChanges();
+            }
+
             [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
             [SlashCommand("remove", "Track this carrier and report its movements")]
-            public async Task RemoveIgnoredCarrier(
+            public async Task Remove(
                 [Summary("Name", "The full name or just the ending serial number of the carrier to track (case insensitive).")]
                 string name
             )
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
-                if (!Carrier.IsCarrier(name))
+                try
                 {
-                    await Context.Interaction.FollowupAsync(
-                        text: $"'{name}' is not a valid carrier name",
-                        ephemeral: true
-                    );
-                }
-                else
-                {
-                    string serialNumber = Carrier.GetSerialNumber(name);
                     using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
-                        dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
-                    Carrier? ignoredCarrier = discordGuild.IgnoredCarriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
-                    if (ignoredCarrier != null)
-                    {
-                        discordGuild.IgnoredCarriers.Remove(ignoredCarrier);
-                    }
-                    dbContext.SaveChanges();
+                    RemoveImplementation(dbContext, Context.Guild, name);
                     await Context.Interaction.FollowupAsync(
                         text: $"Fleet carrier '{name}' will be tracked and its location reported",
                         ephemeral: true
                     );
                 }
+                catch (ArgumentException ex)
+                {
+                    await Context.Interaction.FollowupAsync(
+                        text: ex.Message,
+                        ephemeral: true
+                    );
+                }
+            }
+
+            internal static void RemoveImplementation(OrderBotDbContext dbContext, IGuild guild, string name)
+            {
+                string serialNumber = Carrier.GetSerialNumber(name);
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
+                    dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
+                Carrier? ignoredCarrier = discordGuild.IgnoredCarriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
+                if (ignoredCarrier != null)
+                {
+                    discordGuild.IgnoredCarriers.Remove(ignoredCarrier);
+                }
+                dbContext.SaveChanges();
             }
 
             [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
             [SlashCommand("list", "List ignored fleet carriers")]
-            public async Task ListIgnoredCarriers()
+            public async Task List()
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
-                    dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
-                string result = string.Join("\n", discordGuild.IgnoredCarriers.OrderBy(c => c.Name)
-                                                                              .Select(c => c.Name));
+                string result = string.Join("\n", ListImplementation(dbContext, Context.Guild).Select(c => c.Name));
                 if (!result.Any())
                 {
-                    result = "No ignored fleet carriers";
+                    await Context.Interaction.FollowupAsync(
+                        text: "No ignored fleet carriers",
+                        ephemeral: true
+                    );
                 }
-                await Context.Interaction.FollowupAsync(
-                    text: result,
-                    ephemeral: true
-                );
+                else
+                {
+                    using MemoryStream memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(result));
+                    await Context.Interaction.FollowupWithFileAsync(
+                        fileStream: memoryStream,
+                        fileName: "IgnoredCarriers.txt",
+                        ephemeral: true
+                    );
+                }
+            }
+
+            internal static IEnumerable<Carrier> ListImplementation(OrderBotDbContext dbContext, IGuild guild)
+            {
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
+                    dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
+                return discordGuild.IgnoredCarriers.OrderBy(c => c.Name);
             }
         }
 
