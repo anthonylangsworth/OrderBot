@@ -19,6 +19,7 @@ namespace OrderBot.Test.Core
         [TestCase("HR 2283", "EDA Kunti League", "Maintain")]
         [TestCase("LTT 2337", "EDA Kunti League", "Maintain")]
         [TestCase("Eta-1 Pictoris", "EDA Kunti League", "Maintain")]
+        [TestCase("Kunti", "LTT 2337 Empire Party", "Maintain")]
         public void SetupEDASystems(string starSystemName, string minorFactionName, string goalName)
         {
             ulong edaGuildId = 141831692699566080;

@@ -27,7 +27,7 @@ namespace OrderBot.ToDo
         /// Do Anti work if the influence is within this of the controlling
         /// minor faction's influence.
         /// </summary>
-        public static double MaxInfuenceGap => 0.05;
+        public static double MaxInfuenceGap => 0.03;
 
         /// </inheritdoc>
         public override void AddActions(StarSystemMinorFaction starSystemMinorFaction,

@@ -12,7 +12,7 @@ namespace OrderBot.Test.ToDo
             Assert.That(MaintainGoal.Instance.Name, Is.EqualTo("Maintain"));
             Assert.That(MaintainGoal.Instance.Description, Is.EqualTo("Maintain presence in the system but do not control it."));
             Assert.That(MaintainGoal.LowerInfluenceThreshold, Is.EqualTo(0.1));
-            Assert.That(MaintainGoal.MaxInfuenceGap, Is.EqualTo(0.05));
+            Assert.That(MaintainGoal.MaxInfuenceGap, Is.EqualTo(0.03));
         }
 
         [Test]
@@ -41,9 +41,9 @@ namespace OrderBot.Test.ToDo
                 new TestCaseData(polaris, 0.09, new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.09 } }, Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Below Lower"),
                 new TestCaseData(polaris, 0.1, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Lower"),
                 new TestCaseData(polaris, 0.15, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Above lower"),
-                new TestCaseData(polaris, 0.44, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Below Upper"),
-                new TestCaseData(polaris, 0.45, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Upper"),
-                new TestCaseData(polaris, 0.46, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.46 } }).SetName("AddActions Above Upper"),
+                new TestCaseData(polaris, 0.46, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Below Upper"),
+                new TestCaseData(polaris, 0.47, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Upper"),
+                new TestCaseData(polaris, 0.48, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.46 } }).SetName("AddActions Above Upper"),
             };
         }
     }
