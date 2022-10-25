@@ -1,0 +1,98 @@
+﻿{
+  "$schemaRef": "https://eddn.edcd.io/schemas/journal/1",
+  "header": {
+    "gatewayTimestamp": "2022-10-25T11:19:35.490244Z",
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "5.5.0",
+    "uploaderID": "7e853d5e60dda73d6d16c4d93845cd6d62fb0a4e"
+  },
+  "message": {
+    "Body": "HR 1597 A",
+    "BodyID": 1,
+    "BodyType": "Star",
+    "Factions": [
+      {
+        "Allegiance": "Empire",
+        "FactionState": "None",
+        "Government": "Patronage",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.113886,
+        "Name": "HR 1597 Empire Party"
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "Cooperative",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.0999,
+        "Name": "Co-operative of Shambogi"
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "Corporate",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.052947,
+        "Name": "HR 1597 Crimson Comms Network"
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "Democracy",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.038961,
+        "Name": "Social HR 1597 Values Party"
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "Anarchy",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.00999,
+        "Name": "HR 1597 Crimson Brotherhood",
+        "RecoveringStates": [
+          {
+            "State": "Terrorism",
+            "Trend": 0
+          }
+        ]
+      },
+      {
+        "Allegiance": "Empire",
+        "FactionState": "None",
+        "Government": "Corporate",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.034965,
+        "Name": "HR 1597 & Co"
+      },
+      {
+        "ActiveStates": [ { "State": "Expansion" } ],
+        "Allegiance": "Independent",
+        "FactionState": "Expansion",
+        "Government": "PrisonColony",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.649351,
+        "Name": "EDA Kunti League"
+      }
+    ],
+    "Multicrew": false,
+    "Population": 550136,
+    "StarPos": [ 78.1875, -60.875, -3.4375 ],
+    "StarSystem": "HR 1597",
+    "SystemAddress": 869487593835,
+    "SystemAllegiance": "Independent",
+    "SystemEconomy": "$economy_Military;",
+    "SystemFaction": {
+      "FactionState": "Expansion",
+      "Name": "EDA Kunti League"
+    },
+    "SystemGovernment": "$government_PrisonColony;",
+    "SystemSecondEconomy": "$economy_Extraction;",
+    "SystemSecurity": "$SYSTEM_SECURITY_medium;",
+    "Taxi": false,
+    "event": "FSDJump",
+    "horizons": true,
+    "odyssey": true,
+    "timestamp": "2022-10-25T11:19:34Z"
+  }
+}

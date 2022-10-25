@@ -82,6 +82,7 @@ CREATE TABLE [dbo].[StarSystemMinorFaction](
 	[StarSystemId] [int] NOT NULL FOREIGN KEY REFERENCES [StarSystem]([Id]) ON DELETE CASCADE,
 	[MinorFactionId] [int] NOT NULL FOREIGN KEY REFERENCES [MinorFaction]([Id]) ON DELETE CASCADE,
 	[Influence] [float] NULL,
+	[Security] [nvarchar](100) NULL
 )
 GO
 CREATE UNIQUE INDEX [IX_StarSystemMinorFaction_SystemMinorFaction] 

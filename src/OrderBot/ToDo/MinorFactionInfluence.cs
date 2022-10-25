@@ -1,21 +1,12 @@
-﻿using System.Collections.Immutable;
-
-namespace OrderBot.ToDo
+﻿namespace OrderBot.ToDo
 {
     /// <summary>
     /// A minor faction's influence and states in a star system.
     /// </summary>
-    internal record MinorFactionInfluence : IEquatable<MinorFactionInfluence?>
+    internal record MinorFactionInfluence
     {
-        public MinorFactionInfluence(string minorFaction, double influence, IEnumerable<string> states)
-        {
-            MinorFaction = minorFaction;
-            Influence = influence;
-            States = states.ToImmutableSortedSet();
-        }
-
-        public string MinorFaction { get; }
-        public double Influence { get; }
-        public IImmutableSet<string> States { get; }
+        public string MinorFaction { init; get; } = null!;
+        public double Influence { init; get; }
+        public IReadOnlyList<string> States { init; get; } = null!;
     }
 }

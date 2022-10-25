@@ -1,0 +1,123 @@
+﻿{
+  "$schemaRef": "https://eddn.edcd.io/schemas/journal/1",
+  "header": {
+    "gatewayTimestamp": "2022-10-25T12:22:42.685555Z",
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "5.5.0",
+    "uploaderID": "f47d42864a3e4176f5b04d93c1558b538b6cbfaa"
+  },
+  "message": {
+    "Body": "Ross 199",
+    "BodyID": 0,
+    "BodyType": "Star",
+    "Conflicts": [
+      {
+        "Faction1": {
+          "Name": "Ross 199 Silver Major Limited",
+          "Stake": "Kroehl Orbital",
+          "WonDays": 0
+        },
+        "Faction2": {
+          "Name": "Future of Ross 199",
+          "Stake": "Heaviside Bastion",
+          "WonDays": 1
+        },
+        "Status": "",
+        "WarType": "civilwar"
+      }
+    ],
+    "Factions": [
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "Corporate",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.055833,
+        "Name": "Ross 199 Silver Major Limited",
+        "RecoveringStates": [
+          {
+            "State": "CivilWar",
+            "Trend": 0
+          }
+        ]
+      },
+      {
+        "ActiveStates": [ { "State": "Bust" } ],
+        "Allegiance": "Independent",
+        "FactionState": "Bust",
+        "Government": "Anarchy",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.00997,
+        "Name": "Ross 199 Silver Raiders"
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "Dictatorship",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.062812,
+        "Name": "Allied Midgard Nationalists"
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "Dictatorship",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.065803,
+        "Name": "Ross 199 Law Party",
+        "RecoveringStates": [
+          {
+            "State": "Outbreak",
+            "Trend": 0
+          }
+        ]
+      },
+      {
+        "Allegiance": "Federation",
+        "FactionState": "None",
+        "Government": "Democracy",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.127617,
+        "Name": "Future of Ross 199",
+        "RecoveringStates": [
+          {
+            "State": "CivilWar",
+            "Trend": 0
+          }
+        ]
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "Dictatorship",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.586241,
+        "Name": "Merry Band of Awesome"
+      },
+      {
+        "Allegiance": "Independent",
+        "FactionState": "None",
+        "Government": "Corporate",
+        "Happiness": "$Faction_HappinessBand2;",
+        "Influence": 0.091725,
+        "Name": "Predator Mining Syndicate"
+      }
+    ],
+    "Multicrew": false,
+    "Population": 4559542,
+    "StarPos": [ -101.96875, 0.96875, -11.78125 ],
+    "StarSystem": "Ross 199",
+    "SystemAddress": 669612320161,
+    "SystemAllegiance": "Independent",
+    "SystemEconomy": "$economy_Industrial;",
+    "SystemFaction": { "Name": "Merry Band of Awesome" },
+    "SystemGovernment": "$government_Dictatorship;",
+    "SystemSecondEconomy": "$economy_Extraction;",
+    "SystemSecurity": "$SYSTEM_SECURITY_medium;",
+    "Taxi": false,
+    "event": "FSDJump",
+    "horizons": true,
+    "odyssey": true,
+    "timestamp": "2022-10-25T121757Z"
+  }
+}

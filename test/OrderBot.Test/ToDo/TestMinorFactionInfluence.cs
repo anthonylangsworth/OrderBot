@@ -6,9 +6,14 @@ namespace OrderBot.Test.ToDo
     internal class TestMinorFactionInfluence
     {
         [TestCaseSource(nameof(Ctor_Source))]
-        public void Ctor(string minorFaction, double influence, IEnumerable<string> states)
+        public void Ctor(string minorFaction, double influence, IReadOnlyList<string> states)
         {
-            MinorFactionInfluence minorFactionInfluence = new MinorFactionInfluence(minorFaction, influence, states);
+            MinorFactionInfluence minorFactionInfluence = new MinorFactionInfluence()
+            {
+                MinorFaction = minorFaction,
+                Influence = influence,
+                States = states
+            };
             Assert.That(minorFactionInfluence.MinorFaction, Is.EqualTo(minorFaction));
             Assert.That(minorFactionInfluence.Influence, Is.EqualTo(influence));
             Assert.That(minorFactionInfluence.States, Is.EquivalentTo(states));

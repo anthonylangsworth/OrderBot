@@ -26,16 +26,16 @@ namespace OrderBot.ToDo
             using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();
 
-            (DateTime timestamp, string? starSystemName, MinorFactionInfluence[] minorFactionDetails) =
-                GetTimestampAndFactionInfo(message, Filter);
-            if (starSystemName != null && minorFactionDetails.Length > 0)
+            BgsStarSystemData? bgsSystemData = GetBgsData(message, Filter);
+            if (bgsSystemData != null)
             {
                 //IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();
                 //executionStrategy.Execute(() => InnerSink(timestamp, starSystemName, minorFactionDetails, dbContext));
-                Update(timestamp, starSystemName, minorFactionDetails, dbContext);
+                Update(dbContext, bgsSystemData);
 
-                Logger.LogInformation("System {system} updated", starSystemName);
+                Logger.LogInformation("System {system} updated", bgsSystemData.StarSystemName);
             }
+
             transactionScope.Complete();
         }
 
@@ -49,8 +49,8 @@ namespace OrderBot.ToDo
         /// Filter out systems that do not match this filter.
         /// </param>
         /// <returns>
-        /// The message's UTC timestamp and an array of <see cref="MinorFactionInfluence"/> with relevant
-        /// details about the system. If this array is empty, there are no relevant details.
+        /// A <see cref="BgsStarSystemData"/> representing the details to store. If null, 
+        /// there are no relevant details.
         /// </returns>
         /// <exception cref="JsonException">
         /// The message is not valid JSON.
@@ -61,7 +61,7 @@ namespace OrderBot.ToDo
         /// <exception cref="FormatException">
         /// One or more fields are not of the expected format.
         /// </exception>
-        internal static (DateTime, string?, MinorFactionInfluence[]) GetTimestampAndFactionInfo(JsonDocument message,
+        internal static BgsStarSystemData? GetBgsData(JsonDocument message,
             MinorFactionNameFilter minorFactionNameFilters)
         {
             DateTime timestamp = message.RootElement
@@ -70,9 +70,12 @@ namespace OrderBot.ToDo
                     .GetDateTime()
                     .ToUniversalTime();
 
+            // See https://github.com/EDCD/EDDN/blob/master/schemas/journal-v1.0.json for schema
+
             JsonElement messageElement = message.RootElement.GetProperty("message");
             string? eventType = null;
             string? starSystemName = null;
+            string? systemSecurityState = null;
             MinorFactionInfluence[] minorFactionInfos = Array.Empty<MinorFactionInfluence>();
             if (messageElement.TryGetProperty("event", out JsonElement eventProperty))
             {
@@ -88,37 +91,49 @@ namespace OrderBot.ToDo
                         && factionsProperty.EnumerateArray().Any(element => minorFactionNameFilters.Matches(element.GetProperty("Name").GetString() ?? "")))
                     {
                         minorFactionInfos = factionsProperty.EnumerateArray().Select(element =>
-                            new MinorFactionInfluence(
-                                element.GetProperty("Name").GetString() ?? "",
-                                element.GetProperty("Influence").GetDouble(),
-                                element.TryGetProperty("ActiveStates", out JsonElement activeStatesElement)
+                            new MinorFactionInfluence()
+                            {
+                                MinorFaction = element.GetProperty("Name").GetString() ?? "",
+                                Influence = element.GetProperty("Influence").GetDouble(),
+                                States = element.TryGetProperty("ActiveStates", out JsonElement activeStatesElement)
                                     ? activeStatesElement.EnumerateArray().Select(stateElement => stateElement.GetProperty("State").GetString() ?? "").ToArray()
                                     : Array.Empty<string>()
-                            )).ToArray();
+                            }
+                            ).ToArray();
+                    }
+                    if (messageElement.TryGetProperty("SystemSecurity", out JsonElement securityProperty))
+                    {
+                        systemSecurityState = securityProperty.GetString();
                     }
                 }
             }
 
-            return (timestamp, starSystemName, minorFactionInfos);
+            return minorFactionInfos.Any()
+                ? new BgsStarSystemData()
+                {
+                    Timestamp = timestamp,
+                    StarSystemName = starSystemName ?? "",
+                    MinorFactionDetails = minorFactionInfos,
+                    SystemSecurityState = systemSecurityState ?? ""
+                } : null;
         }
 
-        internal static void Update(DateTime timestamp, string starSystemName, IEnumerable<MinorFactionInfluence> minorFactionDetails,
-            OrderBotDbContext dbContext)
+        internal static void Update(OrderBotDbContext dbContext, BgsStarSystemData bgsSystemData)
         {
-            StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(starSystem => starSystem.Name == starSystemName);
+            StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(starSystem => starSystem.Name == bgsSystemData.StarSystemName);
             if (starSystem == null)
             {
-                starSystem = new StarSystem { Name = starSystemName, LastUpdated = timestamp };
+                starSystem = new StarSystem { Name = bgsSystemData.StarSystemName, LastUpdated = bgsSystemData.Timestamp };
                 dbContext.StarSystems.Add(starSystem);
             }
             else
             {
-                starSystem.LastUpdated = timestamp;
+                starSystem.LastUpdated = bgsSystemData.Timestamp;
             }
             dbContext.SaveChanges();
 
             // Add or update minor factions
-            foreach (MinorFactionInfluence newMinorFactionInfo in minorFactionDetails)
+            foreach (MinorFactionInfluence newMinorFactionInfo in bgsSystemData.MinorFactionDetails)
             {
                 MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(minorFaction => minorFaction.Name == newMinorFactionInfo.MinorFaction);
                 if (minorFaction == null)
@@ -135,6 +150,10 @@ namespace OrderBot.ToDo
                                                                         .FirstOrDefault(
                                                                             smf => smf.StarSystem == starSystem
                                                                             && smf.MinorFaction == minorFaction);
+                string? minorFactionSecurity =
+                    newMinorFactionInfo == bgsSystemData.MinorFactionDetails.First(
+                        mf => mf.Influence == bgsSystemData.MinorFactionDetails.Max(mf => mf.Influence))
+                        ? bgsSystemData.SystemSecurityState : null;
                 if (dbSystemMinorFaction == null)
                 {
                     dbSystemMinorFaction = new StarSystemMinorFaction
@@ -142,12 +161,14 @@ namespace OrderBot.ToDo
                         MinorFaction = minorFaction,
                         StarSystem = starSystem,
                         Influence = newMinorFactionInfo.Influence,
+                        Security = minorFactionSecurity
                     };
                     dbContext.StarSystemMinorFactions.Add(dbSystemMinorFaction);
                 }
                 else
                 {
                     dbSystemMinorFaction.Influence = newMinorFactionInfo.Influence;
+                    dbSystemMinorFaction.Security = minorFactionSecurity;
                 }
                 dbContext.SaveChanges();
 
@@ -166,7 +187,7 @@ namespace OrderBot.ToDo
             }
 
             // Delete old minor factions
-            SortedSet<string> newSystemMinorFactions = new(minorFactionDetails.Select(mfd => mfd.MinorFaction));
+            SortedSet<string> newSystemMinorFactions = new(bgsSystemData.MinorFactionDetails.Select(mfd => mfd.MinorFaction));
             foreach (StarSystemMinorFaction systemMinorFaction in dbContext.StarSystemMinorFactions
                                                                            .Where(smf => smf.StarSystem == starSystem
                                                                                 && !newSystemMinorFactions.Contains(smf.MinorFaction.Name)))
