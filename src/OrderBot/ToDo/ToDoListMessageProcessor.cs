@@ -71,24 +71,32 @@ namespace OrderBot.ToDo
                     .ToUniversalTime();
 
             JsonElement messageElement = message.RootElement.GetProperty("message");
+            string? eventType = null;
             string? starSystemName = null;
             MinorFactionInfluence[] minorFactionInfos = Array.Empty<MinorFactionInfluence>();
-            if (messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty))
+            if (messageElement.TryGetProperty("event", out JsonElement eventProperty))
             {
-                starSystemName = starSystemProperty.GetString();
-            }
-            if (starSystemName != null
-                && messageElement.TryGetProperty("Factions", out JsonElement factionsProperty)
-                && factionsProperty.EnumerateArray().Any(element => minorFactionNameFilters.Matches(element.GetProperty("Name").GetString() ?? "")))
-            {
-                minorFactionInfos = factionsProperty.EnumerateArray().Select(element =>
-                    new MinorFactionInfluence(
-                        element.GetProperty("Name").GetString() ?? "",
-                        element.GetProperty("Influence").GetDouble(),
-                        element.TryGetProperty("ActiveStates", out JsonElement activeStatesElement)
-                            ? activeStatesElement.EnumerateArray().Select(stateElement => stateElement.GetProperty("State").GetString() ?? "").ToArray()
-                            : Array.Empty<string>()
-                    )).ToArray();
+                eventType = eventProperty.GetString();
+                if (eventType == "Location" || eventType == "FSDJump" || eventType == "CarrierJump")
+                {
+                    if (messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty))
+                    {
+                        starSystemName = starSystemProperty.GetString();
+                    }
+                    if (starSystemName != null
+                        && messageElement.TryGetProperty("Factions", out JsonElement factionsProperty)
+                        && factionsProperty.EnumerateArray().Any(element => minorFactionNameFilters.Matches(element.GetProperty("Name").GetString() ?? "")))
+                    {
+                        minorFactionInfos = factionsProperty.EnumerateArray().Select(element =>
+                            new MinorFactionInfluence(
+                                element.GetProperty("Name").GetString() ?? "",
+                                element.GetProperty("Influence").GetDouble(),
+                                element.TryGetProperty("ActiveStates", out JsonElement activeStatesElement)
+                                    ? activeStatesElement.EnumerateArray().Select(stateElement => stateElement.GetProperty("State").GetString() ?? "").ToArray()
+                                    : Array.Empty<string>()
+                            )).ToArray();
+                    }
+                }
             }
 
             return (timestamp, starSystemName, minorFactionInfos);
