@@ -34,6 +34,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBot", "src\OrderBot\Or
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBot.Test", "test\OrderBot.Test\OrderBot.Test.csproj", "{B91EFA64-BBA4-441B-83CC-81F22A0D5D4B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{62230308-C973-4BBF-96EC-720E7F068DDB}"
+	ProjectSection(SolutionItems) = preProject
+		Goals.md = Goals.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
