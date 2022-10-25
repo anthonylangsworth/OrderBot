@@ -43,7 +43,7 @@ namespace OrderBot.Test.ToDo
                 new TestCaseData(polaris, 0.15, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Above lower"),
                 new TestCaseData(polaris, 0.46, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Below Upper"),
                 new TestCaseData(polaris, 0.47, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Upper"),
-                new TestCaseData(polaris, 0.48, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.46 } }).SetName("AddActions Above Upper"),
+                new TestCaseData(polaris, 0.48, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.48 } }).SetName("AddActions Above Upper"),
             };
         }
     }
