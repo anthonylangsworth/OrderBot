@@ -27,7 +27,7 @@ namespace OrderBot.Test.ToDo
         }
 
         [Test]
-        public void GetBgsData_NoMatchingMinorFactions()
+        public void GetBgsData_MatchingMinorFaction()
         {
             FixedMinorFactionNameFilter filter = new(new[] { "Ross 199 Silver Raiders" });
             using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream("OrderBot.Test.samples.Ross 199.json");
@@ -98,6 +98,18 @@ namespace OrderBot.Test.ToDo
             else
             {
                 Assert.Fail("Cannot load resource");
+            }
+        }
+
+        [Test]
+        public void GetBgsData_NoMatchingMinorFactions()
+        {
+            FixedMinorFactionNameFilter filter = new(new[] { "Foo" });
+            using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream("OrderBot.Test.samples.Ross 199.json");
+            if (stream != null)
+            {
+                BgsStarSystemData? bgsStarSystemData = ToDoListMessageProcessor.GetBgsData(JsonDocument.Parse(stream), filter);
+                Assert.That(bgsStarSystemData, Is.Null);
             }
         }
 
