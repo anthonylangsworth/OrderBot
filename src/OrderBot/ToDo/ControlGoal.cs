@@ -34,11 +34,18 @@ namespace OrderBot.ToDo
         {
             if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
             {
-                toDoList.Pro.Add(new InfluenceInitiatedAction { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                toDoList.Pro.Add(new InfluenceInitiatedSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
             }
             else if (starSystemMinorFaction.Influence > UpperInfluenceThreshold)
             {
-                toDoList.Anti.Add(new InfluenceInitiatedAction { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                toDoList.Anti.Add(new InfluenceInitiatedSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+            }
+
+            // Security only applies for the controlling minor faction
+            if (starSystemMinorFaction == GetControllingMinorFaction(systemBgsData)
+                && starSystemMinorFaction.SecurityLevel == SecurityLevel.Low)
+            {
+                toDoList.ProSecurity.Add(new SecurityInitiatedSuggestion() { StarSystem = starSystemMinorFaction.StarSystem, SecurityLevel = starSystemMinorFaction.SecurityLevel });
             }
 
             // TODO: Handle conflicts

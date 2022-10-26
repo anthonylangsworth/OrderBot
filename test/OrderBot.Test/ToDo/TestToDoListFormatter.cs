@@ -35,10 +35,10 @@ Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to *The Dark Whe
         public void Format_ProAndAnti()
         {
             ToDoList toDoList = new("The Dark Wheel");
-            toDoList.Pro.Add(new InfluenceInitiatedAction() { StarSystem = new StarSystem() { Name = "Shinrarta Dezhra" }, Influence = 0.1 });
-            toDoList.Pro.Add(new InfluenceInitiatedAction() { StarSystem = new StarSystem() { Name = "Tau Ceti" }, Influence = 0.2 });
-            toDoList.Anti.Add(new InfluenceInitiatedAction() { StarSystem = new StarSystem() { Name = "Wolf 359" }, Influence = 0.7 });
-            toDoList.Anti.Add(new InfluenceInitiatedAction() { StarSystem = new StarSystem() { Name = "Alpha Centauri" }, Influence = 0.65 });
+            toDoList.Pro.Add(new InfluenceInitiatedSuggestion() { StarSystem = new StarSystem() { Name = "Shinrarta Dezhra" }, Influence = 0.1 });
+            toDoList.Pro.Add(new InfluenceInitiatedSuggestion() { StarSystem = new StarSystem() { Name = "Tau Ceti" }, Influence = 0.2 });
+            toDoList.Anti.Add(new InfluenceInitiatedSuggestion() { StarSystem = new StarSystem() { Name = "Wolf 359" }, Influence = 0.7 });
+            toDoList.Anti.Add(new InfluenceInitiatedSuggestion() { StarSystem = new StarSystem() { Name = "Alpha Centauri" }, Influence = 0.65 });
             Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-The Dark Wheel** support required* - Work for EDA in these systems.

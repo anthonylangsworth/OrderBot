@@ -2,7 +2,7 @@
 
 namespace OrderBot.ToDo
 {
-    public record InfluenceInitiatedAction : IEquatable<InfluenceInitiatedAction?>
+    public record InfluenceInitiatedSuggestion : IEquatable<InfluenceInitiatedSuggestion?>
     {
         public StarSystem StarSystem { get; init; } = null!;
         public double Influence { get; set; }

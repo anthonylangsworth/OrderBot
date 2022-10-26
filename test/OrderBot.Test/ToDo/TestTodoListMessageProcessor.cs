@@ -159,7 +159,7 @@ namespace OrderBot.Test.ToDo
             Assert.That(newSystemMinorFaction.MinorFaction.Name, Is.EqualTo(minorFaction));
             Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
             Assert.That(newSystemMinorFaction.States.Select(state => state.Name), Is.EquivalentTo(states));
-            Assert.That(newSystemMinorFaction.Security, Is.EqualTo(systemSecurity));
+            Assert.That(newSystemMinorFaction.SecurityLevel, Is.EqualTo(systemSecurity));
         }
 
         [Test]
@@ -270,7 +270,7 @@ namespace OrderBot.Test.ToDo
             Assert.That(newSystemMinorFaction1.MinorFaction.Name, Is.EqualTo(minorFaction1));
             Assert.That(newSystemMinorFaction1.Influence, Is.EqualTo(minorFaction1Influence));
             Assert.That(newSystemMinorFaction1.States.Select(state => state.Name), Is.EquivalentTo(minorFaction1States));
-            Assert.That(newSystemMinorFaction1.Security, Is.EqualTo(systemSecurity));
+            Assert.That(newSystemMinorFaction1.SecurityLevel, Is.EqualTo(systemSecurity));
 
             StarSystemMinorFaction? newSystemMinorFaction2 = systemMinorFactions[1];
             Assert.That(newSystemMinorFaction2.StarSystem, Is.Not.Null);
@@ -280,7 +280,7 @@ namespace OrderBot.Test.ToDo
             Assert.That(newSystemMinorFaction2.MinorFaction.Name, Is.EqualTo(minorFaction2));
             Assert.That(newSystemMinorFaction2.Influence, Is.EqualTo(minorFaction2Influence));
             Assert.That(newSystemMinorFaction2.States.Select(state => state.Name), Is.EquivalentTo(minorFaction2States));
-            Assert.That(newSystemMinorFaction2.Security, Is.Null);
+            Assert.That(newSystemMinorFaction2.SecurityLevel, Is.Null);
         }
 
     }

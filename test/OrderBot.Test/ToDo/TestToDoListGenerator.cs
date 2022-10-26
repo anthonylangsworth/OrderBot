@@ -99,8 +99,8 @@ namespace OrderBot.Test.ToDo
             ToDoList toDoList = generator.Generate(GuildId, MinorFactionName);
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
             Assert.That(toDoList.Pro,
-                Is.EquivalentTo(new[] { new InfluenceInitiatedAction() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence } })
-                  .Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
+                Is.EquivalentTo(new[] { new InfluenceInitiatedSuggestion() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence } })
+                  .Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
             Assert.That(toDoList.Anti, Is.Empty);
         }
 
@@ -125,8 +125,8 @@ namespace OrderBot.Test.ToDo
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
             Assert.That(toDoList.Pro, Is.Empty);
             Assert.That(toDoList.Anti,
-                Is.EquivalentTo(new[] { new InfluenceInitiatedAction() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence } })
-                  .Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
+                Is.EquivalentTo(new[] { new InfluenceInitiatedSuggestion() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence } })
+                  .Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
         }
 
         [Test]
@@ -180,11 +180,11 @@ namespace OrderBot.Test.ToDo
             ToDoList toDoList = generator.Generate(GuildId, MinorFactionName);
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
             Assert.That(toDoList.Pro,
-                Is.EquivalentTo(new[] { new InfluenceInitiatedAction() { StarSystem = alphCentauri, Influence = purplePeopleEastersAlphaCentauri.StarSystemMinorFaction.Influence } })
-                  .Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
+                Is.EquivalentTo(new[] { new InfluenceInitiatedSuggestion() { StarSystem = alphCentauri, Influence = purplePeopleEastersAlphaCentauri.StarSystemMinorFaction.Influence } })
+                  .Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
             Assert.That(toDoList.Anti,
-                Is.EquivalentTo(new[] { new InfluenceInitiatedAction() { StarSystem = maia, Influence = purplePeopleEastersMaia.StarSystemMinorFaction.Influence } })
-                  .Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
+                Is.EquivalentTo(new[] { new InfluenceInitiatedSuggestion() { StarSystem = maia, Influence = purplePeopleEastersMaia.StarSystemMinorFaction.Influence } })
+                  .Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
         }
 
         // Generate sample report on current DB

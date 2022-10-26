@@ -35,11 +35,10 @@ namespace OrderBot.ToDo
         {
             if (systemBgsData.Count > 1)
             {
-                double maxInfluence = systemBgsData.Where(ssmf => ssmf != starSystemMinorFaction)
-                                                   .Max(ssmf => ssmf.Influence) - MaxInfuenceGap;
+                double maxInfluence = GetControllingMinorFaction(systemBgsData).Influence - MaxInfuenceGap;
                 if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
                 {
-                    toDoList.Pro.Add(new InfluenceInitiatedAction
+                    toDoList.Pro.Add(new InfluenceInitiatedSuggestion
                     {
                         StarSystem = starSystemMinorFaction.StarSystem,
                         Influence = starSystemMinorFaction.Influence
@@ -47,7 +46,7 @@ namespace OrderBot.ToDo
                 }
                 else if (starSystemMinorFaction.Influence > maxInfluence)
                 {
-                    toDoList.Anti.Add(new InfluenceInitiatedAction
+                    toDoList.Anti.Add(new InfluenceInitiatedSuggestion
                     {
                         StarSystem = starSystemMinorFaction.StarSystem,
                         Influence = starSystemMinorFaction.Influence

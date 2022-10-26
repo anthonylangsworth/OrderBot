@@ -17,7 +17,7 @@ namespace OrderBot.Test.ToDo
 
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
-        public void AddActions(StarSystem starSystem, double influence, IEnumerable<InfluenceInitiatedAction> expectedPro, IEnumerable<InfluenceInitiatedAction> expectedAnti)
+        public void AddActions(StarSystem starSystem, double influence, IEnumerable<InfluenceInitiatedSuggestion> expectedPro, IEnumerable<InfluenceInitiatedSuggestion> expectedAnti)
         {
             MinorFaction minorFaction = new() { Name = "Flying Fish" };
             StarSystemMinorFaction starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence };
@@ -29,8 +29,8 @@ namespace OrderBot.Test.ToDo
             };
             ToDoList toDo = new(minorFaction.Name);
             MaintainGoal.Instance.AddActions(starSystemMinorFaction, systemMinorFactions, toDo);
-            Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
-            Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedActionEqualityComparer.Instance));
+            Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
+            Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()
@@ -38,12 +38,12 @@ namespace OrderBot.Test.ToDo
             StarSystem polaris = new() { Name = "Polaris", LastUpdated = DateTime.UtcNow };
 
             return new[] {
-                new TestCaseData(polaris, 0.09, new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.09 } }, Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Below Lower"),
-                new TestCaseData(polaris, 0.1, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Lower"),
-                new TestCaseData(polaris, 0.15, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Above lower"),
-                new TestCaseData(polaris, 0.46, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Below Upper"),
-                new TestCaseData(polaris, 0.47, Array.Empty<InfluenceInitiatedAction>(), Array.Empty<InfluenceInitiatedAction>()).SetName("AddActions Upper"),
-                new TestCaseData(polaris, 0.48, Array.Empty<InfluenceInitiatedAction>(), new [] { new InfluenceInitiatedAction() { StarSystem = polaris, Influence = 0.48 } }).SetName("AddActions Above Upper"),
+                new TestCaseData(polaris, 0.09, new [] { new InfluenceInitiatedSuggestion() { StarSystem = polaris, Influence = 0.09 } }, Array.Empty<InfluenceInitiatedSuggestion>()).SetName("AddActions Below Lower"),
+                new TestCaseData(polaris, 0.1, Array.Empty<InfluenceInitiatedSuggestion>(), Array.Empty<InfluenceInitiatedSuggestion>()).SetName("AddActions Lower"),
+                new TestCaseData(polaris, 0.15, Array.Empty<InfluenceInitiatedSuggestion>(), Array.Empty<InfluenceInitiatedSuggestion>()).SetName("AddActions Above lower"),
+                new TestCaseData(polaris, 0.46, Array.Empty<InfluenceInitiatedSuggestion>(), Array.Empty<InfluenceInitiatedSuggestion>()).SetName("AddActions Below Upper"),
+                new TestCaseData(polaris, 0.47, Array.Empty<InfluenceInitiatedSuggestion>(), Array.Empty<InfluenceInitiatedSuggestion>()).SetName("AddActions Upper"),
+                new TestCaseData(polaris, 0.48, Array.Empty<InfluenceInitiatedSuggestion>(), new [] { new InfluenceInitiatedSuggestion() { StarSystem = polaris, Influence = 0.48 } }).SetName("AddActions Above Upper"),
             };
         }
     }

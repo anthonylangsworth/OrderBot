@@ -161,14 +161,14 @@ namespace OrderBot.ToDo
                         MinorFaction = minorFaction,
                         StarSystem = starSystem,
                         Influence = newMinorFactionInfo.Influence,
-                        Security = minorFactionSecurity
+                        SecurityLevel = minorFactionSecurity
                     };
                     dbContext.StarSystemMinorFactions.Add(dbSystemMinorFaction);
                 }
                 else
                 {
                     dbSystemMinorFaction.Influence = newMinorFactionInfo.Influence;
-                    dbSystemMinorFaction.Security = minorFactionSecurity;
+                    dbSystemMinorFaction.SecurityLevel = minorFactionSecurity;
                 }
                 dbContext.SaveChanges();
 

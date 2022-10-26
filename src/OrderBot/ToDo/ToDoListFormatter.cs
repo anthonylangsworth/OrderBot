@@ -22,12 +22,12 @@ Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to *{minorFactio
 {electionList}
 ";
 
-        internal static string GetInfluenceList(IEnumerable<InfluenceInitiatedAction> actions, bool ascending)
+        internal static string GetInfluenceList(IEnumerable<InfluenceInitiatedSuggestion> actions, bool ascending)
         {
             string result;
             if (actions.Any())
             {
-                IEnumerable<InfluenceInitiatedAction> sortedActions =
+                IEnumerable<InfluenceInitiatedSuggestion> sortedActions =
                     ascending ? actions.OrderBy(action => action.Influence) : actions.OrderByDescending(action => action.Influence);
                 result = string.Join(Environment.NewLine,
                     sortedActions.Select(action => $"- {action.StarSystem.Name} - {Math.Round(action.Influence * 100, 1)}%"));

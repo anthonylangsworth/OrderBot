@@ -6,7 +6,7 @@
         public StarSystem StarSystem { get; init; } = null!;
         public MinorFaction MinorFaction { get; init; } = null!;
         public double Influence;
-        public string? Security;
+        public string? SecurityLevel;
         public List<State> States { get; } = new();
     }
 }

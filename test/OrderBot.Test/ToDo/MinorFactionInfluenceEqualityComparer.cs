@@ -17,7 +17,9 @@ namespace OrderBot.Test.ToDo
 
         public bool Equals(MinorFactionInfluence? x, MinorFactionInfluence? y)
         {
-            return x.MinorFaction == y.MinorFaction
+            return x is not null
+                && y is not null
+                && x.MinorFaction == y.MinorFaction
                 && x.Influence == y.Influence
                 && x.States.OrderBy(s => s).SequenceEqual(y.States.OrderBy(s => s));
         }
