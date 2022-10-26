@@ -79,7 +79,8 @@ namespace OrderBot.Core
                       .UseIdentityColumn();
 
                 entity.Property(e => e.Influence);
-                entity.Property(e => e.Security);
+                entity.Property(e => e.Security)
+                      .HasMaxLength(100);
             });
 
             modelBuilder.Entity<StarSystemMinorFaction>()
