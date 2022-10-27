@@ -1,4 +1,6 @@
-﻿namespace OrderBot.ToDo
+﻿using System.Net;
+
+namespace OrderBot.ToDo
 {
     public class ToDoListFormatter
     {
@@ -33,7 +35,7 @@ Redeem bounty vouchers to increase security in systems *{minorFactionName}* cont
                 IEnumerable<InfluenceInitiatedSuggestion> sortedActions =
                     ascending ? suggestions.OrderBy(action => action.Influence) : suggestions.OrderByDescending(action => action.Influence);
                 result = string.Join(Environment.NewLine,
-                    sortedActions.Select(action => $"- {action.StarSystem.Name} - {Math.Round(action.Influence * 100, 1)}%"));
+                    sortedActions.Select(action => $"- {FormatSystemName(action.StarSystem.Name)} - {Math.Round(action.Influence * 100, 1)}%"));
             }
             else
             {
@@ -48,13 +50,19 @@ Redeem bounty vouchers to increase security in systems *{minorFactionName}* cont
             if (suggestions.Any())
             {
                 result = string.Join(Environment.NewLine,
-                    suggestions.Select(action => $"- {action.StarSystem.Name} - {SecurityLevel.Name[action.SecurityLevel]}"));
+                    suggestions.Select(action => $"- {FormatSystemName(action.StarSystem.Name)} - {SecurityLevel.Name[action.SecurityLevel]}"));
             }
             else
             {
                 result = "(None)";
             }
             return result;
+        }
+
+        internal static string FormatSystemName(string systemName)
+        {
+            // The < > prevent auto-embed creation for the links.
+            return $"[{systemName}](<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(systemName)}>)";
         }
 
         public string Format(ToDoList toDoList)
