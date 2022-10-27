@@ -3,30 +3,49 @@
 
 # BGS Order Bot
 
-# Overview
+## Overview
 For any squadron in the game *Elite Dangerous* that supports a minor faction, keeping up to date with the background simulation (BGS) is an onerous task. For example, player activity and BGS randomness can reduce or increase influence, leading to conflicts, expansions or retreats. Trawling through each system on [Inara](https://inara.cz/) is time-consuming and error prone.
 
 This bot receives BGS data from the [Elite Dangerous Data Network](https://eddn.edcd.io/) and creates a list of suggestions based on an admin-specified minor faction to support. This allows the bot to produce specific suggestions, unlike Inara or [Elite BGS App](https://elitebgs.app/).
 
 This project is not intended to replace squadron officers, although it can be used that way, or existing tools like those mentioned above. For example, it will not give graphs of influence history.
 
+## Setup
 NOTE: This Discord Bot is **NOT** currently open to joining other Discord servers. It is still a work in progress and some values are hard coded.
 
-# Setup
-This project is currently hosted in Azure. Run the "Deploy" action to update the deployed version.
+To quickly setup the bot:
+1. Add the bot to your Discord server by <URL Not Available Yet>.
+2. Give Discord a few minutes to process the registration and the bot's commands to become available. 
+3. Choose a minor faction to support using `/todo-list support add <minor faction name>` where `<minor faction name>` is the name of the minor faction you want to support. This must match the name of the in-game squadron exactly, although it is not case sensitive.
+4. Override the behaviour for specific systems or add goals for other minor factions using `/todo-list goal add <minor faction> <star system> <goal>`. See [Goals](doc/Goals.md) for details. You can add or remove these at any time as needs or whims dictate.
+5. Either visit the systems where your supported minor faction is present while running [EMDC](https://github.com/EDCD/EDMarketConnector/wiki) or a similar tool or wait for someone else to do so. This sends data to EDDN and then on to this bot.
+6. Run `/todo-list show` to see the suggestions.
 
-To setup locally:
-1. Install Docker Desktop.
-2. Download the SQL Server instance using `docker pull mcr.microsoft.com/mssql/server:2019-latest`
-3. Create and run a new SQL Server container using `docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=<password>" -e "MSSQL_PID=Express" -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest`, substituting `<password>` with a strong password.
-4. Set a password for the "OrderBot" user around line 60 in `deploy/db.sql` then run that SQL command to create the database, such as via SQL Management Studio.
-5. Run `deploy/tables.sql` to create the table structure.
-6. Download a base image for the applications using `docker pull mcr.microsoft.com/dotnet/runtime:6.0`.
-7. Create a file calked "ApiKeys.env" in `src/OrderBot`. Create two enties, one for `ConnectionStrings__OrderBot`, containing the SQL server connection string, and `DiscordApiKey`, containing the Discord Bot's API key.
-8. Download, build and run the code.
+## Sample Suggestions
 
-# References
-1. Using Docker with .Net Core: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/visual-studio-tools-for-docker?view=aspnetcore-6.0
-2. Github action to build SQL server database: https://github.com/ankane/setup-sqlserver
-3. Discord.Net documentation: https://discordnet.dev/
-4. Using Log Analytics with Container Instances: https://learn.microsoft.com/en-us/azure/container-instances/container-instances-log-analytics
+> ---------------------------------------------------------------------------------------------------------------------------------
+> ***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
+> E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dark Wheel* controlled stations.
+> - [Shinrarta Dezhra](<https://inara.cz/elite/search/?search=Shinrarta+Dezhra>) - 10%
+> - [Tau Ceti](<https://inara.cz/elite/search/?search=Tau+Ceti>) - 20%
+> 
+> Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls.
+> - [Maia](<https://inara.cz/elite/search/?search=Maia>) - Low
+> 
+> ***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to > avoid an unwanted expansion.
+> - [Wolf 359](<https://inara.cz/elite/search/?search=Wolf+359>) - 70%
+> - [Alpha Centauri](<https://inara.cz/elite/search/?search=Alpha+Centauri>) - 65%
+> 
+> ***Urgent Pro-Non-Native/Coalition Faction** support required* - Work for ONLY the listed factions in the listed systems to avoid a retreat or to disrupt system interference.
+> (None)
+> 
+> ---------------------------------------------------------------------------------------------------------------------------------
+> **War Systems**
+> (None)
+> 
+> **Election Systems**
+> (None)
+
+## Development and Contributions
+
+See [Development](doc/Development.md).
