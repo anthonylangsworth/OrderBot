@@ -23,6 +23,8 @@ To quickly setup the bot:
 
 ## Sample Suggestions
 
+(The structure is still a work in progress.)
+  
 > ---------------------------------------------------------------------------------------------------------------------------------
 > ***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
 > E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dark Wheel* controlled stations.
