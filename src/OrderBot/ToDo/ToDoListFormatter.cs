@@ -2,11 +2,14 @@
 {
     public class ToDoListFormatter
     {
-        internal string GetOutput(string minorFactionName, string proList, string antiList, string otherList, string warList, string electionList) =>
+        internal string GetOutput(string minorFactionName, string proList, string proSecurityList, string antiList, string otherList, string warList, string electionList) =>
 $@"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-{minorFactionName}** support required* - Work for EDA in these systems.
-Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to *{minorFactionName}* controlled stations:
+E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *{minorFactionName}* controlled stations.
 {proList}
+
+Redeem bounty vouchers to increase security in systems *{minorFactionName}* controls.
+{proSecurityList}
 
 ***Anti-{minorFactionName}** support required* - Work ONLY for the other factions in the listed systems to bring *{minorFactionName}*'s INF back to manageable levels and to avoid an unwanted expansion.
 {antiList}
@@ -22,13 +25,13 @@ Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to *{minorFactio
 {electionList}
 ";
 
-        internal static string GetInfluenceList(IEnumerable<InfluenceInitiatedSuggestion> actions, bool ascending)
+        internal static string GetInfluenceList(IEnumerable<InfluenceInitiatedSuggestion> suggestions, bool ascending)
         {
             string result;
-            if (actions.Any())
+            if (suggestions.Any())
             {
                 IEnumerable<InfluenceInitiatedSuggestion> sortedActions =
-                    ascending ? actions.OrderBy(action => action.Influence) : actions.OrderByDescending(action => action.Influence);
+                    ascending ? suggestions.OrderBy(action => action.Influence) : suggestions.OrderByDescending(action => action.Influence);
                 result = string.Join(Environment.NewLine,
                     sortedActions.Select(action => $"- {action.StarSystem.Name} - {Math.Round(action.Influence * 100, 1)}%"));
             }
@@ -39,9 +42,24 @@ Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to *{minorFactio
             return result;
         }
 
+        internal static string GetSecurityList(IEnumerable<SecurityInitiatedSuggestion> suggestions)
+        {
+            string result;
+            if (suggestions.Any())
+            {
+                result = string.Join(Environment.NewLine,
+                    suggestions.Select(action => $"- {action.StarSystem.Name} - {SecurityLevel.Name[action.SecurityLevel]}"));
+            }
+            else
+            {
+                result = "(None)";
+            }
+            return result;
+        }
+
         public string Format(ToDoList toDoList)
         {
-            return GetOutput(toDoList.MinorFaction, GetInfluenceList(toDoList.Pro, true), GetInfluenceList(toDoList.Anti, false), "(None)", "(None)", "(None)");
+            return GetOutput(toDoList.MinorFaction, GetInfluenceList(toDoList.Pro, true), GetSecurityList(toDoList.ProSecurity), GetInfluenceList(toDoList.Anti, false), "(None)", "(None)", "(None)");
         }
     }
 }

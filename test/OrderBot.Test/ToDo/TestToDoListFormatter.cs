@@ -13,7 +13,10 @@ namespace OrderBot.Test.ToDo
             Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
-Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to *The Dark Wheel* controlled stations:
+E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dark Wheel* controlled stations.
+(None)
+
+Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls.
 (None)
 
 ***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to avoid an unwanted expansion.
@@ -39,12 +42,16 @@ Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to *The Dark Whe
             toDoList.Pro.Add(new InfluenceInitiatedSuggestion() { StarSystem = new StarSystem() { Name = "Tau Ceti" }, Influence = 0.2 });
             toDoList.Anti.Add(new InfluenceInitiatedSuggestion() { StarSystem = new StarSystem() { Name = "Wolf 359" }, Influence = 0.7 });
             toDoList.Anti.Add(new InfluenceInitiatedSuggestion() { StarSystem = new StarSystem() { Name = "Alpha Centauri" }, Influence = 0.65 });
+            toDoList.ProSecurity.Add(new SecurityInitiatedSuggestion() { StarSystem = new StarSystem() { Name = "Maia" }, SecurityLevel = SecurityLevel.Low });
             Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
-Missions/PAX, Cartographic Data, Bounties, and Profitable Trade to *The Dark Wheel* controlled stations:
+E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dark Wheel* controlled stations.
 - Shinrarta Dezhra - 10%
 - Tau Ceti - 20%
+
+Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls.
+- Maia - Low
 
 ***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to avoid an unwanted expansion.
 - Wolf 359 - 70%
