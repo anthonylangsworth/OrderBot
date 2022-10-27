@@ -10,6 +10,8 @@ This bot receives BGS data from the [Elite Dangerous Data Network](https://eddn.
 
 This project is not intended to replace squadron officers, although it can be used that way, or existing tools like those mentioned above. For example, it will not give graphs of influence history.
 
+NOTE: This Discord Bot is **NOT** currently open to joining other Discord servers. It is still a work in progress and some values are hard coded.
+
 # Setup
 This project is currently hosted in Azure. Run the "Deploy" action to update the deployed version.
 
