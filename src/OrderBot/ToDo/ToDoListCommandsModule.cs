@@ -57,6 +57,7 @@ namespace OrderBot.ToDo
         }
 
         [SlashCommand("raw", "List the work required for supporting a minor faction in a copyable format")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         // [RequirePerGuildRole("EDAKL Leaders", "EDAKL Veterans")]
         public async Task ShowRawToDoList()
         {
@@ -89,6 +90,7 @@ namespace OrderBot.ToDo
         }
 
         [Group("support", "Support a minor faction")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         public class Support : InteractionModuleBase<SocketInteractionContext>
         {
             public Support(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Support> logger)
@@ -211,6 +213,7 @@ namespace OrderBot.ToDo
         }
 
         [Group("goal", "Provide specific intent for a minor faction in a system")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         public class Goals : InteractionModuleBase<SocketInteractionContext>
         {
             public Goals(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Goals> logger)
