@@ -6,7 +6,9 @@
 # Overview
 For any squadron in the game *Elite Dangerous* that supports a minor faction, keeping up to date with the background simulation (BGS) is an onerous task. For example, player activity and BGS randomness can reduce or increase influence, leading to conflicts, expansions or retreats. Trawling through each system on [Inara](https://inara.cz/) is time-consuming and error prone.
 
-The vision of this project is to create a program that receives BGS data from the [Elite Dangerous Data Network](https://eddn.edcd.io/) and publishes daily suggestions to the squadron's Discord server. This removes much of the "mechanical" work. This project is not intended to replace squadron officers, although it can be used that way.
+This bot receives BGS data from the [Elite Dangerous Data Network](https://eddn.edcd.io/) and creates a list of suggestions based on an admin-specified minor faction to support. This allows the bot to produce specific suggestions, unlike Inara or [Elite BGS App](https://elitebgs.app/).
+
+This project is not intended to replace squadron officers, although it can be used that way, or existing tools like those mentioned above. For example, it will not give graphs of influence history.
 
 # Setup
 This project is currently hosted in Azure. Run the "Deploy" action to update the deployed version.
@@ -25,3 +27,4 @@ To setup locally:
 1. Using Docker with .Net Core: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/visual-studio-tools-for-docker?view=aspnetcore-6.0
 2. Github action to build SQL server database: https://github.com/ankane/setup-sqlserver
 3. Discord.Net documentation: https://discordnet.dev/
+4. Using Log Analytics with Container Instances: https://learn.microsoft.com/en-us/azure/container-instances/container-instances-log-analytics
