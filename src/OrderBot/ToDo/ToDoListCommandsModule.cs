@@ -32,26 +32,59 @@ namespace OrderBot.ToDo
         {
             // [Summary("raw", "True if the data is quoted, allowing easy coping, false (default) if formatted")] bool raw = false
             await Context.Interaction.DeferAsync(ephemeral: true);
-
-            Logger.LogInformation("ToDoList called");
-
-            try
+            using (Logger.BeginScope("show"))
             {
-                // Context.Guild is null for some reason
-                SocketGuild guild = ((SocketGuildUser)Context.User).Guild;
+                try
+                {
+                    // Context.Guild is null for some reason
+                    SocketGuild guild = ((SocketGuildUser)Context.User).Guild;
 
-                const string minorFactionName = "EDA Kunti League";
-                string report = Formatter.Format(Generator.Generate(guild.Id, minorFactionName));
+                    const string minorFactionName = "EDA Kunti League";
+                    string report = Formatter.Format(Generator.Generate(guild.Id, minorFactionName));
 
-                await Context.Interaction.FollowupAsync(
-                    text: report,
-                    ephemeral: true
-                );
+                    await Context.Interaction.FollowupAsync(
+                        text: report,
+                        ephemeral: true
+                    );
+                }
+                catch
+                {
+                    await Context.Interaction.ModifyOriginalResponseAsync(
+                        messageProperties => messageProperties.Content = "I have failed.");
+                    throw;
+                }
             }
-            catch
+        }
+
+        [SlashCommand("raw", "List the work required for supporting a minor faction in a copyable format")]
+        // [RequirePerGuildRole("EDAKL Leaders", "EDAKL Veterans")]
+        public async Task ShowRawToDoList()
+        {
+            // [Summary("raw", "True if the data is quoted, allowing easy coping, false (default) if formatted")] bool raw = false
+            await Context.Interaction.DeferAsync(ephemeral: true);
+            using (Logger.BeginScope("show"))
             {
-                await Context.Interaction.ModifyOriginalResponseAsync(messageProperties => messageProperties.Content = "I have failed.");
-                throw;
+                try
+                {
+                    // Context.Guild is null for some reason
+                    SocketGuild guild = ((SocketGuildUser)Context.User).Guild;
+
+                    const string minorFactionName = "EDA Kunti League";
+                    string report = $"```\n" +
+                        $"{Formatter.Format(Generator.Generate(guild.Id, minorFactionName))}\n" +
+                        $"```";
+
+                    await Context.Interaction.FollowupAsync(
+                        text: report,
+                        ephemeral: true
+                    );
+                }
+                catch
+                {
+                    await Context.Interaction.ModifyOriginalResponseAsync(
+                        messageProperties => messageProperties.Content = "I have failed.");
+                    throw;
+                }
             }
         }
 
