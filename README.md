@@ -14,7 +14,7 @@ This project is not intended to replace squadron officers, although it can be us
 NOTE: This Discord Bot is **NOT** currently open to joining other Discord servers. It is still a work in progress and some values are hard coded.
 
 To quickly setup the bot:
-1. Add the bot to your Discord server by <URL Not Available Yet>.
+1. Add the bot to your Discord server by (URL Not Available Yet).
 2. Give Discord a few minutes to process the registration and the bot's commands to become available. 
 3. Choose a minor faction to support using `/todo-list support add <minor faction name>` where `<minor faction name>` is the name of the minor faction you want to support. This must match the name of the in-game squadron exactly, although it is not case sensitive.
 4. Override the behaviour for specific systems or add goals for other minor factions using `/todo-list goal add <minor faction> <star system> <goal>`. See [Goals](doc/Goals.md) for details. You can add or remove these at any time as needs or whims dictate.
