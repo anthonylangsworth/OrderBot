@@ -24,7 +24,7 @@ namespace OrderBot.ToDo
             using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();
 
-            IReadOnlyList<StarSystemMinorFaction> systemBgsData =
+            IReadOnlyList<StarSystemMinorFaction> bgsData =
                 dbContext.StarSystemMinorFactions.Include(ssmf => ssmf.MinorFaction)
                                                  .Include(ssmf => ssmf.StarSystem)
                                                  .ToList();
@@ -41,6 +41,11 @@ namespace OrderBot.ToDo
 
             foreach (DiscordGuildStarSystemMinorFactionGoal dgssmfg in dgssmfgs)
             {
+                IReadOnlyList<StarSystemMinorFaction> starSystemBgsData =
+                    bgsData.Where(ssmf => ssmf.StarSystem == dgssmfg.StarSystemMinorFaction.StarSystem
+                                          && ssmf.MinorFaction == dgssmfg.StarSystemMinorFaction.MinorFaction)
+                           .ToList();
+
                 if (!Goals.Map.TryGetValue(dgssmfg.Goal, out Goal? goal))
                 {
                     Logger.LogError("Skipping unknown goal '{goal}' for star system '{starSystem}' for minor faction '{minorFaction}'",
@@ -48,17 +53,21 @@ namespace OrderBot.ToDo
                 }
                 else
                 {
-                    goal.AddActions(dgssmfg.StarSystemMinorFaction, systemBgsData, toDoList);
+                    goal.AddActions(dgssmfg.StarSystemMinorFaction, starSystemBgsData, toDoList);
                 }
             }
 
             IReadOnlyList<StarSystemMinorFaction> filtered =
-                systemBgsData.Where(ssmf => !dgssmfgs.Select(dgssmfg => dgssmfg.StarSystemMinorFaction.Id).Contains(ssmf.Id)
+                bgsData.Where(ssmf => !dgssmfgs.Select(dgssmfg => dgssmfg.StarSystemMinorFaction.Id).Contains(ssmf.Id)
                                                                         && ssmf.MinorFaction.Name == minorFactionName)
                              .ToList();
             foreach (StarSystemMinorFaction ssmf in filtered)
             {
-                Goals.Default.AddActions(ssmf, systemBgsData, toDoList);
+                IReadOnlyList<StarSystemMinorFaction> starSystemBgsData =
+                    bgsData.Where(ssmf2 => ssmf2.StarSystem == ssmf.StarSystem)
+                           .ToList();
+
+                Goals.Default.AddActions(ssmf, starSystemBgsData, toDoList);
             }
 
             return toDoList;

@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace OrderBot.ToDo
+﻿namespace OrderBot.ToDo
 {
     public class ToDoListFormatter
     {
@@ -50,7 +48,8 @@ Redeem bounty vouchers to increase security in systems *{minorFactionName}* cont
             if (suggestions.Any())
             {
                 result = string.Join(Environment.NewLine,
-                    suggestions.Select(action => $"- {FormatSystemName(action.StarSystem.Name)} - {SecurityLevel.Name[action.SecurityLevel]}"));
+                    suggestions.OrderBy(sis => sis.StarSystem.Name)
+                               .Select(action => $"- {FormatSystemName(action.StarSystem.Name)} - {SecurityLevel.Name[action.SecurityLevel]}"));
             }
             else
             {
@@ -61,8 +60,10 @@ Redeem bounty vouchers to increase security in systems *{minorFactionName}* cont
 
         internal static string FormatSystemName(string systemName)
         {
+            // Temporarily removed because this bumped the order message size over the 2K character limit.
             // The < > prevent auto-embed creation for the links.
-            return $"[{systemName}](<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(systemName)}>)";
+            // return $"[{systemName}](<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(systemName)}>)";
+            return $"{systemName}";
         }
 
         public string Format(ToDoList toDoList)
