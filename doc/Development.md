@@ -13,7 +13,7 @@ To setup locally:
 7. Create a file calked "ApiKeys.env" in `src/OrderBot`. Create two enties, one for `ConnectionStrings__OrderBot`, containing the SQL server connection string, and `DiscordApiKey`, containing the Discord Bot's API key.
 8. Download, build and run the code.
 
-$# References
+## References
 1. Using Docker with .Net Core: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/visual-studio-tools-for-docker?view=aspnetcore-6.0
 2. Github action to build SQL server database: https://github.com/ankane/setup-sqlserver
 3. Discord.Net documentation: https://discordnet.dev/
