@@ -1,7 +1,7 @@
 # Development
 
 ## Setup
-This project is currently hosted in Azure. Run the "Deploy" action to update the deployed version.
+This project is currently hosted in Azure. Run the [Deploy](../../../actions/workflows/deploy.yml) action to update the deployed version.
 
 To setup locally:
 1. Install Docker Desktop.
