@@ -47,15 +47,15 @@ Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls
 @"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
 E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dark Wheel* controlled stations.
-- [Shinrarta Dezhra](<https://inara.cz/elite/search/?search=Shinrarta+Dezhra>) - 10%
-- [Tau Ceti](<https://inara.cz/elite/search/?search=Tau+Ceti>) - 20%
+- Shinrarta Dezhra - 10%
+- Tau Ceti - 20%
 
 Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls.
-- [Maia](<https://inara.cz/elite/search/?search=Maia>) - Low
+- Maia - Low
 
 ***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to avoid an unwanted expansion.
-- [Wolf 359](<https://inara.cz/elite/search/?search=Wolf+359>) - 70%
-- [Alpha Centauri](<https://inara.cz/elite/search/?search=Alpha+Centauri>) - 65%
+- Wolf 359 - 70%
+- Alpha Centauri - 65%
 
 ***Urgent Pro-Non-Native/Coalition Faction** support required* - Work for ONLY the listed factions in the listed systems to avoid a retreat or to disrupt system interference.
 (None)
@@ -67,6 +67,17 @@ Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls
 **Election Systems**
 (None)
 "));
+
+            /*- [Shinrarta Dezhra](<https://inara.cz/elite/search/?search=Shinrarta+Dezhra>) - 10%
+            - [Tau Ceti](<https://inara.cz/elite/search/?search=Tau+Ceti>) - 20%
+
+            Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls.
+            - [Maia](<https://inara.cz/elite/search/?search=Maia>) - Low
+
+            ***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to avoid an unwanted expansion.
+            - [Wolf 359](<https://inara.cz/elite/search/?search=Wolf+359>) - 70%
+            - [Alpha Centauri](<https://inara.cz/elite/search/?search=Alpha+Centauri>) - 65%
+            */
         }
     }
 }
