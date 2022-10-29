@@ -33,6 +33,8 @@ namespace OrderBot.ToDo
         public override void AddActions(StarSystemMinorFaction starSystemMinorFaction,
             IReadOnlyList<StarSystemMinorFaction> systemBgsData, ToDoList toDoList)
         {
+            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData);
+
             if (systemBgsData.Count > 1)
             {
                 double maxInfluence = GetControllingMinorFaction(systemBgsData).Influence - MaxInfuenceGap;

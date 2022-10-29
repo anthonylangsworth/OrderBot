@@ -22,6 +22,8 @@ namespace OrderBot.ToDo
         public override void AddActions(StarSystemMinorFaction starSystemMinorFaction,
             IReadOnlyList<StarSystemMinorFaction> systemBgsData, ToDoList toDoList)
         {
+            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData);
+
             // Do nothing
         }
     }

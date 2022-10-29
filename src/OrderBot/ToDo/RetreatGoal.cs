@@ -27,6 +27,8 @@ namespace OrderBot.ToDo
         public override void AddActions(StarSystemMinorFaction starSystemMinorFaction,
             IReadOnlyList<StarSystemMinorFaction> systemBgsData, ToDoList toDoList)
         {
+            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData);
+
             toDoList.Anti.Add(new() { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
 
             // TODO: Handle conflicts

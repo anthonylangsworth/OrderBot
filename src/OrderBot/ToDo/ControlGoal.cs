@@ -32,10 +32,7 @@ namespace OrderBot.ToDo
         public override void AddActions(StarSystemMinorFaction starSystemMinorFaction,
             IReadOnlyList<StarSystemMinorFaction> systemBgsData, ToDoList toDoList)
         {
-            if (systemBgsData.Select(ssmf => ssmf.StarSystem.Id).Distinct().Count() > 1)
-            {
-                throw new ArgumentException($"{nameof(systemBgsData)} must contain data for one star system");
-            }
+            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData);
 
             if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
             {
