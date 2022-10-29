@@ -76,7 +76,7 @@ namespace OrderBot.ToDo
         protected internal static void CheckAddActionsPreconditions(StarSystemMinorFaction starSystemMinorFaction,
             IReadOnlyList<StarSystemMinorFaction> systemBgsData)
         {
-            if (systemBgsData.Select(ssmf => ssmf.StarSystem.Id).Distinct().Count() > 1)
+            if (systemBgsData.Select(ssmf => ssmf.StarSystem).Distinct().Count() > 1)
             {
                 throw new ArgumentException($"{nameof(systemBgsData)} must contain data for one star system");
             }
