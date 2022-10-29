@@ -21,7 +21,7 @@ namespace OrderBot.Test.ToDo
         {
             MinorFaction minorFaction = new() { Name = "Flying Fish" };
             StarSystemMinorFaction starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence };
-            StarSystemMinorFaction[] systemMinorFactions =
+            HashSet<StarSystemMinorFaction> systemMinorFactions = new()
             {
                 starSystemMinorFaction,
                 new StarSystemMinorFaction() { StarSystem = starSystem, MinorFaction = new (){ Name = "White Whales" }, Influence = 0.2 },
@@ -31,6 +31,7 @@ namespace OrderBot.Test.ToDo
             MaintainGoal.Instance.AddActions(starSystemMinorFaction, systemMinorFactions, toDo);
             Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
             Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
+            Assert.That(toDo.ProSecurity, Is.Empty);
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()

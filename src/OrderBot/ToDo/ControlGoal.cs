@@ -30,7 +30,7 @@ namespace OrderBot.ToDo
 
         /// <inheritdoc/>
         public override void AddActions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlyList<StarSystemMinorFaction> systemBgsData, ToDoList toDoList)
+            IReadOnlySet<StarSystemMinorFaction> systemBgsData, ToDoList toDoList)
         {
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData);
 

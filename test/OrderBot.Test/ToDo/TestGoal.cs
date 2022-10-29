@@ -12,13 +12,13 @@ namespace OrderBot.Test.ToDo
             StarSystem betelgeuse = new() { Name = "Betelgeuse" };
             StarSystem sirius = new() { Name = "Sirius" };
             MinorFaction gumChewers = new() { Name = "Gum Chewers" };
-            StarSystemMinorFaction[] bgsData = new[]
+            HashSet<StarSystemMinorFaction> bgsData = new()
             {
                 new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0 },
                 new StarSystemMinorFaction() { StarSystem = sirius, MinorFaction = gumChewers, Influence = 0 }
             };
             Assert.That(
-                () => Goal.CheckAddActionsPreconditions(bgsData[0], bgsData),
+                () => Goal.CheckAddActionsPreconditions(bgsData.First(), bgsData),
                 Throws.ArgumentException.And.Property("Message").EqualTo("systemBgsData must contain data for one star system"));
         }
 
@@ -29,7 +29,7 @@ namespace OrderBot.Test.ToDo
             MinorFaction gumChewers = new() { Name = "Gum Chewers" };
             MinorFaction funnyWalkers = new() { Name = "Funny Walkers" };
             MinorFaction bunnyHoppers = new() { Name = "Bunny Hoppoers" };
-            StarSystemMinorFaction[] bgsData = new[]
+            HashSet<StarSystemMinorFaction> bgsData = new()
             {
                 new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0 },
                 new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = funnyWalkers, Influence = 0 }
@@ -41,7 +41,7 @@ namespace OrderBot.Test.ToDo
         }
 
         [TestCaseSource(nameof(GetControllingMinorFaction_Source))]
-        public StarSystemMinorFaction GetControllingMinorFaction(IReadOnlyList<StarSystemMinorFaction> systemBgsData)
+        public StarSystemMinorFaction GetControllingMinorFaction(IReadOnlySet<StarSystemMinorFaction> systemBgsData)
         {
             return Goal.GetControllingMinorFaction(systemBgsData);
         }
@@ -58,16 +58,16 @@ namespace OrderBot.Test.ToDo
 
             return new TestCaseData[]
             {
-                new TestCaseData(new List<StarSystemMinorFaction>()
+                new TestCaseData(new HashSet<StarSystemMinorFaction>()
                 {
                     gumChewersInBetegeuse
                 }).Returns(gumChewersInBetegeuse),
-                new TestCaseData(new List<StarSystemMinorFaction>()
+                new TestCaseData(new HashSet<StarSystemMinorFaction>()
                 {
                     gumChewersInBetegeuse,
                     funnyWalkersInBetegeuse
                 }).Returns(funnyWalkersInBetegeuse),
-                new TestCaseData(new List<StarSystemMinorFaction>()
+                new TestCaseData(new HashSet<StarSystemMinorFaction>()
                 {
                     gumChewersInBetegeuse,
                     funnyWalkersInBetegeuse,

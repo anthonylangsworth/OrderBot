@@ -25,7 +25,7 @@ namespace OrderBot.ToDo
         /// </summary>
         /// <remarks>
         /// Child or subclasses should call 
-        /// <see cref="CheckAddActionsPreconditions(StarSystemMinorFaction, IReadOnlyList{StarSystemMinorFaction})"/>
+        /// <see cref="CheckAddActionsPreconditions(StarSystemMinorFaction, IReadOnlySet{StarSystemMinorFaction})"/>
         /// first to validate arguements consistently and completely.
         /// </remarks>
         /// <param name="starSystemMinorFaction">
@@ -42,7 +42,7 @@ namespace OrderBot.ToDo
         /// <paramref name="systemBgsData"/> must be for a single star system.
         /// </exception>
         public abstract void AddActions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlyList<StarSystemMinorFaction> systemBgsData, ToDoList toDoList);
+            IReadOnlySet<StarSystemMinorFaction> systemBgsData, ToDoList toDoList);
 
         /// <summary>
         /// Return the controlling minor faction, i.e. the one with the highest influence.
@@ -53,7 +53,7 @@ namespace OrderBot.ToDo
         /// <returns>
         /// The minor faction with the highest influence.
         /// </returns>
-        protected internal static StarSystemMinorFaction GetControllingMinorFaction(IReadOnlyList<StarSystemMinorFaction> systemBgsData)
+        protected internal static StarSystemMinorFaction GetControllingMinorFaction(IReadOnlySet<StarSystemMinorFaction> systemBgsData)
         {
             return systemBgsData.OrderByDescending(ssmf => ssmf.Influence)
                                 .First();
@@ -61,7 +61,7 @@ namespace OrderBot.ToDo
 
         /// <summary>
         /// Check the preconditions for 
-        /// <see cref="AddActions(StarSystemMinorFaction, IReadOnlyList{StarSystemMinorFaction}, ToDoList)'"/>.
+        /// <see cref="AddActions(StarSystemMinorFaction, IReadOnlySet{StarSystemMinorFaction}, ToDoList)'"/>.
         /// </summary>
         /// <param name="starSystemMinorFaction">
         /// Passed in.
@@ -74,7 +74,7 @@ namespace OrderBot.ToDo
         /// <paramref name="systemBgsData"/> must be for a single star system.
         /// </exception>
         protected internal static void CheckAddActionsPreconditions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlyList<StarSystemMinorFaction> systemBgsData)
+            IReadOnlySet<StarSystemMinorFaction> systemBgsData)
         {
             if (systemBgsData.Select(ssmf => ssmf.StarSystem).Distinct().Count() > 1)
             {

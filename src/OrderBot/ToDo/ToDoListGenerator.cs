@@ -41,10 +41,10 @@ namespace OrderBot.ToDo
 
             foreach (DiscordGuildStarSystemMinorFactionGoal dgssmfg in dgssmfgs)
             {
-                IReadOnlyList<StarSystemMinorFaction> starSystemBgsData =
+                HashSet<StarSystemMinorFaction> starSystemBgsData =
                     bgsData.Where(ssmf => ssmf.StarSystem == dgssmfg.StarSystemMinorFaction.StarSystem
                                           && ssmf.MinorFaction == dgssmfg.StarSystemMinorFaction.MinorFaction)
-                           .ToList();
+                           .ToHashSet();
 
                 if (!Goals.Map.TryGetValue(dgssmfg.Goal, out Goal? goal))
                 {
@@ -63,9 +63,9 @@ namespace OrderBot.ToDo
                              .ToList();
             foreach (StarSystemMinorFaction ssmf in filtered)
             {
-                IReadOnlyList<StarSystemMinorFaction> starSystemBgsData =
+                HashSet<StarSystemMinorFaction> starSystemBgsData =
                     bgsData.Where(ssmf2 => ssmf2.StarSystem == ssmf.StarSystem)
-                           .ToList();
+                           .ToHashSet();
 
                 Goals.Default.AddActions(ssmf, starSystemBgsData, toDoList);
             }
