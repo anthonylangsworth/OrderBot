@@ -53,7 +53,7 @@ namespace OrderBot.ToDo
         /// <returns>
         /// The minor faction with the highest influence.
         /// </returns>
-        internal static StarSystemMinorFaction GetControllingMinorFaction(IReadOnlyList<StarSystemMinorFaction> systemBgsData)
+        protected internal static StarSystemMinorFaction GetControllingMinorFaction(IReadOnlyList<StarSystemMinorFaction> systemBgsData)
         {
             return systemBgsData.OrderByDescending(ssmf => ssmf.Influence)
                                 .First();

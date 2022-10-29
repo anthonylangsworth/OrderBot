@@ -39,5 +39,41 @@ namespace OrderBot.Test.ToDo
                 () => Goal.CheckAddActionsPreconditions(different, bgsData),
                 Throws.ArgumentException.And.Property("Message").EqualTo("systemBgsData must contain starSystemMinorFaction"));
         }
+
+        [TestCaseSource(nameof(GetControllingMinorFaction_Source))]
+        public StarSystemMinorFaction GetControllingMinorFaction(IReadOnlyList<StarSystemMinorFaction> systemBgsData)
+        {
+            return Goal.GetControllingMinorFaction(systemBgsData);
+        }
+
+        public static IEnumerable<TestCaseData> GetControllingMinorFaction_Source()
+        {
+            StarSystem betelgeuse = new() { Name = "Betelgeuse" };
+            MinorFaction gumChewers = new() { Name = "Gum Chewers" };
+            MinorFaction funnyWalkers = new() { Name = "Funny Walkers" };
+            MinorFaction bunnyHoppers = new() { Name = "Bunny Hoppoers" };
+            StarSystemMinorFaction gumChewersInBetegeuse = new() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0.1 };
+            StarSystemMinorFaction funnyWalkersInBetegeuse = new() { StarSystem = betelgeuse, MinorFaction = funnyWalkers, Influence = 0.3 };
+            StarSystemMinorFaction bunnyHoppersInBetegeuse = new() { StarSystem = betelgeuse, MinorFaction = bunnyHoppers, Influence = 0.5 };
+
+            return new TestCaseData[]
+            {
+                new TestCaseData(new List<StarSystemMinorFaction>()
+                {
+                    gumChewersInBetegeuse
+                }).Returns(gumChewersInBetegeuse),
+                new TestCaseData(new List<StarSystemMinorFaction>()
+                {
+                    gumChewersInBetegeuse,
+                    funnyWalkersInBetegeuse
+                }).Returns(funnyWalkersInBetegeuse),
+                new TestCaseData(new List<StarSystemMinorFaction>()
+                {
+                    gumChewersInBetegeuse,
+                    funnyWalkersInBetegeuse,
+                    bunnyHoppersInBetegeuse
+                }).Returns(bunnyHoppersInBetegeuse)
+            };
+        }
     }
 }
