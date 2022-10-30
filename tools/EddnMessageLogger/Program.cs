@@ -78,8 +78,8 @@ while (true)
             {
                 string fileName = $"{timestamp.ToString("yyyyMMddTHHmmssFF")}.json";
                 using FileStream fileStream = File.Create(fileName);
-                using StreamWriter streamWriter = new(fileStream);
-                streamWriter.Write(message);
+                using Utf8JsonWriter streamWriter = new(fileStream, new JsonWriterOptions() { Indented = true });
+                jsonDocument.WriteTo(streamWriter);
                 Console.Out.WriteLine($"{fileName} written");
             }
         }
