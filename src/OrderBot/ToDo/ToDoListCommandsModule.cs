@@ -61,7 +61,6 @@ namespace OrderBot.ToDo
         // [RequirePerGuildRole("EDAKL Leaders", "EDAKL Veterans")]
         public async Task ShowRawToDoList()
         {
-            // [Summary("raw", "True if the data is quoted, allowing easy coping, false (default) if formatted")] bool raw = false
             await Context.Interaction.DeferAsync(ephemeral: true);
             using (Logger.BeginScope("show"))
             {
