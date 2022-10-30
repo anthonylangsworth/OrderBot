@@ -73,7 +73,7 @@ while (true)
             if (messageElement.TryGetProperty("event", out JsonElement eventProperty)
                 && eventProperty.GetString() == "FSSSignalDiscovered"
                 && messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty)
-                && edaSystems.Contains(starSystemProperty.GetString())
+                && edaSystems.Contains(starSystemProperty.GetString(), StringComparer.OrdinalIgnoreCase)
                 && messageElement.TryGetProperty("signals", out JsonElement signalsElement))
             {
                 string fileName = $"{timestamp.ToString("yyyyMMddTHHmmssFF")}.json";
