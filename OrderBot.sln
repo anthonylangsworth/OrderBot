@@ -40,6 +40,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{62230308-C97
 		doc\Goals.md = doc\Goals.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{6BA4F775-E6D0-4F12-BD7E-FFA9815D851F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EddnMessageLogger", "tools\EddnMessageLogger\EddnMessageLogger.csproj", "{50A6D9B5-C97D-432A-9349-4F5FBA178C64}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +58,10 @@ Global
 		{B91EFA64-BBA4-441B-83CC-81F22A0D5D4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B91EFA64-BBA4-441B-83CC-81F22A0D5D4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B91EFA64-BBA4-441B-83CC-81F22A0D5D4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50A6D9B5-C97D-432A-9349-4F5FBA178C64}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50A6D9B5-C97D-432A-9349-4F5FBA178C64}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50A6D9B5-C97D-432A-9349-4F5FBA178C64}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50A6D9B5-C97D-432A-9349-4F5FBA178C64}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,6 +70,7 @@ Global
 		{454DDC7C-A0A1-44C4-9A9D-06A6BB64B6B4} = {D2502924-C9A1-46F3-A3E4-0CE730896F1A}
 		{6E3EBE7C-E3C7-4AC3-A9A3-4C39D9D48F5B} = {EFD23576-FAC9-4911-9558-44B7413860A3}
 		{B91EFA64-BBA4-441B-83CC-81F22A0D5D4B} = {FCE54A54-616D-40A9-BDA3-330EB0CB1BB2}
+		{50A6D9B5-C97D-432A-9349-4F5FBA178C64} = {6BA4F775-E6D0-4F12-BD7E-FFA9815D851F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3A3E09AF-7EA3-4A2F-A7FD-F7E48344DE0D}
