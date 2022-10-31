@@ -89,7 +89,7 @@ namespace OrderBot.CarrierMovement
                             try
                             {
                                 channel.SendMessageAsync(
-                                        text: $"New fleet carrier [{signal.Name}](https://inara.cz/elite/search/?search={WebUtility.UrlEncode(serialNumber)}) seen in [{starSystem.Name}](https://inara.cz/elite/search/?search={WebUtility.UrlEncode(starSystem.Name)})."
+                                        text: $"New fleet carrier '{signal.Name}'(<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(serialNumber)}>) seen in '{starSystem.Name}'(<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(starSystem.Name)}>)."
                                     )
                                     .GetAwaiter().GetResult();
                             }
