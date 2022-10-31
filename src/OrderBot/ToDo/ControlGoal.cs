@@ -26,7 +26,7 @@ namespace OrderBot.ToDo
         /// <summary>
         /// Work against this minor faction if the influence raises above this level.
         /// </summary>
-        public static double UpperInfluenceThreshold => 0.70;
+        public static double UpperInfluenceThreshold => 0.65;
 
         /// <inheritdoc/>
         public override void AddActions(StarSystemMinorFaction starSystemMinorFaction,
