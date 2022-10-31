@@ -52,7 +52,9 @@ namespace OrderBot.CarrierMovement
                                                                                            .Where(dg => dg.CarrierMovementChannel != null)
                                                                                            .ToList();
                         Carrier[] observedCarriers = UpdateNewCarrierLocations(dbContext, starSystem, discordGuilds, timestamp, signals);
-                        RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, observedCarriers);
+                        // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
+                        // if we do not receive a signal for it.
+                        // RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, observedCarriers);
                         transactionScope.Complete();
                     }
                 }
@@ -99,30 +101,32 @@ namespace OrderBot.CarrierMovement
             return observedCarriers.ToArray();
         }
 
-        private void RemoveAbsentCarrierLocations(OrderBotDbContext dbContext, StarSystem starSystem, IReadOnlyList<DiscordGuild> discordGuilds, Carrier[] observedCarriers)
-        {
-            foreach (Carrier carrier in dbContext.Carriers.Where(c => c.StarSystem == starSystem && !observedCarriers.Contains(c)))
-            {
-                carrier.StarSystem = null;
-                carrier.FirstSeen = null;
+        // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
+        // if we do not receive a signal for it.
+        //private void RemoveAbsentCarrierLocations(OrderBotDbContext dbContext, StarSystem starSystem, IReadOnlyList<DiscordGuild> discordGuilds, Carrier[] observedCarriers)
+        //{
+        //    foreach (Carrier carrier in dbContext.Carriers.Where(c => c.StarSystem == starSystem && !observedCarriers.Contains(c)))
+        //    {
+        //        carrier.StarSystem = null;
+        //        carrier.FirstSeen = null;
 
-                foreach (DiscordGuild discordGuild in
-                    discordGuilds.Where(dg => !dg.IgnoredCarriers.Any(c => c.SerialNumber == carrier.SerialNumber)))
-                {
-                    if (DiscordClient.GetChannel(discordGuild.CarrierMovementChannel ?? 0) is ISocketMessageChannel channel)
-                    {
-                        try
-                        {
-                            channel.SendMessageAsync(text: $"Fleet carrier '{carrier.Name}' has left '{starSystem.Name}'. Inara: https://inara.cz/elite/search/?search={carrier.SerialNumber}").GetAwaiter().GetResult();
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError(ex, "Updating channel '{channelId}' for discord Guid '{discordGuildId}' failed", channel.Id, discordGuild.Id);
-                        }
-                    }
-                }
-            }
-            dbContext.SaveChanges();
-        }
+        //        foreach (DiscordGuild discordGuild in
+        //            discordGuilds.Where(dg => !dg.IgnoredCarriers.Any(c => c.SerialNumber == carrier.SerialNumber)))
+        //        {
+        //            if (DiscordClient.GetChannel(discordGuild.CarrierMovementChannel ?? 0) is ISocketMessageChannel channel)
+        //            {
+        //                try
+        //                {
+        //                    channel.SendMessageAsync(text: $"Fleet carrier '{carrier.Name}' has left '{starSystem.Name}'. Inara: https://inara.cz/elite/search/?search={carrier.SerialNumber}").GetAwaiter().GetResult();
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                    Logger.LogError(ex, "Updating channel '{channelId}' for discord Guid '{discordGuildId}' failed", channel.Id, discordGuild.Id);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    dbContext.SaveChanges();
+        //}
     }
 }
