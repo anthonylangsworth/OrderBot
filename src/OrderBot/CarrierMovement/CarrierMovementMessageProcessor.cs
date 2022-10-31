@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using OrderBot.MessageProcessors;
+using System.Net;
 using System.Text.Json;
 using System.Transactions;
 
@@ -87,11 +88,19 @@ namespace OrderBot.CarrierMovement
                         {
                             try
                             {
-                                channel.SendMessageAsync(text: $"New fleet carrier '{signal.Name}' seen in '{starSystem.Name}'. Inara: https://inara.cz/elite/search/?search={serialNumber}").GetAwaiter().GetResult();
+                                channel.SendMessageAsync(
+                                        text: $"New fleet carrier [{signal.Name}](https://inara.cz/elite/search/?search={WebUtility.UrlEncode(serialNumber)}) seen in [{starSystem.Name}](https://inara.cz/elite/search/?search={WebUtility.UrlEncode(starSystem.Name)})."
+                                    )
+                                    .GetAwaiter().GetResult();
                             }
                             catch (Exception ex)
                             {
-                                Logger.LogError(ex, "Updating channel '{channelId}' for discord Guid '{discordGuildId}' failed", channel.Id, discordGuild.Id);
+                                Logger.LogError(
+                                    ex,
+                                    "Sending carrier notification to channel '{channelId}' for discord Guid '{discordGuildId}' failed",
+                                    channel.Id,
+                                    discordGuild.Id
+                                );
                             }
                         }
                     }
