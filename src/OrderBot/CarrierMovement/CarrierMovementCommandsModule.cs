@@ -1,10 +1,13 @@
-﻿using Discord;
+﻿using CsvHelper;
+using Discord;
 using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using OrderBot.Discord;
+using System.Globalization;
 using System.Text;
+using System.Transactions;
 
 namespace OrderBot.CarrierMovement
 {
@@ -222,6 +225,116 @@ namespace OrderBot.CarrierMovement
                 DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
                     dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
                 return discordGuild.IgnoredCarriers.OrderBy(c => c.Name);
+            }
+
+            [SlashCommand("export", "Export the ignored carriers for backup")]
+            public async Task Export()
+            {
+                await Context.Interaction.DeferAsync(ephemeral: true);
+                using (Logger.BeginScope(("Export", Context.Guild.Name)))
+                {
+                    string errorMessage = null!;
+                    try
+                    {
+                        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                        IList<CarrierCsvRow> result =
+                            ListImplementation(dbContext, Context.Guild)
+                                .Select(c => new CarrierCsvRow() { Name = c.Name })
+                                .ToList();
+                        if (result.Count == 0)
+                        {
+                            errorMessage = "No goals specified";
+                        }
+                        else
+                        {
+                            using MemoryStream memoryStream = new();
+                            using StreamWriter streamWriter = new(memoryStream);
+                            using CsvWriter csvWriter = new(streamWriter, CultureInfo.InvariantCulture);
+                            csvWriter.WriteRecords(result);
+                            csvWriter.Flush();
+                            memoryStream.Seek(0, SeekOrigin.Begin);
+                            await Context.Interaction.FollowupWithFileAsync(
+                                fileStream: memoryStream,
+                                fileName: $"{Context.Guild.Name} Ignored Carriers.csv",
+                                ephemeral: true
+                            );
+                        }
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        errorMessage = ex.Message;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Export failed");
+                        errorMessage = "Export failed";
+                    }
+                    finally
+                    {
+                        if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            await Context.Interaction.FollowupAsync(
+                                   text: errorMessage,
+                                   ephemeral: true
+                            );
+                        }
+                    }
+                }
+            }
+
+            [SlashCommand("import", "Import new goals")]
+            public async Task Import(
+                [Summary("carriers", "Export output: CSV with ignored carrier name")]
+                IAttachment ignoredCarriersAttachement
+            )
+            {
+                await Context.Interaction.DeferAsync(ephemeral: true);
+                using (Logger.BeginScope(("Import", Context.Guild.Name, ignoredCarriersAttachement.Url)))
+                {
+                    string errorMessage = null!;
+                    try
+                    {
+                        using HttpClient client = new();
+                        using Stream stream = await client.GetStreamAsync(ignoredCarriersAttachement.Url);
+                        using StreamReader reader = new(stream);
+                        using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
+                        IList<CarrierCsvRow> goals = await csvReader.GetRecordsAsync<CarrierCsvRow>().ToListAsync();
+
+                        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                        using (TransactionScope transactionScope = new())
+                        {
+                            foreach (CarrierCsvRow row in goals)
+                            {
+                                AddImplementation(dbContext, Context.Guild, row.Name);
+                            }
+                            transactionScope.Complete();
+                        }
+
+                        await Context.Interaction.FollowupAsync(
+                                text: $"{ignoredCarriersAttachement.Filename} added to ignored carriers",
+                                ephemeral: true
+                        );
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        errorMessage = ex.Message;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Import failed");
+                        errorMessage = "Import failed";
+                    }
+                    finally
+                    {
+                        if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            await Context.Interaction.FollowupAsync(
+                                   text: errorMessage,
+                                   ephemeral: true
+                            );
+                        }
+                    }
+                }
             }
         }
 

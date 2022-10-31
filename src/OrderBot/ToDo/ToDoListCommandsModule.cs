@@ -456,16 +456,15 @@ namespace OrderBot.ToDo
                                     StarSystem = dgssmfg.StarSystemMinorFaction.StarSystem.Name
                                 })
                                 .ToList();
-                        if (result.Count() == 0)
+                        if (result.Count == 0)
                         {
                             errorMessage = "No goals specified";
                         }
-
-                        if (result != null && result.Count > 0)
+                        else
                         {
                             using MemoryStream memoryStream = new();
                             using StreamWriter streamWriter = new(memoryStream);
-                            using CsvWriter csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture, leaveOpen: true);
+                            using CsvWriter csvWriter = new(streamWriter, CultureInfo.InvariantCulture);
                             csvWriter.WriteRecords(result);
                             csvWriter.Flush();
                             memoryStream.Seek(0, SeekOrigin.Begin);
@@ -510,10 +509,10 @@ namespace OrderBot.ToDo
                     string errorMessage = null!;
                     try
                     {
-                        using HttpClient client = new HttpClient();
+                        using HttpClient client = new();
                         using Stream stream = await client.GetStreamAsync(goalsAttachement.Url);
-                        using StreamReader reader = new StreamReader(stream);
-                        using CsvReader csvReader = new CsvReader(reader, CultureInfo.InvariantCulture);
+                        using StreamReader reader = new(stream);
+                        using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
                         IList<GoalCsvRow> goals = await csvReader.GetRecordsAsync<GoalCsvRow>().ToListAsync();
 
                         using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
