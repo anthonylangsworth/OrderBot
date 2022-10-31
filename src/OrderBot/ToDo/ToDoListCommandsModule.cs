@@ -1,11 +1,14 @@
-﻿using Discord;
+﻿using CsvHelper;
+using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using OrderBot.Discord;
+using System.Globalization;
 using System.Text;
+using System.Transactions;
 
 namespace OrderBot.ToDo
 {
@@ -432,6 +435,122 @@ namespace OrderBot.ToDo
                                 .Include(dgssmfg => dgssmfg.StarSystemMinorFaction)
                                 .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.StarSystem)
                                 .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.MinorFaction);
+            }
+
+            [SlashCommand("export", "Export the current goals for backup")]
+            public async Task Export()
+            {
+                await Context.Interaction.DeferAsync(ephemeral: true);
+                using (Logger.BeginScope(("Export", Context.Guild.Name)))
+                {
+                    string errorMessage = null!;
+                    try
+                    {
+                        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                        IList<GoalCsvRow> result =
+                            ListImplementation(dbContext, Context.Guild)
+                                .Select(dgssmfg => new GoalCsvRow()
+                                {
+                                    Goal = dgssmfg.Goal,
+                                    MinorFaction = dgssmfg.StarSystemMinorFaction.MinorFaction.Name,
+                                    StarSystem = dgssmfg.StarSystemMinorFaction.StarSystem.Name
+                                })
+                                .ToList();
+                        if (result.Count() == 0)
+                        {
+                            errorMessage = "No goals specified";
+                        }
+
+                        if (result != null && result.Count > 0)
+                        {
+                            using MemoryStream memoryStream = new();
+                            using StreamWriter streamWriter = new(memoryStream);
+                            using CsvWriter csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture, leaveOpen: true);
+                            csvWriter.WriteRecords(result);
+                            csvWriter.Flush();
+                            memoryStream.Seek(0, SeekOrigin.Begin);
+                            await Context.Interaction.FollowupWithFileAsync(
+                                fileStream: memoryStream,
+                                fileName: $"{Context.Guild.Name} Goals.csv",
+                                ephemeral: true
+                            );
+                        }
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        errorMessage = ex.Message;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Export failed");
+                        errorMessage = "Export failed";
+                    }
+                    finally
+                    {
+                        if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            await Context.Interaction.FollowupAsync(
+                                   text: errorMessage,
+                                   ephemeral: true
+                            );
+                        }
+                    }
+                }
+            }
+
+            [SlashCommand("import", "Import new goals")]
+            public async Task Import(
+                [Summary("goals", "Export output: CSV with goal, minor faction and star system")]
+                IAttachment goalsAttachement
+            )
+            {
+                await Context.Interaction.DeferAsync(ephemeral: true);
+                using (Logger.BeginScope(("Import", Context.Guild.Name)))
+                {
+                    string errorMessage = null!;
+                    try
+                    {
+                        using HttpClient client = new HttpClient();
+                        using Stream stream = await client.GetStreamAsync(goalsAttachement.Url);
+                        using StreamReader reader = new StreamReader(stream);
+                        using CsvReader csvReader = new CsvReader(reader, CultureInfo.InvariantCulture);
+                        IList<GoalCsvRow> goals = await csvReader.GetRecordsAsync<GoalCsvRow>().ToListAsync();
+
+                        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                        using (TransactionScope transactionScope = new())
+                        {
+                            foreach (GoalCsvRow row in goals)
+                            {
+                                AddImplementation(dbContext, Context.Guild, row.MinorFaction, row.StarSystem, row.Goal);
+                            }
+                            transactionScope.Complete();
+                        }
+
+                        await Context.Interaction.FollowupAsync(
+                                text: $"{goalsAttachement.Filename} added to goals",
+                                ephemeral: true
+                        );
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        errorMessage = ex.Message;
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogError(ex, "Import failed");
+                        errorMessage = "Import failed";
+                    }
+                    finally
+                    {
+                        if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            await Context.Interaction.FollowupAsync(
+                                   text: errorMessage,
+                                   ephemeral: true
+                            );
+                        }
+                    }
+                }
             }
         }
     }

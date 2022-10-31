@@ -18,3 +18,4 @@ To setup locally:
 2. Github action to build SQL server database: https://github.com/ankane/setup-sqlserver
 3. Discord.Net documentation: https://discordnet.dev/
 4. Using Log Analytics with Container Instances: https://learn.microsoft.com/en-us/azure/container-instances/container-instances-log-analytics
+5. CsvHelper quickstart: https://joshclose.github.io/CsvHelper/getting-started/
