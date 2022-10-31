@@ -505,7 +505,7 @@ namespace OrderBot.ToDo
             )
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
-                using (Logger.BeginScope(("Import", Context.Guild.Name)))
+                using (Logger.BeginScope(("Import", Context.Guild.Name, goalsAttachement.Url)))
                 {
                     string errorMessage = null!;
                     try
