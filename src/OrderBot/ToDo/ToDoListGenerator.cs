@@ -44,8 +44,12 @@ namespace OrderBot.ToDo
             {
                 HashSet<StarSystemMinorFaction> starSystemBgsData =
                     bgsData.Where(ssmf => ssmf.StarSystem == dgssmfg.StarSystemMinorFaction.StarSystem
-                                          && ssmf.MinorFaction == dgssmfg.StarSystemMinorFaction.MinorFaction)
+                                       && ssmf.MinorFaction == dgssmfg.StarSystemMinorFaction.MinorFaction)
                            .ToHashSet();
+                HashSet<Conflict> conflicts = dbContext.Conflicts.Include(c => c.MinorFaction1)
+                                                                 .Include(c => c.MinorFaction2)
+                                                                 .Where(c => c.StarSystem == dgssmfg.StarSystemMinorFaction.StarSystem)
+                                                                 .ToHashSet();
 
                 if (!Goals.Map.TryGetValue(dgssmfg.Goal, out Goal? goal))
                 {
@@ -54,7 +58,7 @@ namespace OrderBot.ToDo
                 }
                 else
                 {
-                    goal.AddActions(dgssmfg.StarSystemMinorFaction, starSystemBgsData, toDoList);
+                    goal.AddSuggestions(dgssmfg.StarSystemMinorFaction, starSystemBgsData, conflicts, toDoList);
                 }
             }
 
@@ -67,8 +71,12 @@ namespace OrderBot.ToDo
                 HashSet<StarSystemMinorFaction> starSystemBgsData =
                     bgsData.Where(ssmf2 => ssmf2.StarSystem == ssmf.StarSystem)
                            .ToHashSet();
+                HashSet<Conflict> conflicts = dbContext.Conflicts.Include(c => c.MinorFaction1)
+                                                                 .Include(c => c.MinorFaction2)
+                                                                 .Where(c => c.StarSystem == ssmf.StarSystem)
+                                                                 .ToHashSet();
 
-                Goals.Default.AddActions(ssmf, starSystemBgsData, toDoList);
+                Goals.Default.AddSuggestions(ssmf, starSystemBgsData, conflicts, toDoList);
             }
 
             return toDoList;

@@ -18,8 +18,8 @@ namespace OrderBot.Test.ToDo
                 new StarSystemMinorFaction() { StarSystem = sirius, MinorFaction = gumChewers, Influence = 0 }
             };
             Assert.That(
-                () => Goal.CheckAddActionsPreconditions(bgsData.First(), bgsData),
-                Throws.ArgumentException.And.Property("Message").EqualTo("systemBgsData must contain data for one star system"));
+                () => Goal.CheckAddActionsPreconditions(bgsData.First(), bgsData, new HashSet<Conflict>()),
+                Throws.ArgumentException.And.Property("Message").EqualTo("All systemBgsData must be for star system Betelgeuse"));
         }
 
         [Test]
@@ -36,7 +36,7 @@ namespace OrderBot.Test.ToDo
             };
             StarSystemMinorFaction different = new() { StarSystem = betelgeuse, MinorFaction = bunnyHoppers, Influence = 0.5 };
             Assert.That(
-                () => Goal.CheckAddActionsPreconditions(different, bgsData),
+                () => Goal.CheckAddActionsPreconditions(different, bgsData, new HashSet<Conflict>()),
                 Throws.ArgumentException.And.Property("Message").EqualTo("systemBgsData must contain starSystemMinorFaction"));
         }
 

@@ -24,10 +24,11 @@ namespace OrderBot.ToDo
         public static double Threshold => 0.05;
 
         /// <inheritdoc/>
-        public override void AddActions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData, ToDoList toDoList)
+        public override void AddSuggestions(StarSystemMinorFaction starSystemMinorFaction,
+            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> conflicts,
+            ToDoList toDoList)
         {
-            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData);
+            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, conflicts);
 
             toDoList.Anti.Add(new() { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
 

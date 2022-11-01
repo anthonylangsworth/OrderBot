@@ -31,8 +31,11 @@ namespace OrderBot.ToDo
         /// <param name="starSystemMinorFaction">
         /// The star system and minor faction to determine whether there are suggestions to perform.
         /// </param>
-        /// <param name="systemMinorFactions">
+        /// <param name="systemBgsData">
         /// BGS details for all minor factions in the star system.
+        /// </param>
+        /// <param name="conflicts">
+        /// Conflicts in the star systems..
         /// </param>
         /// <param name="toDoList">
         /// Receives suggestions.
@@ -41,8 +44,8 @@ namespace OrderBot.ToDo
         /// <paramref name="systemBgsData"/> must contain <paramref name="starSystemMinorFaction"/>. 
         /// <paramref name="systemBgsData"/> must be for a single star system.
         /// </exception>
-        public abstract void AddActions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData, ToDoList toDoList);
+        public abstract void AddSuggestions(StarSystemMinorFaction starSystemMinorFaction,
+            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> conflicts, ToDoList toDoList);
 
         /// <summary>
         /// Return the controlling minor faction, i.e. the one with the highest influence.
@@ -61,7 +64,7 @@ namespace OrderBot.ToDo
 
         /// <summary>
         /// Check the preconditions for 
-        /// <see cref="AddActions(StarSystemMinorFaction, IReadOnlySet{StarSystemMinorFaction}, ToDoList)'"/>.
+        /// <see cref="AddSuggestions(StarSystemMinorFaction, IReadOnlySet{StarSystemMinorFaction}, ToDoList)'"/>.
         /// </summary>
         /// <param name="starSystemMinorFaction">
         /// Passed in.
@@ -69,20 +72,27 @@ namespace OrderBot.ToDo
         /// <param name="systemBgsData">
         /// Passed in.
         /// </param>
+        /// <param name="conflicts">
+        /// Passed in.
+        /// </param>
         /// <exception cref="ArgumentException">
         /// <paramref name="systemBgsData"/> must contain <paramref name="starSystemMinorFaction"/>. 
         /// <paramref name="systemBgsData"/> must be for a single star system.
         /// </exception>
         protected internal static void CheckAddActionsPreconditions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData)
+            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> conflicts)
         {
-            if (systemBgsData.Select(ssmf => ssmf.StarSystem).Distinct().Count() > 1)
+            if (systemBgsData.Any(ssmf => ssmf.StarSystem != starSystemMinorFaction.StarSystem))
             {
-                throw new ArgumentException($"{nameof(systemBgsData)} must contain data for one star system");
+                throw new ArgumentException($"All {nameof(systemBgsData)} must be for star system {starSystemMinorFaction.StarSystem.Name}");
             }
             if (!systemBgsData.Contains(starSystemMinorFaction))
             {
                 throw new ArgumentException($"{nameof(systemBgsData)} must contain {nameof(starSystemMinorFaction)}");
+            }
+            if (conflicts.Any(c => c.StarSystem != starSystemMinorFaction.StarSystem))
+            {
+                throw new ArgumentException($"All {nameof(conflicts)} must be for star system {starSystemMinorFaction.StarSystem.Name}");
             }
         }
     }

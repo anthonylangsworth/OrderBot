@@ -24,10 +24,11 @@ namespace OrderBot.ToDo
         public static double InfluenceThreshold => 0.75;
 
         /// <inheritdoc/>
-        public override void AddActions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData, ToDoList toDoList)
+        public override void AddSuggestions(StarSystemMinorFaction starSystemMinorFaction,
+            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> conflicts,
+            ToDoList toDoList)
         {
-            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData);
+            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, conflicts);
 
             if (starSystemMinorFaction.Influence < InfluenceThreshold)
             {
