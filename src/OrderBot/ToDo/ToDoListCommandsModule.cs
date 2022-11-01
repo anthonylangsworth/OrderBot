@@ -531,6 +531,10 @@ namespace OrderBot.ToDo
                                 ephemeral: true
                         );
                     }
+                    catch (CsvHelperException)
+                    {
+                        errorMessage = $"{goalsAttachement.Filename} is not a valid input file";
+                    }
                     catch (ArgumentException ex)
                     {
                         errorMessage = ex.Message;

@@ -316,6 +316,10 @@ namespace OrderBot.CarrierMovement
                                 ephemeral: true
                         );
                     }
+                    catch (CsvHelperException)
+                    {
+                        errorMessage = $"{ignoredCarriersAttachement.Filename} is not a valid input file";
+                    }
                     catch (ArgumentException ex)
                     {
                         errorMessage = ex.Message;
