@@ -19,7 +19,8 @@ namespace OrderBot.Test.ToDo
                 { ControlGoal.Instance.Name, ControlGoal.Instance },
                 { RetreatGoal.Instance.Name, RetreatGoal.Instance },
                 { IgnoreGoal.Instance.Name, IgnoreGoal.Instance },
-                { MaintainGoal.Instance.Name, MaintainGoal.Instance }
+                { MaintainGoal.Instance.Name, MaintainGoal.Instance },
+                { ExpandGoal.Instance.Name, ExpandGoal.Instance }
             }));
         }
     }
