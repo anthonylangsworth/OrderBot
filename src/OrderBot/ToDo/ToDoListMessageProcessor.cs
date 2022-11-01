@@ -150,7 +150,7 @@ namespace OrderBot.ToDo
             }
         }
 
-        private static void UpdateMinorFactions(OrderBotDbContext dbContext, EddnStarSystemData bgsSystemData, StarSystem? starSystem)
+        private static void UpdateMinorFactions(OrderBotDbContext dbContext, EddnStarSystemData bgsSystemData, StarSystem starSystem)
         {
             // Add or update minor factions
             foreach (EddnMinorFactionInfluence newMinorFactionInfo in bgsSystemData.MinorFactionDetails)
@@ -217,7 +217,7 @@ namespace OrderBot.ToDo
             dbContext.SaveChanges();
         }
 
-        private static void UpdateConflicts(OrderBotDbContext dbContext, EddnStarSystemData bgsSystemData, StarSystem? starSystem)
+        private static void UpdateConflicts(OrderBotDbContext dbContext, EddnStarSystemData bgsSystemData, StarSystem starSystem)
         {
             // Add or update conflicts
             IList<Conflict> conflicts = dbContext.Conflicts.Include(c => c.MinorFaction1)
@@ -256,6 +256,5 @@ namespace OrderBot.ToDo
             }
             dbContext.SaveChanges();
         }
-
     }
 }
