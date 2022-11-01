@@ -135,17 +135,17 @@ GO
 CREATE TABLE [dbo].[Conflict](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[StarSystemId] [int] NOT NULL FOREIGN KEY REFERENCES [StarSystem]([Id]) ON DELETE CASCADE,
-	[Faction1Id] [int] NOT NULL FOREIGN KEY REFERENCES [MinorFaction]([Id]),
-	[Faction1WonDays] [int] NOT NULL,
-	[Faction2Id] [int] NOT NULL FOREIGN KEY REFERENCES [MinorFaction]([Id]),
-	[Faction2WonDays] [int] NOT NULL,
+	[MinorFaction1Id] [int] NOT NULL FOREIGN KEY REFERENCES [MinorFaction]([Id]),
+	[MinorFaction1WonDays] [int] NOT NULL,
+	[MinorFaction2Id] [int] NOT NULL FOREIGN KEY REFERENCES [MinorFaction]([Id]),
+	[MinorFaction2WonDays] [int] NOT NULL,
 	[Status] [nvarchar](100) NULL,
 	[WarType] [nvarchar](100) NOT NULL
 )
 GO
+CREATE UNIQUE INDEX [IX_Conflict_StarSystemFactions]
+ON [dbo].[Conflict]([StarSystemId], [MinorFaction1Id], [MinorFaction2Id])
+GO
 CREATE INDEX [IX_Conflict_StarSystem]
 ON [dbo].[Conflict]([StarSystemId])
-GO
-CREATE UNIQUE INDEX [IX_Conflict_StarSystemFactions]
-ON [dbo].[Conflict]([StarSystemId], [Faction1Id], [Faction2Id])
 GO

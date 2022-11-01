@@ -139,6 +139,19 @@ namespace OrderBot.ToDo
             }
             dbContext.SaveChanges();
 
+            if (bgsSystemData.MinorFactionDetails != null)
+            {
+                UpdateMinorFactions(dbContext, bgsSystemData, starSystem);
+            }
+
+            if (bgsSystemData.Conflicts != null)
+            {
+                UpdateConflicts(dbContext, bgsSystemData, starSystem);
+            }
+        }
+
+        private static void UpdateMinorFactions(OrderBotDbContext dbContext, EddnStarSystemData bgsSystemData, StarSystem? starSystem)
+        {
             // Add or update minor factions
             foreach (EddnMinorFactionInfluence newMinorFactionInfo in bgsSystemData.MinorFactionDetails)
             {
@@ -201,10 +214,48 @@ namespace OrderBot.ToDo
             {
                 dbContext.StarSystemMinorFactions.Remove(systemMinorFaction);
             }
-
-            // Save conflicts
-
             dbContext.SaveChanges();
         }
+
+        private static void UpdateConflicts(OrderBotDbContext dbContext, EddnStarSystemData bgsSystemData, StarSystem? starSystem)
+        {
+            // Add or update conflicts
+            IList<Conflict> conflicts = dbContext.Conflicts.Include(c => c.MinorFaction1)
+                                                           .Include(c => c.MinorFaction2)
+                                                           .Where(c => c.StarSystem == starSystem)
+                                                           .ToList();
+            foreach (EddnConflict eddnConflict in bgsSystemData.Conflicts)
+            {
+                Conflict? conflict = conflicts.FirstOrDefault(c => c.MinorFaction1.Name == eddnConflict.Faction1.Name
+                                                                && c.MinorFaction2.Name == eddnConflict.Faction2.Name);
+                if (conflict == null)
+                {
+                    conflict = new Conflict()
+                    {
+                        StarSystem = starSystem,
+                        MinorFaction1 = dbContext.MinorFactions.First(mf => mf.Name == eddnConflict.Faction1.Name),
+                        MinorFaction2 = dbContext.MinorFactions.First(mf => mf.Name == eddnConflict.Faction2.Name),
+                        WarType = eddnConflict.WarType ?? ""
+                    };
+                    dbContext.Conflicts.Add(conflict);
+                }
+                conflict.MinorFaction1WonDays = eddnConflict.Faction1.WonDays;
+                conflict.MinorFaction2WonDays = eddnConflict.Faction2.WonDays;
+                conflict.Status = eddnConflict.Status;
+            }
+            dbContext.SaveChanges();
+
+            // Remove old conflicts
+            foreach (Conflict conflict in conflicts)
+            {
+                if (!bgsSystemData.Conflicts.Any(ec => ec.Faction1.Name == conflict.MinorFaction1.Name
+                                                    && ec.Faction2.Name == conflict.MinorFaction2.Name))
+                {
+                    dbContext.Conflicts.Remove(conflict);
+                }
+            }
+            dbContext.SaveChanges();
+        }
+
     }
 }

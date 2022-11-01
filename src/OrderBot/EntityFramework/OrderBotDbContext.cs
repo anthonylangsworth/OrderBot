@@ -210,9 +210,9 @@ namespace OrderBot.EntityFramework
                 entity.Property(e => e.Id)
                       .UseIdentityColumn();
 
-                entity.Property(e => e.MinorFaction1DaysWon);
+                entity.Property(e => e.MinorFaction1WonDays);
 
-                entity.Property(e => e.MinorFaction2DaysWon);
+                entity.Property(e => e.MinorFaction2WonDays);
 
                 entity.Property(e => e.Status)
                       .HasMaxLength(100);
