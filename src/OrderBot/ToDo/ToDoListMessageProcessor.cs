@@ -120,7 +120,7 @@ namespace OrderBot.ToDo
                     Timestamp = timestamp,
                     StarSystemName = starSystemName ?? "",
                     MinorFactionDetails = minorFactionInfos,
-                    SystemSecurityState = systemSecurityState ?? "",
+                    SystemSecurityLevel = systemSecurityState ?? "",
                     Conflicts = conflicts ?? Array.Empty<EddnConflict>()
                 } : null;
         }
@@ -141,7 +141,8 @@ namespace OrderBot.ToDo
 
             if (bgsSystemData.MinorFactionDetails != null)
             {
-                UpdateMinorFactions(dbContext, bgsSystemData, starSystem);
+                UpdateMinorFactions(dbContext, bgsSystemData.MinorFactionDetails,
+                    bgsSystemData.SystemSecurityLevel, starSystem);
             }
 
             if (bgsSystemData.Conflicts != null)
@@ -150,10 +151,11 @@ namespace OrderBot.ToDo
             }
         }
 
-        internal static void UpdateMinorFactions(OrderBotDbContext dbContext, EddnStarSystemData bgsSystemData, StarSystem starSystem)
+        internal static void UpdateMinorFactions(OrderBotDbContext dbContext,
+            IReadOnlyList<EddnMinorFactionInfluence> eddnMinorFactionInfluences, string? systemSecurityLevel, StarSystem starSystem)
         {
             // Add or update minor factions
-            foreach (EddnMinorFactionInfluence newMinorFactionInfo in bgsSystemData.MinorFactionDetails)
+            foreach (EddnMinorFactionInfluence newMinorFactionInfo in eddnMinorFactionInfluences)
             {
                 MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(minorFaction => minorFaction.Name == newMinorFactionInfo.MinorFaction);
                 if (minorFaction == null)
@@ -171,9 +173,9 @@ namespace OrderBot.ToDo
                                                                             smf => smf.StarSystem == starSystem
                                                                             && smf.MinorFaction == minorFaction);
                 string? minorFactionSecurity =
-                    newMinorFactionInfo == bgsSystemData.MinorFactionDetails.First(
-                        mf => mf.Influence == bgsSystemData.MinorFactionDetails.Max(mf => mf.Influence))
-                        ? bgsSystemData.SystemSecurityState : null;
+                    newMinorFactionInfo == eddnMinorFactionInfluences.First(
+                        mf => mf.Influence == eddnMinorFactionInfluences.Max(mf => mf.Influence))
+                        ? systemSecurityLevel : null;
                 if (dbSystemMinorFaction == null)
                 {
                     dbSystemMinorFaction = new StarSystemMinorFaction
@@ -207,7 +209,7 @@ namespace OrderBot.ToDo
             }
 
             // Delete old minor factions
-            SortedSet<string> newSystemMinorFactions = new(bgsSystemData.MinorFactionDetails.Select(mfd => mfd.MinorFaction));
+            SortedSet<string> newSystemMinorFactions = new(eddnMinorFactionInfluences.Select(mfd => mfd.MinorFaction));
             foreach (StarSystemMinorFaction systemMinorFaction in dbContext.StarSystemMinorFactions
                                                                            .Where(smf => smf.StarSystem == starSystem
                                                                                 && !newSystemMinorFactions.Contains(smf.MinorFaction.Name)))

@@ -89,7 +89,7 @@ namespace OrderBot.Test.ToDo
                                 States = Array.Empty<string>()
                             }
                         }).Using(EddnMinorFactionInfluenceEqualityComparer.Instance));
-                    Assert.That(bgsStarSystemData.SystemSecurityState, Is.EqualTo("$SYSTEM_SECURITY_medium;"));
+                    Assert.That(bgsStarSystemData.SystemSecurityLevel, Is.EqualTo("$SYSTEM_SECURITY_medium;"));
                     Assert.That(bgsStarSystemData.Conflicts, Is.EquivalentTo(
                         new EddnConflict[]
                         {
@@ -166,7 +166,7 @@ namespace OrderBot.Test.ToDo
                         States = states
                     }
                 },
-                SystemSecurityState = systemSecurity
+                SystemSecurityLevel = systemSecurity
             });
             IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
                                                                                                        .Include(smf => smf.StarSystem)
@@ -212,7 +212,7 @@ namespace OrderBot.Test.ToDo
                 {
                     systemOneMinorFactionInfo
                 },
-                SystemSecurityState = system1Security
+                SystemSecurityLevel = system1Security
             });
             ToDoListMessageProcessor.Update(dbContext, new EddnStarSystemData()
             {
@@ -222,7 +222,7 @@ namespace OrderBot.Test.ToDo
                 {
                     systemTwoMinorFactionInfo
                 },
-                SystemSecurityState = system2Security
+                SystemSecurityLevel = system2Security
             });
             List<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
                                                                                                 .Include(smf => smf.StarSystem)
@@ -245,7 +245,7 @@ namespace OrderBot.Test.ToDo
             string[] minorFaction1States = new string[] { "Boom" };
             string[] minorFaction2States = new string[] { "Bust", "Lockdown" };
             DateTime timestamp = DateTime.UtcNow.ToUniversalTime();
-            const string systemSecurity = "$SYSTEM_SECURITY_LOW";
+            string systemSecurityLevel = SecurityLevel.Low;
 
             ILogger<ToDoListMessageProcessor> logger = new NullLogger<ToDoListMessageProcessor>();
             OrderBotDbContextFactory dbContextFactory = new();
@@ -274,7 +274,7 @@ namespace OrderBot.Test.ToDo
                         States = minorFaction2States
                     }
                 },
-                SystemSecurityState = systemSecurity
+                SystemSecurityLevel = systemSecurityLevel
             });
             IList<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
                                                                                                  .Include(smf => smf.StarSystem)
@@ -292,7 +292,7 @@ namespace OrderBot.Test.ToDo
             Assert.That(newSystemMinorFaction1.MinorFaction.Name, Is.EqualTo(minorFaction1));
             Assert.That(newSystemMinorFaction1.Influence, Is.EqualTo(minorFaction1Influence));
             Assert.That(newSystemMinorFaction1.States.Select(state => state.Name), Is.EquivalentTo(minorFaction1States));
-            Assert.That(newSystemMinorFaction1.SecurityLevel, Is.EqualTo(systemSecurity));
+            Assert.That(newSystemMinorFaction1.SecurityLevel, Is.EqualTo(systemSecurityLevel));
 
             StarSystemMinorFaction? newSystemMinorFaction2 = systemMinorFactions[1];
             Assert.That(newSystemMinorFaction2.StarSystem, Is.Not.Null);
