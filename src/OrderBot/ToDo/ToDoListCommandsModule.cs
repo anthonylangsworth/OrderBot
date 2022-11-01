@@ -533,7 +533,7 @@ namespace OrderBot.ToDo
                     }
                     catch (CsvHelperException)
                     {
-                        errorMessage = $"{goalsAttachement.Filename} is not a valid input file";
+                        errorMessage = $"{goalsAttachement.Filename} is not a valid goals file";
                     }
                     catch (ArgumentException ex)
                     {

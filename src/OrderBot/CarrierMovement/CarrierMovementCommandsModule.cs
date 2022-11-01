@@ -318,7 +318,7 @@ namespace OrderBot.CarrierMovement
                     }
                     catch (CsvHelperException)
                     {
-                        errorMessage = $"{ignoredCarriersAttachement.Filename} is not a valid input file";
+                        errorMessage = $"{ignoredCarriersAttachement.Filename} is not a valid ignored carriers file";
                     }
                     catch (ArgumentException ex)
                     {
