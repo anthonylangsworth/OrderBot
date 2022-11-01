@@ -3,19 +3,19 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace OrderBot.Test.ToDo
 {
-    internal class MinorFactionInfluenceEqualityComparer : IEqualityComparer<MinorFactionInfluence>
+    internal class EddnMinorFactionInfluenceEqualityComparer : IEqualityComparer<EddnMinorFactionInfluence>
     {
-        public static readonly MinorFactionInfluenceEqualityComparer Instance = new();
+        public static readonly EddnMinorFactionInfluenceEqualityComparer Instance = new();
 
         /// <summary>
         /// Prevent instantiation.
         /// </summary>
-        protected MinorFactionInfluenceEqualityComparer()
+        protected EddnMinorFactionInfluenceEqualityComparer()
         {
             // Do nothing
         }
 
-        public bool Equals(MinorFactionInfluence? x, MinorFactionInfluence? y)
+        public bool Equals(EddnMinorFactionInfluence? x, EddnMinorFactionInfluence? y)
         {
             return x is not null
                 && y is not null
@@ -24,7 +24,7 @@ namespace OrderBot.Test.ToDo
                 && x.States.OrderBy(s => s).SequenceEqual(y.States.OrderBy(s => s));
         }
 
-        public int GetHashCode([DisallowNull] MinorFactionInfluence obj)
+        public int GetHashCode([DisallowNull] EddnMinorFactionInfluence obj)
         {
             throw new NotImplementedException();
         }

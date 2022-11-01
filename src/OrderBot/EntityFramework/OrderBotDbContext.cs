@@ -31,6 +31,7 @@ namespace OrderBot.EntityFramework
         public DbSet<DiscordGuildStarSystemMinorFactionGoal> DiscordGuildStarSystemMinorFactionGoals { get; protected set; } = null!;
         public DbSet<Carrier> Carriers { get; protected set; } = null!;
         public DbSet<DiscordGuildMinorFaction> DiscordGuildMinorFactions { get; protected set; } = null!;
+        public DbSet<Conflict> Conflicts { get; protected set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -199,6 +200,39 @@ namespace OrderBot.EntityFramework
 
             modelBuilder.Entity<DiscordGuildMinorFaction>()
                         .HasOne(e => e.MinorFaction)
+                        .WithMany()
+                        .IsRequired();
+
+            modelBuilder.Entity<Conflict>(entity =>
+            {
+                entity.ToTable("Conflict");
+
+                entity.Property(e => e.Id)
+                      .UseIdentityColumn();
+
+                entity.Property(e => e.MinorFaction1DaysWon);
+
+                entity.Property(e => e.MinorFaction2DaysWon);
+
+                entity.Property(e => e.Status)
+                      .HasMaxLength(100);
+
+                entity.Property(e => e.WarType)
+                      .HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<Conflict>()
+                        .HasOne(e => e.StarSystem)
+                        .WithMany()
+                        .IsRequired();
+
+            modelBuilder.Entity<Conflict>()
+                        .HasOne(e => e.MinorFaction1)
+                        .WithMany()
+                        .IsRequired();
+
+            modelBuilder.Entity<Conflict>()
+                        .HasOne(e => e.MinorFaction2)
                         .WithMany()
                         .IsRequired();
 

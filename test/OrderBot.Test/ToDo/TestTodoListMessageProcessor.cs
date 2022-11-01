@@ -34,7 +34,7 @@ namespace OrderBot.Test.ToDo
             using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream("OrderBot.Test.samples.Ross 199.json");
             if (stream != null)
             {
-                BgsStarSystemData? bgsStarSystemData = ToDoListMessageProcessor.GetBgsData(JsonDocument.Parse(stream), filter);
+                EddnStarSystemData? bgsStarSystemData = ToDoListMessageProcessor.GetBgsData(JsonDocument.Parse(stream), filter);
 
                 if (bgsStarSystemData != null)
                 {
@@ -44,7 +44,7 @@ namespace OrderBot.Test.ToDo
                             DateTime.Parse("2022-10-25T12:22:42.685555Z").ToUniversalTime(),
                             bgsStarSystemData.Timestamp), Is.True);
                     Assert.That(bgsStarSystemData.MinorFactionDetails, Is.EquivalentTo(
-                        new MinorFactionInfluence[]
+                        new EddnMinorFactionInfluence[]
                         {
                             new ()
                             {
@@ -88,8 +88,29 @@ namespace OrderBot.Test.ToDo
                                 Influence = 0.091725,
                                 States = Array.Empty<string>()
                             }
-                        }).Using(MinorFactionInfluenceEqualityComparer.Instance));
+                        }).Using(EddnMinorFactionInfluenceEqualityComparer.Instance));
                     Assert.That(bgsStarSystemData.SystemSecurityState, Is.EqualTo("$SYSTEM_SECURITY_medium;"));
+                    Assert.That(bgsStarSystemData.Conflicts, Is.EquivalentTo(
+                        new EddnConflict[]
+                        {
+                            new EddnConflict()
+                            {
+                                Faction1 = new EddnConflictFaction()
+                                {
+                                    Name = "Ross 199 Silver Major Limited",
+                                    Stake = "Kroehl Orbital",
+                                    WonDays = 0
+                                },
+                                Faction2 = new EddnConflictFaction()
+                                {
+                                    Name = "Future of Ross 199",
+                                    Stake = "Heaviside Bastion",
+                                    WonDays = 1
+                                },
+                                Status = "",
+                                WarType = "civilwar"
+                            }
+                        }).Using(EddnConflictEqualityComparer.Instance));
                 }
                 else
                 {
@@ -109,7 +130,7 @@ namespace OrderBot.Test.ToDo
             using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream("OrderBot.Test.samples.Ross 199.json");
             if (stream != null)
             {
-                BgsStarSystemData? bgsStarSystemData = ToDoListMessageProcessor.GetBgsData(JsonDocument.Parse(stream), filter);
+                EddnStarSystemData? bgsStarSystemData = ToDoListMessageProcessor.GetBgsData(JsonDocument.Parse(stream), filter);
                 Assert.That(bgsStarSystemData, Is.Null);
             }
         }
@@ -132,13 +153,13 @@ namespace OrderBot.Test.ToDo
             using TransactionScope transactionScope = new();
             using OrderBotDbContext dbContext = dbContextFactory.CreateDbContext();
 
-            ToDoListMessageProcessor.Update(dbContext, new BgsStarSystemData()
+            ToDoListMessageProcessor.Update(dbContext, new EddnStarSystemData()
             {
                 Timestamp = timestamp,
                 StarSystemName = starSystem,
                 MinorFactionDetails = new[]
                 {
-                    new MinorFactionInfluence()
+                    new EddnMinorFactionInfluence()
                     {
                         MinorFaction = minorFaction,
                         Influence = newInfluence,
@@ -168,8 +189,8 @@ namespace OrderBot.Test.ToDo
         {
             string starSystem1 = "A";
             string starSystem2 = "B";
-            MinorFactionInfluence systemOneMinorFactionInfo = new() { MinorFaction = "MF1", Influence = 0.3, States = new string[] { "A", "B" } };
-            MinorFactionInfluence systemTwoMinorFactionInfo = new() { MinorFaction = "MF2", Influence = 0.5, States = new string[] { "B" } };
+            EddnMinorFactionInfluence systemOneMinorFactionInfo = new() { MinorFaction = "MF1", Influence = 0.3, States = new string[] { "A", "B" } };
+            EddnMinorFactionInfluence systemTwoMinorFactionInfo = new() { MinorFaction = "MF2", Influence = 0.5, States = new string[] { "B" } };
             string[] states = new string[] { "C", "D" };
             DateTime timestamp = DateTime.UtcNow.ToUniversalTime();
             const string system1Security = "$SYSTEM_SECURITY_MEDIUM";
@@ -183,7 +204,7 @@ namespace OrderBot.Test.ToDo
             using TransactionScope transactionScope = new();
             using OrderBotDbContext dbContext = dbContextFactory.CreateDbContext();
 
-            ToDoListMessageProcessor.Update(dbContext, new BgsStarSystemData()
+            ToDoListMessageProcessor.Update(dbContext, new EddnStarSystemData()
             {
                 Timestamp = timestamp,
                 StarSystemName = starSystem1,
@@ -193,7 +214,7 @@ namespace OrderBot.Test.ToDo
                 },
                 SystemSecurityState = system1Security
             });
-            ToDoListMessageProcessor.Update(dbContext, new BgsStarSystemData()
+            ToDoListMessageProcessor.Update(dbContext, new EddnStarSystemData()
             {
                 Timestamp = timestamp,
                 StarSystemName = starSystem2,
@@ -234,19 +255,19 @@ namespace OrderBot.Test.ToDo
             using TransactionScope transactionScope = new();
             using OrderBotDbContext dbContext = dbContextFactory.CreateDbContext();
 
-            ToDoListMessageProcessor.Update(dbContext, new BgsStarSystemData()
+            ToDoListMessageProcessor.Update(dbContext, new EddnStarSystemData()
             {
                 Timestamp = timestamp,
                 StarSystemName = starSystem,
                 MinorFactionDetails = new[]
                 {
-                    new MinorFactionInfluence()
+                    new EddnMinorFactionInfluence()
                     {
                         MinorFaction = minorFaction1,
                         Influence = minorFaction1Influence,
                         States = minorFaction1States
                     },
-                    new MinorFactionInfluence()
+                    new EddnMinorFactionInfluence()
                     {
                         MinorFaction = minorFaction2,
                         Influence = minorFaction2Influence,

@@ -27,7 +27,7 @@ namespace OrderBot.ToDo
             using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();
 
-            BgsStarSystemData? bgsSystemData = GetBgsData(message, Filter);
+            EddnStarSystemData? bgsSystemData = GetBgsData(message, Filter);
             if (bgsSystemData != null)
             {
                 //IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();
@@ -50,7 +50,7 @@ namespace OrderBot.ToDo
         /// Filter out systems that do not match this filter.
         /// </param>
         /// <returns>
-        /// A <see cref="BgsStarSystemData"/> representing the details to store. If null, 
+        /// A <see cref="EddnStarSystemData"/> representing the details to store. If null, 
         /// there are no relevant details.
         /// </returns>
         /// <exception cref="JsonException">
@@ -62,7 +62,7 @@ namespace OrderBot.ToDo
         /// <exception cref="FormatException">
         /// One or more fields are not of the expected format.
         /// </exception>
-        internal static BgsStarSystemData? GetBgsData(JsonDocument message,
+        internal static EddnStarSystemData? GetBgsData(JsonDocument message,
             MinorFactionNameFilter minorFactionNameFilters)
         {
             DateTime timestamp = message.RootElement
@@ -77,7 +77,8 @@ namespace OrderBot.ToDo
             string? eventType = null;
             string? starSystemName = null;
             string? systemSecurityState = null;
-            MinorFactionInfluence[] minorFactionInfos = Array.Empty<MinorFactionInfluence>();
+            EddnMinorFactionInfluence[] minorFactionInfos = Array.Empty<EddnMinorFactionInfluence>();
+            EddnConflict[]? conflicts = Array.Empty<EddnConflict>();
             if (messageElement.TryGetProperty("event", out JsonElement eventProperty))
             {
                 eventType = eventProperty.GetString();
@@ -92,7 +93,7 @@ namespace OrderBot.ToDo
                         && factionsProperty.EnumerateArray().Any(element => minorFactionNameFilters.Matches(element.GetProperty("Name").GetString() ?? "")))
                     {
                         minorFactionInfos = factionsProperty.EnumerateArray().Select(element =>
-                            new MinorFactionInfluence()
+                            new EddnMinorFactionInfluence()
                             {
                                 MinorFaction = element.GetProperty("Name").GetString() ?? "",
                                 Influence = element.GetProperty("Influence").GetDouble(),
@@ -106,20 +107,25 @@ namespace OrderBot.ToDo
                     {
                         systemSecurityState = securityProperty.GetString();
                     }
+                    if (messageElement.TryGetProperty("Conflicts", out JsonElement conflictsProperty))
+                    {
+                        conflicts = conflictsProperty.Deserialize<EddnConflict[]>();
+                    }
                 }
             }
 
             return minorFactionInfos.Any()
-                ? new BgsStarSystemData()
+                ? new EddnStarSystemData()
                 {
                     Timestamp = timestamp,
                     StarSystemName = starSystemName ?? "",
                     MinorFactionDetails = minorFactionInfos,
-                    SystemSecurityState = systemSecurityState ?? ""
+                    SystemSecurityState = systemSecurityState ?? "",
+                    Conflicts = conflicts ?? Array.Empty<EddnConflict>()
                 } : null;
         }
 
-        internal static void Update(OrderBotDbContext dbContext, BgsStarSystemData bgsSystemData)
+        internal static void Update(OrderBotDbContext dbContext, EddnStarSystemData bgsSystemData)
         {
             StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(starSystem => starSystem.Name == bgsSystemData.StarSystemName);
             if (starSystem == null)
@@ -134,7 +140,7 @@ namespace OrderBot.ToDo
             dbContext.SaveChanges();
 
             // Add or update minor factions
-            foreach (MinorFactionInfluence newMinorFactionInfo in bgsSystemData.MinorFactionDetails)
+            foreach (EddnMinorFactionInfluence newMinorFactionInfo in bgsSystemData.MinorFactionDetails)
             {
                 MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(minorFaction => minorFaction.Name == newMinorFactionInfo.MinorFaction);
                 if (minorFaction == null)
@@ -195,6 +201,9 @@ namespace OrderBot.ToDo
             {
                 dbContext.StarSystemMinorFactions.Remove(systemMinorFaction);
             }
+
+            // Save conflicts
+
             dbContext.SaveChanges();
         }
     }

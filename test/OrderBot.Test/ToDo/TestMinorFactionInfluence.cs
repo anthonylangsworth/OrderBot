@@ -8,7 +8,7 @@ namespace OrderBot.Test.ToDo
         [TestCaseSource(nameof(Ctor_Source))]
         public void Ctor(string minorFaction, double influence, IReadOnlyList<string> states)
         {
-            MinorFactionInfluence minorFactionInfluence = new MinorFactionInfluence()
+            EddnMinorFactionInfluence minorFactionInfluence = new EddnMinorFactionInfluence()
             {
                 MinorFaction = minorFaction,
                 Influence = influence,
