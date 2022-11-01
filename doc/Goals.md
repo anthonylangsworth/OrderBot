@@ -4,14 +4,14 @@
 
 ## List
 
-This bot generates the following suggestions:
+Based on the specified goal, this bot generates the following suggestions:
 
 |Goal     |Influence|Conflict|Security|State|
 |---------|---------|--------|--------|------|
 |Control (Default) |Keep influence between 55% and 65%.|Fight for the minor faction in any conflict.|Keep security at Medium or higher.|(TODO)|
 |Maintain |Have the second or third highest influence.|Fight for the minor faction except for conflicts against the controlling minor faction, where you fight for the controlling minor faction|N/A|(TODO)|
 |Stay     |Stay above 10%.|Fight for the minor faction in any conflict.|N/A|(TODO)|
-|Expand   |(TODO)|(TODO)|(TODO)|(TODO)|
+|Expand   |Maximize influence.|Fight for the minor faction in any conflict.|N/A|(TODO)|
 |Retreat  |Work against the minor faction.|Fight against the minor faction in all conflicts.|N/A|(TODO)|
 |Ignore   |None|None|None|None|
 
