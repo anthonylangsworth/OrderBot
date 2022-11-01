@@ -1,7 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using OrderBot.Core;
+using OrderBot.EntityFramework;
 
 namespace OrderBot.Test
 {

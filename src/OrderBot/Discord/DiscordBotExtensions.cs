@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OrderBot.Core;
+using OrderBot.EntityFramework;
 
 namespace OrderBot.Discord
 {

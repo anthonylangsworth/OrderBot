@@ -4,7 +4,7 @@ using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OrderBot.Core;
+using OrderBot.EntityFramework;
 using System.Reflection;
 
 namespace OrderBot.Discord

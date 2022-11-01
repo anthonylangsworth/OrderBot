@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using OrderBot.Core;
+using OrderBot.EntityFramework;
 using OrderBot.ToDo;
 using System.Transactions;
 using Goal = OrderBot.ToDo.Goal;

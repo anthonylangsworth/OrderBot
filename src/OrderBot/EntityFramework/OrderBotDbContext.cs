@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OrderBot.Core;
 
-namespace OrderBot.Core
+namespace OrderBot.EntityFramework
 {
     /// <summary>
     /// The Entity Framework context used to interact with the database.

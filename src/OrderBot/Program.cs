@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using OrderBot.CarrierMovement;
-using OrderBot.Core;
 using OrderBot.Discord;
+using OrderBot.EntityFramework;
 using OrderBot.MessageProcessors;
 using OrderBot.ToDo;
 

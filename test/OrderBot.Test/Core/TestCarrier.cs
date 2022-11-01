@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using OrderBot.Core;
+using OrderBot.EntityFramework;
 using System.Transactions;
 
 namespace OrderBot.Test.Core

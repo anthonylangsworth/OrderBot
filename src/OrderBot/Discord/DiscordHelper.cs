@@ -1,5 +1,6 @@
 ﻿using Discord;
 using OrderBot.Core;
+using OrderBot.EntityFramework;
 using System.Transactions;
 
 namespace OrderBot.Discord

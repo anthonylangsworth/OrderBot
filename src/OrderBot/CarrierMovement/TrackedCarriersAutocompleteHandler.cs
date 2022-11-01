@@ -2,6 +2,7 @@
 using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
 using OrderBot.Core;
+using OrderBot.EntityFramework;
 
 namespace OrderBot.CarrierMovement
 {

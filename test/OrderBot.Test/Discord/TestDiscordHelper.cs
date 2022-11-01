@@ -3,6 +3,7 @@ using Moq;
 using NUnit.Framework;
 using OrderBot.Core;
 using OrderBot.Discord;
+using OrderBot.EntityFramework;
 using System.Transactions;
 
 namespace OrderBot.Test.Discord

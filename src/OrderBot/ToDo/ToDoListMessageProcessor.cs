@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
+using OrderBot.EntityFramework;
 using OrderBot.MessageProcessors;
 using System.Text.Json;
 using System.Transactions;

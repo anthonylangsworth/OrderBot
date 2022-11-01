@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using OrderBot.Discord;
+using OrderBot.EntityFramework;
 using System.Globalization;
 using System.Text;
 using System.Transactions;

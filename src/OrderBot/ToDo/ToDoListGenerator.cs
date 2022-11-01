@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
+using OrderBot.EntityFramework;
 using System.Transactions;
 
 namespace OrderBot.ToDo

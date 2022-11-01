@@ -2,7 +2,7 @@
 using Moq;
 using NUnit.Framework;
 using OrderBot.CarrierMovement;
-using OrderBot.Core;
+using OrderBot.EntityFramework;
 using System.Transactions;
 
 namespace OrderBot.Test.CarrierMovement

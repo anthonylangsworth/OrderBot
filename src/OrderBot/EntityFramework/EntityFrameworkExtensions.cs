@@ -2,9 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace OrderBot.Core
+namespace OrderBot.EntityFramework
 {
-    internal static class CoreExtensions
+    internal static class EntityFrameworkExtensions
     {
         internal const string DatabaseEnvironmentVariable = "OrderBot";
 
