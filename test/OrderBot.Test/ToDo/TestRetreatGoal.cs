@@ -16,7 +16,7 @@ namespace OrderBot.Test.ToDo
 
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
-        public void AddActions(StarSystem starSystem, double influence, IEnumerable<InfluenceInitiatedSuggestion> expectedPro, IEnumerable<InfluenceInitiatedSuggestion> expectedAnti)
+        public void AddActions(StarSystem starSystem, double influence, IEnumerable<InfluenceSuggestion> expectedPro, IEnumerable<InfluenceSuggestion> expectedAnti)
         {
             MinorFaction minorFaction = new() { Name = "Flying Fish" };
             StarSystemMinorFaction starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence };
@@ -32,10 +32,10 @@ namespace OrderBot.Test.ToDo
             StarSystem polaris = new() { Name = "Polaris", LastUpdated = DateTime.UtcNow };
 
             return new[] {
-                new TestCaseData(polaris, 0.00, Array.Empty<InfluenceInitiatedSuggestion>(), new [] { new InfluenceInitiatedSuggestion() { StarSystem = polaris, Influence = 0.0 } }).SetName("AddActions 00"),
-                new TestCaseData(polaris, 0.04, Array.Empty<InfluenceInitiatedSuggestion>(), new [] { new InfluenceInitiatedSuggestion() { StarSystem = polaris, Influence = 0.04 } }).SetName("AddActions 04"),
-                new TestCaseData(polaris, 0.05, Array.Empty<InfluenceInitiatedSuggestion>(), new [] { new InfluenceInitiatedSuggestion() { StarSystem = polaris, Influence = 0.05 } }).SetName("AddActions 05"),
-                new TestCaseData(polaris, 0.06, Array.Empty<InfluenceInitiatedSuggestion>(), new [] { new InfluenceInitiatedSuggestion() { StarSystem = polaris, Influence = 0.06 } }).SetName("AddActions 06")
+                new TestCaseData(polaris, 0.00, Array.Empty<InfluenceSuggestion>(), new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = 0.0 } }).SetName("AddActions 00"),
+                new TestCaseData(polaris, 0.04, Array.Empty<InfluenceSuggestion>(), new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = 0.04 } }).SetName("AddActions 04"),
+                new TestCaseData(polaris, 0.05, Array.Empty<InfluenceSuggestion>(), new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = 0.05 } }).SetName("AddActions 05"),
+                new TestCaseData(polaris, 0.06, Array.Empty<InfluenceSuggestion>(), new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = 0.06 } }).SetName("AddActions 06")
             };
         }
     }

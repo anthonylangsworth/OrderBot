@@ -15,7 +15,7 @@ namespace OrderBot.Test.ToDo
 
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
-        public void AddActions(StarSystem starSystem, double influence, IEnumerable<InfluenceInitiatedSuggestion> expectedPro, IEnumerable<InfluenceInitiatedSuggestion> expectedAnti)
+        public void AddActions(StarSystem starSystem, double influence, IEnumerable<InfluenceSuggestion> expectedPro, IEnumerable<InfluenceSuggestion> expectedAnti)
         {
             MinorFaction minorFaction = new() { Name = "Flying Fish" };
             StarSystemMinorFaction starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence };
@@ -31,10 +31,10 @@ namespace OrderBot.Test.ToDo
             StarSystem polaris = new() { Name = "Polaris", LastUpdated = DateTime.UtcNow };
 
             return new[] {
-                new TestCaseData(polaris, 0.0, Array.Empty<InfluenceInitiatedSuggestion>(), Array.Empty<InfluenceInitiatedSuggestion>()).SetName("AddActions 00"),
-                new TestCaseData(polaris, 0.1, Array.Empty<InfluenceInitiatedSuggestion>(), Array.Empty<InfluenceInitiatedSuggestion>()).SetName("AddActions 10"),
-                new TestCaseData(polaris, 0.5, Array.Empty<InfluenceInitiatedSuggestion>(), Array.Empty<InfluenceInitiatedSuggestion>()).SetName("AddActions 50"),
-                new TestCaseData(polaris, 0.9, Array.Empty<InfluenceInitiatedSuggestion>(), Array.Empty<InfluenceInitiatedSuggestion>()).SetName("AddActions 90")
+                new TestCaseData(polaris, 0.0, Array.Empty<InfluenceSuggestion>(), Array.Empty<InfluenceSuggestion>()).SetName("AddActions 00"),
+                new TestCaseData(polaris, 0.1, Array.Empty<InfluenceSuggestion>(), Array.Empty<InfluenceSuggestion>()).SetName("AddActions 10"),
+                new TestCaseData(polaris, 0.5, Array.Empty<InfluenceSuggestion>(), Array.Empty<InfluenceSuggestion>()).SetName("AddActions 50"),
+                new TestCaseData(polaris, 0.9, Array.Empty<InfluenceSuggestion>(), Array.Empty<InfluenceSuggestion>()).SetName("AddActions 90")
             };
         }
     }

@@ -38,8 +38,6 @@ namespace OrderBot.ToDo
                                                                                && dgssmf.StarSystemMinorFaction.MinorFaction.Name == minorFactionName)
                                                                  .ToList();
 
-            // TODO: Consider Aggregate()
-
             foreach (DiscordGuildStarSystemMinorFactionGoal dgssmfg in dgssmfgs)
             {
                 HashSet<StarSystemMinorFaction> starSystemBgsData =
@@ -65,7 +63,7 @@ namespace OrderBot.ToDo
             IReadOnlyList<StarSystemMinorFaction> filtered =
                 bgsData.Where(ssmf => !dgssmfgs.Select(dgssmfg => dgssmfg.StarSystemMinorFaction.Id).Contains(ssmf.Id)
                                                                         && ssmf.MinorFaction.Name == minorFactionName)
-                             .ToList();
+                       .ToList();
             foreach (StarSystemMinorFaction ssmf in filtered)
             {
                 HashSet<StarSystemMinorFaction> starSystemBgsData =

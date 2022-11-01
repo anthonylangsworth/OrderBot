@@ -4,10 +4,10 @@ using System.Diagnostics.CodeAnalysis;
 namespace OrderBot.Test.ToDo
 {
     /// <summary>
-    /// Compare two <see cref="SecurityInitiatedSuggestion"/>s, ignoring database-induced 
+    /// Compare two <see cref="SecuritySuggestion"/>s, ignoring database-induced 
     /// differences with <see cref="DateTime"/>s.
     /// </summary>
-    internal class DbSecurityInitiatedSuggestionEqualityComparer : IEqualityComparer<SecurityInitiatedSuggestion>
+    internal class DbSecurityInitiatedSuggestionEqualityComparer : IEqualityComparer<SecuritySuggestion>
     {
         public static readonly DbSecurityInitiatedSuggestionEqualityComparer Instance = new();
 
@@ -19,7 +19,7 @@ namespace OrderBot.Test.ToDo
             // Do nothing
         }
 
-        public bool Equals(SecurityInitiatedSuggestion? x, SecurityInitiatedSuggestion? y)
+        public bool Equals(SecuritySuggestion? x, SecuritySuggestion? y)
         {
             return x is not null &&
                    y is not null &&
@@ -29,7 +29,7 @@ namespace OrderBot.Test.ToDo
                    x.SecurityLevel == y.SecurityLevel;
         }
 
-        public int GetHashCode([DisallowNull] SecurityInitiatedSuggestion obj)
+        public int GetHashCode([DisallowNull] SecuritySuggestion obj)
         {
             throw new NotImplementedException();
         }

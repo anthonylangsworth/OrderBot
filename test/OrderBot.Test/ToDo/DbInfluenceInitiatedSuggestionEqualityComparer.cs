@@ -4,10 +4,10 @@ using System.Diagnostics.CodeAnalysis;
 namespace OrderBot.Test.ToDo
 {
     /// <summary>
-    /// Compare two <see cref="InfluenceInitiatedSuggestion"/>s, ignoring database-induced 
+    /// Compare two <see cref="InfluenceSuggestion"/>s, ignoring database-induced 
     /// differences with <see cref="DateTime"/>s.
     /// </summary>
-    internal class DbInfluenceInitiatedSuggestionEqualityComparer : IEqualityComparer<InfluenceInitiatedSuggestion>
+    internal class DbInfluenceInitiatedSuggestionEqualityComparer : IEqualityComparer<InfluenceSuggestion>
     {
         public static readonly DbInfluenceInitiatedSuggestionEqualityComparer Instance = new();
 
@@ -19,7 +19,7 @@ namespace OrderBot.Test.ToDo
             // Do nothing
         }
 
-        public bool Equals(InfluenceInitiatedSuggestion? x, InfluenceInitiatedSuggestion? y)
+        public bool Equals(InfluenceSuggestion? x, InfluenceSuggestion? y)
         {
             return x is not null &&
                    y is not null &&
@@ -29,7 +29,7 @@ namespace OrderBot.Test.ToDo
                    x.Influence == y.Influence;
         }
 
-        public int GetHashCode([DisallowNull] InfluenceInitiatedSuggestion obj)
+        public int GetHashCode([DisallowNull] InfluenceSuggestion obj)
         {
             throw new NotImplementedException();
         }

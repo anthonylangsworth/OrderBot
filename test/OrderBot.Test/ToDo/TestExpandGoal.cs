@@ -17,7 +17,7 @@ namespace OrderBot.Test.ToDo
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
         public void AddActions(StarSystem starSystem, double influence, string securityLevel,
-            IEnumerable<InfluenceInitiatedSuggestion> expectedPro)
+            IEnumerable<InfluenceSuggestion> expectedPro)
         {
             MinorFaction minorFaction = new() { Name = "Flying Fish" };
             StarSystemMinorFaction starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence, SecurityLevel = securityLevel };
@@ -39,19 +39,19 @@ namespace OrderBot.Test.ToDo
                     polaris,
                     ExpandGoal.InfluenceThreshold - 0.01,
                     null,
-                    new [] { new InfluenceInitiatedSuggestion() { StarSystem = polaris, Influence = ExpandGoal.InfluenceThreshold - 0.01 } }
+                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = ExpandGoal.InfluenceThreshold - 0.01 } }
                 ).SetName("AddActions Below InfluenceThreshold"),
                 new TestCaseData(
                     polaris,
                     ExpandGoal.InfluenceThreshold,
                     null,
-                    Array.Empty<InfluenceInitiatedSuggestion>()
+                    Array.Empty<InfluenceSuggestion>()
                 ).SetName("AddActions InfluenceThreshold"),
                 new TestCaseData(
                     polaris,
                     ExpandGoal.InfluenceThreshold + 0.01,
                     null,
-                    Array.Empty<InfluenceInitiatedSuggestion>()
+                    Array.Empty<InfluenceSuggestion>()
                 ).SetName("AddActions Above InfluenceThreshold")
             };
         }

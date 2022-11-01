@@ -18,9 +18,9 @@ namespace OrderBot.Test.ToDo
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
         public void AddActions(StarSystem starSystem, double influence, string securityLevel,
-            IEnumerable<InfluenceInitiatedSuggestion> expectedPro,
-            IEnumerable<InfluenceInitiatedSuggestion> expectedAnti,
-            IEnumerable<SecurityInitiatedSuggestion> expectedProSecurity)
+            IEnumerable<InfluenceSuggestion> expectedPro,
+            IEnumerable<InfluenceSuggestion> expectedAnti,
+            IEnumerable<SecuritySuggestion> expectedProSecurity)
         {
             MinorFaction minorFaction = new() { Name = "Flying Fish" };
             StarSystemMinorFaction starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence, SecurityLevel = securityLevel };
@@ -42,49 +42,49 @@ namespace OrderBot.Test.ToDo
                     polaris,
                     ControlGoal.LowerInfluenceThreshold - 0.01,
                     null,
-                    new [] { new InfluenceInitiatedSuggestion() { StarSystem = polaris, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 } },
-                    Array.Empty<InfluenceInitiatedSuggestion>(),
-                    Array.Empty<SecurityInitiatedSuggestion>()
+                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 } },
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>()
                 ).SetName("AddActions Below Lower"),
                 new TestCaseData(
                     polaris,
                     ControlGoal.LowerInfluenceThreshold,
                     null,
-                    Array.Empty<InfluenceInitiatedSuggestion>(),
-                    Array.Empty<InfluenceInitiatedSuggestion>(),
-                    Array.Empty<SecurityInitiatedSuggestion>()
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>()
                 ).SetName("AddActions Lower"),
                 new TestCaseData(
                     polaris,
                     ControlGoal.LowerInfluenceThreshold + 0.01,
                     null,
-                    Array.Empty<InfluenceInitiatedSuggestion>(),
-                    Array.Empty<InfluenceInitiatedSuggestion>(),
-                    Array.Empty<SecurityInitiatedSuggestion>()
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>()
                 ).SetName("AddActions Above lower"),
                 new TestCaseData(
                     polaris,
                     ControlGoal.UpperInfluenceThreshold - 0.01,
                     SecurityLevel.High,
-                    Array.Empty<InfluenceInitiatedSuggestion>(),
-                    Array.Empty<InfluenceInitiatedSuggestion>(),
-                    Array.Empty<SecurityInitiatedSuggestion>()
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>()
                 ).SetName("AddActions Below Upper"),
                 new TestCaseData(
                     polaris,
                     ControlGoal.UpperInfluenceThreshold,
                     SecurityLevel.Medium,
-                    Array.Empty<InfluenceInitiatedSuggestion>(),
-                    Array.Empty<InfluenceInitiatedSuggestion>(),
-                    Array.Empty<SecurityInitiatedSuggestion>()
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>()
                 ).SetName("AddActions Upper"),
                 new TestCaseData(
                     polaris,
                     ControlGoal.UpperInfluenceThreshold + 0.01,
                     SecurityLevel.Low,
-                    Array.Empty<InfluenceInitiatedSuggestion>(),
-                    new [] { new InfluenceInitiatedSuggestion() { StarSystem = polaris, Influence = ControlGoal.UpperInfluenceThreshold + 0.01} },
-                    new [] { new SecurityInitiatedSuggestion() { StarSystem = polaris, SecurityLevel = SecurityLevel.Low} }
+                    Array.Empty<InfluenceSuggestion>(),
+                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = ControlGoal.UpperInfluenceThreshold + 0.01} },
+                    new [] { new SecuritySuggestion() { StarSystem = polaris, SecurityLevel = SecurityLevel.Low} }
                 ).SetName("AddActions Above Upper"),
             };
         }

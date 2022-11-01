@@ -32,7 +32,7 @@ namespace OrderBot.ToDo
 
             if (starSystemMinorFaction.Influence < InfluenceThreshold)
             {
-                toDoList.Pro.Add(new InfluenceInitiatedSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                toDoList.Pro.Add(new InfluenceSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
             }
 
             // TODO: Handle conflicts

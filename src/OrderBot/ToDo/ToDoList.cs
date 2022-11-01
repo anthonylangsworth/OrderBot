@@ -14,9 +14,10 @@
         public ToDoList(string minorFaction)
         {
             MinorFaction = minorFaction;
-            Pro = new List<InfluenceInitiatedSuggestion>();
-            Anti = new List<InfluenceInitiatedSuggestion>();
-            ProSecurity = new List<SecurityInitiatedSuggestion>();
+            Pro = new List<InfluenceSuggestion>();
+            Anti = new List<InfluenceSuggestion>();
+            ProSecurity = new List<SecuritySuggestion>();
+            ProConflicts = new List<ConflictSuggestion>();
         }
 
         /// <summary>
@@ -27,16 +28,22 @@
         /// <summary>
         /// Work for the specified minor faction.
         /// </summary>
-        public IList<InfluenceInitiatedSuggestion> Pro { get; }
+        public IList<InfluenceSuggestion> Pro { get; }
 
         /// <summary>
         /// Work against the specified minor faction.
         /// </summary>
-        public IList<InfluenceInitiatedSuggestion> Anti { get; }
+        public IList<InfluenceSuggestion> Anti { get; }
 
         /// <summary>
         /// Work for the specified minor faction.
         /// </summary>
-        public IList<SecurityInitiatedSuggestion> ProSecurity { get; }
+        public IList<SecuritySuggestion> ProSecurity { get; }
+
+        /// <summary>
+        /// Fight for the specified minor faction.
+        /// </summary>
+        public IList<ConflictSuggestion> ProConflicts { get; }
+
     }
 }

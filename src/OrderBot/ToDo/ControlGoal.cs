@@ -36,21 +36,33 @@ namespace OrderBot.ToDo
 
             if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
             {
-                toDoList.Pro.Add(new InfluenceInitiatedSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                toDoList.Pro.Add(new InfluenceSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
             }
             else if (starSystemMinorFaction.Influence > UpperInfluenceThreshold)
             {
-                toDoList.Anti.Add(new InfluenceInitiatedSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                toDoList.Anti.Add(new InfluenceSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
             }
 
             // Security only applies for the controlling minor faction
             if (starSystemMinorFaction == GetControllingMinorFaction(systemBgsData)
                 && starSystemMinorFaction.SecurityLevel == SecurityLevel.Low)
             {
-                toDoList.ProSecurity.Add(new SecurityInitiatedSuggestion() { StarSystem = starSystemMinorFaction.StarSystem, SecurityLevel = starSystemMinorFaction.SecurityLevel });
+                toDoList.ProSecurity.Add(new SecuritySuggestion() { StarSystem = starSystemMinorFaction.StarSystem, SecurityLevel = starSystemMinorFaction.SecurityLevel });
             }
 
-            // TODO: Handle conflicts
+            foreach (Conflict conflict in conflicts.Where(c => c.MinorFaction1 == starSystemMinorFaction.MinorFaction
+                                                               && c.MinorFaction2 == starSystemMinorFaction.MinorFaction))
+            {
+                toDoList.ProConflicts.Add(new ConflictSuggestion()
+                {
+                    StarSystem = starSystemMinorFaction.StarSystem,
+                    MinorFaction1 = conflict.MinorFaction1,
+                    MinorFaction1WonDays = conflict.MinorFaction1WonDays,
+                    MinorFaction2 = conflict.MinorFaction2,
+                    MinorFaction2WonDays = conflict.MinorFaction2WonDays,
+                    FightFor = starSystemMinorFaction.MinorFaction
+                });
+            }
         }
     }
 }

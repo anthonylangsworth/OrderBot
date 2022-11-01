@@ -25,12 +25,12 @@ Redeem bounty vouchers to increase security in systems *{minorFactionName}* cont
 {electionList}
 ";
 
-        internal static string GetInfluenceList(IEnumerable<InfluenceInitiatedSuggestion> suggestions, bool ascending)
+        internal static string GetInfluenceList(IEnumerable<InfluenceSuggestion> suggestions, bool ascending)
         {
             string result;
             if (suggestions.Any())
             {
-                IEnumerable<InfluenceInitiatedSuggestion> sortedActions =
+                IEnumerable<InfluenceSuggestion> sortedActions =
                     ascending ? suggestions.OrderBy(action => action.Influence) : suggestions.OrderByDescending(action => action.Influence);
                 result = string.Join(Environment.NewLine,
                     sortedActions.Select(action => $"- {FormatSystemName(action.StarSystem.Name)} - {Math.Round(action.Influence * 100, 1)}%"));
@@ -42,7 +42,7 @@ Redeem bounty vouchers to increase security in systems *{minorFactionName}* cont
             return result;
         }
 
-        internal static string GetSecurityList(IEnumerable<SecurityInitiatedSuggestion> suggestions)
+        internal static string GetSecurityList(IEnumerable<SecuritySuggestion> suggestions)
         {
             string result;
             if (suggestions.Any())
@@ -66,9 +66,26 @@ Redeem bounty vouchers to increase security in systems *{minorFactionName}* cont
             return $"{systemName}";
         }
 
+        internal static string GetWarList(IEnumerable<ConflictSuggestion> suggestions)
+        {
+            string result;
+            if (suggestions.Any())
+            {
+                result = string.Join(Environment.NewLine,
+                    suggestions.OrderBy(cs => cs.MinorFaction1.Name)
+                               .OrderBy(cs => cs.StarSystem.Name)
+                               .Select(cs => $"- {FormatSystemName(cs.StarSystem.Name)} - {cs.MinorFaction1WonDays} vs {cs.MinorFaction2WonDays} - (*{cs.State}*) - Fight for *{cs.FightFor.Name}*"));
+            }
+            else
+            {
+                result = "(None)";
+            }
+            return result;
+        }
+
         public string Format(ToDoList toDoList)
         {
-            return GetOutput(toDoList.MinorFaction, GetInfluenceList(toDoList.Pro, true), GetSecurityList(toDoList.ProSecurity), GetInfluenceList(toDoList.Anti, false), "(None)", "(None)", "(None)");
+            return GetOutput(toDoList.MinorFaction, GetInfluenceList(toDoList.Pro, true), GetSecurityList(toDoList.ProSecurity), GetInfluenceList(toDoList.Anti, false), "(None)", GetWarList(toDoList.ProConflicts), "(None)");
         }
     }
 }
