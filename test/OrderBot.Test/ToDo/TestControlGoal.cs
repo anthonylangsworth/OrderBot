@@ -17,18 +17,17 @@ namespace OrderBot.Test.ToDo
 
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
-        public void AddActions(StarSystem starSystem, double influence, string securityLevel,
+        public void AddActions(StarSystemMinorFaction starSystemMinorFaction,
+            IReadOnlySet<StarSystemMinorFaction> systemBgsData,
+            IReadOnlySet<Conflict> systemConflicts,
             IEnumerable<InfluenceSuggestion> expectedPro,
             IEnumerable<InfluenceSuggestion> expectedAnti,
             IEnumerable<SecuritySuggestion> expectedProSecurity,
             IEnumerable<ConflictSuggestion> expectedWars,
             IEnumerable<ConflictSuggestion> expectedElections)
         {
-            MinorFaction minorFaction = new() { Name = "Flying Fish" };
-            StarSystemMinorFaction starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence, SecurityLevel = securityLevel };
-            ToDoList toDo = new(minorFaction.Name);
-            ControlGoal.Instance.AddSuggestions(starSystemMinorFaction, new HashSet<StarSystemMinorFaction> { starSystemMinorFaction },
-                new HashSet<Conflict>(), toDo);
+            ToDoList toDo = new(starSystemMinorFaction.MinorFaction.Name);
+            ControlGoal.Instance.AddSuggestions(starSystemMinorFaction, systemBgsData, systemConflicts, toDo);
             Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
             Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
             Assert.That(toDo.ProSecurity, Is.EquivalentTo(expectedProSecurity).Using(DbSecurityInitiatedSuggestionEqualityComparer.Instance));
@@ -39,23 +38,84 @@ namespace OrderBot.Test.ToDo
         public static IEnumerable<TestCaseData> AddActions_Source()
         {
             StarSystem polaris = new() { Name = "Polaris", LastUpdated = DateTime.UtcNow };
+            MinorFaction flyingFish = new() { Name = "Flying Fish" };
+            MinorFaction bloatedJellyFish = new() { Name = "Bloated Jelly Fish" };
+            StarSystemMinorFaction belowLower = new()
+            {
+                StarSystem = polaris,
+                MinorFaction = flyingFish,
+                Influence = ControlGoal.LowerInfluenceThreshold - 0.01,
+                SecurityLevel = null
+            };
+            StarSystemMinorFaction lower = new()
+            {
+                StarSystem = polaris,
+                MinorFaction = flyingFish,
+                Influence = ControlGoal.LowerInfluenceThreshold,
+                SecurityLevel = null
+            };
+            StarSystemMinorFaction aboveLower = new()
+            {
+                StarSystem = polaris,
+                MinorFaction = flyingFish,
+                Influence = ControlGoal.LowerInfluenceThreshold + 0.01,
+                SecurityLevel = null
+            };
+            StarSystemMinorFaction belowUpper = new()
+            {
+                StarSystem = polaris,
+                MinorFaction = flyingFish,
+                Influence = ControlGoal.UpperInfluenceThreshold - 0.01,
+                SecurityLevel = SecurityLevel.High
+            };
+            StarSystemMinorFaction upper = new()
+            {
+                StarSystem = polaris,
+                MinorFaction = flyingFish,
+                Influence = ControlGoal.UpperInfluenceThreshold,
+                SecurityLevel = SecurityLevel.Medium
+            };
+            StarSystemMinorFaction aboveUpper = new()
+            {
+                StarSystem = polaris,
+                MinorFaction = flyingFish,
+                Influence = ControlGoal.UpperInfluenceThreshold + 0.01,
+                SecurityLevel = SecurityLevel.Low
+            };
+            StarSystemMinorFaction bloatedJellyFishInPolaris = new()
+            {
+                StarSystem = polaris,
+                MinorFaction = bloatedJellyFish,
+                Influence = ControlGoal.UpperInfluenceThreshold,
+                SecurityLevel = null
+            };
+            Conflict war = new()
+            {
+                StarSystem = polaris,
+                MinorFaction1 = flyingFish,
+                MinorFaction1WonDays = 2,
+                MinorFaction2 = bloatedJellyFish,
+                MinorFaction2WonDays = 1,
+                WarType = "war",
+                Status = "active"
+            };
 
             return new[]
             {
                 new TestCaseData(
-                    polaris,
-                    ControlGoal.LowerInfluenceThreshold - 0.01,
-                    null,
-                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 } },
+                    belowLower,
+                    new HashSet<StarSystemMinorFaction>() { belowLower },
+                    new HashSet<Conflict>(),
+                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = belowLower.Influence } },
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<SecuritySuggestion>(),
                     Array.Empty<ConflictSuggestion>(),
                     Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Below Lower"),
                 new TestCaseData(
-                    polaris,
-                    ControlGoal.LowerInfluenceThreshold,
-                    null,
+                    lower,
+                    new HashSet<StarSystemMinorFaction> { lower },
+                    new HashSet<Conflict>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<SecuritySuggestion>(),
@@ -63,9 +123,9 @@ namespace OrderBot.Test.ToDo
                     Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Lower"),
                 new TestCaseData(
-                    polaris,
-                    ControlGoal.LowerInfluenceThreshold + 0.01,
-                    null,
+                    aboveLower,
+                    new HashSet<StarSystemMinorFaction> { aboveLower },
+                    new HashSet<Conflict>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<SecuritySuggestion>(),
@@ -73,9 +133,9 @@ namespace OrderBot.Test.ToDo
                     Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Above lower"),
                 new TestCaseData(
-                    polaris,
-                    ControlGoal.UpperInfluenceThreshold - 0.01,
-                    SecurityLevel.High,
+                    belowUpper,
+                    new HashSet<StarSystemMinorFaction> { belowUpper },
+                    new HashSet<Conflict>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<SecuritySuggestion>(),
@@ -83,9 +143,9 @@ namespace OrderBot.Test.ToDo
                     Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Below Upper"),
                 new TestCaseData(
-                    polaris,
-                    ControlGoal.UpperInfluenceThreshold,
-                    SecurityLevel.Medium,
+                    upper,
+                    new HashSet<StarSystemMinorFaction> { upper },
+                    new HashSet<Conflict>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<SecuritySuggestion>(),
@@ -93,15 +153,36 @@ namespace OrderBot.Test.ToDo
                     Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Upper"),
                 new TestCaseData(
-                    polaris,
-                    ControlGoal.UpperInfluenceThreshold + 0.01,
-                    SecurityLevel.Low,
+                    aboveUpper,
+                    new HashSet<StarSystemMinorFaction> { aboveUpper },
+                    new HashSet<Conflict>(),
                     Array.Empty<InfluenceSuggestion>(),
-                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = ControlGoal.UpperInfluenceThreshold + 0.01} },
-                    new [] { new SecuritySuggestion() { StarSystem = polaris, SecurityLevel = SecurityLevel.Low} },
+                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = aboveUpper.Influence } },
+                    new [] { new SecuritySuggestion() { StarSystem = polaris, SecurityLevel = aboveUpper.SecurityLevel } },
                     Array.Empty<ConflictSuggestion>(),
                     Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Above Upper"),
+                //new TestCaseData(
+                //    belowLower,
+                //    new HashSet<StarSystemMinorFaction>() { belowLower, bloatedJellyFishInPolaris },
+                //    new HashSet<Conflict>() { war },
+                //    Array.Empty<InfluenceSuggestion>(),
+                //    Array.Empty<InfluenceSuggestion>(),
+                //    Array.Empty<SecuritySuggestion>(),
+                //    new List<ConflictSuggestion>() {
+                //        new ConflictSuggestion()
+                //        {
+                //            StarSystem = polaris,
+                //            MinorFaction1 = flyingFish,
+                //            MinorFaction1WonDays = 2,
+                //            MinorFaction2 = bloatedJellyFish,
+                //            MinorFaction2WonDays = 1,
+                //            FightFor = flyingFish,
+                //            State = "active"
+                //        }
+                //    },
+                //    Array.Empty<ConflictSuggestion>()
+                //).SetName("AddActions War"),
             };
         }
     }
