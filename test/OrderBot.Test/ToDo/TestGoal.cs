@@ -40,6 +40,54 @@ namespace OrderBot.Test.ToDo
                 Throws.ArgumentException.And.Property("Message").EqualTo("systemBgsData must contain starSystemMinorFaction"));
         }
 
+        [Test]
+        public void CheckAddActionsPreconditions_MultipleConflicts()
+        {
+            StarSystem betelgeuse = new() { Name = "Betelgeuse" };
+            StarSystem sirius = new() { Name = "Sirius" };
+            MinorFaction gumChewers = new() { Name = "Gum Chewers" };
+            MinorFaction funnyWalkers = new() { Name = "Funny Walkers" };
+            MinorFaction bunnyHoppers = new() { Name = "Bunny Hoppoers" };
+            MinorFaction sliders = new() { Name = "Sliders" };
+            HashSet<StarSystemMinorFaction> bgsData = new()
+            {
+                new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0 },
+                new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = funnyWalkers, Influence = 0 },
+                new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = sliders, Influence = 0 }
+            };
+            HashSet<Conflict> conflicts = new()
+            {
+                new Conflict() { StarSystem = betelgeuse, MinorFaction1 = bunnyHoppers, MinorFaction2 = gumChewers },
+                new Conflict() { StarSystem = sirius, MinorFaction1 = funnyWalkers, MinorFaction2 = sliders  }
+            };
+            Assert.That(
+                () => Goal.CheckAddActionsPreconditions(bgsData.First(), bgsData, conflicts),
+                Throws.ArgumentException.And.Property("Message").EqualTo("All systemConflicts must be in star system Betelgeuse"));
+        }
+
+        [Test]
+        public void CheckAddActionsPreconditions_ConflictMinorFactionNotInSystemBgsData()
+        {
+            StarSystem betelgeuse = new() { Name = "Betelgeuse" };
+            StarSystem sirius = new() { Name = "Sirius" };
+            MinorFaction gumChewers = new() { Name = "Gum Chewers" };
+            MinorFaction funnyWalkers = new() { Name = "Funny Walkers" };
+            MinorFaction bunnyHoppers = new() { Name = "Bunny Hoppoers" };
+            MinorFaction sliders = new() { Name = "Sliders" };
+            HashSet<StarSystemMinorFaction> bgsData = new()
+            {
+                new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0 },
+            };
+            HashSet<Conflict> conflicts = new()
+            {
+                new Conflict() { StarSystem = betelgeuse, MinorFaction1 = bunnyHoppers, MinorFaction2 = gumChewers },
+                new Conflict() { StarSystem = sirius, MinorFaction1 = funnyWalkers, MinorFaction2 = sliders  }
+            };
+            Assert.That(
+                () => Goal.CheckAddActionsPreconditions(bgsData.First(), bgsData, conflicts),
+                Throws.ArgumentException.And.Property("Message").EqualTo("All minor factions in systemConflicts must be in systemBgsData"));
+        }
+
         [TestCaseSource(nameof(GetControllingMinorFaction_Source))]
         public StarSystemMinorFaction GetControllingMinorFaction(IReadOnlySet<StarSystemMinorFaction> systemBgsData)
         {

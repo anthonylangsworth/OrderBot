@@ -30,9 +30,9 @@ namespace OrderBot.ToDo
 
         /// <inheritdoc/>
         public override void AddSuggestions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> conflicts, ToDoList toDoList)
+            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList)
         {
-            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, conflicts);
+            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
             if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
             {
@@ -50,7 +50,7 @@ namespace OrderBot.ToDo
                 toDoList.ProSecurity.Add(new SecuritySuggestion() { StarSystem = starSystemMinorFaction.StarSystem, SecurityLevel = starSystemMinorFaction.SecurityLevel });
             }
 
-            foreach (Conflict conflict in conflicts.Where(c => c.MinorFaction1 == starSystemMinorFaction.MinorFaction
+            foreach (Conflict conflict in systemConflicts.Where(c => c.MinorFaction1 == starSystemMinorFaction.MinorFaction
                                                                || c.MinorFaction2 == starSystemMinorFaction.MinorFaction))
             {
                 toDoList.ProConflicts.Add(new ConflictSuggestion()

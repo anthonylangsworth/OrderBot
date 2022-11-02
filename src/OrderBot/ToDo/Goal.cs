@@ -1,4 +1,5 @@
 ﻿using OrderBot.Core;
+using System.Reactive.Linq;
 
 namespace OrderBot.ToDo
 {
@@ -34,7 +35,7 @@ namespace OrderBot.ToDo
         /// <param name="systemBgsData">
         /// BGS details for all minor factions in the star system.
         /// </param>
-        /// <param name="conflicts">
+        /// <param name="systemConflicts">
         /// Conflicts in the star systems..
         /// </param>
         /// <param name="toDoList">
@@ -45,7 +46,7 @@ namespace OrderBot.ToDo
         /// <paramref name="systemBgsData"/> must be for a single star system.
         /// </exception>
         public abstract void AddSuggestions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> conflicts, ToDoList toDoList);
+            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList);
 
         /// <summary>
         /// Return the controlling minor faction, i.e. the one with the highest influence.
@@ -72,15 +73,21 @@ namespace OrderBot.ToDo
         /// <param name="systemBgsData">
         /// Passed in.
         /// </param>
-        /// <param name="conflicts">
+        /// <param name="systemConflicts">
         /// Passed in.
         /// </param>
         /// <exception cref="ArgumentException">
-        /// <paramref name="systemBgsData"/> must contain <paramref name="starSystemMinorFaction"/>. 
-        /// <paramref name="systemBgsData"/> must be for a single star system.
+        /// One or more of:
+        /// <list type="bullet">
+        /// <item><paramref name="systemBgsData"/> must contain <paramref name="starSystemMinorFaction"/></item>
+        /// <item>All <paramref name="systemBgsData"/> must be for the star system in <paramref name="starSystemMinorFaction"/>.</item>
+        /// <item><paramref name="systemBgsData"/> must be for a single star system.</item>
+        /// <item>All <paramref name="systemConflicts"/> must be in the star system in <paramref name="starSystemMinorFaction"/>.</item>
+        /// <item>All minor factions in <paramref name="systemConflicts"/> must be in <paramref name="systemBgsData"/>.</item>
+        /// </list>
         /// </exception>
         protected internal static void CheckAddActionsPreconditions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> conflicts)
+            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> systemConflicts)
         {
             if (systemBgsData.Any(ssmf => ssmf.StarSystem != starSystemMinorFaction.StarSystem))
             {
@@ -90,9 +97,15 @@ namespace OrderBot.ToDo
             {
                 throw new ArgumentException($"{nameof(systemBgsData)} must contain {nameof(starSystemMinorFaction)}");
             }
-            if (conflicts.Any(c => c.StarSystem != starSystemMinorFaction.StarSystem))
+            if (systemConflicts.Any(c => c.StarSystem != starSystemMinorFaction.StarSystem))
             {
-                throw new ArgumentException($"All {nameof(conflicts)} must be for star system {starSystemMinorFaction.StarSystem.Name}");
+                throw new ArgumentException($"All {nameof(systemConflicts)} must be in star system {starSystemMinorFaction.StarSystem.Name}");
+            }
+            if (!systemBgsData.Select(ssmf => ssmf.MinorFaction)
+                             .ToHashSet()
+                             .IsProperSupersetOf(systemConflicts.SelectMany(c => new MinorFaction[] { c.MinorFaction1, c.MinorFaction2 })))
+            {
+                throw new ArgumentException($"All minor factions in {nameof(systemConflicts)} must be in {nameof(systemBgsData)}");
             }
         }
     }

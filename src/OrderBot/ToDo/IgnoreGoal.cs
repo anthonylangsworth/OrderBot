@@ -20,10 +20,10 @@ namespace OrderBot.ToDo
 
         /// <inheritdoc/>
         public override void AddSuggestions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> conflicts,
+            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> systemConflicts,
             ToDoList toDoList)
         {
-            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, conflicts);
+            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
             // Do nothing
         }
