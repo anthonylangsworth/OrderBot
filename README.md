@@ -18,7 +18,7 @@ To quickly setup the bot:
 2. Give Discord a few minutes to process the registration and the bot's commands to become available. 
 3. Choose a minor faction to support using `/todo-list support add <minor faction name>` where `<minor faction name>` is the name of the minor faction you want to support. This must match the name of the in-game squadron exactly, although it is not case sensitive.
 4. Override the behaviour for specific systems or add goals for other minor factions using `/todo-list goal add <minor faction> <star system> <goal>`. See [Goals](doc/Goals.md) for details. You can add or remove these at any time as needs or whims dictate.
-5. Either visit the systems where your supported minor faction is present while running [EMDC](https://github.com/EDCD/EDMarketConnector/wiki) or a similar tool or wait for someone else to do so. This sends data to EDDN and then on to this bot.
+5. Either visit the systems where your supported minor faction is present while running [EDMC](https://github.com/EDCD/EDMarketConnector/wiki) or a similar tool or wait for someone else to do so. This sends data to EDDN and then on to this bot.
 6. Run `/todo-list show` to see the suggestions.
 
 ## Sample Suggestions
