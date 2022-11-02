@@ -113,6 +113,8 @@ namespace OrderBot.Discord
 
                 Logger.LogInformation("Guild {name} ({guildId}) added and commands registered", guild.Name, guild.Id);
             }
+
+            await Client.SetActivityAsync(new Game("BGS", ActivityType.Watching));
         }
 
         private Task LogAsync(LogMessage message)
