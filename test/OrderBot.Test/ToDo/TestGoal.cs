@@ -81,7 +81,7 @@ namespace OrderBot.Test.ToDo
             HashSet<Conflict> conflicts = new()
             {
                 new Conflict() { StarSystem = betelgeuse, MinorFaction1 = bunnyHoppers, MinorFaction2 = gumChewers },
-                new Conflict() { StarSystem = sirius, MinorFaction1 = funnyWalkers, MinorFaction2 = sliders  }
+                new Conflict() { StarSystem = betelgeuse, MinorFaction1 = funnyWalkers, MinorFaction2 = sliders  }
             };
             Assert.That(
                 () => Goal.CheckAddActionsPreconditions(bgsData.First(), bgsData, conflicts),

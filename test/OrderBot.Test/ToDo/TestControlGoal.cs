@@ -20,7 +20,9 @@ namespace OrderBot.Test.ToDo
         public void AddActions(StarSystem starSystem, double influence, string securityLevel,
             IEnumerable<InfluenceSuggestion> expectedPro,
             IEnumerable<InfluenceSuggestion> expectedAnti,
-            IEnumerable<SecuritySuggestion> expectedProSecurity)
+            IEnumerable<SecuritySuggestion> expectedProSecurity,
+            IEnumerable<ConflictSuggestion> expectedWars,
+            IEnumerable<ConflictSuggestion> expectedElections)
         {
             MinorFaction minorFaction = new() { Name = "Flying Fish" };
             StarSystemMinorFaction starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence, SecurityLevel = securityLevel };
@@ -30,7 +32,8 @@ namespace OrderBot.Test.ToDo
             Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
             Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
             Assert.That(toDo.ProSecurity, Is.EquivalentTo(expectedProSecurity).Using(DbSecurityInitiatedSuggestionEqualityComparer.Instance));
-            Assert.That(toDo.Wars, Is.EquivalentTo(expectedProSecurity).Using(DbSecurityInitiatedSuggestionEqualityComparer.Instance));
+            Assert.That(toDo.Wars, Is.EquivalentTo(expectedWars).Using(DbSecurityInitiatedSuggestionEqualityComparer.Instance));
+            Assert.That(toDo.Elections, Is.EquivalentTo(expectedElections).Using(DbSecurityInitiatedSuggestionEqualityComparer.Instance));
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()
@@ -45,7 +48,9 @@ namespace OrderBot.Test.ToDo
                     null,
                     new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 } },
                     Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>()
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Below Lower"),
                 new TestCaseData(
                     polaris,
@@ -53,7 +58,9 @@ namespace OrderBot.Test.ToDo
                     null,
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>()
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Lower"),
                 new TestCaseData(
                     polaris,
@@ -61,7 +68,9 @@ namespace OrderBot.Test.ToDo
                     null,
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>()
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Above lower"),
                 new TestCaseData(
                     polaris,
@@ -69,7 +78,9 @@ namespace OrderBot.Test.ToDo
                     SecurityLevel.High,
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>()
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Below Upper"),
                 new TestCaseData(
                     polaris,
@@ -77,7 +88,9 @@ namespace OrderBot.Test.ToDo
                     SecurityLevel.Medium,
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>()
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Upper"),
                 new TestCaseData(
                     polaris,
@@ -85,7 +98,9 @@ namespace OrderBot.Test.ToDo
                     SecurityLevel.Low,
                     Array.Empty<InfluenceSuggestion>(),
                     new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = ControlGoal.UpperInfluenceThreshold + 0.01} },
-                    new [] { new SecuritySuggestion() { StarSystem = polaris, SecurityLevel = SecurityLevel.Low} }
+                    new [] { new SecuritySuggestion() { StarSystem = polaris, SecurityLevel = SecurityLevel.Low} },
+                    Array.Empty<ConflictSuggestion>(),
+                    Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Above Upper"),
             };
         }
