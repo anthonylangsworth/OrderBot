@@ -51,7 +51,7 @@ namespace OrderBot.ToDo
             }
 
             foreach (Conflict conflict in conflicts.Where(c => c.MinorFaction1 == starSystemMinorFaction.MinorFaction
-                                                               && c.MinorFaction2 == starSystemMinorFaction.MinorFaction))
+                                                               || c.MinorFaction2 == starSystemMinorFaction.MinorFaction))
             {
                 toDoList.ProConflicts.Add(new ConflictSuggestion()
                 {
@@ -60,7 +60,8 @@ namespace OrderBot.ToDo
                     MinorFaction1WonDays = conflict.MinorFaction1WonDays,
                     MinorFaction2 = conflict.MinorFaction2,
                     MinorFaction2WonDays = conflict.MinorFaction2WonDays,
-                    FightFor = starSystemMinorFaction.MinorFaction
+                    FightFor = starSystemMinorFaction.MinorFaction,
+                    State = conflict.Status ?? ""
                 });
             }
         }
