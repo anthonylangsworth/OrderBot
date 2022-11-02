@@ -6,7 +6,7 @@
 ## Overview
 For any squadron in the game *Elite Dangerous* that supports a minor faction, keeping up to date with the background simulation (BGS) is an onerous task. For example, player activity and BGS randomness can reduce or increase influence, leading to conflicts, expansions or retreats. Trawling through each system on [Inara](https://inara.cz/) is time-consuming and error prone.
 
-This bot receives BGS data from the [Elite Dangerous Data Network](https://eddn.edcd.io/) and creates a list of suggestions based on an admin-specified minor faction to support. This allows the bot to produce specific suggestions, unlike Inara or [Elite BGS App](https://elitebgs.app/).
+This bot receives BGS data from the [Elite Dangerous Data Network (EDDN)](https://eddn.edcd.io/) and creates a list of suggestions based on an admin-specified minor faction to support. This allows the bot to produce specific suggestions, unlike Inara or [Elite BGS App](https://elitebgs.app/).
 
 This project is not intended to replace squadron officers, although it can be used that way, or existing tools like those mentioned above. For example, it will not give graphs of influence history.
 
