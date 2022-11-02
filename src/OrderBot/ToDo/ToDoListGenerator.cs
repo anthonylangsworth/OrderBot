@@ -41,8 +41,7 @@ namespace OrderBot.ToDo
             foreach (DiscordGuildStarSystemMinorFactionGoal dgssmfg in dgssmfgs)
             {
                 HashSet<StarSystemMinorFaction> starSystemBgsData =
-                    bgsData.Where(ssmf => ssmf.StarSystem == dgssmfg.StarSystemMinorFaction.StarSystem
-                                       && ssmf.MinorFaction == dgssmfg.StarSystemMinorFaction.MinorFaction)
+                    bgsData.Where(ssmf2 => ssmf2.StarSystem == dgssmfg.StarSystemMinorFaction.StarSystem)
                            .ToHashSet();
                 HashSet<Conflict> conflicts = dbContext.Conflicts.Include(c => c.MinorFaction1)
                                                                  .Include(c => c.MinorFaction2)

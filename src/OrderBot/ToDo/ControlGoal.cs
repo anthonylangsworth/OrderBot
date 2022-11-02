@@ -34,26 +34,11 @@ namespace OrderBot.ToDo
         {
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
-            if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
-            {
-                toDoList.Pro.Add(new InfluenceSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
-            }
-            else if (starSystemMinorFaction.Influence > UpperInfluenceThreshold)
-            {
-                toDoList.Anti.Add(new InfluenceSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
-            }
-
-            // Security only applies for the controlling minor faction
-            if (starSystemMinorFaction == GetControllingMinorFaction(systemBgsData)
-                && starSystemMinorFaction.SecurityLevel == SecurityLevel.Low)
-            {
-                toDoList.ProSecurity.Add(new SecuritySuggestion() { StarSystem = starSystemMinorFaction.StarSystem, SecurityLevel = starSystemMinorFaction.SecurityLevel });
-            }
-
+            bool conflictAdded = false;
             foreach (Conflict conflict in systemConflicts.Where(c => c.MinorFaction1 == starSystemMinorFaction.MinorFaction
                                                                || c.MinorFaction2 == starSystemMinorFaction.MinorFaction))
             {
-                toDoList.ProConflicts.Add(new ConflictSuggestion()
+                toDoList.Wars.Add(new ConflictSuggestion()
                 {
                     StarSystem = starSystemMinorFaction.StarSystem,
                     MinorFaction1 = conflict.MinorFaction1,
@@ -63,6 +48,26 @@ namespace OrderBot.ToDo
                     FightFor = starSystemMinorFaction.MinorFaction,
                     State = conflict.Status ?? ""
                 });
+                conflictAdded = true;
+            }
+
+            if (!conflictAdded)
+            {
+                if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
+                {
+                    toDoList.Pro.Add(new InfluenceSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                }
+                else if (starSystemMinorFaction.Influence > UpperInfluenceThreshold)
+                {
+                    toDoList.Anti.Add(new InfluenceSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                }
+            }
+
+            // Security only applies for the controlling minor faction
+            if (starSystemMinorFaction == GetControllingMinorFaction(systemBgsData)
+                && starSystemMinorFaction.SecurityLevel == SecurityLevel.Low)
+            {
+                toDoList.ProSecurity.Add(new SecuritySuggestion() { StarSystem = starSystemMinorFaction.StarSystem, SecurityLevel = starSystemMinorFaction.SecurityLevel });
             }
         }
     }

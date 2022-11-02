@@ -17,7 +17,8 @@
             Pro = new List<InfluenceSuggestion>();
             Anti = new List<InfluenceSuggestion>();
             ProSecurity = new List<SecuritySuggestion>();
-            ProConflicts = new List<ConflictSuggestion>();
+            Wars = new List<ConflictSuggestion>();
+            Elections = new List<ConflictSuggestion>();
         }
 
         /// <summary>
@@ -43,7 +44,11 @@
         /// <summary>
         /// Fight for the specified minor faction.
         /// </summary>
-        public IList<ConflictSuggestion> ProConflicts { get; }
+        public IList<ConflictSuggestion> Wars { get; }
 
+        /// <summary>
+        /// Fight for the specified minor faction.
+        /// </summary>
+        public IList<ConflictSuggestion> Elections { get; }
     }
 }

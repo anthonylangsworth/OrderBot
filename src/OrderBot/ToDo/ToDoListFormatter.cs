@@ -85,7 +85,7 @@ Redeem bounty vouchers to increase security in systems *{minorFactionName}* cont
 
         public string Format(ToDoList toDoList)
         {
-            return GetOutput(toDoList.MinorFaction, GetInfluenceList(toDoList.Pro, true), GetSecurityList(toDoList.ProSecurity), GetInfluenceList(toDoList.Anti, false), "(None)", GetWarList(toDoList.ProConflicts), "(None)");
+            return GetOutput(toDoList.MinorFaction, GetInfluenceList(toDoList.Pro, true), GetSecurityList(toDoList.ProSecurity), GetInfluenceList(toDoList.Anti, false), "(None)", GetWarList(toDoList.Wars), "(None)");
         }
     }
 }
