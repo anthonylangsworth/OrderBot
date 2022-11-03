@@ -13,7 +13,7 @@ namespace OrderBot.ToDo
         /// Prevent instantiation.
         /// </summary>
         private RetreatGoal()
-            : base("Retreat", $"Retreat from the system by reducing influence below {Math.Round(Threshold * 100, 0)}% and keeping it there.")
+            : base("Retreat", $"Retreat from the system by reducing influence below {Math.Round(InfluenceThreshold * 100, 0)}% and keeping it there.")
         {
             // Do nothing
         }
@@ -21,7 +21,7 @@ namespace OrderBot.ToDo
         /// <summary>
         /// The influence threshold to force a retreat.
         /// </summary>
-        public static double Threshold => 0.05;
+        public static double InfluenceThreshold => 0.05;
 
         /// <inheritdoc/>
         public override void AddSuggestions(StarSystemMinorFaction starSystemMinorFaction,
@@ -30,9 +30,13 @@ namespace OrderBot.ToDo
         {
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
-            toDoList.Anti.Add(new() { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
-
-            // TODO: Handle conflicts
+            //if (!AddConflicts(starSystemMinorFaction, systemConflicts, toDoList))
+            //{
+            if (starSystemMinorFaction.Influence >= InfluenceThreshold)
+            {
+                toDoList.Anti.Add(new() { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+            }
+            //}
         }
     }
 }
