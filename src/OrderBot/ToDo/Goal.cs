@@ -109,7 +109,7 @@ namespace OrderBot.ToDo
             }
         }
 
-        protected internal static bool AddConflicts(StarSystemMinorFaction starSystemMinorFaction, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList)
+        protected internal static bool AddConflicts(StarSystemMinorFaction starSystemMinorFaction, bool fightFor, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList)
         {
             bool conflictAdded = false;
 
@@ -117,24 +117,24 @@ namespace OrderBot.ToDo
             foreach (Conflict conflict in systemConflicts.Where(c => c.MinorFaction1 == starSystemMinorFaction.MinorFaction
                                                                   || c.MinorFaction2 == starSystemMinorFaction.MinorFaction))
             {
-                MinorFaction fightFor = null!;
+                MinorFaction fightForMinorFaction = null!;
                 int fightForWonDays;
-                MinorFaction fightAgainst = null!;
+                MinorFaction fightAgainstMinorFaction = null!;
                 int fightAgainstWonDays;
 
                 if (conflict.MinorFaction1 == starSystemMinorFaction.MinorFaction)
                 {
-                    fightFor = conflict.MinorFaction1;
-                    fightForWonDays = conflict.MinorFaction1WonDays;
-                    fightAgainst = conflict.MinorFaction2;
-                    fightAgainstWonDays = conflict.MinorFaction2WonDays;
+                    fightForMinorFaction = fightFor ? conflict.MinorFaction1 : conflict.MinorFaction2;
+                    fightForWonDays = fightFor ? conflict.MinorFaction1WonDays : conflict.MinorFaction2WonDays;
+                    fightAgainstMinorFaction = fightFor ? conflict.MinorFaction2 : conflict.MinorFaction1;
+                    fightAgainstWonDays = fightFor ? conflict.MinorFaction2WonDays : conflict.MinorFaction1WonDays;
                 }
                 else if (conflict.MinorFaction2 == starSystemMinorFaction.MinorFaction)
                 {
-                    fightFor = conflict.MinorFaction2;
-                    fightForWonDays = conflict.MinorFaction2WonDays;
-                    fightAgainst = conflict.MinorFaction1;
-                    fightAgainstWonDays = conflict.MinorFaction1WonDays;
+                    fightForMinorFaction = fightFor ? conflict.MinorFaction2 : conflict.MinorFaction1;
+                    fightForWonDays = fightFor ? conflict.MinorFaction2WonDays : conflict.MinorFaction1WonDays;
+                    fightAgainstMinorFaction = fightFor ? conflict.MinorFaction1 : conflict.MinorFaction2;
+                    fightAgainstWonDays = fightFor ? conflict.MinorFaction1WonDays : conflict.MinorFaction2WonDays;
                 }
                 else
                 {
@@ -145,9 +145,9 @@ namespace OrderBot.ToDo
                 ConflictSuggestion conflictSuggestion = new()
                 {
                     StarSystem = starSystemMinorFaction.StarSystem,
-                    FightFor = fightFor,
+                    FightFor = fightForMinorFaction,
                     FightForWonDays = fightForWonDays,
-                    FightAgainst = fightAgainst,
+                    FightAgainst = fightAgainstMinorFaction,
                     FightAgainstWonDays = fightAgainstWonDays,
                     State = Conflict.GetState(conflict.Status, fightForWonDays, fightAgainstWonDays)
                 };

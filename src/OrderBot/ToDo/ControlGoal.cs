@@ -34,7 +34,7 @@ namespace OrderBot.ToDo
         {
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
-            if (!AddConflicts(starSystemMinorFaction, systemConflicts, toDoList))
+            if (!AddConflicts(starSystemMinorFaction, true, systemConflicts, toDoList))
             {
                 if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
                 {
