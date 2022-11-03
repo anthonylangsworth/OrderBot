@@ -103,7 +103,7 @@ namespace OrderBot.ToDo
             }
             if (!systemBgsData.Select(ssmf => ssmf.MinorFaction)
                              .ToHashSet()
-                             .IsProperSupersetOf(systemConflicts.SelectMany(c => new MinorFaction[] { c.MinorFaction1, c.MinorFaction2 })))
+                             .IsSupersetOf(systemConflicts.SelectMany(c => new MinorFaction[] { c.MinorFaction1, c.MinorFaction2 })))
             {
                 throw new ArgumentException($"All minor factions in {nameof(systemConflicts)} must be in {nameof(systemBgsData)}");
             }

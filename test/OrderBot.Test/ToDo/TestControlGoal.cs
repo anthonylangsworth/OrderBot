@@ -162,27 +162,27 @@ namespace OrderBot.Test.ToDo
                     Array.Empty<ConflictSuggestion>(),
                     Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions Above Upper"),
-                //new TestCaseData(
-                //    belowLower,
-                //    new HashSet<StarSystemMinorFaction>() { belowLower, bloatedJellyFishInPolaris },
-                //    new HashSet<Conflict>() { war },
-                //    Array.Empty<InfluenceSuggestion>(),
-                //    Array.Empty<InfluenceSuggestion>(),
-                //    Array.Empty<SecuritySuggestion>(),
-                //    new List<ConflictSuggestion>() {
-                //        new ConflictSuggestion()
-                //        {
-                //            StarSystem = polaris,
-                //            MinorFaction1 = flyingFish,
-                //            MinorFaction1WonDays = 2,
-                //            MinorFaction2 = bloatedJellyFish,
-                //            MinorFaction2WonDays = 1,
-                //            FightFor = flyingFish,
-                //            State = "active"
-                //        }
-                //    },
-                //    Array.Empty<ConflictSuggestion>()
-                //).SetName("AddActions War"),
+                new TestCaseData(
+                    belowLower,
+                    new HashSet<StarSystemMinorFaction>() { belowLower, bloatedJellyFishInPolaris },
+                    new HashSet<Conflict>() { war },
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>(),
+                    new List<ConflictSuggestion>() {
+                        new ConflictSuggestion()
+                        {
+                            StarSystem = polaris,
+                            MinorFaction1 = flyingFish,
+                            MinorFaction1WonDays = 2,
+                            MinorFaction2 = bloatedJellyFish,
+                            MinorFaction2WonDays = 1,
+                            FightFor = flyingFish,
+                            State = "active"
+                        }
+                    },
+                    Array.Empty<ConflictSuggestion>()
+                ).SetName("AddActions War"),
             };
         }
     }
