@@ -27,6 +27,8 @@ namespace OrderBot.Test.ToDo
             Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
             Assert.That(toDo.Anti, Is.Empty);
             Assert.That(toDo.ProSecurity, Is.Empty);
+            Assert.That(toDo.Wars, Is.Empty);
+            Assert.That(toDo.Elections, Is.Empty);
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()
