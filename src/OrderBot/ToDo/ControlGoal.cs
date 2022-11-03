@@ -38,7 +38,7 @@ namespace OrderBot.ToDo
 
             // Technically, a minor faction can only be in one conflict at a time.
             foreach (Conflict conflict in systemConflicts.Where(c => c.MinorFaction1 == starSystemMinorFaction.MinorFaction
-                                                               || c.MinorFaction2 == starSystemMinorFaction.MinorFaction))
+                                                                  || c.MinorFaction2 == starSystemMinorFaction.MinorFaction))
             {
                 MinorFaction fightFor = null!;
                 int fightForWonDays;
@@ -62,18 +62,32 @@ namespace OrderBot.ToDo
                 else
                 {
                     // Defensive
-                    throw new InvalidOperationException("Conflict with unknown minor faction");
+                    throw new InvalidOperationException($"Conflict with unknown minor faction");
                 }
 
-                toDoList.Wars.Add(new ConflictSuggestion()
+                ConflictSuggestion conflictSuggestion = new()
                 {
                     StarSystem = starSystemMinorFaction.StarSystem,
                     FightFor = fightFor,
                     FightForWonDays = fightForWonDays,
                     FightAgainst = fightAgainst,
                     FightAgainstWonDays = fightAgainstWonDays,
-                    State = "TODO"
-                });
+                    State = Conflict.GetState(conflict.Status, fightForWonDays, fightAgainstWonDays)
+                };
+                if (Conflict.IsWar(conflict.WarType))
+                {
+                    toDoList.Wars.Add(conflictSuggestion);
+                }
+                else if (Conflict.IsElection(conflict.WarType))
+                {
+                    toDoList.Elections.Add(conflictSuggestion);
+                }
+                else
+                {
+                    // Defensive
+                    throw new InvalidOperationException($"Unknown war type {conflict.WarType}");
+                }
+
                 conflictAdded = true;
             }
 
@@ -81,7 +95,11 @@ namespace OrderBot.ToDo
             {
                 if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
                 {
-                    toDoList.Pro.Add(new InfluenceSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                    toDoList.Pro.Add(new InfluenceSuggestion
+                    {
+                        StarSystem = starSystemMinorFaction.StarSystem,
+                        Influence = starSystemMinorFaction.Influence
+                    });
                 }
                 else if (starSystemMinorFaction.Influence > UpperInfluenceThreshold)
                 {
@@ -93,7 +111,7 @@ namespace OrderBot.ToDo
             if (starSystemMinorFaction == GetControllingMinorFaction(systemBgsData)
                 && starSystemMinorFaction.SecurityLevel == SecurityLevel.Low)
             {
-                toDoList.ProSecurity.Add(new SecuritySuggestion() { StarSystem = starSystemMinorFaction.StarSystem, SecurityLevel = starSystemMinorFaction.SecurityLevel });
+                toDoList.ProSecurity.Add(new SecuritySuggestion { StarSystem = starSystemMinorFaction.StarSystem, SecurityLevel = starSystemMinorFaction.SecurityLevel });
             }
         }
     }

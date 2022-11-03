@@ -96,8 +96,28 @@ namespace OrderBot.Test.ToDo
                 MinorFaction1WonDays = 2,
                 MinorFaction2 = bloatedJellyFish,
                 MinorFaction2WonDays = 1,
-                WarType = "war",
-                Status = "active"
+                WarType = WarType.War,
+                Status = ConflictStatus.Active
+            };
+            Conflict civilWar = new()
+            {
+                StarSystem = polaris,
+                MinorFaction1 = bloatedJellyFish,
+                MinorFaction1WonDays = 0,
+                MinorFaction2 = flyingFish,
+                MinorFaction2WonDays = 3,
+                WarType = WarType.CivilWar,
+                Status = ConflictStatus.Active
+            };
+            Conflict election = new()
+            {
+                StarSystem = polaris,
+                MinorFaction1 = bloatedJellyFish,
+                MinorFaction1WonDays = 2,
+                MinorFaction2 = flyingFish,
+                MinorFaction2WonDays = 1,
+                WarType = WarType.Election,
+                Status = ConflictStatus.Active
             };
 
             return new[]
@@ -174,14 +194,54 @@ namespace OrderBot.Test.ToDo
                         {
                             StarSystem = polaris,
                             FightFor = flyingFish,
-                            FightForWonDays = 2,
+                            FightForWonDays = war.MinorFaction1WonDays,
                             FightAgainst = bloatedJellyFish,
-                            FightAgainstWonDays = 1,
-                            State = "TODO"
+                            FightAgainstWonDays = war.MinorFaction2WonDays,
+                            State = ConflictState.CloseVictory
                         }
                     },
                     Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions War"),
+                new TestCaseData(
+                    belowLower,
+                    new HashSet<StarSystemMinorFaction>() { belowLower, bloatedJellyFishInPolaris },
+                    new HashSet<Conflict>() { civilWar },
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>(),
+                    new List<ConflictSuggestion>() {
+                        new ConflictSuggestion()
+                        {
+                            StarSystem = polaris,
+                            FightFor = flyingFish,
+                            FightForWonDays = civilWar.MinorFaction2WonDays,
+                            FightAgainst = bloatedJellyFish,
+                            FightAgainstWonDays = civilWar.MinorFaction1WonDays,
+                            State = ConflictState.TotalVictory
+                        }
+                    },
+                    Array.Empty<ConflictSuggestion>()
+                ).SetName("AddActions CivilWar"),
+                new TestCaseData(
+                    belowLower,
+                    new HashSet<StarSystemMinorFaction>() { belowLower, bloatedJellyFishInPolaris },
+                    new HashSet<Conflict>() { election },
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    new List<ConflictSuggestion>() {
+                        new ConflictSuggestion()
+                        {
+                            StarSystem = polaris,
+                            FightFor = flyingFish,
+                            FightForWonDays = election.MinorFaction2WonDays,
+                            FightAgainst = bloatedJellyFish,
+                            FightAgainstWonDays = election.MinorFaction1WonDays,
+                            State = ConflictState.CloseDefeat
+                        }
+                    }
+                ).SetName("AddActions Election"),
             };
         }
     }

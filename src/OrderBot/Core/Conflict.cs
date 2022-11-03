@@ -11,7 +11,7 @@
         public string? Status { get; set; } = null;
         public string WarType { get; init; } = null!;
 
-        public static string GetState(string status, int fightForWonDays, int fightAgainstWonDays)
+        public static string GetState(string? status, int fightForWonDays, int fightAgainstWonDays)
         {
             string result;
             if (string.IsNullOrWhiteSpace(status) || status == ConflictStatus.Active)
