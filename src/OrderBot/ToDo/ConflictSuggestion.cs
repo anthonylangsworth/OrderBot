@@ -4,11 +4,11 @@ namespace OrderBot.ToDo
 {
     public record ConflictSuggestion : Suggestion, IEquatable<ConflictSuggestion?>
     {
-        public MinorFaction MinorFaction1 { get; init; } = null!;
-        public int MinorFaction1WonDays { get; init; }
-        public MinorFaction MinorFaction2 { get; init; } = null!;
-        public int MinorFaction2WonDays { get; init; }
-        public string State { get; init; } = null!;
         public MinorFaction FightFor { get; init; } = null!;
+        public int FightForWonDays { get; init; }
+        public MinorFaction FightAgainst { get; init; } = null!;
+        public int FightAgainstWonDays { get; init; }
+        public string State { get; init; } = null!;
+        public string WarType { get; init; } = null!;
     }
 }

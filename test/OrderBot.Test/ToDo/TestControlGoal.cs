@@ -173,12 +173,11 @@ namespace OrderBot.Test.ToDo
                         new ConflictSuggestion()
                         {
                             StarSystem = polaris,
-                            MinorFaction1 = flyingFish,
-                            MinorFaction1WonDays = 2,
-                            MinorFaction2 = bloatedJellyFish,
-                            MinorFaction2WonDays = 1,
                             FightFor = flyingFish,
-                            State = "active"
+                            FightForWonDays = 2,
+                            FightAgainst = bloatedJellyFish,
+                            FightAgainstWonDays = 1,
+                            State = "TODO"
                         }
                     },
                     Array.Empty<ConflictSuggestion>()

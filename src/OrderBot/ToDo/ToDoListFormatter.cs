@@ -2,7 +2,7 @@
 {
     public class ToDoListFormatter
     {
-        internal string GetOutput(string minorFactionName, string proList, string proSecurityList, string antiList, string otherList, string warList, string electionList) =>
+        internal static string GetOutput(string minorFactionName, string proList, string proSecurityList, string antiList, string otherList, string warList, string electionList) =>
 $@"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-{minorFactionName}** support required* - Work for EDA in these systems.
 E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *{minorFactionName}* controlled stations.
@@ -72,9 +72,9 @@ Redeem bounty vouchers to increase security in systems *{minorFactionName}* cont
             if (suggestions.Any())
             {
                 result = string.Join(Environment.NewLine,
-                    suggestions.OrderBy(cs => cs.MinorFaction1.Name)
+                    suggestions.OrderBy(cs => cs.FightFor.Name)
                                .OrderBy(cs => cs.StarSystem.Name)
-                               .Select(cs => $"- {FormatSystemName(cs.StarSystem.Name)} - {cs.MinorFaction1WonDays} vs {cs.MinorFaction2WonDays} - (*{cs.State}*) - Fight for *{cs.FightFor.Name}*"));
+                               .Select(cs => $"- {FormatSystemName(cs.StarSystem.Name)} - Fight for *{cs.FightFor.Name}* against *{cs.FightAgainst.Name}* - {cs.FightForWonDays} vs {cs.FightAgainstWonDays} (*{cs.State}*)"));
             }
             else
             {

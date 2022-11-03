@@ -35,18 +35,44 @@ namespace OrderBot.ToDo
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
             bool conflictAdded = false;
+
+            // Technically, a minor faction can only be in one conflict at a time.
             foreach (Conflict conflict in systemConflicts.Where(c => c.MinorFaction1 == starSystemMinorFaction.MinorFaction
                                                                || c.MinorFaction2 == starSystemMinorFaction.MinorFaction))
             {
+                MinorFaction fightFor = null!;
+                int fightForWonDays;
+                MinorFaction fightAgainst = null!;
+                int fightAgainstWonDays;
+
+                if (conflict.MinorFaction1 == starSystemMinorFaction.MinorFaction)
+                {
+                    fightFor = conflict.MinorFaction1;
+                    fightForWonDays = conflict.MinorFaction1WonDays;
+                    fightAgainst = conflict.MinorFaction2;
+                    fightAgainstWonDays = conflict.MinorFaction2WonDays;
+                }
+                else if (conflict.MinorFaction2 == starSystemMinorFaction.MinorFaction)
+                {
+                    fightFor = conflict.MinorFaction2;
+                    fightForWonDays = conflict.MinorFaction2WonDays;
+                    fightAgainst = conflict.MinorFaction1;
+                    fightAgainstWonDays = conflict.MinorFaction1WonDays;
+                }
+                else
+                {
+                    // Defensive
+                    throw new InvalidOperationException("Conflict with unknown minor faction");
+                }
+
                 toDoList.Wars.Add(new ConflictSuggestion()
                 {
                     StarSystem = starSystemMinorFaction.StarSystem,
-                    MinorFaction1 = conflict.MinorFaction1,
-                    MinorFaction1WonDays = conflict.MinorFaction1WonDays,
-                    MinorFaction2 = conflict.MinorFaction2,
-                    MinorFaction2WonDays = conflict.MinorFaction2WonDays,
-                    FightFor = starSystemMinorFaction.MinorFaction,
-                    State = conflict.Status ?? ""
+                    FightFor = fightFor,
+                    FightForWonDays = fightForWonDays,
+                    FightAgainst = fightAgainst,
+                    FightAgainstWonDays = fightAgainstWonDays,
+                    State = "TODO"
                 });
                 conflictAdded = true;
             }
