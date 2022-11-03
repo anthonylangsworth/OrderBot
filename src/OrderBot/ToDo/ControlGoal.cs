@@ -34,64 +34,7 @@ namespace OrderBot.ToDo
         {
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
-            bool conflictAdded = false;
-
-            // Technically, a minor faction can only be in one conflict at a time.
-            foreach (Conflict conflict in systemConflicts.Where(c => c.MinorFaction1 == starSystemMinorFaction.MinorFaction
-                                                                  || c.MinorFaction2 == starSystemMinorFaction.MinorFaction))
-            {
-                MinorFaction fightFor = null!;
-                int fightForWonDays;
-                MinorFaction fightAgainst = null!;
-                int fightAgainstWonDays;
-
-                if (conflict.MinorFaction1 == starSystemMinorFaction.MinorFaction)
-                {
-                    fightFor = conflict.MinorFaction1;
-                    fightForWonDays = conflict.MinorFaction1WonDays;
-                    fightAgainst = conflict.MinorFaction2;
-                    fightAgainstWonDays = conflict.MinorFaction2WonDays;
-                }
-                else if (conflict.MinorFaction2 == starSystemMinorFaction.MinorFaction)
-                {
-                    fightFor = conflict.MinorFaction2;
-                    fightForWonDays = conflict.MinorFaction2WonDays;
-                    fightAgainst = conflict.MinorFaction1;
-                    fightAgainstWonDays = conflict.MinorFaction1WonDays;
-                }
-                else
-                {
-                    // Defensive
-                    throw new InvalidOperationException($"Conflict with unknown minor faction");
-                }
-
-                ConflictSuggestion conflictSuggestion = new()
-                {
-                    StarSystem = starSystemMinorFaction.StarSystem,
-                    FightFor = fightFor,
-                    FightForWonDays = fightForWonDays,
-                    FightAgainst = fightAgainst,
-                    FightAgainstWonDays = fightAgainstWonDays,
-                    State = Conflict.GetState(conflict.Status, fightForWonDays, fightAgainstWonDays)
-                };
-                if (Conflict.IsWar(conflict.WarType))
-                {
-                    toDoList.Wars.Add(conflictSuggestion);
-                }
-                else if (Conflict.IsElection(conflict.WarType))
-                {
-                    toDoList.Elections.Add(conflictSuggestion);
-                }
-                else
-                {
-                    // Defensive
-                    throw new InvalidOperationException($"Unknown war type {conflict.WarType}");
-                }
-
-                conflictAdded = true;
-            }
-
-            if (!conflictAdded)
+            if (!AddConflicts(starSystemMinorFaction, systemConflicts, toDoList))
             {
                 if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
                 {

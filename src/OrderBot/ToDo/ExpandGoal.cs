@@ -30,12 +30,13 @@ namespace OrderBot.ToDo
         {
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
-            if (starSystemMinorFaction.Influence < InfluenceThreshold)
+            if (!AddConflicts(starSystemMinorFaction, systemConflicts, toDoList))
             {
-                toDoList.Pro.Add(new InfluenceSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                if (starSystemMinorFaction.Influence < InfluenceThreshold)
+                {
+                    toDoList.Pro.Add(new InfluenceSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                }
             }
-
-            // TODO: Handle conflicts
         }
     }
 }
