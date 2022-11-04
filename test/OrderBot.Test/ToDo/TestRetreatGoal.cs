@@ -145,7 +145,8 @@ namespace OrderBot.Test.ToDo
                             FightForWonDays = war.MinorFaction2WonDays,
                             FightAgainst = flyingFish,
                             FightAgainstWonDays = war.MinorFaction1WonDays,
-                            State = ConflictState.CloseDefeat
+                            State = ConflictState.CloseDefeat,
+                            WarType = war.WarType
                         }
                     },
                     Array.Empty<ConflictSuggestion>()
@@ -165,7 +166,8 @@ namespace OrderBot.Test.ToDo
                             FightForWonDays = civilWar.MinorFaction1WonDays,
                             FightAgainst = flyingFish,
                             FightAgainstWonDays = civilWar.MinorFaction2WonDays,
-                            State = ConflictState.TotalDefeat
+                            State = ConflictState.TotalDefeat,
+                            WarType = civilWar.WarType
                         }
                     },
                     Array.Empty<ConflictSuggestion>()
@@ -186,7 +188,8 @@ namespace OrderBot.Test.ToDo
                             FightForWonDays = election.MinorFaction1WonDays,
                             FightAgainst = flyingFish,
                             FightAgainstWonDays = election.MinorFaction2WonDays,
-                            State = ConflictState.Victory
+                            State = ConflictState.Victory,
+                            WarType = election.WarType
                         }
                     }
                 ).SetName("AddActions Election"),

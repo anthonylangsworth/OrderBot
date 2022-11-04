@@ -38,22 +38,29 @@ namespace OrderBot.ToDo
 
             if (systemBgsData.Count > 1)
             {
-                double maxInfluence = GetControllingMinorFaction(systemBgsData).Influence - MaxInfuenceGap;
-                if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
+                StarSystemMinorFaction controllingMinorFaction = GetControllingMinorFaction(systemBgsData);
+
+                if (!AddConflicts(systemConflicts, toDoList,
+                    c => Fight(controllingMinorFaction.MinorFaction, starSystemMinorFaction.MinorFaction, c),
+                    c => FightForOrAgainst(starSystemMinorFaction.MinorFaction, true, c)))
                 {
-                    toDoList.Pro.Add(new InfluenceSuggestion
+                    double maxInfluence = controllingMinorFaction.Influence - MaxInfuenceGap;
+                    if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
                     {
-                        StarSystem = starSystemMinorFaction.StarSystem,
-                        Influence = starSystemMinorFaction.Influence
-                    });
-                }
-                else if (starSystemMinorFaction.Influence > maxInfluence)
-                {
-                    toDoList.Anti.Add(new InfluenceSuggestion
+                        toDoList.Pro.Add(new InfluenceSuggestion
+                        {
+                            StarSystem = starSystemMinorFaction.StarSystem,
+                            Influence = starSystemMinorFaction.Influence
+                        });
+                    }
+                    else if (starSystemMinorFaction.Influence > maxInfluence)
                     {
-                        StarSystem = starSystemMinorFaction.StarSystem,
-                        Influence = starSystemMinorFaction.Influence
-                    });
+                        toDoList.Anti.Add(new InfluenceSuggestion
+                        {
+                            StarSystem = starSystemMinorFaction.StarSystem,
+                            Influence = starSystemMinorFaction.Influence
+                        });
+                    }
                 }
             }
         }
