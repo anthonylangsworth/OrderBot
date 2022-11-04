@@ -2,6 +2,9 @@
 
 namespace OrderBot.ToDo
 {
+    /// <summary>
+    /// Retreat the minor faction by lowering its influence.
+    /// </summary>
     internal class RetreatGoal : Goal
     {
         /// <summary>
@@ -31,7 +34,7 @@ namespace OrderBot.ToDo
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
             if (!AddConflicts(systemConflicts, toDoList,
-                c => FightForOrAgainst(starSystemMinorFaction.MinorFaction, false, c)))
+                c => Fight.Against(starSystemMinorFaction.MinorFaction, c)))
             {
                 if (starSystemMinorFaction.Influence >= InfluenceThreshold)
                 {

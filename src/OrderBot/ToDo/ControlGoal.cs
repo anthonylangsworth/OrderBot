@@ -2,6 +2,9 @@
 
 namespace OrderBot.ToDo
 {
+    /// <summary>
+    /// Ensure the minor faction controls (has the highest influence) the system.
+    /// </summary>
     internal class ControlGoal : Goal
     {
         /// <summary>
@@ -35,7 +38,7 @@ namespace OrderBot.ToDo
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
             if (!AddConflicts(systemConflicts, toDoList,
-                c => FightForOrAgainst(starSystemMinorFaction.MinorFaction, true, c)))
+                c => Fight.For(starSystemMinorFaction.MinorFaction, c)))
             {
                 if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
                 {

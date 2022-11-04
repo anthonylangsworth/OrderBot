@@ -2,6 +2,9 @@
 
 namespace OrderBot.ToDo
 {
+    /// <summary>
+    /// Keep the minor faction in the system by do not control it.
+    /// </summary>
     internal class MaintainGoal : Goal
     {
         /// <summary>
@@ -13,7 +16,7 @@ namespace OrderBot.ToDo
         /// Prevent instantiation.
         /// </summary>
         private MaintainGoal()
-            : base("Maintain", "Maintain presence in the system but do not control it.")
+            : base("Maintain", "Maintain a presence in the system but do not control it.")
         {
             // Do nothing
         }
@@ -36,13 +39,27 @@ namespace OrderBot.ToDo
         {
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
-            if (systemBgsData.Count > 1)
+            StarSystemMinorFaction controllingMinorFaction = GetControllingMinorFaction(systemBgsData);
+            if (controllingMinorFaction.MinorFaction == starSystemMinorFaction.MinorFaction)
             {
-                StarSystemMinorFaction controllingMinorFaction = GetControllingMinorFaction(systemBgsData);
-
+                if (systemBgsData.Count > 1)
+                {
+                    if (!AddConflicts(systemConflicts, toDoList,
+                        c => Fight.Against(starSystemMinorFaction.MinorFaction, c)))
+                    {
+                        toDoList.Anti.Add(new InfluenceSuggestion
+                        {
+                            StarSystem = starSystemMinorFaction.StarSystem,
+                            Influence = starSystemMinorFaction.Influence
+                        });
+                    }
+                }
+            }
+            else
+            {
                 if (!AddConflicts(systemConflicts, toDoList,
-                    c => Fight(controllingMinorFaction.MinorFaction, starSystemMinorFaction.MinorFaction, c),
-                    c => FightForOrAgainst(starSystemMinorFaction.MinorFaction, true, c)))
+                    c => Fight.Between(controllingMinorFaction.MinorFaction, starSystemMinorFaction.MinorFaction, c),
+                    c => Fight.For(starSystemMinorFaction.MinorFaction, c)))
                 {
                     double maxInfluence = controllingMinorFaction.Influence - MaxInfuenceGap;
                     if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)

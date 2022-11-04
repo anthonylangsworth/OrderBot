@@ -2,6 +2,9 @@
 
 namespace OrderBot.ToDo
 {
+    /// <summary>
+    /// Expand the minor faction by raising its influence.
+    /// </summary>
     internal class ExpandGoal : Goal
     {
         /// <summary>
@@ -31,7 +34,7 @@ namespace OrderBot.ToDo
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
             if (!AddConflicts(systemConflicts, toDoList,
-                c => FightForOrAgainst(starSystemMinorFaction.MinorFaction, true, c)))
+                c => Fight.For(starSystemMinorFaction.MinorFaction, c)))
             {
                 if (starSystemMinorFaction.Influence < InfluenceThreshold)
                 {

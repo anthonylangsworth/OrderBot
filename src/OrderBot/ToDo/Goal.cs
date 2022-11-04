@@ -70,7 +70,7 @@ namespace OrderBot.ToDo
         /// Return the controlling minor faction, i.e. the one with the highest influence.
         /// </summary>
         /// <param name="systemBgsData">
-        /// The minor factions in a system.
+        /// The minor factions in a system. This cannot be empty.
         /// </param>
         /// <returns>
         /// The minor faction with the highest influence.
@@ -131,122 +131,6 @@ namespace OrderBot.ToDo
         }
 
         /// <summary>
-        /// Participate in a conflict if it is fighting for or against <paramref name="minorFaction"/>, 
-        /// as determined by <paramref name="fightFor"/>, or null, otherwise. Usually passed to 
-        /// <see cref="AddConflicts(IReadOnlySet{Conflict}, ToDoList, Func{Conflict, ConflictSuggestion?}[])"/>.
-        /// </summary>
-        /// <param name="minorFaction">
-        /// The <see cref="MinorFaction"/> to fight for or against.
-        /// </param>
-        /// <param name="fightFor">
-        /// <c>true</c> if we want to fight for the <paramref name="minorFaction"/>>,
-        /// <c>false</c> if we want to fight against it.
-        /// </param>
-        /// <param name="conflict">
-        /// The <see cref="Conflict"/> to check.
-        /// </param>
-        /// <returns>
-        /// A <see cref="ConflictSuggestion"/> if we should participate, <c>null</c> otherwise.
-        /// </returns>
-        protected internal static ConflictSuggestion? FightForOrAgainst(
-            MinorFaction minorFaction, bool fightFor, Conflict conflict)
-        {
-            MinorFaction fightForMinorFaction = null!;
-            int fightForWonDays = 0;
-            MinorFaction fightAgainstMinorFaction = null!;
-            int fightAgainstWonDays = 0;
-            bool noConflict = false;
-
-            if (conflict.MinorFaction1 == minorFaction)
-            {
-                fightForMinorFaction = fightFor ? conflict.MinorFaction1 : conflict.MinorFaction2;
-                fightForWonDays = fightFor ? conflict.MinorFaction1WonDays : conflict.MinorFaction2WonDays;
-                fightAgainstMinorFaction = fightFor ? conflict.MinorFaction2 : conflict.MinorFaction1;
-                fightAgainstWonDays = fightFor ? conflict.MinorFaction2WonDays : conflict.MinorFaction1WonDays;
-            }
-            else if (conflict.MinorFaction2 == minorFaction)
-            {
-                fightForMinorFaction = fightFor ? conflict.MinorFaction2 : conflict.MinorFaction1;
-                fightForWonDays = fightFor ? conflict.MinorFaction2WonDays : conflict.MinorFaction1WonDays;
-                fightAgainstMinorFaction = fightFor ? conflict.MinorFaction1 : conflict.MinorFaction2;
-                fightAgainstWonDays = fightFor ? conflict.MinorFaction1WonDays : conflict.MinorFaction2WonDays;
-            }
-            else
-            {
-                noConflict = true;
-            }
-
-            return noConflict ? null : new()
-            {
-                StarSystem = conflict.StarSystem,
-                FightFor = fightForMinorFaction,
-                FightForWonDays = fightForWonDays,
-                FightAgainst = fightAgainstMinorFaction,
-                FightAgainstWonDays = fightAgainstWonDays,
-                State = Conflict.GetState(conflict.Status, fightForWonDays, fightAgainstWonDays),
-                WarType = conflict.WarType
-            };
-        }
-
-        /// <summary>
-        /// Participate in a conflict if it is fighting for <paramref name="fightFor"/>
-        /// and aginst <paramref name="fightAgainst"/>/, or null, otherwise. Usually passed to 
-        /// <see cref="AddConflicts(IReadOnlySet{Conflict}, ToDoList, Func{Conflict, ConflictSuggestion?}[])"/>.
-        /// </summary>
-        /// <param name="fightFor">
-        /// The <see cref="MinorFaction"/> to fight for.
-        /// </param>
-        /// <param name="fightAgainst">
-        /// The <see cref="MinorFaction"/> to fight against.
-        /// </param>
-        /// <param name="conflict">
-        /// THe <see cref="Conflict"/> to check.
-        /// </param>
-        /// <returns>
-        /// A <see cref="ConflictSuggestion"/> if we should participate, <c>null</c> otherwise.
-        /// </returns>
-        protected internal static ConflictSuggestion? Fight(
-            MinorFaction fightFor, MinorFaction fightAgainst, Conflict conflict
-        )
-        {
-            MinorFaction fightForMinorFaction = null!;
-            int fightForWonDays = 0;
-            MinorFaction fightAgainstMinorFaction = null!;
-            int fightAgainstWonDays = 0;
-            bool noConflict = false;
-
-            if (conflict.MinorFaction1 == fightAgainst && conflict.MinorFaction2 == fightFor)
-            {
-                fightForMinorFaction = conflict.MinorFaction2;
-                fightForWonDays = conflict.MinorFaction2WonDays;
-                fightAgainstMinorFaction = conflict.MinorFaction1;
-                fightAgainstWonDays = conflict.MinorFaction1WonDays;
-            }
-            else if (conflict.MinorFaction1 == fightFor && conflict.MinorFaction2 == fightAgainst)
-            {
-                fightForMinorFaction = conflict.MinorFaction1;
-                fightForWonDays = conflict.MinorFaction1WonDays;
-                fightAgainstMinorFaction = conflict.MinorFaction2;
-                fightAgainstWonDays = conflict.MinorFaction2WonDays;
-            }
-            else
-            {
-                noConflict = true;
-            }
-
-            return noConflict ? null : new()
-            {
-                StarSystem = conflict.StarSystem,
-                FightFor = fightForMinorFaction,
-                FightForWonDays = fightForWonDays,
-                FightAgainst = fightAgainstMinorFaction,
-                FightAgainstWonDays = fightAgainstWonDays,
-                State = Conflict.GetState(conflict.Status, fightForWonDays, fightAgainstWonDays),
-                WarType = conflict.WarType
-            };
-        }
-
-        /// <summary>
         /// Add the first <see cref="ConflictSuggestion"/>s to <see cref="ToDoList"/>. A minor faction
         /// can only participate in one conflict at a time.
         /// </summary>
@@ -259,6 +143,7 @@ namespace OrderBot.ToDo
         /// <param name="getConflicts">
         /// Call each of these, in order, on the <paramref name="systemConflicts"/> to determine
         /// if we should fight in this war. Return the first non-null <see cref="ConflictSuggestion"/>.
+        /// See <see cref="Fight"/> for options.
         /// </param>
         /// <returns></returns>
         /// <exception cref="InvalidOperationException"></exception>
