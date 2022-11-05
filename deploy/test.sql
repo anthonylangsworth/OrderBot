@@ -50,3 +50,42 @@ select ss.Name as [Star System], mf1.Name as [Minor Faction 1], c.MinorFaction1W
 from Conflict c left join StarSystem ss on c.StarSystemId = ss.Id
 left join MinorFaction mf1 on c.MinorFaction1Id = mf1.Id
 left join MinorFaction mf2 on c.MinorFaction2Id = mf2.Id
+
+/*
+-- To convert on 5 Nov 2022
+exec sp_rename 'dnbpStarSystemMinorFaction', 'Presence'
+go
+exec sp_rename 'StarSystemMinorFaction', 'Presence'
+go
+drop index [IX_StarSystemMinorFaction_SystemMinorFaction] 
+on [dbo].[Presence]
+go
+CREATE UNIQUE INDEX [IX_Presence_SystemMinorFaction] 
+ON [dbo].[Presence]([StarSystemId], [MinorFactionId])
+go
+exec sp_rename 'StarSystemMinorFactionState', 'PresenceState'
+go
+EXEC sp_rename 'dbo.PresenceState.StarSystemMinorFactionsId', 'PresenceId', 'COLUMN';
+go
+drop index CREATE INDEX [IX_StarSystemMinorFactionState_SystemMinorFaction] 
+ON [dbo].[StarSystemMinorFactionState]
+go
+CREATE INDEX [IX_PresenceState_SystemMinorFaction] 
+ON [dbo].[PresenceState]([PresenceId])
+GO
+exec sp_rename 'DiscordGuildStarSystemMinorFactionGoal', 'DiscordGuildPresenceGoal'
+go
+exec sp_rename 'dbo.DiscordGuildPresenceGoal.StarSystemMinorFactionId', 'PresenceId'
+go
+drop INDEX [IX_DiscordGuildPresenceGoal_StarSystemMinorFaction] 
+ON [dbo].[Presence]
+GO
+drop INDEX [IX_DiscordGuildStarSystemMinorFactionGoal_StarSystemMinorFaction] 
+ON [dbo].[DiscordGuildPresenceGoal]
+GO
+create unique INDEX [IX_DiscordGuildPresenceGoal_DiscordGuildPresence] 
+ON [dbo].[DiscordGuildPresenceGoal]([DiscordGuildId], [PresenceId])
+GO
+exec sp_rename 'dbo.Presence.Security', 'SecurityLevel'
+go
+*/
