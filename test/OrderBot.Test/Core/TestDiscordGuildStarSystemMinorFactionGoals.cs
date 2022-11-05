@@ -33,33 +33,33 @@ namespace OrderBot.Test.Core
             MinorFaction minorFaction = dbContext.MinorFactions.First(mf => mf.Name == minorFactionName);
             Assert.IsTrue(Goals.Map.TryGetValue(goalName, out OrderBot.ToDo.Goal? goal));
 
-            DiscordGuildStarSystemMinorFactionGoal? discordGuildStarSystemMinorFactionGoal =
-                dbContext.DiscordGuildStarSystemMinorFactionGoals
-                         .Include(dgssmfg => dgssmfg.StarSystemMinorFaction)
-                         .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.StarSystem)
-                         .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.MinorFaction)
+            DiscordGuildPresenceGoal? discordGuildStarSystemMinorFactionGoal =
+                dbContext.DiscordGuildPresenceGoals
+                         .Include(dgssmfg => dgssmfg.Presence)
+                         .Include(dgssmfg => dgssmfg.Presence.StarSystem)
+                         .Include(dgssmfg => dgssmfg.Presence.MinorFaction)
                          .FirstOrDefault(
                             dgssmfg => dgssmfg.DiscordGuild == discordGuild
-                                     && dgssmfg.StarSystemMinorFaction.MinorFaction == minorFaction
-                                     && dgssmfg.StarSystemMinorFaction.StarSystem == starSystem);
+                                     && dgssmfg.Presence.MinorFaction == minorFaction
+                                     && dgssmfg.Presence.StarSystem == starSystem);
             if (discordGuildStarSystemMinorFactionGoal == null)
             {
-                StarSystemMinorFaction starSystemMinorFaction =
-                    dbContext.StarSystemMinorFactions.First(
+                Presence starSystemMinorFaction =
+                    dbContext.Presences.First(
                         ssmf => ssmf.MinorFaction == minorFaction
                               && ssmf.StarSystem == starSystem);
                 if (starSystemMinorFaction == null)
                 {
                     starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction };
-                    dbContext.StarSystemMinorFactions.Add(starSystemMinorFaction);
+                    dbContext.Presences.Add(starSystemMinorFaction);
                 }
 
                 discordGuildStarSystemMinorFactionGoal = new()
                 {
                     DiscordGuild = discordGuild,
-                    StarSystemMinorFaction = starSystemMinorFaction
+                    Presence = starSystemMinorFaction
                 };
-                dbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuildStarSystemMinorFactionGoal);
+                dbContext.DiscordGuildPresenceGoals.Add(discordGuildStarSystemMinorFactionGoal);
             }
             discordGuildStarSystemMinorFactionGoal.Goal = goalName;
             dbContext.SaveChanges();

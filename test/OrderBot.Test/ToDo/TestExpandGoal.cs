@@ -16,8 +16,8 @@ namespace OrderBot.Test.ToDo
 
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
-        public void AddActions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData,
+        public void AddActions(Presence starSystemMinorFaction,
+            IReadOnlySet<Presence> systemBgsData,
             IReadOnlySet<Conflict> systemConflicts,
             IEnumerable<InfluenceSuggestion> expectedPro,
             IEnumerable<InfluenceSuggestion> expectedAnti,
@@ -39,28 +39,28 @@ namespace OrderBot.Test.ToDo
             StarSystem polaris = new() { Name = "Polaris", LastUpdated = DateTime.UtcNow };
             MinorFaction flyingFish = new() { Name = "Flying Fish" };
             MinorFaction bloatedJellyFish = new() { Name = "Bloated Jelly Fish" };
-            StarSystemMinorFaction below = new()
+            Presence below = new()
             {
                 StarSystem = polaris,
                 MinorFaction = flyingFish,
                 Influence = ExpandGoal.InfluenceThreshold - 0.01,
                 SecurityLevel = null
             };
-            StarSystemMinorFaction at = new()
+            Presence at = new()
             {
                 StarSystem = polaris,
                 MinorFaction = flyingFish,
                 Influence = ExpandGoal.InfluenceThreshold,
                 SecurityLevel = null
             };
-            StarSystemMinorFaction above = new()
+            Presence above = new()
             {
                 StarSystem = polaris,
                 MinorFaction = flyingFish,
                 Influence = ExpandGoal.InfluenceThreshold + 0.01,
                 SecurityLevel = null
             };
-            StarSystemMinorFaction bloatedJellyFishInPolaris = new()
+            Presence bloatedJellyFishInPolaris = new()
             {
                 StarSystem = polaris,
                 MinorFaction = bloatedJellyFish,
@@ -102,7 +102,7 @@ namespace OrderBot.Test.ToDo
             {
                 new TestCaseData(
                     below,
-                    new HashSet<StarSystemMinorFaction>() { below },
+                    new HashSet<Presence>() { below },
                     new HashSet<Conflict>(),
                     new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = below.Influence } },
                     Array.Empty<InfluenceSuggestion>(),
@@ -112,7 +112,7 @@ namespace OrderBot.Test.ToDo
                 ).SetName("AddActions Below"),
                 new TestCaseData(
                     at,
-                    new HashSet<StarSystemMinorFaction> { at },
+                    new HashSet<Presence> { at },
                     new HashSet<Conflict>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
@@ -122,7 +122,7 @@ namespace OrderBot.Test.ToDo
                 ).SetName("AddActions At"),
                 new TestCaseData(
                     above,
-                    new HashSet<StarSystemMinorFaction> { above },
+                    new HashSet<Presence> { above },
                     new HashSet<Conflict>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
@@ -132,7 +132,7 @@ namespace OrderBot.Test.ToDo
                 ).SetName("AddActions Above"),
                 new TestCaseData(
                     below,
-                    new HashSet<StarSystemMinorFaction>() { below, bloatedJellyFishInPolaris },
+                    new HashSet<Presence>() { below, bloatedJellyFishInPolaris },
                     new HashSet<Conflict>() { war },
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
@@ -153,7 +153,7 @@ namespace OrderBot.Test.ToDo
                 ).SetName("AddActions War"),
                 new TestCaseData(
                     below,
-                    new HashSet<StarSystemMinorFaction>() { below, bloatedJellyFishInPolaris },
+                    new HashSet<Presence>() { below, bloatedJellyFishInPolaris },
                     new HashSet<Conflict>() { civilWar },
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
@@ -174,7 +174,7 @@ namespace OrderBot.Test.ToDo
                 ).SetName("AddActions CivilWar"),
                 new TestCaseData(
                     below,
-                    new HashSet<StarSystemMinorFaction>() { below, bloatedJellyFishInPolaris },
+                    new HashSet<Presence>() { below, bloatedJellyFishInPolaris },
                     new HashSet<Conflict>() { election },
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),

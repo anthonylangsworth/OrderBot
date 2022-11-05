@@ -38,21 +38,21 @@ namespace OrderBot.Test.ToDo
             string goalName = goal.Name;
             ToDoListCommandsModule.Goals.AddImplementation(dbContext, guild, minorFactionName, starSystemName, goalName);
 
-            DiscordGuildStarSystemMinorFactionGoal? discordGuildStarSystemMinorFactionGoal =
-                dbContext.DiscordGuildStarSystemMinorFactionGoals.Include(dgssmfg => dgssmfg.StarSystemMinorFaction)
+            DiscordGuildPresenceGoal? discordGuildStarSystemMinorFactionGoal =
+                dbContext.DiscordGuildPresenceGoals.Include(dgssmfg => dgssmfg.Presence)
                                                                  .Include(dgssmfg => dgssmfg.DiscordGuild)
                                                                  .FirstOrDefault(dgssmfg => dgssmfg.DiscordGuild.GuildId == testGuildId
-                                                                                         && dgssmfg.StarSystemMinorFaction.StarSystem.Name == starSystemName
-                                                                                         && dgssmfg.StarSystemMinorFaction.MinorFaction.Name == minorFactionName);
+                                                                                         && dgssmfg.Presence.StarSystem.Name == starSystemName
+                                                                                         && dgssmfg.Presence.MinorFaction.Name == minorFactionName);
             if (discordGuildStarSystemMinorFactionGoal != null)
             {
                 Assert.That(discordGuildStarSystemMinorFactionGoal.Goal == goal.Name);
                 Assert.That(discordGuildStarSystemMinorFactionGoal.DiscordGuild.Name == guild.Name);
                 Assert.That(discordGuildStarSystemMinorFactionGoal.DiscordGuild.GuildId == guild.Id);
-                Assert.That(discordGuildStarSystemMinorFactionGoal.StarSystemMinorFaction, Is.Not.Null);
-                Assert.That(discordGuildStarSystemMinorFactionGoal.StarSystemMinorFaction.StarSystem, Is.EqualTo(starSystem));
-                Assert.That(discordGuildStarSystemMinorFactionGoal.StarSystemMinorFaction.MinorFaction, Is.EqualTo(minorFaction));
-                Assert.That(discordGuildStarSystemMinorFactionGoal.StarSystemMinorFaction.States, Is.Empty);
+                Assert.That(discordGuildStarSystemMinorFactionGoal.Presence, Is.Not.Null);
+                Assert.That(discordGuildStarSystemMinorFactionGoal.Presence.StarSystem, Is.EqualTo(starSystem));
+                Assert.That(discordGuildStarSystemMinorFactionGoal.Presence.MinorFaction, Is.EqualTo(minorFaction));
+                Assert.That(discordGuildStarSystemMinorFactionGoal.Presence.States, Is.Empty);
             }
             else
             {
@@ -83,32 +83,32 @@ namespace OrderBot.Test.ToDo
 
             IGuild guild = Mock.Of<IGuild>(g => g.Id == testGuildId && g.Name == testGuildName);
 
-            StarSystemMinorFaction starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction };
-            dbContext.StarSystemMinorFactions.Add(starSystemMinorFaction);
+            Presence starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction };
+            dbContext.Presences.Add(starSystemMinorFaction);
             dbContext.SaveChanges();
 
-            DiscordGuildStarSystemMinorFactionGoal discordGuildStarSystemMinorFactionGoal = new()
+            DiscordGuildPresenceGoal discordGuildStarSystemMinorFactionGoal = new()
             {
                 DiscordGuild = discordGuild,
-                StarSystemMinorFaction = starSystemMinorFaction,
+                Presence = starSystemMinorFaction,
                 Goal = goal.Name
             };
-            dbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuildStarSystemMinorFactionGoal);
+            dbContext.DiscordGuildPresenceGoals.Add(discordGuildStarSystemMinorFactionGoal);
             dbContext.SaveChanges();
 
             ToDoListCommandsModule.Goals.AddImplementation(dbContext, guild, minorFaction.Name, starSystem.Name, goal.Name);
 
-            DiscordGuildStarSystemMinorFactionGoal? newDiscordGuildStarSystemMinorFactionGoal =
-                dbContext.DiscordGuildStarSystemMinorFactionGoals.Include(dgssmfg => dgssmfg.StarSystemMinorFaction)
+            DiscordGuildPresenceGoal? newDiscordGuildStarSystemMinorFactionGoal =
+                dbContext.DiscordGuildPresenceGoals.Include(dgssmfg => dgssmfg.Presence)
                                                                  .Include(dgssmfg => dgssmfg.DiscordGuild)
                                                                  .FirstOrDefault(dgssmfg => dgssmfg.DiscordGuild.GuildId == testGuildId
-                                                                                         && dgssmfg.StarSystemMinorFaction.StarSystem.Name == starSystem.Name
-                                                                                         && dgssmfg.StarSystemMinorFaction.MinorFaction.Name == minorFaction.Name);
+                                                                                         && dgssmfg.Presence.StarSystem.Name == starSystem.Name
+                                                                                         && dgssmfg.Presence.MinorFaction.Name == minorFaction.Name);
             if (newDiscordGuildStarSystemMinorFactionGoal != null)
             {
                 Assert.That(newDiscordGuildStarSystemMinorFactionGoal.Goal == goal.Name);
                 Assert.That(newDiscordGuildStarSystemMinorFactionGoal.DiscordGuild, Is.EqualTo(discordGuild));
-                Assert.That(newDiscordGuildStarSystemMinorFactionGoal.StarSystemMinorFaction, Is.EqualTo(starSystemMinorFaction));
+                Assert.That(newDiscordGuildStarSystemMinorFactionGoal.Presence, Is.EqualTo(starSystemMinorFaction));
             }
             else
             {

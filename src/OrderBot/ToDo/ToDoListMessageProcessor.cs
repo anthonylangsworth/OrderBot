@@ -165,7 +165,7 @@ namespace OrderBot.ToDo
                     dbContext.SaveChanges();
                 }
 
-                StarSystemMinorFaction? dbSystemMinorFaction = dbContext.StarSystemMinorFactions
+                Presence? dbSystemMinorFaction = dbContext.Presences
                                                                         .Include(smf => smf.States)
                                                                         .Include(smf => smf.StarSystem)
                                                                         .Include(smf => smf.MinorFaction)
@@ -178,14 +178,14 @@ namespace OrderBot.ToDo
                         ? systemSecurityLevel : null;
                 if (dbSystemMinorFaction == null)
                 {
-                    dbSystemMinorFaction = new StarSystemMinorFaction
+                    dbSystemMinorFaction = new Presence
                     {
                         MinorFaction = minorFaction,
                         StarSystem = starSystem,
                         Influence = newMinorFactionInfo.Influence,
                         SecurityLevel = minorFactionSecurity
                     };
-                    dbContext.StarSystemMinorFactions.Add(dbSystemMinorFaction);
+                    dbContext.Presences.Add(dbSystemMinorFaction);
                 }
                 else
                 {
@@ -210,11 +210,11 @@ namespace OrderBot.ToDo
 
             // Delete old minor factions
             SortedSet<string> newSystemMinorFactions = new(eddnMinorFactionInfluences.Select(mfd => mfd.MinorFaction));
-            foreach (StarSystemMinorFaction systemMinorFaction in dbContext.StarSystemMinorFactions
+            foreach (Presence systemMinorFaction in dbContext.Presences
                                                                            .Where(smf => smf.StarSystem == starSystem
                                                                                 && !newSystemMinorFactions.Contains(smf.MinorFaction.Name)))
             {
-                dbContext.StarSystemMinorFactions.Remove(systemMinorFaction);
+                dbContext.Presences.Remove(systemMinorFaction);
             }
             dbContext.SaveChanges();
         }

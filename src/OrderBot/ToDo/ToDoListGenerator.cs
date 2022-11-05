@@ -25,47 +25,47 @@ namespace OrderBot.ToDo
             using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();
 
-            IReadOnlyList<StarSystemMinorFaction> bgsData =
-                dbContext.StarSystemMinorFactions.Include(ssmf => ssmf.MinorFaction)
+            IReadOnlyList<Presence> bgsData =
+                dbContext.Presences.Include(ssmf => ssmf.MinorFaction)
                                                  .Include(ssmf => ssmf.StarSystem)
                                                  .ToList();
 
-            IReadOnlyList<DiscordGuildStarSystemMinorFactionGoal> dgssmfgs =
-                dbContext.DiscordGuildStarSystemMinorFactionGoals.Include(dgssmf => dgssmf.DiscordGuild)
-                                                                 .Include(dgssmf => dgssmf.StarSystemMinorFaction.StarSystem)
-                                                                 .Include(dgssmf => dgssmf.StarSystemMinorFaction.MinorFaction)
+            IReadOnlyList<DiscordGuildPresenceGoal> dgssmfgs =
+                dbContext.DiscordGuildPresenceGoals.Include(dgssmf => dgssmf.DiscordGuild)
+                                                                 .Include(dgssmf => dgssmf.Presence.StarSystem)
+                                                                 .Include(dgssmf => dgssmf.Presence.MinorFaction)
                                                                  .Where(dgssmf => dgssmf.DiscordGuild.GuildId == guildId
-                                                                               && dgssmf.StarSystemMinorFaction.MinorFaction.Name == minorFactionName)
+                                                                               && dgssmf.Presence.MinorFaction.Name == minorFactionName)
                                                                  .ToList();
 
-            foreach (DiscordGuildStarSystemMinorFactionGoal dgssmfg in dgssmfgs)
+            foreach (DiscordGuildPresenceGoal dgssmfg in dgssmfgs)
             {
-                HashSet<StarSystemMinorFaction> starSystemBgsData =
-                    bgsData.Where(ssmf2 => ssmf2.StarSystem == dgssmfg.StarSystemMinorFaction.StarSystem)
+                HashSet<Presence> starSystemBgsData =
+                    bgsData.Where(ssmf2 => ssmf2.StarSystem == dgssmfg.Presence.StarSystem)
                            .ToHashSet();
                 HashSet<Conflict> conflicts = dbContext.Conflicts.Include(c => c.MinorFaction1)
                                                                  .Include(c => c.MinorFaction2)
-                                                                 .Where(c => c.StarSystem == dgssmfg.StarSystemMinorFaction.StarSystem)
+                                                                 .Where(c => c.StarSystem == dgssmfg.Presence.StarSystem)
                                                                  .ToHashSet();
 
                 if (!Goals.Map.TryGetValue(dgssmfg.Goal, out Goal? goal))
                 {
                     Logger.LogError("Skipping unknown goal '{goal}' for star system '{starSystem}' for minor faction '{minorFaction}'",
-                        dgssmfg.Goal, dgssmfg.StarSystemMinorFaction.StarSystem.Name, dgssmfg.StarSystemMinorFaction.MinorFaction.Name);
+                        dgssmfg.Goal, dgssmfg.Presence.StarSystem.Name, dgssmfg.Presence.MinorFaction.Name);
                 }
                 else
                 {
-                    goal.AddSuggestions(dgssmfg.StarSystemMinorFaction, starSystemBgsData, conflicts, toDoList);
+                    goal.AddSuggestions(dgssmfg.Presence, starSystemBgsData, conflicts, toDoList);
                 }
             }
 
-            IReadOnlyList<StarSystemMinorFaction> filtered =
-                bgsData.Where(ssmf => !dgssmfgs.Select(dgssmfg => dgssmfg.StarSystemMinorFaction.Id).Contains(ssmf.Id)
+            IReadOnlyList<Presence> filtered =
+                bgsData.Where(ssmf => !dgssmfgs.Select(dgssmfg => dgssmfg.Presence.Id).Contains(ssmf.Id)
                                                                         && ssmf.MinorFaction.Name == minorFactionName)
                        .ToList();
-            foreach (StarSystemMinorFaction ssmf in filtered)
+            foreach (Presence ssmf in filtered)
             {
-                HashSet<StarSystemMinorFaction> starSystemBgsData =
+                HashSet<Presence> starSystemBgsData =
                     bgsData.Where(ssmf2 => ssmf2.StarSystem == ssmf.StarSystem)
                            .ToHashSet();
                 HashSet<Conflict> conflicts = dbContext.Conflicts.Include(c => c.MinorFaction1)

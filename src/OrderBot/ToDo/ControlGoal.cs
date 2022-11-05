@@ -32,8 +32,8 @@ namespace OrderBot.ToDo
         public static double UpperInfluenceThreshold => 0.65;
 
         /// <inheritdoc/>
-        public override void AddSuggestions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList)
+        public override void AddSuggestions(Presence starSystemMinorFaction,
+            IReadOnlySet<Presence> systemBgsData, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList)
         {
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 

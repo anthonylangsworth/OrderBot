@@ -5,7 +5,7 @@ namespace OrderBot.Test.MessageProcessors
 {
     public static class Helpers
     {
-        internal static bool IsSame(StarSystemMinorFaction starSystemMinorFaction, string starSystemName, DateTime lastUpdated,
+        internal static bool IsSame(Presence starSystemMinorFaction, string starSystemName, DateTime lastUpdated,
             EddnMinorFactionInfluence minorFactionInfo)
         {
             return starSystemMinorFaction.StarSystem != null

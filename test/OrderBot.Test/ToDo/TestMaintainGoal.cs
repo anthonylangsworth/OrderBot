@@ -16,8 +16,8 @@ namespace OrderBot.Test.ToDo
         }
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
-        public void AddActions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData,
+        public void AddActions(Presence starSystemMinorFaction,
+            IReadOnlySet<Presence> systemBgsData,
             IReadOnlySet<Conflict> systemConflicts,
             IEnumerable<InfluenceSuggestion> expectedPro,
             IEnumerable<InfluenceSuggestion> expectedAnti,
@@ -39,28 +39,28 @@ namespace OrderBot.Test.ToDo
             StarSystem polaris = new() { Name = "Polaris", LastUpdated = DateTime.UtcNow };
             MinorFaction flyingFish = new() { Name = "Flying Fish" };
             MinorFaction bloatedJellyFish = new() { Name = "Bloated Jelly Fish" };
-            StarSystemMinorFaction belowLower = new()
+            Presence belowLower = new()
             {
                 StarSystem = polaris,
                 MinorFaction = flyingFish,
                 Influence = MaintainGoal.LowerInfluenceThreshold - 0.01,
                 SecurityLevel = null
             };
-            StarSystemMinorFaction atLower = new()
+            Presence atLower = new()
             {
                 StarSystem = polaris,
                 MinorFaction = flyingFish,
                 Influence = MaintainGoal.LowerInfluenceThreshold,
                 SecurityLevel = null
             };
-            StarSystemMinorFaction aboveLower = new()
+            Presence aboveLower = new()
             {
                 StarSystem = polaris,
                 MinorFaction = flyingFish,
                 Influence = MaintainGoal.LowerInfluenceThreshold + 0.01,
                 SecurityLevel = null
             };
-            StarSystemMinorFaction bloatedJellyFishInPolaris = new()
+            Presence bloatedJellyFishInPolaris = new()
             {
                 StarSystem = polaris,
                 MinorFaction = bloatedJellyFish,
@@ -112,7 +112,7 @@ namespace OrderBot.Test.ToDo
                 //).SetName("AddActions BelowLower"),
                 new TestCaseData(
                     atLower,
-                    new HashSet<StarSystemMinorFaction> { atLower },
+                    new HashSet<Presence> { atLower },
                     new HashSet<Conflict>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
@@ -122,7 +122,7 @@ namespace OrderBot.Test.ToDo
                 ).SetName("AddActions AtLower"),
                 new TestCaseData(
                     aboveLower,
-                    new HashSet<StarSystemMinorFaction> { aboveLower },
+                    new HashSet<Presence> { aboveLower },
                     new HashSet<Conflict>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),

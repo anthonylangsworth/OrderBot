@@ -10,11 +10,11 @@ GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuildStarSystemMinorFactionGoal]') AND type in (N'U'))
 DROP TABLE [dbo].[DiscordGuildStarSystemMinorFactionGoal]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[StarSystemMinorFactionState]') AND type in (N'U'))
-DROP TABLE [dbo].[StarSystemMinorFactionState]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[PresenceState]') AND type in (N'U'))
+DROP TABLE [dbo].[PresenceState]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[StarSystemMinorFaction]') AND type in (N'U'))
-DROP TABLE [dbo].[StarSystemMinorFaction]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[Presence]') AND type in (N'U'))
+DROP TABLE [dbo].Presence
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuildMinorFaction]') AND type in (N'U'))
 DROP TABLE [dbo].[DiscordGuildMinorFaction]
@@ -77,7 +77,7 @@ GO
 CREATE UNIQUE INDEX [IX_State] 
 ON [dbo].[State]([Name])
 GO
-CREATE TABLE [dbo].[StarSystemMinorFaction](
+CREATE TABLE [dbo].[Presence](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[StarSystemId] [int] NOT NULL FOREIGN KEY REFERENCES [StarSystem]([Id]) ON DELETE CASCADE,
 	[MinorFactionId] [int] NOT NULL FOREIGN KEY REFERENCES [MinorFaction]([Id]) ON DELETE CASCADE,
@@ -85,28 +85,28 @@ CREATE TABLE [dbo].[StarSystemMinorFaction](
 	[Security] [nvarchar](100) NULL
 )
 GO
-CREATE UNIQUE INDEX [IX_StarSystemMinorFaction_SystemMinorFaction] 
-ON [dbo].[StarSystemMinorFaction]([StarSystemId], [MinorFactionId])
+CREATE UNIQUE INDEX [IX_Presence_SystemMinorFaction] 
+ON [dbo].[Presence]([StarSystemId], [MinorFactionId])
 GO
 -- Column name plurals required for EF Core name inference. Will fix later.
-CREATE TABLE [dbo].[StarSystemMinorFactionState](
-	[StarSystemMinorFactionsId] [int] NOT NULL FOREIGN KEY REFERENCES [StarSystemMinorFaction]([Id]) ON DELETE CASCADE,
+CREATE TABLE [dbo].[PresenceState](
+	[PresenceId] [int] NOT NULL FOREIGN KEY REFERENCES [Presence]([Id]) ON DELETE CASCADE,
 	[StatesId] [int] NOT NULL FOREIGN KEY REFERENCES [State]([Id]) ON DELETE CASCADE,
-	PRIMARY KEY ([StarSystemMinorFactionsId], [StatesId])
+	PRIMARY KEY ([PresenceId], [StatesId])
 )
 GO
 CREATE INDEX [IX_StarSystemMinorFactionState_SystemMinorFaction] 
 ON [dbo].[StarSystemMinorFactionState]([StarSystemMinorFactionsId])
 GO
-CREATE TABLE [dbo].[DiscordGuildStarSystemMinorFactionGoal](
+CREATE TABLE [dbo].[DiscordGuildPresenceGoal](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[DiscordGuildId] [int] NOT NULL FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE,
-	[StarSystemMinorFactionId] [int] NOT NULL FOREIGN KEY REFERENCES [StarSystem]([Id]) ON DELETE CASCADE,
+	[PresenceId] [int] NOT NULL FOREIGN KEY REFERENCES [Presence]([Id]) ON DELETE CASCADE,
 	[Goal] [nvarchar](100) NOT NULL
 )
 GO
-CREATE UNIQUE INDEX [IX_DiscordGuildStarSystemMinorFactionGoal_StarSystemMinorFaction] 
-ON [dbo].[DiscordGuildStarSystemMinorFactionGoal]([DiscordGuildId], [StarSystemMinorFactionId])
+create unique INDEX [IX_DiscordGuildPresenceGoal_DiscordGuildPresence] 
+ON [dbo].[DiscordGuildPresenceGoal]([DiscordGuildId], [PresenceId])
 GO
 CREATE TABLE [dbo].[Carrier](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,

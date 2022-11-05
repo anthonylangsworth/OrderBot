@@ -18,9 +18,9 @@ namespace OrderBot.Test.ToDo
         public void AddActions(StarSystem starSystem, double influence, IEnumerable<InfluenceSuggestion> expectedPro, IEnumerable<InfluenceSuggestion> expectedAnti)
         {
             MinorFaction minorFaction = new() { Name = "Flying Fish" };
-            StarSystemMinorFaction starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence };
+            Presence starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction, Influence = influence };
             ToDoList toDo = new(minorFaction.Name);
-            IgnoreGoal.Instance.AddSuggestions(starSystemMinorFaction, new HashSet<StarSystemMinorFaction> { starSystemMinorFaction },
+            IgnoreGoal.Instance.AddSuggestions(starSystemMinorFaction, new HashSet<Presence> { starSystemMinorFaction },
                 new HashSet<Conflict>(), toDo);
             Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
             Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));

@@ -168,12 +168,12 @@ namespace OrderBot.Test.ToDo
                 },
                 SystemSecurityLevel = systemSecurity
             });
-            IEnumerable<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
+            IEnumerable<Presence> systemMinorFactions = dbContext.Presences.Include(smf => smf.States)
                                                                                                        .Include(smf => smf.StarSystem)
                                                                                                        .Include(smf => smf.MinorFaction)
                                                                                                        .Where(smf => smf.StarSystem.Name == starSystem);
             Assert.That(systemMinorFactions.Count, Is.EqualTo(1));
-            StarSystemMinorFaction? newSystemMinorFaction = systemMinorFactions.First();
+            Presence? newSystemMinorFaction = systemMinorFactions.First();
             Assert.That(newSystemMinorFaction.StarSystem, Is.Not.Null);
             Assert.That(newSystemMinorFaction.StarSystem.Name, Is.EqualTo(starSystem));
             Assert.That(newSystemMinorFaction.StarSystem.LastUpdated, Is.EqualTo(timestamp).Using(DbDateTimeComparer.Instance));
@@ -224,7 +224,7 @@ namespace OrderBot.Test.ToDo
                 },
                 SystemSecurityLevel = system2Security
             });
-            List<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
+            List<Presence> systemMinorFactions = dbContext.Presences.Include(smf => smf.States)
                                                                                                 .Include(smf => smf.StarSystem)
                                                                                                 .Include(smf => smf.MinorFaction)
                                                                                                 .Where(smf => smf.StarSystem.Name == starSystem1 || smf.StarSystem.Name == starSystem2)
@@ -276,7 +276,7 @@ namespace OrderBot.Test.ToDo
                 },
                 SystemSecurityLevel = systemSecurityLevel
             });
-            IList<StarSystemMinorFaction> systemMinorFactions = dbContext.StarSystemMinorFactions.Include(smf => smf.States)
+            IList<Presence> systemMinorFactions = dbContext.Presences.Include(smf => smf.States)
                                                                                                  .Include(smf => smf.StarSystem)
                                                                                                  .Include(smf => smf.MinorFaction)
                                                                                                  .Where(smf => smf.StarSystem.Name == starSystem)
@@ -284,7 +284,7 @@ namespace OrderBot.Test.ToDo
                                                                                                  .ToList();
             Assert.That(systemMinorFactions.Count, Is.EqualTo(2));
 
-            StarSystemMinorFaction? newSystemMinorFaction1 = systemMinorFactions[0];
+            Presence? newSystemMinorFaction1 = systemMinorFactions[0];
             Assert.That(newSystemMinorFaction1.StarSystem, Is.Not.Null);
             Assert.That(newSystemMinorFaction1.StarSystem.Name, Is.EqualTo(starSystem));
             Assert.That(newSystemMinorFaction1.StarSystem.LastUpdated, Is.EqualTo(timestamp).Using(DbDateTimeComparer.Instance));
@@ -294,7 +294,7 @@ namespace OrderBot.Test.ToDo
             Assert.That(newSystemMinorFaction1.States.Select(state => state.Name), Is.EquivalentTo(minorFaction1States));
             Assert.That(newSystemMinorFaction1.SecurityLevel, Is.EqualTo(systemSecurityLevel));
 
-            StarSystemMinorFaction? newSystemMinorFaction2 = systemMinorFactions[1];
+            Presence? newSystemMinorFaction2 = systemMinorFactions[1];
             Assert.That(newSystemMinorFaction2.StarSystem, Is.Not.Null);
             Assert.That(newSystemMinorFaction2.StarSystem.Name, Is.EqualTo(starSystem));
             Assert.That(newSystemMinorFaction2.StarSystem.LastUpdated, Is.EqualTo(timestamp).Using(DbDateTimeComparer.Instance));

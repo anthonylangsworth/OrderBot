@@ -285,31 +285,31 @@ namespace OrderBot.ToDo
                     throw new ArgumentException($"{minorFactionName} is not a known goal");
                 }
 
-                StarSystemMinorFaction? starSystemMinorFaction =
-                    dbContext.StarSystemMinorFactions.Include(ssmf => ssmf.StarSystem)
+                Presence? starSystemMinorFaction =
+                    dbContext.Presences.Include(ssmf => ssmf.StarSystem)
                                                      .Include(ssmf => ssmf.MinorFaction)
                                                      .FirstOrDefault(ssmf => ssmf.StarSystem.Name == starSystemName
                                                                           && ssmf.MinorFaction.Name == minorFactionName);
                 if (starSystemMinorFaction == null)
                 {
-                    starSystemMinorFaction = new StarSystemMinorFaction() { MinorFaction = minorFaction, StarSystem = starSystem };
-                    dbContext.StarSystemMinorFactions.Add(starSystemMinorFaction);
+                    starSystemMinorFaction = new Presence() { MinorFaction = minorFaction, StarSystem = starSystem };
+                    dbContext.Presences.Add(starSystemMinorFaction);
                 }
 
-                DiscordGuildStarSystemMinorFactionGoal? discordGuildStarSystemMinorFactionGoal =
-                    dbContext.DiscordGuildStarSystemMinorFactionGoals
-                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction)
-                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.StarSystem)
-                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.MinorFaction)
+                DiscordGuildPresenceGoal? discordGuildStarSystemMinorFactionGoal =
+                    dbContext.DiscordGuildPresenceGoals
+                                .Include(dgssmfg => dgssmfg.Presence)
+                                .Include(dgssmfg => dgssmfg.Presence.StarSystem)
+                                .Include(dgssmfg => dgssmfg.Presence.MinorFaction)
                                 .FirstOrDefault(
                                 dgssmfg => dgssmfg.DiscordGuild == discordGuild
-                                            && dgssmfg.StarSystemMinorFaction.MinorFaction == minorFaction
-                                            && dgssmfg.StarSystemMinorFaction.StarSystem == starSystem);
+                                            && dgssmfg.Presence.MinorFaction == minorFaction
+                                            && dgssmfg.Presence.StarSystem == starSystem);
                 if (discordGuildStarSystemMinorFactionGoal == null)
                 {
-                    discordGuildStarSystemMinorFactionGoal = new DiscordGuildStarSystemMinorFactionGoal()
-                    { DiscordGuild = discordGuild, StarSystemMinorFaction = starSystemMinorFaction };
-                    dbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuildStarSystemMinorFactionGoal);
+                    discordGuildStarSystemMinorFactionGoal = new DiscordGuildPresenceGoal()
+                    { DiscordGuild = discordGuild, Presence = starSystemMinorFaction };
+                    dbContext.DiscordGuildPresenceGoals.Add(discordGuildStarSystemMinorFactionGoal);
                 }
                 discordGuildStarSystemMinorFactionGoal.Goal = goalName;
                 dbContext.SaveChanges();
@@ -365,18 +365,18 @@ namespace OrderBot.ToDo
                     throw new ArgumentException($"{starSystemName} is not a known star system");
                 }
 
-                DiscordGuildStarSystemMinorFactionGoal? discordGuildStarSystemMinorFactionGoal =
-                    dbContext.DiscordGuildStarSystemMinorFactionGoals
-                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction)
-                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.StarSystem)
-                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.MinorFaction)
+                DiscordGuildPresenceGoal? discordGuildStarSystemMinorFactionGoal =
+                    dbContext.DiscordGuildPresenceGoals
+                                .Include(dgssmfg => dgssmfg.Presence)
+                                .Include(dgssmfg => dgssmfg.Presence.StarSystem)
+                                .Include(dgssmfg => dgssmfg.Presence.MinorFaction)
                                 .FirstOrDefault(
                                 dgssmfg => dgssmfg.DiscordGuild == discordGuild
-                                            && dgssmfg.StarSystemMinorFaction.MinorFaction == minorFaction
-                                            && dgssmfg.StarSystemMinorFaction.StarSystem == starSystem);
+                                            && dgssmfg.Presence.MinorFaction == minorFaction
+                                            && dgssmfg.Presence.StarSystem == starSystem);
                 if (discordGuildStarSystemMinorFactionGoal != null)
                 {
-                    dbContext.DiscordGuildStarSystemMinorFactionGoals.Remove(discordGuildStarSystemMinorFactionGoal);
+                    dbContext.DiscordGuildPresenceGoals.Remove(discordGuildStarSystemMinorFactionGoal);
                 }
                 dbContext.SaveChanges();
             }
@@ -394,7 +394,7 @@ namespace OrderBot.ToDo
                         using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                         result = string.Join(Environment.NewLine,
                             ListImplementation(dbContext, Context.Guild).Select(
-                                dgssmfg => $"{dgssmfg.Goal} {dgssmfg.StarSystemMinorFaction.MinorFaction.Name} in {dgssmfg.StarSystemMinorFaction.StarSystem.Name}"));
+                                dgssmfg => $"{dgssmfg.Goal} {dgssmfg.Presence.MinorFaction.Name} in {dgssmfg.Presence.StarSystem.Name}"));
                         if (result.Length == 0)
                         {
                             message = "No goals specified";
@@ -429,13 +429,13 @@ namespace OrderBot.ToDo
                 }
             }
 
-            internal static IEnumerable<DiscordGuildStarSystemMinorFactionGoal> ListImplementation(OrderBotDbContext dbContext, IGuild guild)
+            internal static IEnumerable<DiscordGuildPresenceGoal> ListImplementation(OrderBotDbContext dbContext, IGuild guild)
             {
                 DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild);
-                return dbContext.DiscordGuildStarSystemMinorFactionGoals
-                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction)
-                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.StarSystem)
-                                .Include(dgssmfg => dgssmfg.StarSystemMinorFaction.MinorFaction);
+                return dbContext.DiscordGuildPresenceGoals
+                                .Include(dgssmfg => dgssmfg.Presence)
+                                .Include(dgssmfg => dgssmfg.Presence.StarSystem)
+                                .Include(dgssmfg => dgssmfg.Presence.MinorFaction);
             }
 
             [SlashCommand("export", "Export the current goals for backup")]
@@ -453,8 +453,8 @@ namespace OrderBot.ToDo
                                 .Select(dgssmfg => new GoalCsvRow()
                                 {
                                     Goal = dgssmfg.Goal,
-                                    MinorFaction = dgssmfg.StarSystemMinorFaction.MinorFaction.Name,
-                                    StarSystem = dgssmfg.StarSystemMinorFaction.StarSystem.Name
+                                    MinorFaction = dgssmfg.Presence.MinorFaction.Name,
+                                    StarSystem = dgssmfg.Presence.StarSystem.Name
                                 })
                                 .ToList();
                         if (result.Count == 0)

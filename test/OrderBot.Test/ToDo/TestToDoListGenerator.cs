@@ -57,20 +57,20 @@ namespace OrderBot.Test.ToDo
         {
             StarSystem alphCentauri = new() { Name = "Alpha Centauri", LastUpdated = DateTime.UtcNow };
             MinorFaction purplePeopleEaters = new() { Name = MinorFactionName };
-            StarSystemMinorFaction starSystemMinorFaction =
+            Presence starSystemMinorFaction =
                 new()
                 {
                     MinorFaction = purplePeopleEaters,
                     StarSystem = alphCentauri,
                     Influence = (ControlGoal.LowerInfluenceThreshold + ControlGoal.UpperInfluenceThreshold) / 2
                 };
-            DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
+            DiscordGuildPresenceGoal discordGuild = new()
             {
                 DiscordGuild = new DiscordGuild() { GuildId = GuildId },
-                StarSystemMinorFaction = starSystemMinorFaction,
+                Presence = starSystemMinorFaction,
                 Goal = Goals.Default.Name
             };
-            DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
+            DbContext.DiscordGuildPresenceGoals.Add(discordGuild);
             DbContext.SaveChanges();
 
             ToDoListGenerator generator = new(Logger, DbContextFactory);
@@ -85,15 +85,15 @@ namespace OrderBot.Test.ToDo
         {
             StarSystem alphCentauri = new() { Name = "Alpha Centauri", LastUpdated = DateTime.UtcNow };
             MinorFaction purplePeopleEaters = new() { Name = MinorFactionName };
-            StarSystemMinorFaction starSystemMinorFaction =
+            Presence starSystemMinorFaction =
                 new() { MinorFaction = purplePeopleEaters, StarSystem = alphCentauri, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 };
-            DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
+            DiscordGuildPresenceGoal discordGuild = new()
             {
                 DiscordGuild = new() { GuildId = GuildId },
-                StarSystemMinorFaction = starSystemMinorFaction,
+                Presence = starSystemMinorFaction,
                 Goal = Goals.Default.Name
             };
-            DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
+            DbContext.DiscordGuildPresenceGoals.Add(discordGuild);
             DbContext.SaveChanges();
 
             ToDoListGenerator generator = new(Logger, DbContextFactory);
@@ -110,15 +110,15 @@ namespace OrderBot.Test.ToDo
         {
             StarSystem alphCentauri = new() { Name = "Alpha Centauri", LastUpdated = DateTime.UtcNow };
             MinorFaction purplePeopleEaters = new() { Name = MinorFactionName };
-            StarSystemMinorFaction starSystemMinorFaction =
+            Presence starSystemMinorFaction =
                 new() { MinorFaction = purplePeopleEaters, StarSystem = alphCentauri, Influence = ControlGoal.UpperInfluenceThreshold + 0.01 };
-            DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
+            DiscordGuildPresenceGoal discordGuild = new()
             {
                 DiscordGuild = new() { GuildId = GuildId },
-                StarSystemMinorFaction = starSystemMinorFaction,
+                Presence = starSystemMinorFaction,
                 Goal = Goals.Default.Name
             };
-            DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
+            DbContext.DiscordGuildPresenceGoals.Add(discordGuild);
             DbContext.SaveChanges();
 
             ToDoListGenerator generator = new(Logger, DbContextFactory);
@@ -136,15 +136,15 @@ namespace OrderBot.Test.ToDo
             string differentMinorFactionName = "Star Gazers";
             StarSystem alphCentauri = new() { Name = "Alpha Centauri", LastUpdated = DateTime.UtcNow };
             MinorFaction purplePeopleEaters = new() { Name = differentMinorFactionName };
-            StarSystemMinorFaction starSystemMinorFaction =
+            Presence starSystemMinorFaction =
                 new() { MinorFaction = purplePeopleEaters, StarSystem = alphCentauri, Influence = 0 };
-            DiscordGuildStarSystemMinorFactionGoal discordGuild = new()
+            DiscordGuildPresenceGoal discordGuild = new()
             {
                 DiscordGuild = new DiscordGuild() { GuildId = GuildId },
-                StarSystemMinorFaction = starSystemMinorFaction,
+                Presence = starSystemMinorFaction,
                 Goal = Goals.Default.Name
             };
-            DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(discordGuild);
+            DbContext.DiscordGuildPresenceGoals.Add(discordGuild);
             DbContext.SaveChanges();
 
             ToDoListGenerator generator = new(Logger, DbContextFactory);
@@ -161,30 +161,30 @@ namespace OrderBot.Test.ToDo
             StarSystem maia = new() { Name = "Maia", LastUpdated = DateTime.UtcNow };
             MinorFaction purplePeopleEaters = new() { Name = MinorFactionName };
             DiscordGuild discordGuild = new() { GuildId = GuildId };
-            DiscordGuildStarSystemMinorFactionGoal purplePeopleEastersAlphaCentauri = new()
+            DiscordGuildPresenceGoal purplePeopleEastersAlphaCentauri = new()
             {
                 DiscordGuild = discordGuild,
-                StarSystemMinorFaction = new() { MinorFaction = purplePeopleEaters, StarSystem = alphCentauri, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 },
+                Presence = new() { MinorFaction = purplePeopleEaters, StarSystem = alphCentauri, Influence = ControlGoal.LowerInfluenceThreshold - 0.01 },
                 Goal = Goals.Default.Name
             };
-            DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(purplePeopleEastersAlphaCentauri);
-            DiscordGuildStarSystemMinorFactionGoal purplePeopleEastersMaia = new()
+            DbContext.DiscordGuildPresenceGoals.Add(purplePeopleEastersAlphaCentauri);
+            DiscordGuildPresenceGoal purplePeopleEastersMaia = new()
             {
                 DiscordGuild = discordGuild,
-                StarSystemMinorFaction = new() { MinorFaction = purplePeopleEaters, StarSystem = maia, Influence = ControlGoal.UpperInfluenceThreshold + 0.01 },
+                Presence = new() { MinorFaction = purplePeopleEaters, StarSystem = maia, Influence = ControlGoal.UpperInfluenceThreshold + 0.01 },
                 Goal = Goals.Default.Name
             };
-            DbContext.DiscordGuildStarSystemMinorFactionGoals.Add(purplePeopleEastersMaia);
+            DbContext.DiscordGuildPresenceGoals.Add(purplePeopleEastersMaia);
             DbContext.SaveChanges();
 
             ToDoListGenerator generator = new(Logger, DbContextFactory);
             ToDoList toDoList = generator.Generate(GuildId, MinorFactionName);
             Assert.That(toDoList.MinorFaction, Is.EqualTo(MinorFactionName));
             Assert.That(toDoList.Pro,
-                Is.EquivalentTo(new[] { new InfluenceSuggestion() { StarSystem = alphCentauri, Influence = purplePeopleEastersAlphaCentauri.StarSystemMinorFaction.Influence } })
+                Is.EquivalentTo(new[] { new InfluenceSuggestion() { StarSystem = alphCentauri, Influence = purplePeopleEastersAlphaCentauri.Presence.Influence } })
                   .Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
             Assert.That(toDoList.Anti,
-                Is.EquivalentTo(new[] { new InfluenceSuggestion() { StarSystem = maia, Influence = purplePeopleEastersMaia.StarSystemMinorFaction.Influence } })
+                Is.EquivalentTo(new[] { new InfluenceSuggestion() { StarSystem = maia, Influence = purplePeopleEastersMaia.Presence.Influence } })
                   .Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
         }
 

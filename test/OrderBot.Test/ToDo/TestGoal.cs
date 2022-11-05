@@ -12,10 +12,10 @@ namespace OrderBot.Test.ToDo
             StarSystem betelgeuse = new() { Name = "Betelgeuse" };
             StarSystem sirius = new() { Name = "Sirius" };
             MinorFaction gumChewers = new() { Name = "Gum Chewers" };
-            HashSet<StarSystemMinorFaction> bgsData = new()
+            HashSet<Presence> bgsData = new()
             {
-                new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0 },
-                new StarSystemMinorFaction() { StarSystem = sirius, MinorFaction = gumChewers, Influence = 0 }
+                new Presence() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0 },
+                new Presence() { StarSystem = sirius, MinorFaction = gumChewers, Influence = 0 }
             };
             Assert.That(
                 () => Goal.CheckAddActionsPreconditions(bgsData.First(), bgsData, new HashSet<Conflict>()),
@@ -29,12 +29,12 @@ namespace OrderBot.Test.ToDo
             MinorFaction gumChewers = new() { Name = "Gum Chewers" };
             MinorFaction funnyWalkers = new() { Name = "Funny Walkers" };
             MinorFaction bunnyHoppers = new() { Name = "Bunny Hoppoers" };
-            HashSet<StarSystemMinorFaction> bgsData = new()
+            HashSet<Presence> bgsData = new()
             {
-                new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0 },
-                new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = funnyWalkers, Influence = 0 }
+                new Presence() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0 },
+                new Presence() { StarSystem = betelgeuse, MinorFaction = funnyWalkers, Influence = 0 }
             };
-            StarSystemMinorFaction different = new() { StarSystem = betelgeuse, MinorFaction = bunnyHoppers, Influence = 0.5 };
+            Presence different = new() { StarSystem = betelgeuse, MinorFaction = bunnyHoppers, Influence = 0.5 };
             Assert.That(
                 () => Goal.CheckAddActionsPreconditions(different, bgsData, new HashSet<Conflict>()),
                 Throws.ArgumentException.And.Property("Message").EqualTo("systemBgsData must contain starSystemMinorFaction"));
@@ -49,11 +49,11 @@ namespace OrderBot.Test.ToDo
             MinorFaction funnyWalkers = new() { Name = "Funny Walkers" };
             MinorFaction bunnyHoppers = new() { Name = "Bunny Hoppoers" };
             MinorFaction sliders = new() { Name = "Sliders" };
-            HashSet<StarSystemMinorFaction> bgsData = new()
+            HashSet<Presence> bgsData = new()
             {
-                new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0 },
-                new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = funnyWalkers, Influence = 0 },
-                new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = sliders, Influence = 0 }
+                new Presence() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0 },
+                new Presence() { StarSystem = betelgeuse, MinorFaction = funnyWalkers, Influence = 0 },
+                new Presence() { StarSystem = betelgeuse, MinorFaction = sliders, Influence = 0 }
             };
             HashSet<Conflict> conflicts = new()
             {
@@ -74,9 +74,9 @@ namespace OrderBot.Test.ToDo
             MinorFaction funnyWalkers = new() { Name = "Funny Walkers" };
             MinorFaction bunnyHoppers = new() { Name = "Bunny Hoppoers" };
             MinorFaction sliders = new() { Name = "Sliders" };
-            HashSet<StarSystemMinorFaction> bgsData = new()
+            HashSet<Presence> bgsData = new()
             {
-                new StarSystemMinorFaction() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0 },
+                new Presence() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0 },
             };
             HashSet<Conflict> conflicts = new()
             {
@@ -89,7 +89,7 @@ namespace OrderBot.Test.ToDo
         }
 
         [TestCaseSource(nameof(GetControllingMinorFaction_Source))]
-        public StarSystemMinorFaction GetControllingMinorFaction(IReadOnlySet<StarSystemMinorFaction> systemBgsData)
+        public Presence GetControllingMinorFaction(IReadOnlySet<Presence> systemBgsData)
         {
             return Goal.GetControllingMinorFaction(systemBgsData);
         }
@@ -100,22 +100,22 @@ namespace OrderBot.Test.ToDo
             MinorFaction gumChewers = new() { Name = "Gum Chewers" };
             MinorFaction funnyWalkers = new() { Name = "Funny Walkers" };
             MinorFaction bunnyHoppers = new() { Name = "Bunny Hoppoers" };
-            StarSystemMinorFaction gumChewersInBetegeuse = new() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0.1 };
-            StarSystemMinorFaction funnyWalkersInBetegeuse = new() { StarSystem = betelgeuse, MinorFaction = funnyWalkers, Influence = 0.3 };
-            StarSystemMinorFaction bunnyHoppersInBetegeuse = new() { StarSystem = betelgeuse, MinorFaction = bunnyHoppers, Influence = 0.5 };
+            Presence gumChewersInBetegeuse = new() { StarSystem = betelgeuse, MinorFaction = gumChewers, Influence = 0.1 };
+            Presence funnyWalkersInBetegeuse = new() { StarSystem = betelgeuse, MinorFaction = funnyWalkers, Influence = 0.3 };
+            Presence bunnyHoppersInBetegeuse = new() { StarSystem = betelgeuse, MinorFaction = bunnyHoppers, Influence = 0.5 };
 
             return new TestCaseData[]
             {
-                new TestCaseData(new HashSet<StarSystemMinorFaction>()
+                new TestCaseData(new HashSet<Presence>()
                 {
                     gumChewersInBetegeuse
                 }).Returns(gumChewersInBetegeuse),
-                new TestCaseData(new HashSet<StarSystemMinorFaction>()
+                new TestCaseData(new HashSet<Presence>()
                 {
                     gumChewersInBetegeuse,
                     funnyWalkersInBetegeuse
                 }).Returns(funnyWalkersInBetegeuse),
-                new TestCaseData(new HashSet<StarSystemMinorFaction>()
+                new TestCaseData(new HashSet<Presence>()
                 {
                     gumChewersInBetegeuse,
                     funnyWalkersInBetegeuse,

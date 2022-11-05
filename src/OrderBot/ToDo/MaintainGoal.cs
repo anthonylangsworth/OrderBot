@@ -34,13 +34,13 @@ namespace OrderBot.ToDo
         public static double MaxInfuenceGap => 0.03;
 
         /// </inheritdoc>
-        public override void AddSuggestions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> systemConflicts,
+        public override void AddSuggestions(Presence starSystemMinorFaction,
+            IReadOnlySet<Presence> systemBgsData, IReadOnlySet<Conflict> systemConflicts,
             ToDoList toDoList)
         {
             CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
 
-            StarSystemMinorFaction controllingMinorFaction = GetControllingMinorFaction(systemBgsData);
+            Presence controllingMinorFaction = GetControllingMinorFaction(systemBgsData);
             if (controllingMinorFaction.MinorFaction == starSystemMinorFaction.MinorFaction)
             {
                 if (systemBgsData.Count > 1)

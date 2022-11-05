@@ -1,6 +1,6 @@
 ﻿namespace OrderBot.Core
 {
-    public record StarSystemMinorFaction
+    public record Presence
     {
         public int Id { get; }
         public StarSystem StarSystem { get; init; } = null!;

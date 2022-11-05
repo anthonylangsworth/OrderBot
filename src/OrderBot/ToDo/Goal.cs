@@ -44,7 +44,7 @@ namespace OrderBot.ToDo
         /// </summary>
         /// <remarks>
         /// Child or subclasses should call 
-        /// <see cref="CheckAddActionsPreconditions(StarSystemMinorFaction, IReadOnlySet{StarSystemMinorFaction})"/>
+        /// <see cref="CheckAddActionsPreconditions(Presence, IReadOnlySet{Presence})"/>
         /// first to validate arguements consistently and completely.
         /// </remarks>
         /// <param name="starSystemMinorFaction">
@@ -63,8 +63,8 @@ namespace OrderBot.ToDo
         /// <paramref name="systemBgsData"/> must contain <paramref name="starSystemMinorFaction"/>. 
         /// <paramref name="systemBgsData"/> must be for a single star system.
         /// </exception>
-        public abstract void AddSuggestions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList);
+        public abstract void AddSuggestions(Presence starSystemMinorFaction,
+            IReadOnlySet<Presence> systemBgsData, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList);
 
         /// <summary>
         /// Return the controlling minor faction, i.e. the one with the highest influence.
@@ -78,7 +78,7 @@ namespace OrderBot.ToDo
         /// <exception cref="InvalidOperationException">
         /// <paramref name="systemBgsData"/> is empty.
         /// </exception>
-        protected internal static StarSystemMinorFaction GetControllingMinorFaction(IReadOnlySet<StarSystemMinorFaction> systemBgsData)
+        protected internal static Presence GetControllingMinorFaction(IReadOnlySet<Presence> systemBgsData)
         {
             return systemBgsData.OrderByDescending(ssmf => ssmf.Influence)
                                 .First();
@@ -86,7 +86,7 @@ namespace OrderBot.ToDo
 
         /// <summary>
         /// Check the preconditions for 
-        /// <see cref="AddSuggestions(StarSystemMinorFaction, IReadOnlySet{StarSystemMinorFaction}, ToDoList)'"/>.
+        /// <see cref="AddSuggestions(Presence, IReadOnlySet{Presence}, ToDoList)'"/>.
         /// </summary>
         /// <param name="starSystemMinorFaction">
         /// Passed in.
@@ -107,8 +107,8 @@ namespace OrderBot.ToDo
         /// <item>All minor factions in <paramref name="systemConflicts"/> must be in <paramref name="systemBgsData"/>.</item>
         /// </list>
         /// </exception>
-        protected internal static void CheckAddActionsPreconditions(StarSystemMinorFaction starSystemMinorFaction,
-            IReadOnlySet<StarSystemMinorFaction> systemBgsData, IReadOnlySet<Conflict> systemConflicts)
+        protected internal static void CheckAddActionsPreconditions(Presence starSystemMinorFaction,
+            IReadOnlySet<Presence> systemBgsData, IReadOnlySet<Conflict> systemConflicts)
         {
             if (systemBgsData.Any(ssmf => ssmf.StarSystem != starSystemMinorFaction.StarSystem))
             {

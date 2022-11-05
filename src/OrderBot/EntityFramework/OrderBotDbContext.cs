@@ -26,9 +26,9 @@ namespace OrderBot.EntityFramework
         public DbSet<StarSystem> StarSystems { get; protected set; } = null!;
         public DbSet<MinorFaction> MinorFactions { get; protected set; } = null!;
         public DbSet<State> States { get; protected set; } = null!;
-        public DbSet<StarSystemMinorFaction> StarSystemMinorFactions { get; protected set; } = null!;
+        public DbSet<Presence> Presences { get; protected set; } = null!;
         public DbSet<DiscordGuild> DiscordGuilds { get; protected set; } = null!;
-        public DbSet<DiscordGuildStarSystemMinorFactionGoal> DiscordGuildStarSystemMinorFactionGoals { get; protected set; } = null!;
+        public DbSet<DiscordGuildPresenceGoal> DiscordGuildPresenceGoals { get; protected set; } = null!;
         public DbSet<Carrier> Carriers { get; protected set; } = null!;
         public DbSet<DiscordGuildMinorFaction> DiscordGuildMinorFactions { get; protected set; } = null!;
         public DbSet<Conflict> Conflicts { get; protected set; } = null!;
@@ -73,32 +73,37 @@ namespace OrderBot.EntityFramework
                       .IsRequired();
             });
 
-            modelBuilder.Entity<StarSystemMinorFaction>(entity =>
+            modelBuilder.Entity<Presence>()
+                        .HasOne(e => e.StarSystem)
+                        .WithMany()
+                        .IsRequired();
+
+            modelBuilder.Entity<Presence>(entity =>
             {
-                entity.ToTable("StarSystemMinorFaction");
+                entity.ToTable("Presence");
 
                 entity.Property(e => e.Id)
                       .UseIdentityColumn();
 
                 entity.Property(e => e.Influence);
+
                 entity.Property(e => e.SecurityLevel)
-                      .HasColumnName("Security")
                       .HasMaxLength(100);
             });
 
-            modelBuilder.Entity<StarSystemMinorFaction>()
+            modelBuilder.Entity<Presence>()
                         .HasOne(e => e.StarSystem)
                         .WithMany()
                         .IsRequired();
 
-            modelBuilder.Entity<StarSystemMinorFaction>()
+            modelBuilder.Entity<Presence>()
                         .HasOne(e => e.MinorFaction)
                         .WithMany()
                         .IsRequired();
 
-            modelBuilder.Entity<StarSystemMinorFaction>()
+            modelBuilder.Entity<Presence>()
                         .HasMany(e => e.States)
-                        .WithMany(e => e.StarSystemMinorFactions);
+                        .WithMany(e => e.Presence);
 
             modelBuilder.Entity<DiscordGuild>(entity =>
             {
@@ -121,9 +126,9 @@ namespace OrderBot.EntityFramework
                         .WithMany(e => e.SupportedBy)
                         .UsingEntity<DiscordGuildMinorFaction>();
 
-            modelBuilder.Entity<DiscordGuildStarSystemMinorFactionGoal>(entity =>
+            modelBuilder.Entity<DiscordGuildPresenceGoal>(entity =>
             {
-                entity.ToTable("DiscordGuildStarSystemMinorFactionGoal");
+                entity.ToTable("DiscordGuildPresenceGoal");
 
                 entity.Property(e => e.Id)
                       .UseIdentityColumn();
@@ -132,13 +137,13 @@ namespace OrderBot.EntityFramework
                       .IsRequired();
             });
 
-            modelBuilder.Entity<DiscordGuildStarSystemMinorFactionGoal>()
+            modelBuilder.Entity<DiscordGuildPresenceGoal>()
                         .HasOne(e => e.DiscordGuild)
                         .WithMany()
                         .IsRequired();
 
-            modelBuilder.Entity<DiscordGuildStarSystemMinorFactionGoal>()
-                        .HasOne(e => e.StarSystemMinorFaction)
+            modelBuilder.Entity<DiscordGuildPresenceGoal>()
+                        .HasOne(e => e.Presence)
                         .WithMany()
                         .IsRequired();
 
