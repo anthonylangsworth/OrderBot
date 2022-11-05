@@ -3,7 +3,7 @@
 namespace OrderBot.ToDo
 {
     /// <summary>
-    /// Keep the minor faction in the system by do not control it.
+    /// Keep the minor faction in the system but do not control it.
     /// </summary>
     internal class MaintainGoal : Goal
     {
@@ -22,7 +22,8 @@ namespace OrderBot.ToDo
         }
 
         /// <summary>
-        /// Do Pro work if the influence falls below this value.
+        /// Do Pro work if the influence falls below this value. This is intentionally
+        /// higher than <see cref="RetreatGoal.InfluenceThreshold"/>.
         /// </summary>
         public static double LowerInfluenceThreshold => 0.1;
 
