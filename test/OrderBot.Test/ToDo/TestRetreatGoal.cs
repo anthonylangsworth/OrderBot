@@ -27,11 +27,11 @@ namespace OrderBot.Test.ToDo
         {
             ToDoList toDo = new(starSystemMinorFaction.MinorFaction.Name);
             RetreatGoal.Instance.AddSuggestions(starSystemMinorFaction, systemBgsData, systemConflicts, toDo);
-            Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
-            Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
-            Assert.That(toDo.ProSecurity, Is.EquivalentTo(expectedProSecurity).Using(DbSecurityInitiatedSuggestionEqualityComparer.Instance));
-            Assert.That(toDo.Wars, Is.EquivalentTo(expectedWars).Using(DbConflictInitiatedSuggestionEqualityComparer.Instance));
-            Assert.That(toDo.Elections, Is.EquivalentTo(expectedElections).Using(DbConflictInitiatedSuggestionEqualityComparer.Instance));
+            Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro));
+            Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti));
+            Assert.That(toDo.ProSecurity, Is.EquivalentTo(expectedProSecurity));
+            Assert.That(toDo.Wars, Is.EquivalentTo(expectedWars));
+            Assert.That(toDo.Elections, Is.EquivalentTo(expectedElections));
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()
