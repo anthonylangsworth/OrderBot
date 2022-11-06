@@ -50,7 +50,7 @@ namespace OrderBot.ToDo
         /// <param name="starSystemMinorFaction">
         /// The star system and minor faction to determine whether there are suggestions to perform.
         /// </param>
-        /// <param name="systemBgsData">
+        /// <param name="systemPresences">
         /// BGS details for all minor factions in the star system.
         /// </param>
         /// <param name="systemConflicts">
@@ -60,11 +60,11 @@ namespace OrderBot.ToDo
         /// Receives suggestions.
         /// </param>
         /// <exception cref="ArgumentException">
-        /// <paramref name="systemBgsData"/> must contain <paramref name="starSystemMinorFaction"/>. 
-        /// <paramref name="systemBgsData"/> must be for a single star system.
+        /// <paramref name="systemPresences"/> must contain <paramref name="starSystemMinorFaction"/>. 
+        /// <paramref name="systemPresences"/> must be for a single star system.
         /// </exception>
         public abstract void AddSuggestions(Presence starSystemMinorFaction,
-            IReadOnlySet<Presence> systemBgsData, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList);
+            IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList);
 
         /// <summary>
         /// Return the controlling minor faction, i.e. the one with the highest influence.
@@ -78,7 +78,7 @@ namespace OrderBot.ToDo
         /// <exception cref="InvalidOperationException">
         /// <paramref name="systemBgsData"/> is empty.
         /// </exception>
-        protected internal static Presence GetControllingMinorFaction(IReadOnlySet<Presence> systemBgsData)
+        protected internal static Presence GetControllingPresence(IReadOnlySet<Presence> systemBgsData)
         {
             return systemBgsData.OrderByDescending(ssmf => ssmf.Influence)
                                 .First();
@@ -91,7 +91,7 @@ namespace OrderBot.ToDo
         /// <param name="starSystemMinorFaction">
         /// Passed in.
         /// </param>
-        /// <param name="systemBgsData">
+        /// <param name="systemPresences">
         /// Passed in.
         /// </param>
         /// <param name="systemConflicts">
@@ -100,33 +100,33 @@ namespace OrderBot.ToDo
         /// <exception cref="ArgumentException">
         /// One or more of:
         /// <list type="bullet">
-        /// <item><paramref name="systemBgsData"/> must contain <paramref name="starSystemMinorFaction"/></item>
-        /// <item>All <paramref name="systemBgsData"/> must be for the star system in <paramref name="starSystemMinorFaction"/>.</item>
-        /// <item><paramref name="systemBgsData"/> must be for a single star system.</item>
+        /// <item><paramref name="systemPresences"/> must contain <paramref name="starSystemMinorFaction"/></item>
+        /// <item>All <paramref name="systemPresences"/> must be for the star system in <paramref name="starSystemMinorFaction"/>.</item>
+        /// <item><paramref name="systemPresences"/> must be for a single star system.</item>
         /// <item>All <paramref name="systemConflicts"/> must be in the star system in <paramref name="starSystemMinorFaction"/>.</item>
-        /// <item>All minor factions in <paramref name="systemConflicts"/> must be in <paramref name="systemBgsData"/>.</item>
+        /// <item>All minor factions in <paramref name="systemConflicts"/> must be in <paramref name="systemPresences"/>.</item>
         /// </list>
         /// </exception>
         protected internal static void CheckAddActionsPreconditions(Presence starSystemMinorFaction,
-            IReadOnlySet<Presence> systemBgsData, IReadOnlySet<Conflict> systemConflicts)
+            IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts)
         {
-            if (systemBgsData.Any(ssmf => ssmf.StarSystem != starSystemMinorFaction.StarSystem))
+            if (systemPresences.Any(ssmf => ssmf.StarSystem != starSystemMinorFaction.StarSystem))
             {
-                throw new ArgumentException($"All {nameof(systemBgsData)} must be for star system {starSystemMinorFaction.StarSystem.Name}");
+                throw new ArgumentException($"All {nameof(systemPresences)} must be for star system {starSystemMinorFaction.StarSystem.Name}");
             }
-            if (!systemBgsData.Contains(starSystemMinorFaction))
+            if (!systemPresences.Contains(starSystemMinorFaction))
             {
-                throw new ArgumentException($"{nameof(systemBgsData)} must contain {nameof(starSystemMinorFaction)}");
+                throw new ArgumentException($"{nameof(systemPresences)} must contain {nameof(starSystemMinorFaction)}");
             }
             if (systemConflicts.Any(c => c.StarSystem != starSystemMinorFaction.StarSystem))
             {
                 throw new ArgumentException($"All {nameof(systemConflicts)} must be in star system {starSystemMinorFaction.StarSystem.Name}");
             }
-            if (!systemBgsData.Select(ssmf => ssmf.MinorFaction)
+            if (!systemPresences.Select(ssmf => ssmf.MinorFaction)
                              .ToHashSet()
                              .IsSupersetOf(systemConflicts.SelectMany(c => new MinorFaction[] { c.MinorFaction1, c.MinorFaction2 })))
             {
-                throw new ArgumentException($"All minor factions in {nameof(systemConflicts)} must be in {nameof(systemBgsData)}");
+                throw new ArgumentException($"All minor factions in {nameof(systemConflicts)} must be in {nameof(systemPresences)}");
             }
         }
 

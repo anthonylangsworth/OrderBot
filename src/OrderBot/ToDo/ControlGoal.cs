@@ -33,9 +33,9 @@ namespace OrderBot.ToDo
 
         /// <inheritdoc/>
         public override void AddSuggestions(Presence starSystemMinorFaction,
-            IReadOnlySet<Presence> systemBgsData, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList)
+            IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList)
         {
-            CheckAddActionsPreconditions(starSystemMinorFaction, systemBgsData, systemConflicts);
+            CheckAddActionsPreconditions(starSystemMinorFaction, systemPresences, systemConflicts);
 
             if (!AddConflicts(systemConflicts, toDoList,
                 c => Fight.For(starSystemMinorFaction.MinorFaction, c)))
@@ -55,7 +55,7 @@ namespace OrderBot.ToDo
             }
 
             // Security only applies for the controlling minor faction
-            if (starSystemMinorFaction == GetControllingMinorFaction(systemBgsData)
+            if (starSystemMinorFaction == GetControllingPresence(systemPresences)
                 && starSystemMinorFaction.SecurityLevel == SecurityLevel.Low)
             {
                 toDoList.ProSecurity.Add(new SecuritySuggestion { StarSystem = starSystemMinorFaction.StarSystem, SecurityLevel = starSystemMinorFaction.SecurityLevel });

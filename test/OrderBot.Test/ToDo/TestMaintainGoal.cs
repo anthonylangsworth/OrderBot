@@ -68,6 +68,13 @@ namespace OrderBot.Test.ToDo
                 Influence = MaintainGoal.LowerInfluenceThreshold + 0.01,
                 SecurityLevel = null
             };
+            Presence flyingFishControl = new()
+            {
+                StarSystem = polaris,
+                MinorFaction = flyingFish,
+                Influence = 0.9,
+                SecurityLevel = null
+            };
             Presence bloatedJellyFishInPolaris = new()
             {
                 StarSystem = polaris,
@@ -160,6 +167,16 @@ namespace OrderBot.Test.ToDo
                     Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions AboveLower"),
                 new TestCaseData(
+                    flyingFishControl,
+                    new HashSet<Presence> { flyingFishControl, blackSwanInPolaris },
+                    new HashSet<Conflict>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = flyingFishControl.Influence, Description = "Avoid Control" } },
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    Array.Empty<ConflictSuggestion>()
+                ).SetName("AddActions Controlling"),
+                new TestCaseData(
                     flyingFishBelowLower,
                     new HashSet<Presence>() { flyingFishBelowLower, bloatedJellyFishInPolaris },
                     new HashSet<Conflict>() { flyingVsJellyFishWar },
@@ -175,7 +192,8 @@ namespace OrderBot.Test.ToDo
                             FightAgainst = flyingFish,
                             FightAgainstWonDays = flyingVsJellyFishWar.MinorFaction1WonDays,
                             State = ConflictState.CloseDefeat,
-                            WarType = flyingVsJellyFishWar.WarType
+                            WarType = flyingVsJellyFishWar.WarType,
+                            Description = "Avoid Control"
                         }
                     },
                     Array.Empty<ConflictSuggestion>()
@@ -198,7 +216,7 @@ namespace OrderBot.Test.ToDo
                             FightAgainstWonDays = swanVsFlyingFishElection.MinorFaction1WonDays,
                             State = ConflictState.CloseDefeat,
                             WarType = swanVsFlyingFishElection.WarType,
-                            // Description = "Avoid Control"
+                            Description = "Avoid Control"
                         }
                     }
                 ).SetName("AddActions Election Against Faction when Controlling"),

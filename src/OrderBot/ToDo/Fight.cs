@@ -21,12 +21,14 @@ namespace OrderBot.ToDo
         /// <param name="conflict">
         /// THe <see cref="Conflict"/> to check.
         /// </param>
+        /// <param name="description">
+        /// A optional, short, human-readable reason why this suggestion exists.
+        /// </param>
         /// <returns>
         /// A <see cref="ConflictSuggestion"/> if we should participate, <c>null</c> otherwise.
         /// </returns>
-        internal static ConflictSuggestion? Between(
-            MinorFaction fightFor, MinorFaction fightAgainst, Conflict conflict
-        )
+        internal static ConflictSuggestion? Between(MinorFaction fightFor, MinorFaction fightAgainst,
+            Conflict conflict, string? description = null)
         {
             MinorFaction fightForMinorFaction = null!;
             int fightForWonDays = 0;
@@ -61,7 +63,8 @@ namespace OrderBot.ToDo
                 FightAgainst = fightAgainstMinorFaction,
                 FightAgainstWonDays = fightAgainstWonDays,
                 State = Conflict.GetState(conflict.Status, fightForWonDays, fightAgainstWonDays),
-                WarType = conflict.WarType
+                WarType = conflict.WarType,
+                Description = description
             };
         }
 
@@ -74,11 +77,15 @@ namespace OrderBot.ToDo
         /// <param name="conflict">
         /// The <see cref="Conflict"/> to check.
         /// </param>
+        /// <param name="description">
+        /// A optional, short, human-readable reason why this suggestion exists.
+        /// </param>
         /// <returns>
         /// A <see cref="ConflictSuggestion"/> if we should participate, <c>null</c> otherwise.
         /// </returns>
-        internal static ConflictSuggestion? For(MinorFaction minorFaction, Conflict conflict)
-            => ForOrAgainst(minorFaction, true, conflict);
+        internal static ConflictSuggestion? For(MinorFaction minorFaction, Conflict conflict,
+            string? description = null)
+            => ForOrAgainst(minorFaction, true, conflict, description);
 
         /// <summary>
         /// Fight agsinst <paramref name="minorFaction"/>.
@@ -89,11 +96,15 @@ namespace OrderBot.ToDo
         /// <param name="conflict">
         /// The <see cref="Conflict"/> to check.
         /// </param>
+        /// <param name="description">
+        /// A optional, short, human-readable reason why this suggestion exists.
+        /// </param>
         /// <returns>
         /// A <see cref="ConflictSuggestion"/> if we should participate, <c>null</c> otherwise.
         /// </returns>
-        internal static ConflictSuggestion? Against(MinorFaction minorFaction, Conflict conflict)
-            => ForOrAgainst(minorFaction, false, conflict);
+        internal static ConflictSuggestion? Against(MinorFaction minorFaction, Conflict conflict,
+            string? description = null)
+            => ForOrAgainst(minorFaction, false, conflict, description);
 
         /// <summary>
         /// Participate in a conflict if it is fighting for or against <paramref name="minorFaction"/>, 
@@ -109,11 +120,14 @@ namespace OrderBot.ToDo
         /// <param name="conflict">
         /// The <see cref="Conflict"/> to check.
         /// </param>
+        /// <param name="description">
+        /// A optional, short, human-readable reason why this suggestion exists.
+        /// </param>
         /// <returns>
         /// A <see cref="ConflictSuggestion"/> if we should participate, <c>null</c> otherwise.
         /// </returns>
         internal static ConflictSuggestion? ForOrAgainst(
-            MinorFaction minorFaction, bool fightFor, Conflict conflict)
+            MinorFaction minorFaction, bool fightFor, Conflict conflict, string? description = null)
         {
             MinorFaction fightForMinorFaction = null!;
             int fightForWonDays = 0;
@@ -148,7 +162,8 @@ namespace OrderBot.ToDo
                 FightAgainst = fightAgainstMinorFaction,
                 FightAgainstWonDays = fightAgainstWonDays,
                 State = Conflict.GetState(conflict.Status, fightForWonDays, fightAgainstWonDays),
-                WarType = conflict.WarType
+                WarType = conflict.WarType,
+                Description = description
             };
         }
     }

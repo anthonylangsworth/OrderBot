@@ -19,7 +19,7 @@ namespace OrderBot.Test.ToDo
             };
             Assert.That(
                 () => Goal.CheckAddActionsPreconditions(bgsData.First(), bgsData, new HashSet<Conflict>()),
-                Throws.ArgumentException.And.Property("Message").EqualTo("All systemBgsData must be for star system Betelgeuse"));
+                Throws.ArgumentException.And.Property("Message").EqualTo("All systemPresences must be for star system Betelgeuse"));
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace OrderBot.Test.ToDo
             Presence different = new() { StarSystem = betelgeuse, MinorFaction = bunnyHoppers, Influence = 0.5 };
             Assert.That(
                 () => Goal.CheckAddActionsPreconditions(different, bgsData, new HashSet<Conflict>()),
-                Throws.ArgumentException.And.Property("Message").EqualTo("systemBgsData must contain starSystemMinorFaction"));
+                Throws.ArgumentException.And.Property("Message").EqualTo("systemPresences must contain starSystemMinorFaction"));
         }
 
         [Test]
@@ -85,13 +85,13 @@ namespace OrderBot.Test.ToDo
             };
             Assert.That(
                 () => Goal.CheckAddActionsPreconditions(bgsData.First(), bgsData, conflicts),
-                Throws.ArgumentException.And.Property("Message").EqualTo("All minor factions in systemConflicts must be in systemBgsData"));
+                Throws.ArgumentException.And.Property("Message").EqualTo("All minor factions in systemConflicts must be in systemPresences"));
         }
 
         [TestCaseSource(nameof(GetControllingMinorFaction_Source))]
         public Presence GetControllingMinorFaction(IReadOnlySet<Presence> systemBgsData)
         {
-            return Goal.GetControllingMinorFaction(systemBgsData);
+            return Goal.GetControllingPresence(systemBgsData);
         }
 
         public static IEnumerable<TestCaseData> GetControllingMinorFaction_Source()
