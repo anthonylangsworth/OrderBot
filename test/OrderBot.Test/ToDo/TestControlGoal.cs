@@ -189,7 +189,8 @@ namespace OrderBot.Test.ToDo
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<SecuritySuggestion>(),
-                    new List<ConflictSuggestion>() {
+                    new List<ConflictSuggestion>()
+                    {
                         new ConflictSuggestion()
                         {
                             StarSystem = polaris,
@@ -210,7 +211,8 @@ namespace OrderBot.Test.ToDo
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<SecuritySuggestion>(),
-                    new List<ConflictSuggestion>() {
+                    new List<ConflictSuggestion>()
+                    {
                         new ConflictSuggestion()
                         {
                             StarSystem = polaris,
@@ -232,7 +234,8 @@ namespace OrderBot.Test.ToDo
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<SecuritySuggestion>(),
                     Array.Empty<ConflictSuggestion>(),
-                    new List<ConflictSuggestion>() {
+                    new List<ConflictSuggestion>()
+                    {
                         new ConflictSuggestion()
                         {
                             StarSystem = polaris,
