@@ -16,7 +16,7 @@ namespace OrderBot.Test.ToDo
         }
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
-        public void AddActions(Presence starSystemMinorFaction,
+        public void AddActions(Presence presence,
             IReadOnlySet<Presence> systemBgsData,
             IReadOnlySet<Conflict> systemConflicts,
             IEnumerable<InfluenceSuggestion> expectedPro,
@@ -25,35 +25,43 @@ namespace OrderBot.Test.ToDo
             IEnumerable<ConflictSuggestion> expectedWars,
             IEnumerable<ConflictSuggestion> expectedElections)
         {
-            ToDoList toDo = new(starSystemMinorFaction.MinorFaction.Name);
-            MaintainGoal.Instance.AddSuggestions(starSystemMinorFaction, systemBgsData, systemConflicts, toDo);
+            ToDoList toDo = new(presence.MinorFaction.Name);
+            MaintainGoal.Instance.AddSuggestions(presence, systemBgsData, systemConflicts, toDo);
             Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
             Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
             Assert.That(toDo.ProSecurity, Is.EquivalentTo(expectedProSecurity).Using(DbSecurityInitiatedSuggestionEqualityComparer.Instance));
-            Assert.That(toDo.Wars, Is.EquivalentTo(expectedWars).Using(DbSecurityInitiatedSuggestionEqualityComparer.Instance));
-            Assert.That(toDo.Elections, Is.EquivalentTo(expectedElections).Using(DbSecurityInitiatedSuggestionEqualityComparer.Instance));
+            Assert.That(toDo.Wars, Is.EquivalentTo(expectedWars).Using(DbConflictInitiatedSuggestionEqualityComparer.Instance));
+            Assert.That(toDo.Elections, Is.EquivalentTo(expectedElections).Using(DbConflictInitiatedSuggestionEqualityComparer.Instance));
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()
         {
             StarSystem polaris = new() { Name = "Polaris", LastUpdated = DateTime.UtcNow };
+            MinorFaction blackSwans = new() { Name = "Black Swans" };
             MinorFaction flyingFish = new() { Name = "Flying Fish" };
             MinorFaction bloatedJellyFish = new() { Name = "Bloated Jelly Fish" };
-            Presence belowLower = new()
+            Presence blackSwanInPolaris = new()
+            {
+                StarSystem = polaris,
+                MinorFaction = blackSwans,
+                Influence = 0.2,
+                SecurityLevel = null
+            };
+            Presence flyingFishBelowLower = new()
             {
                 StarSystem = polaris,
                 MinorFaction = flyingFish,
                 Influence = MaintainGoal.LowerInfluenceThreshold - 0.01,
                 SecurityLevel = null
             };
-            Presence atLower = new()
+            Presence flyingFishAtLower = new()
             {
                 StarSystem = polaris,
                 MinorFaction = flyingFish,
                 Influence = MaintainGoal.LowerInfluenceThreshold,
                 SecurityLevel = null
             };
-            Presence aboveLower = new()
+            Presence flyingFishAboveLower = new()
             {
                 StarSystem = polaris,
                 MinorFaction = flyingFish,
@@ -67,7 +75,7 @@ namespace OrderBot.Test.ToDo
                 Influence = ControlGoal.UpperInfluenceThreshold,
                 SecurityLevel = null
             };
-            Conflict war = new()
+            Conflict flyingVsJellyFishWar = new()
             {
                 StarSystem = polaris,
                 MinorFaction1 = flyingFish,
@@ -77,42 +85,63 @@ namespace OrderBot.Test.ToDo
                 WarType = WarType.War,
                 Status = ConflictStatus.Active
             };
-            Conflict civilWar = new()
+            Conflict swanVsFlyingFishElection = new()
             {
                 StarSystem = polaris,
-                MinorFaction1 = bloatedJellyFish,
-                MinorFaction1WonDays = 0,
-                MinorFaction2 = flyingFish,
-                MinorFaction2WonDays = 3,
-                WarType = WarType.CivilWar,
-                Status = ConflictStatus.Active
-            };
-            Conflict election = new()
-            {
-                StarSystem = polaris,
-                MinorFaction1 = bloatedJellyFish,
-                MinorFaction1WonDays = 2,
-                MinorFaction2 = flyingFish,
-                MinorFaction2WonDays = 1,
+                MinorFaction1 = flyingFish,
+                MinorFaction1WonDays = 3,
+                MinorFaction2 = blackSwans,
+                MinorFaction2WonDays = 2,
                 WarType = WarType.Election,
                 Status = ConflictStatus.Active
             };
 
+
             return new[]
             {
-                //new TestCaseData(
-                //    belowLower,
-                //    new HashSet<StarSystemMinorFaction>() { belowLower },
-                //    new HashSet<Conflict>(),
-                //    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = belowLower.Influence } },
-                //    Array.Empty<InfluenceSuggestion>(),
-                //    Array.Empty<SecuritySuggestion>(),
-                //    Array.Empty<ConflictSuggestion>(),
-                //    Array.Empty<ConflictSuggestion>()
-                //).SetName("AddActions BelowLower"),
                 new TestCaseData(
-                    atLower,
-                    new HashSet<Presence> { atLower },
+                    flyingFishBelowLower,
+                    new HashSet<Presence>() { flyingFishBelowLower },
+                    new HashSet<Conflict>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    Array.Empty<ConflictSuggestion>()
+                ).SetName("AddActions BelowLower Single Presence"),
+                new TestCaseData(
+                    flyingFishAtLower,
+                    new HashSet<Presence> { flyingFishAtLower },
+                    new HashSet<Conflict>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    Array.Empty<ConflictSuggestion>()
+                ).SetName("AddActions AtLower Single Presence"),
+                new TestCaseData(
+                    flyingFishAboveLower,
+                    new HashSet<Presence> { flyingFishAboveLower },
+                    new HashSet<Conflict>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    Array.Empty<ConflictSuggestion>()
+                ).SetName("AddActions AboveLower Single Presence"),
+                new TestCaseData(
+                    flyingFishBelowLower,
+                    new HashSet<Presence>() { flyingFishBelowLower, blackSwanInPolaris },
+                    new HashSet<Conflict>(),
+                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = flyingFishBelowLower.Influence } },
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    Array.Empty<ConflictSuggestion>()
+                ).SetName("AddActions BelowLower"),
+                new TestCaseData(
+                    flyingFishAtLower,
+                    new HashSet<Presence> { flyingFishAtLower, blackSwanInPolaris },
                     new HashSet<Conflict>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
@@ -121,8 +150,8 @@ namespace OrderBot.Test.ToDo
                     Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions AtLower"),
                 new TestCaseData(
-                    aboveLower,
-                    new HashSet<Presence> { aboveLower },
+                    flyingFishAboveLower,
+                    new HashSet<Presence> { flyingFishAboveLower, blackSwanInPolaris },
                     new HashSet<Conflict>(),
                     Array.Empty<InfluenceSuggestion>(),
                     Array.Empty<InfluenceSuggestion>(),
@@ -130,69 +159,70 @@ namespace OrderBot.Test.ToDo
                     Array.Empty<ConflictSuggestion>(),
                     Array.Empty<ConflictSuggestion>()
                 ).SetName("AddActions AboveLower"),
-                //new TestCaseData(
-                //    belowLower,
-                //    new HashSet<StarSystemMinorFaction>() { belowLower, bloatedJellyFishInPolaris },
-                //    new HashSet<Conflict>() { war },
-                //    Array.Empty<InfluenceSuggestion>(),
-                //    Array.Empty<InfluenceSuggestion>(),
-                //    Array.Empty<SecuritySuggestion>(),
-                //    new List<ConflictSuggestion>() {
-                //        new ConflictSuggestion()
-                //        {
-                //            StarSystem = polaris,
-                //            FightFor = flyingFish,
-                //            FightForWonDays = war.MinorFaction1WonDays,
-                //            FightAgainst = bloatedJellyFish,
-                //            FightAgainstWonDays = war.MinorFaction2WonDays,
-                //            State = ConflictState.CloseVictory,
-                //            WarType = war.WarType
-                //        }
-                //    },
-                //    Array.Empty<ConflictSuggestion>()
-                //).SetName("AddActions War"),
-                //new TestCaseData(
-                //    belowLower,
-                //    new HashSet<StarSystemMinorFaction>() { belowLower, bloatedJellyFishInPolaris },
-                //    new HashSet<Conflict>() { civilWar },
-                //    Array.Empty<InfluenceSuggestion>(),
-                //    Array.Empty<InfluenceSuggestion>(),
-                //    Array.Empty<SecuritySuggestion>(),
-                //    new List<ConflictSuggestion>() {
-                //        new ConflictSuggestion()
-                //        {
-                //            StarSystem = polaris,
-                //            FightFor = flyingFish,
-                //            FightForWonDays = civilWar.MinorFaction2WonDays,
-                //            FightAgainst = bloatedJellyFish,
-                //            FightAgainstWonDays = civilWar.MinorFaction1WonDays,
-                //            State = ConflictState.TotalVictory,
-                //            WarType = civilWar.WarType
-                //        }
-                //    },
-                //    Array.Empty<ConflictSuggestion>()
-                //).SetName("AddActions CivilWar"),
-                //new TestCaseData(
-                //    belowLower,
-                //    new HashSet<StarSystemMinorFaction>() { belowLower, bloatedJellyFishInPolaris },
-                //    new HashSet<Conflict>() { election },
-                //    Array.Empty<InfluenceSuggestion>(),
-                //    Array.Empty<InfluenceSuggestion>(),
-                //    Array.Empty<SecuritySuggestion>(),
-                //    Array.Empty<ConflictSuggestion>(),
-                //    new List<ConflictSuggestion>() {
-                //        new ConflictSuggestion()
-                //        {
-                //            StarSystem = polaris,
-                //            FightFor = flyingFish,
-                //            FightForWonDays = election.MinorFaction2WonDays,
-                //            FightAgainst = bloatedJellyFish,
-                //            FightAgainstWonDays = election.MinorFaction1WonDays,
-                //            State = ConflictState.CloseDefeat,
-                //            WarType = election.WarType
-                //        }
-                //    }
-                //).SetName("AddActions Election"),
+                new TestCaseData(
+                    flyingFishBelowLower,
+                    new HashSet<Presence>() { flyingFishBelowLower, bloatedJellyFishInPolaris },
+                    new HashSet<Conflict>() { flyingVsJellyFishWar },
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>(),
+                    new List<ConflictSuggestion>() {
+                        new ConflictSuggestion()
+                        {
+                            StarSystem = polaris,
+                            FightFor = bloatedJellyFish,
+                            FightForWonDays = flyingVsJellyFishWar.MinorFaction2WonDays,
+                            FightAgainst = flyingFish,
+                            FightAgainstWonDays = flyingVsJellyFishWar.MinorFaction1WonDays,
+                            State = ConflictState.CloseDefeat,
+                            WarType = flyingVsJellyFishWar.WarType
+                        }
+                    },
+                    Array.Empty<ConflictSuggestion>()
+                ).SetName("AddActions War Against Controlling Faction"),
+                new TestCaseData(
+                    flyingFishBelowLower,
+                    new HashSet<Presence>() { flyingFishBelowLower, blackSwanInPolaris },
+                    new HashSet<Conflict>() { swanVsFlyingFishElection },
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    new List<ConflictSuggestion>() {
+                        new ConflictSuggestion()
+                        {
+                            StarSystem = polaris,
+                            FightFor = blackSwans,
+                            FightForWonDays = swanVsFlyingFishElection.MinorFaction2WonDays,
+                            FightAgainst = flyingFish,
+                            FightAgainstWonDays = swanVsFlyingFishElection.MinorFaction1WonDays,
+                            State = ConflictState.CloseDefeat,
+                            WarType = swanVsFlyingFishElection.WarType,
+                            // Description = "Avoid Control"
+                        }
+                    }
+                ).SetName("AddActions Election Against Faction when Controlling"),
+                new TestCaseData(
+                    flyingFishBelowLower,
+                    new HashSet<Presence>() { flyingFishBelowLower, blackSwanInPolaris, bloatedJellyFishInPolaris },
+                    new HashSet<Conflict>() { swanVsFlyingFishElection },
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<InfluenceSuggestion>(),
+                    Array.Empty<SecuritySuggestion>(),
+                    Array.Empty<ConflictSuggestion>(),
+                    new List<ConflictSuggestion>() {
+                        new ConflictSuggestion()
+                        {
+                            StarSystem = polaris,
+                            FightFor = flyingFish,
+                            FightForWonDays = swanVsFlyingFishElection.MinorFaction1WonDays,
+                            FightAgainst = blackSwans,
+                            FightAgainstWonDays = swanVsFlyingFishElection.MinorFaction2WonDays,
+                            State = ConflictState.CloseVictory,
+                            WarType = swanVsFlyingFishElection.WarType
+                        }
+                    }
+                ).SetName("AddActions Election Against Faction when Not Controlling")
             };
         }
     }
