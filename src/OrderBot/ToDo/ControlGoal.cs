@@ -32,31 +32,36 @@ namespace OrderBot.ToDo
         public static double UpperInfluenceThreshold => 0.65;
 
         /// <inheritdoc/>
-        public override void AddSuggestions(Presence starSystemMinorFaction,
-            IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList)
+        public override IEnumerable<Suggestion> GetSuggestions(Presence starSystemMinorFaction,
+            IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts)
         {
             CheckAddActionsPreconditions(starSystemMinorFaction, systemPresences, systemConflicts);
 
-            if (!AddConflicts(systemConflicts, toDoList,
-                c => Fight.For(starSystemMinorFaction.MinorFaction, c)))
+            ConflictSuggestion? conflictSuggestion =
+                GetConflict(systemConflicts, c => Fight.For(starSystemMinorFaction.MinorFaction, c));
+            if (conflictSuggestion != null)
+            {
+                yield return conflictSuggestion;
+            }
+            else
             {
                 if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
                 {
-                    toDoList.Suggestions.Add(new InfluenceSuggestion
+                    yield return new InfluenceSuggestion
                     {
                         StarSystem = starSystemMinorFaction.StarSystem,
                         Influence = starSystemMinorFaction.Influence,
                         Pro = true
-                    });
+                    };
                 }
                 else if (starSystemMinorFaction.Influence > UpperInfluenceThreshold)
                 {
-                    toDoList.Suggestions.Add(new InfluenceSuggestion
+                    yield return new InfluenceSuggestion
                     {
                         StarSystem = starSystemMinorFaction.StarSystem,
                         Influence = starSystemMinorFaction.Influence,
                         Pro = false
-                    });
+                    };
                 }
             }
 
@@ -64,11 +69,11 @@ namespace OrderBot.ToDo
             if (starSystemMinorFaction == GetControllingPresence(systemPresences)
                 && starSystemMinorFaction.SecurityLevel == SecurityLevel.Low)
             {
-                toDoList.Suggestions.Add(new SecuritySuggestion
+                yield return new SecuritySuggestion
                 {
                     StarSystem = starSystemMinorFaction.StarSystem,
                     SecurityLevel = starSystemMinorFaction.SecurityLevel
-                });
+                };
             }
         }
     }

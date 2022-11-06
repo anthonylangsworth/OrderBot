@@ -15,13 +15,12 @@ namespace OrderBot.Test.ToDo
 
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
-        public void AddActions(Presence starSystemMinorFaction,
-            IReadOnlySet<Presence> systemPresences,
+        public void AddActions(Presence starSystemMinorFaction, IReadOnlySet<Presence> systemPresences,
             IReadOnlySet<Conflict> systemConflicts)
         {
-            ToDoList toDo = new(starSystemMinorFaction.MinorFaction.Name);
-            IgnoreGoal.Instance.AddSuggestions(starSystemMinorFaction, systemPresences, systemConflicts, toDo);
-            Assert.That(toDo.Suggestions, Is.Empty);
+            Assert.That(
+                IgnoreGoal.Instance.GetSuggestions(starSystemMinorFaction, systemPresences, systemConflicts),
+                Is.Empty);
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()

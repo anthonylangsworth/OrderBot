@@ -16,14 +16,10 @@ namespace OrderBot.Test.ToDo
         }
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
-        public void AddActions(Presence presence,
-            IReadOnlySet<Presence> systemPresences,
-            IReadOnlySet<Conflict> systemConflicts,
-            IEnumerable<Suggestion> expectedSuggestions)
+        public IEnumerable<Suggestion> AddActions(Presence presence, IReadOnlySet<Presence> systemPresences,
+            IReadOnlySet<Conflict> systemConflicts)
         {
-            ToDoList toDo = new(presence.MinorFaction.Name);
-            MaintainGoal.Instance.AddSuggestions(presence, systemPresences, systemConflicts, toDo);
-            Assert.That(toDo.Suggestions, Is.EquivalentTo(expectedSuggestions));
+            return MaintainGoal.Instance.GetSuggestions(presence, systemPresences, systemConflicts);
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()
@@ -101,50 +97,50 @@ namespace OrderBot.Test.ToDo
                 new TestCaseData(
                     flyingFishBelowLower,
                     new HashSet<Presence>() { flyingFishBelowLower },
-                    new HashSet<Conflict>(),
-                    Array.Empty<Suggestion>()
-                ).SetName("AddActions BelowLower Single Presence"),
+                    new HashSet<Conflict>()
+                ).Returns(Array.Empty<Suggestion>())
+                 .SetName("AddActions BelowLower Single Presence"),
                 new TestCaseData(
                     flyingFishAtLower,
                     new HashSet<Presence> { flyingFishAtLower },
-                    new HashSet<Conflict>(),
-                    Array.Empty<Suggestion>()
-                ).SetName("AddActions AtLower Single Presence"),
+                    new HashSet<Conflict>()
+                ).Returns(Array.Empty<Suggestion>())
+                 .SetName("AddActions AtLower Single Presence"),
                 new TestCaseData(
                     flyingFishAboveLower,
                     new HashSet<Presence> { flyingFishAboveLower },
-                    new HashSet<Conflict>(),
-                    Array.Empty<Suggestion>()
-                ).SetName("AddActions AboveLower Single Presence"),
+                    new HashSet<Conflict>()
+                ).Returns(Array.Empty<Suggestion>())
+                 .SetName("AddActions AboveLower Single Presence"),
                 new TestCaseData(
                     flyingFishBelowLower,
                     new HashSet<Presence>() { flyingFishBelowLower, blackSwanInPolaris },
-                    new HashSet<Conflict>(),
-                    new Suggestion[] { new InfluenceSuggestion() { StarSystem = polaris, Influence = flyingFishBelowLower.Influence, Pro = true } }
-                ).SetName("AddActions BelowLower"),
+                    new HashSet<Conflict>()
+                ).Returns(new Suggestion[] { new InfluenceSuggestion() { StarSystem = polaris, Influence = flyingFishBelowLower.Influence, Pro = true } })
+                 .SetName("AddActions BelowLower"),
                 new TestCaseData(
                     flyingFishAtLower,
                     new HashSet<Presence> { flyingFishAtLower, blackSwanInPolaris },
-                    new HashSet<Conflict>(),
-                    Array.Empty<Suggestion>()
-                ).SetName("AddActions AtLower"),
+                    new HashSet<Conflict>()
+                ).Returns(Array.Empty<Suggestion>())
+                 .SetName("AddActions AtLower"),
                 new TestCaseData(
                     flyingFishAboveLower,
                     new HashSet<Presence> { flyingFishAboveLower, blackSwanInPolaris },
-                    new HashSet<Conflict>(),
-                    Array.Empty<Suggestion>()
-                ).SetName("AddActions AboveLower"),
+                    new HashSet<Conflict>()
+                ).Returns(Array.Empty<Suggestion>())
+                 .SetName("AddActions AboveLower"),
                 new TestCaseData(
                     flyingFishControl,
                     new HashSet<Presence> { flyingFishControl, blackSwanInPolaris },
-                    new HashSet<Conflict>(),
-                    new Suggestion[] { new InfluenceSuggestion() { StarSystem = polaris, Influence = flyingFishControl.Influence, Pro = false, Description = "Avoid Control" } }
-                ).SetName("AddActions Controlling"),
+                    new HashSet<Conflict>()
+                ).Returns(new Suggestion[] { new InfluenceSuggestion() { StarSystem = polaris, Influence = flyingFishControl.Influence, Pro = false, Description = "Avoid Control" } })
+                 .SetName("AddActions Controlling"),
                 new TestCaseData(
                     flyingFishBelowLower,
                     new HashSet<Presence>() { flyingFishBelowLower, bloatedJellyFishInPolaris },
-                    new HashSet<Conflict>() { flyingVsJellyFishWar },
-                    new Suggestion[]
+                    new HashSet<Conflict>() { flyingVsJellyFishWar }
+                ).Returns(new Suggestion[]
                     {
                         new ConflictSuggestion()
                         {
@@ -157,13 +153,13 @@ namespace OrderBot.Test.ToDo
                             WarType = flyingVsJellyFishWar.WarType,
                             Description = "Avoid Control"
                         }
-                    }
-                ).SetName("AddActions War Against Controlling Faction"),
+                    })
+                 .SetName("AddActions War Against Controlling Faction"),
                 new TestCaseData(
                     flyingFishBelowLower,
                     new HashSet<Presence>() { flyingFishBelowLower, blackSwanInPolaris },
-                    new HashSet<Conflict>() { swanVsFlyingFishElection },
-                    new Suggestion[]
+                    new HashSet<Conflict>() { swanVsFlyingFishElection }
+                ).Returns(new Suggestion[]
                     {
                         new ConflictSuggestion()
                         {
@@ -176,13 +172,13 @@ namespace OrderBot.Test.ToDo
                             WarType = swanVsFlyingFishElection.WarType,
                             Description = "Avoid Control"
                         }
-                    }
-                ).SetName("AddActions Election Against Faction when Controlling"),
+                    })
+                 .SetName("AddActions Election Against Faction when Controlling"),
                 new TestCaseData(
                     flyingFishBelowLower,
                     new HashSet<Presence>() { flyingFishBelowLower, blackSwanInPolaris, bloatedJellyFishInPolaris },
-                    new HashSet<Conflict>() { swanVsFlyingFishElection },
-                    new Suggestion[]
+                    new HashSet<Conflict>() { swanVsFlyingFishElection }
+                ).Returns(new Suggestion[]
                     {
                         new ConflictSuggestion()
                         {
@@ -194,8 +190,8 @@ namespace OrderBot.Test.ToDo
                             State = ConflictState.CloseVictory,
                             WarType = swanVsFlyingFishElection.WarType
                         }
-                    }
-                ).SetName("AddActions Election Against Faction when Not Controlling")
+                    })
+                 .SetName("AddActions Election Against Faction when Not Controlling")
             };
         }
     }

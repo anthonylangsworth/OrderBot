@@ -56,15 +56,12 @@ namespace OrderBot.ToDo
         /// <param name="systemConflicts">
         /// Conflicts in the star systems..
         /// </param>
-        /// <param name="toDoList">
-        /// Receives suggestions.
-        /// </param>
         /// <exception cref="ArgumentException">
         /// <paramref name="systemPresences"/> must contain <paramref name="starSystemMinorFaction"/>. 
         /// <paramref name="systemPresences"/> must be for a single star system.
         /// </exception>
-        public abstract void AddSuggestions(Presence starSystemMinorFaction,
-            IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList);
+        public abstract IEnumerable<Suggestion> GetSuggestions(Presence starSystemMinorFaction,
+            IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts);
 
         /// <summary>
         /// Return the controlling minor faction, i.e. the one with the highest influence.
@@ -137,44 +134,22 @@ namespace OrderBot.ToDo
         /// <param name="systemConflicts">
         /// All conflicts in this system.
         /// </param>
-        /// <param name="toDoList">
-        /// The <see cref="ToDoList"/> to add the goals to.
-        /// </param>
         /// <param name="getConflicts">
         /// Call each of these, in order, on the <paramref name="systemConflicts"/> to determine
         /// if we should fight in this war. Return the first non-null <see cref="ConflictSuggestion"/>.
         /// See <see cref="Fight"/> for options.
         /// </param>
-        /// <returns></returns>
+        /// <returns>
+        /// The <see cref="ConflictSuggestion"/> to add or <c>null</c>, if none.
+        /// </returns>
         /// <exception cref="InvalidOperationException"></exception>
-        protected internal static bool AddConflicts(IReadOnlySet<Conflict> systemConflicts, ToDoList toDoList,
+        protected internal static ConflictSuggestion? GetConflict(
+            IReadOnlySet<Conflict> systemConflicts,
             params Func<Conflict, ConflictSuggestion?>[] getConflicts)
         {
-            bool conflictAdded = false;
-
-            ConflictSuggestion? conflictSuggestion = getConflicts.Select(gc => systemConflicts.Select(c => gc(c))
-                                                                                              .FirstOrDefault(cs => cs != null))
-                                                                 .FirstOrDefault(cs => cs != null);
-            if (conflictSuggestion != null)
-            {
-                if (Conflict.IsWar(conflictSuggestion.WarType))
-                {
-                    toDoList.Suggestions.Add(conflictSuggestion);
-                }
-                else if (Conflict.IsElection(conflictSuggestion.WarType))
-                {
-                    toDoList.Suggestions.Add(conflictSuggestion);
-                }
-                else
-                {
-                    // Defensive
-                    throw new InvalidOperationException($"Unknown war type in {conflictSuggestion}");
-                }
-
-                conflictAdded = true;
-            }
-
-            return conflictAdded;
+            return getConflicts.Select(gc => systemConflicts.Select(c => gc(c))
+                                                            .FirstOrDefault(cs => cs != null))
+                               .FirstOrDefault(cs => cs != null);
         }
     }
 }

@@ -16,14 +16,10 @@ namespace OrderBot.Test.ToDo
 
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
-        public void AddActions(Presence starSystemMinorFaction,
-            IReadOnlySet<Presence> systemPresences,
-            IReadOnlySet<Conflict> systemConflicts,
-            IEnumerable<Suggestion> expectedSuggestions)
+        public IEnumerable<Suggestion> AddActions(Presence starSystemMinorFaction, IReadOnlySet<Presence> systemPresences,
+            IReadOnlySet<Conflict> systemConflicts)
         {
-            ToDoList toDo = new(starSystemMinorFaction.MinorFaction.Name);
-            ExpandGoal.Instance.AddSuggestions(starSystemMinorFaction, systemPresences, systemConflicts, toDo);
-            Assert.That(toDo.Suggestions, Is.EquivalentTo(expectedSuggestions));
+            return ExpandGoal.Instance.GetSuggestions(starSystemMinorFaction, systemPresences, systemConflicts);
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()
@@ -95,26 +91,26 @@ namespace OrderBot.Test.ToDo
                 new TestCaseData(
                     below,
                     new HashSet<Presence>() { below },
-                    new HashSet<Conflict>(),
-                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = below.Influence, Pro = true } }
-                ).SetName("AddActions Below"),
+                    new HashSet<Conflict>()
+                ).Returns(new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = below.Influence, Pro = true } })
+                 .SetName("AddActions Below"),
                 new TestCaseData(
                     at,
                     new HashSet<Presence> { at },
-                    new HashSet<Conflict>(),
-                    Array.Empty<Suggestion>()
-                ).SetName("AddActions At"),
+                    new HashSet<Conflict>()
+                ).Returns(Array.Empty<Suggestion>())
+                 .SetName("AddActions At"),
                 new TestCaseData(
                     above,
                     new HashSet<Presence> { above },
-                    new HashSet<Conflict>(),
-                    Array.Empty<Suggestion>()
-                ).SetName("AddActions Above"),
+                    new HashSet<Conflict>()
+                ).Returns(Array.Empty<Suggestion>())
+                 .SetName("AddActions Above"),
                 new TestCaseData(
                     below,
                     new HashSet<Presence>() { below, bloatedJellyFishInPolaris },
-                    new HashSet<Conflict>() { war },
-                    new List<Suggestion>()
+                    new HashSet<Conflict>() { war }
+                ).Returns(new List<Suggestion>()
                     {
                         new ConflictSuggestion()
                         {
@@ -126,13 +122,13 @@ namespace OrderBot.Test.ToDo
                             State = ConflictState.CloseVictory,
                             WarType = war.WarType
                         }
-                    }
-                ).SetName("AddActions War"),
+                    })
+                 .SetName("AddActions War"),
                 new TestCaseData(
                     below,
                     new HashSet<Presence>() { below, bloatedJellyFishInPolaris },
-                    new HashSet<Conflict>() { civilWar },
-                    new List<Suggestion>()
+                    new HashSet<Conflict>() { civilWar }
+                ).Returns(new List<Suggestion>()
                     {
                         new ConflictSuggestion()
                         {
@@ -144,12 +140,13 @@ namespace OrderBot.Test.ToDo
                             State = ConflictState.TotalVictory,
                             WarType = civilWar.WarType
                         }
-                    }
-                ).SetName("AddActions CivilWar"),
+                    })
+                 .SetName("AddActions CivilWar"),
                 new TestCaseData(
                     below,
                     new HashSet<Presence>() { below, bloatedJellyFishInPolaris },
-                    new HashSet<Conflict>() { election },
+                    new HashSet<Conflict>() { election }
+                ).Returns(
                     new List<Suggestion>()
                     {
                         new ConflictSuggestion()
@@ -162,8 +159,8 @@ namespace OrderBot.Test.ToDo
                             State = ConflictState.CloseDefeat,
                             WarType = election.WarType
                         }
-                    }
-                ).SetName("AddActions Election"),
+                    })
+                  .SetName("AddActions Election"),
             };
         }
     }

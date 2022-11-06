@@ -27,23 +27,27 @@ namespace OrderBot.ToDo
         public static double InfluenceThreshold => 0.05;
 
         /// <inheritdoc/>
-        public override void AddSuggestions(Presence starSystemMinorFaction,
-            IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts,
-            ToDoList toDoList)
+        public override IEnumerable<Suggestion> GetSuggestions(Presence starSystemMinorFaction,
+            IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts)
         {
             CheckAddActionsPreconditions(starSystemMinorFaction, systemPresences, systemConflicts);
 
-            if (!AddConflicts(systemConflicts, toDoList,
-                c => Fight.Against(starSystemMinorFaction.MinorFaction, c)))
+            ConflictSuggestion? conflictSuggestion = GetConflict(systemConflicts,
+                c => Fight.Against(starSystemMinorFaction.MinorFaction, c));
+            if (conflictSuggestion != null)
+            {
+                yield return conflictSuggestion;
+            }
+            else
             {
                 if (starSystemMinorFaction.Influence >= InfluenceThreshold)
                 {
-                    toDoList.Suggestions.Add(new InfluenceSuggestion
+                    yield return new InfluenceSuggestion
                     {
                         StarSystem = starSystemMinorFaction.StarSystem,
                         Influence = starSystemMinorFaction.Influence,
                         Pro = false
-                    });
+                    };
                 }
             }
         }

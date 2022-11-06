@@ -19,13 +19,14 @@ namespace OrderBot.ToDo
         }
 
         /// <inheritdoc/>
-        public override void AddSuggestions(Presence starSystemMinorFaction,
-            IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts,
-            ToDoList toDoList)
+        public override IEnumerable<Suggestion> GetSuggestions(Presence starSystemMinorFaction,
+            IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts)
         {
             CheckAddActionsPreconditions(starSystemMinorFaction, systemPresences, systemConflicts);
 
             // Do nothing
+
+            return Array.Empty<Suggestion>();
         }
     }
 }

@@ -55,7 +55,8 @@ namespace OrderBot.ToDo
                 }
                 else
                 {
-                    goal.AddSuggestions(dgssmfg.Presence, starSystemBgsData, conflicts, toDoList);
+                    toDoList.Suggestions.UnionWith(
+                        goal.GetSuggestions(dgssmfg.Presence, starSystemBgsData, conflicts));
                 }
             }
 
@@ -73,7 +74,8 @@ namespace OrderBot.ToDo
                                                                  .Where(c => c.StarSystem == ssmf.StarSystem)
                                                                  .ToHashSet();
 
-                Goals.Default.AddSuggestions(ssmf, starSystemBgsData, conflicts, toDoList);
+                toDoList.Suggestions.UnionWith(
+                    Goals.Default.GetSuggestions(ssmf, starSystemBgsData, conflicts));
             }
 
             return toDoList;
