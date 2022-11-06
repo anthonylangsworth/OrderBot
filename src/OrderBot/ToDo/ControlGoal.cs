@@ -42,15 +42,21 @@ namespace OrderBot.ToDo
             {
                 if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
                 {
-                    toDoList.Pro.Add(new InfluenceSuggestion
+                    toDoList.Suggestions.Add(new InfluenceSuggestion
                     {
                         StarSystem = starSystemMinorFaction.StarSystem,
-                        Influence = starSystemMinorFaction.Influence
+                        Influence = starSystemMinorFaction.Influence,
+                        Pro = true
                     });
                 }
                 else if (starSystemMinorFaction.Influence > UpperInfluenceThreshold)
                 {
-                    toDoList.Anti.Add(new InfluenceSuggestion { StarSystem = starSystemMinorFaction.StarSystem, Influence = starSystemMinorFaction.Influence });
+                    toDoList.Suggestions.Add(new InfluenceSuggestion
+                    {
+                        StarSystem = starSystemMinorFaction.StarSystem,
+                        Influence = starSystemMinorFaction.Influence,
+                        Pro = false
+                    });
                 }
             }
 
@@ -58,7 +64,11 @@ namespace OrderBot.ToDo
             if (starSystemMinorFaction == GetControllingPresence(systemPresences)
                 && starSystemMinorFaction.SecurityLevel == SecurityLevel.Low)
             {
-                toDoList.ProSecurity.Add(new SecuritySuggestion { StarSystem = starSystemMinorFaction.StarSystem, SecurityLevel = starSystemMinorFaction.SecurityLevel });
+                toDoList.Suggestions.Add(new SecuritySuggestion
+                {
+                    StarSystem = starSystemMinorFaction.StarSystem,
+                    SecurityLevel = starSystemMinorFaction.SecurityLevel
+                });
             }
         }
     }

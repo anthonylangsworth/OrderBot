@@ -48,11 +48,12 @@ namespace OrderBot.ToDo
                     if (!AddConflicts(systemConflicts, toDoList,
                         c => Fight.Against(starSystemMinorFaction.MinorFaction, c, "Avoid Control")))
                     {
-                        toDoList.Anti.Add(new InfluenceSuggestion
+                        toDoList.Suggestions.Add(new InfluenceSuggestion
                         {
                             StarSystem = starSystemMinorFaction.StarSystem,
                             Influence = starSystemMinorFaction.Influence,
-                            Description = "Avoid Control"
+                            Description = "Avoid Control",
+                            Pro = false
                         });
                     }
                 }
@@ -66,18 +67,20 @@ namespace OrderBot.ToDo
                     double maxInfluence = controllingMinorFaction.Influence - MaxInfuenceGap;
                     if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
                     {
-                        toDoList.Pro.Add(new InfluenceSuggestion
+                        toDoList.Suggestions.Add(new InfluenceSuggestion
                         {
                             StarSystem = starSystemMinorFaction.StarSystem,
-                            Influence = starSystemMinorFaction.Influence
+                            Influence = starSystemMinorFaction.Influence,
+                            Pro = true
                         });
                     }
                     else if (starSystemMinorFaction.Influence > maxInfluence)
                     {
-                        toDoList.Anti.Add(new InfluenceSuggestion
+                        toDoList.Suggestions.Add(new InfluenceSuggestion
                         {
                             StarSystem = starSystemMinorFaction.StarSystem,
-                            Influence = starSystemMinorFaction.Influence
+                            Influence = starSystemMinorFaction.Influence,
+                            Pro = true
                         });
                     }
                 }

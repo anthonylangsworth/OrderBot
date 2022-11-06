@@ -1,4 +1,6 @@
-﻿namespace OrderBot.ToDo
+﻿using OrderBot.Core;
+
+namespace OrderBot.ToDo
 {
     public class ToDoListFormatter
     {
@@ -85,7 +87,29 @@ Redeem bounty vouchers to increase security in systems *{minorFactionName}* cont
 
         public string Format(ToDoList toDoList)
         {
-            return GetOutput(toDoList.MinorFaction, GetInfluenceList(toDoList.Pro, true), GetSecurityList(toDoList.ProSecurity), GetInfluenceList(toDoList.Anti, false), "(None)", GetWarList(toDoList.Wars), "(None)");
+            return GetOutput(toDoList.MinorFaction,
+                GetInfluenceList(
+                    toDoList.Suggestions.Where(s => s is InfluenceSuggestion infSuggestion && infSuggestion.Pro)
+                                        .Cast<InfluenceSuggestion>(),
+                    true),
+                GetSecurityList(
+                    toDoList.Suggestions.Where(s => s is SecuritySuggestion)
+                                        .Cast<SecuritySuggestion>()
+                ),
+                GetInfluenceList(
+                    toDoList.Suggestions.Where(s => s is InfluenceSuggestion infSuggestion && !infSuggestion.Pro)
+                                        .Cast<InfluenceSuggestion>(),
+                    false),
+                "(None)",
+                GetWarList(
+                    toDoList.Suggestions.Where(s => s is ConflictSuggestion cs && Conflict.IsWar(cs.WarType))
+                                        .Cast<ConflictSuggestion>()
+                    ),
+                GetWarList(
+                    toDoList.Suggestions.Where(s => s is ConflictSuggestion cs && Conflict.IsElection(cs.WarType))
+                                        .Cast<ConflictSuggestion>()
+                    )
+                );
         }
     }
 }

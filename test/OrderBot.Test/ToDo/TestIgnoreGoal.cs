@@ -21,11 +21,7 @@ namespace OrderBot.Test.ToDo
         {
             ToDoList toDo = new(starSystemMinorFaction.MinorFaction.Name);
             IgnoreGoal.Instance.AddSuggestions(starSystemMinorFaction, systemPresences, systemConflicts, toDo);
-            Assert.That(toDo.Pro, Is.Empty);
-            Assert.That(toDo.Anti, Is.Empty);
-            Assert.That(toDo.ProSecurity, Is.Empty);
-            Assert.That(toDo.Wars, Is.Empty);
-            Assert.That(toDo.Elections, Is.Empty);
+            Assert.That(toDo.Suggestions, Is.Empty);
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()

@@ -20,19 +20,12 @@ namespace OrderBot.Test.ToDo
         public void AddActions(Presence starSystemMinorFaction,
             IReadOnlySet<Presence> systemPresences,
             IReadOnlySet<Conflict> systemConflicts,
-            IEnumerable<InfluenceSuggestion> expectedPro,
-            IEnumerable<InfluenceSuggestion> expectedAnti,
-            IEnumerable<SecuritySuggestion> expectedProSecurity,
-            IEnumerable<ConflictSuggestion> expectedWars,
-            IEnumerable<ConflictSuggestion> expectedElections)
+            IEnumerable<Suggestion> expectedSuggestions
+        )
         {
             ToDoList toDo = new(starSystemMinorFaction.MinorFaction.Name);
             ControlGoal.Instance.AddSuggestions(starSystemMinorFaction, systemPresences, systemConflicts, toDo);
-            Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro));
-            Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti));
-            Assert.That(toDo.ProSecurity, Is.EquivalentTo(expectedProSecurity));
-            Assert.That(toDo.Wars, Is.EquivalentTo(expectedWars));
-            Assert.That(toDo.Elections, Is.EquivalentTo(expectedElections));
+            Assert.That(toDo.Suggestions, Is.EquivalentTo(expectedSuggestions));
         }
 
         public static IEnumerable<TestCaseData> AddActions_Source()
@@ -126,70 +119,47 @@ namespace OrderBot.Test.ToDo
                     belowLower,
                     new HashSet<Presence>() { belowLower },
                     new HashSet<Conflict>(),
-                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = belowLower.Influence } },
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>(),
-                    Array.Empty<ConflictSuggestion>(),
-                    Array.Empty<ConflictSuggestion>()
+                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = belowLower.Influence, Pro = true } }
                 ).SetName("AddActions Below Lower"),
                 new TestCaseData(
                     lower,
                     new HashSet<Presence> { lower },
                     new HashSet<Conflict>(),
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>(),
-                    Array.Empty<ConflictSuggestion>(),
-                    Array.Empty<ConflictSuggestion>()
+                    Array.Empty<Suggestion>()
                 ).SetName("AddActions Lower"),
                 new TestCaseData(
                     aboveLower,
                     new HashSet<Presence> { aboveLower },
                     new HashSet<Conflict>(),
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>(),
-                    Array.Empty<ConflictSuggestion>(),
-                    Array.Empty<ConflictSuggestion>()
+                    Array.Empty<Suggestion>()
                 ).SetName("AddActions Above lower"),
                 new TestCaseData(
                     belowUpper,
                     new HashSet<Presence> { belowUpper },
                     new HashSet<Conflict>(),
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>(),
-                    Array.Empty<ConflictSuggestion>(),
-                    Array.Empty<ConflictSuggestion>()
+                    Array.Empty<Suggestion>()
                 ).SetName("AddActions Below Upper"),
                 new TestCaseData(
                     upper,
                     new HashSet<Presence> { upper },
                     new HashSet<Conflict>(),
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>(),
-                    Array.Empty<ConflictSuggestion>(),
-                    Array.Empty<ConflictSuggestion>()
+                    Array.Empty<Suggestion>()
+
                 ).SetName("AddActions Upper"),
                 new TestCaseData(
                     aboveUpper,
                     new HashSet<Presence> { aboveUpper },
                     new HashSet<Conflict>(),
-                    Array.Empty<InfluenceSuggestion>(),
-                    new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = aboveUpper.Influence } },
-                    new [] { new SecuritySuggestion() { StarSystem = polaris, SecurityLevel = aboveUpper.SecurityLevel } },
-                    Array.Empty<ConflictSuggestion>(),
-                    Array.Empty<ConflictSuggestion>()
+                    new Suggestion[] {
+                        new InfluenceSuggestion() { StarSystem = polaris, Influence = aboveUpper.Influence, Pro = false },
+                        new SecuritySuggestion() { StarSystem = polaris, SecurityLevel = aboveUpper.SecurityLevel }
+                     }
                 ).SetName("AddActions Above Upper"),
                 new TestCaseData(
                     belowLower,
                     new HashSet<Presence>() { belowLower, bloatedJellyFishInPolaris },
                     new HashSet<Conflict>() { war },
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>(),
-                    new List<ConflictSuggestion>()
+                    new Suggestion[]
                     {
                         new ConflictSuggestion()
                         {
@@ -201,17 +171,13 @@ namespace OrderBot.Test.ToDo
                             State = ConflictState.CloseVictory,
                             WarType = war.WarType
                         }
-                    },
-                    Array.Empty<ConflictSuggestion>()
+                    }
                 ).SetName("AddActions War"),
                 new TestCaseData(
                     belowLower,
                     new HashSet<Presence>() { belowLower, bloatedJellyFishInPolaris },
                     new HashSet<Conflict>() { civilWar },
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>(),
-                    new List<ConflictSuggestion>()
+                    new Suggestion[]
                     {
                         new ConflictSuggestion()
                         {
@@ -223,18 +189,13 @@ namespace OrderBot.Test.ToDo
                             State = ConflictState.TotalVictory,
                             WarType = civilWar.WarType
                         }
-                    },
-                    Array.Empty<ConflictSuggestion>()
+                    }
                 ).SetName("AddActions CivilWar"),
                 new TestCaseData(
                     belowLower,
                     new HashSet<Presence>() { belowLower, bloatedJellyFishInPolaris },
                     new HashSet<Conflict>() { election },
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<InfluenceSuggestion>(),
-                    Array.Empty<SecuritySuggestion>(),
-                    Array.Empty<ConflictSuggestion>(),
-                    new List<ConflictSuggestion>()
+                    new Suggestion[]
                     {
                         new ConflictSuggestion()
                         {

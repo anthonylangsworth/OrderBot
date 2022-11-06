@@ -14,11 +14,7 @@
         public ToDoList(string minorFaction)
         {
             MinorFaction = minorFaction;
-            Pro = new List<InfluenceSuggestion>();
-            Anti = new List<InfluenceSuggestion>();
-            ProSecurity = new List<SecuritySuggestion>();
-            Wars = new List<ConflictSuggestion>();
-            Elections = new List<ConflictSuggestion>();
+            Suggestions = new HashSet<Suggestion>();
         }
 
         /// <summary>
@@ -27,28 +23,8 @@
         public string MinorFaction { get; }
 
         /// <summary>
-        /// Work for the specified minor faction.
+        /// Suggestions.
         /// </summary>
-        public IList<InfluenceSuggestion> Pro { get; }
-
-        /// <summary>
-        /// Work against the specified minor faction.
-        /// </summary>
-        public IList<InfluenceSuggestion> Anti { get; }
-
-        /// <summary>
-        /// Work for the specified minor faction.
-        /// </summary>
-        public IList<SecuritySuggestion> ProSecurity { get; }
-
-        /// <summary>
-        /// Fight for the specified minor faction.
-        /// </summary>
-        public IList<ConflictSuggestion> Wars { get; }
-
-        /// <summary>
-        /// Fight for the specified minor faction.
-        /// </summary>
-        public IList<ConflictSuggestion> Elections { get; }
+        public ISet<Suggestion> Suggestions { get; }
     }
 }

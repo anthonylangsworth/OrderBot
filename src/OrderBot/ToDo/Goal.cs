@@ -159,11 +159,11 @@ namespace OrderBot.ToDo
             {
                 if (Conflict.IsWar(conflictSuggestion.WarType))
                 {
-                    toDoList.Wars.Add(conflictSuggestion);
+                    toDoList.Suggestions.Add(conflictSuggestion);
                 }
                 else if (Conflict.IsElection(conflictSuggestion.WarType))
                 {
-                    toDoList.Elections.Add(conflictSuggestion);
+                    toDoList.Suggestions.Add(conflictSuggestion);
                 }
                 else
                 {

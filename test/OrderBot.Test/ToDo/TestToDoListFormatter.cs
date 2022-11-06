@@ -38,11 +38,15 @@ Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls
         public void Format_ProAndAnti()
         {
             ToDoList toDoList = new("The Dark Wheel");
-            toDoList.Pro.Add(new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Shinrarta Dezhra" }, Influence = 0.1 });
-            toDoList.Pro.Add(new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Tau Ceti" }, Influence = 0.2 });
-            toDoList.Anti.Add(new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Wolf 359" }, Influence = 0.7 });
-            toDoList.Anti.Add(new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Alpha Centauri" }, Influence = 0.65 });
-            toDoList.ProSecurity.Add(new SecuritySuggestion() { StarSystem = new StarSystem() { Name = "Maia" }, SecurityLevel = SecurityLevel.Low });
+            toDoList.Suggestions.UnionWith(
+                new Suggestion[]
+                {
+                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Shinrarta Dezhra" }, Influence = 0.1, Pro = true },
+                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Tau Ceti" }, Influence = 0.2, Pro = true },
+                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Wolf 359" }, Influence = 0.7, Pro = false },
+                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Alpha Centauri" }, Influence = 0.65, Pro = false },
+                    new SecuritySuggestion() { StarSystem = new StarSystem() { Name = "Maia" }, SecurityLevel = SecurityLevel.Low }
+                });
             Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
