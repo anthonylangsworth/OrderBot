@@ -18,7 +18,7 @@ namespace OrderBot.Test.ToDo
         [Test]
         [TestCaseSource(nameof(AddActions_Source))]
         public void AddActions(Presence starSystemMinorFaction,
-            IReadOnlySet<Presence> systemBgsData,
+            IReadOnlySet<Presence> systemPresences,
             IReadOnlySet<Conflict> systemConflicts,
             IEnumerable<InfluenceSuggestion> expectedPro,
             IEnumerable<InfluenceSuggestion> expectedAnti,
@@ -27,7 +27,7 @@ namespace OrderBot.Test.ToDo
             IEnumerable<ConflictSuggestion> expectedElections)
         {
             ToDoList toDo = new(starSystemMinorFaction.MinorFaction.Name);
-            ControlGoal.Instance.AddSuggestions(starSystemMinorFaction, systemBgsData, systemConflicts, toDo);
+            ControlGoal.Instance.AddSuggestions(starSystemMinorFaction, systemPresences, systemConflicts, toDo);
             Assert.That(toDo.Pro, Is.EquivalentTo(expectedPro));
             Assert.That(toDo.Anti, Is.EquivalentTo(expectedAnti));
             Assert.That(toDo.ProSecurity, Is.EquivalentTo(expectedProSecurity));
