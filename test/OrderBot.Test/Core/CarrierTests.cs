@@ -6,7 +6,7 @@ using System.Transactions;
 
 namespace OrderBot.Test.Core
 {
-    internal class TestCarrier
+    internal class CarrierTests
     {
         [Test]
         [TestCase("", ExpectedResult = false)]

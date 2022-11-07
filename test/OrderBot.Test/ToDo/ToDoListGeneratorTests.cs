@@ -8,7 +8,7 @@ using System.Transactions;
 
 namespace OrderBot.Test.ToDo
 {
-    internal class TestToDoListGenerator
+    internal class ToDoListGeneratorTests
     {
         [SetUp]
         public void SetUp()

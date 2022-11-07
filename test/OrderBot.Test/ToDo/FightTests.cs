@@ -4,7 +4,7 @@ using OrderBot.ToDo;
 
 namespace OrderBot.Test.ToDo
 {
-    internal class TestFight
+    internal class FightTests
     {
         [Test]
         [TestCaseSource(nameof(For_Source))]

@@ -3,7 +3,7 @@ using OrderBot.ToDo;
 
 namespace OrderBot.Test.ToDo
 {
-    internal class TestMinorFactionInfluence
+    internal class MinorFactionInfluenceTests
     {
         [TestCaseSource(nameof(Ctor_Source))]
         public void Ctor(string minorFaction, double influence, IReadOnlyList<string> states)

@@ -4,7 +4,7 @@ using OrderBot.ToDo;
 
 namespace OrderBot.Test.ToDo
 {
-    internal class TestGoal
+    internal class GoalTests
     {
         [Test]
         public void CheckAddActionsPreconditions_MultipleSystems()

@@ -10,7 +10,7 @@ using Goal = OrderBot.ToDo.Goal;
 
 namespace OrderBot.Test.ToDo
 {
-    internal class TestToDoListCommandsModule
+    internal class ToDoListCommandsModuleTests
     {
         [Test]
         public void Add_Empty()

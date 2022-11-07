@@ -7,7 +7,7 @@ using System.Transactions;
 
 namespace OrderBot.Test.Core
 {
-    internal class TestDiscordGuildStarSystemMinorFactionGoals
+    internal class DiscordGuildStarSystemMinorFactionGoalsTests
     {
         [Test]
         [Ignore("Only run manually")]

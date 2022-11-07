@@ -3,7 +3,7 @@ using OrderBot.ToDo;
 
 namespace OrderBot.Test.ToDo
 {
-    internal class TestMinorFactionNameFilter
+    internal class MinorFactionNameFilterTests
     {
         [TestCase()]
         [TestCase("")]

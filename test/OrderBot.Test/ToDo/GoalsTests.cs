@@ -3,7 +3,7 @@ using OrderBot.ToDo;
 
 namespace OrderBot.Test.ToDo
 {
-    internal class TestGoals
+    internal class GoalsTests
     {
         [Test]
         public void Default()

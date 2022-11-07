@@ -7,7 +7,7 @@ using System.Transactions;
 
 namespace OrderBot.Test.CarrierMovement
 {
-    internal class TestCarrierMovementCommandsModule
+    internal class CarrierMovementCommandsModuleTests
     {
         [Test]
         public void IgnoreCarriers()

@@ -4,7 +4,7 @@ using OrderBot.ToDo;
 
 namespace OrderBot.Test.ToDo
 {
-    internal class TestToDoListFormatter
+    internal class ToDoListFormatterTests
     {
         [Test]
         public void Format_Empty()

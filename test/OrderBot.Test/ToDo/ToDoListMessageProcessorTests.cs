@@ -12,7 +12,7 @@ using System.Transactions;
 
 namespace OrderBot.Test.ToDo
 {
-    internal class TestTodoListMessageProcessor
+    internal class ToDoListMessageProcessorTests
     {
         [Test]
         public void Ctor()

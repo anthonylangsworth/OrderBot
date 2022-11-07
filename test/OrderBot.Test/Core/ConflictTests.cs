@@ -3,7 +3,7 @@ using OrderBot.Core;
 
 namespace OrderBot.Test.Core
 {
-    internal class TestConflict
+    internal class ConflictTests
     {
         [Test]
         [TestCaseSource(nameof(GetState_Source))]

@@ -5,7 +5,7 @@ using System.Transactions;
 
 namespace OrderBot.Test.Core
 {
-    internal class TestDiscordGuild
+    internal class DiscordGuildTests
     {
         [Test]
         public void Creation_NoCarrierMovementChannel()

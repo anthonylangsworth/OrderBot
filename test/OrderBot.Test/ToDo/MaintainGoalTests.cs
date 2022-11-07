@@ -4,7 +4,7 @@ using OrderBot.ToDo;
 
 namespace OrderBot.Test.ToDo
 {
-    internal class TestMaintainGoal
+    internal class MaintainGoalTests
     {
         [Test]
         public void Instance()

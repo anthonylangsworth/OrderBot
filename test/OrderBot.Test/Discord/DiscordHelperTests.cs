@@ -8,7 +8,7 @@ using System.Transactions;
 
 namespace OrderBot.Test.Discord
 {
-    internal class TestDiscordHelper
+    internal class DiscordHelperTests
     {
         [Test]
         public void DiscordHelper_New()
