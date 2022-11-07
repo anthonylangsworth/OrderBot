@@ -44,8 +44,7 @@ namespace OrderBot.Discord
 
             Client.Log += LogAsync;
             InteractionService.Log += LogAsync;
-            Client.SlashCommandExecuted += Client_SlashCommandExecutedAsync;
-            Client.AutocompleteExecuted += Client_AutocompleteExecuted;
+            Client.InteractionCreated += Client_InteractionCreated;
             Client.Ready += Client_ReadyAsync;
         }
 
@@ -126,33 +125,34 @@ namespace OrderBot.Discord
             return Task.CompletedTask;
         }
 
-        private async Task Client_SlashCommandExecutedAsync(SocketSlashCommand socketSlashCommand)
+        private async Task Client_InteractionCreated(SocketInteraction interaction)
         {
-            IResult result = await InteractionService.ExecuteCommandAsync(
-                new SocketInteractionContext(Client, socketSlashCommand),
-                ServiceProvider);
-            if (!result.IsSuccess)
+            string errorMessage = null!;
+            try
             {
-                Logger.LogError("Command failed: {message}", result.ToString());
+                SocketInteractionContext context = new SocketInteractionContext(Client, interaction);
+                IResult result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
+                if (!result.IsSuccess)
+                {
+                    errorMessage = result.ErrorReason;
+                }
             }
-            else
+            catch (ArgumentException ex)
             {
-                Logger.LogInformation("Command succeeded: {message}", socketSlashCommand.CommandName);
+                errorMessage = ex.Message;
             }
-        }
-
-        private Task Client_AutocompleteExecuted(SocketAutocompleteInteraction arg)
-        {
-            SearchResult<AutocompleteCommandInfo> result = InteractionService.SearchAutocompleteCommand(arg);
-            if (!result.IsSuccess)
+            catch (Exception ex)
             {
-                Logger.LogError("Autocompletion failed: {message}", result.ToString());
+                Logger.LogError(ex, "Command failed");
+                errorMessage = "Command failed";
             }
-            else
+            finally
             {
-                Logger.LogInformation("Autocompletion succeeded");
+                if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    await interaction.FollowupAsync(text: errorMessage, ephemeral: true);
+                }
             }
-            return Task.CompletedTask;
         }
     }
 }
