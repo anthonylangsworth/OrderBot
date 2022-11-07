@@ -6,7 +6,7 @@ using System.Transactions;
 
 namespace OrderBot.Test.CarrierMovement
 {
-    internal class TestNotIgnoredCarriersAutocompleteHandler
+    internal class CarriersAutocompleteHandlersTests
     {
         internal OrderBotDbContextFactory DbContextFactory { get; set; } = null!;
         internal TransactionScope TransactionScope { get; set; } = null!;
@@ -35,7 +35,7 @@ namespace OrderBot.Test.CarrierMovement
             Guild = new DiscordGuild() { GuildId = 1234567890, Name = "Test Guild" };
             foreach (string carrierName in Carriers)
             {
-                Carrier carrier = new Carrier() { Name = carrierName };
+                Carrier carrier = new() { Name = carrierName };
                 DbContext.Carriers.Add(carrier);
                 Guild.IgnoredCarriers.Add(carrier);
             }
@@ -52,8 +52,8 @@ namespace OrderBot.Test.CarrierMovement
         }
 
         [Test]
-        [TestCaseSource(nameof(Implementation_Source))]
-        public IEnumerable<string> Implementation(string nameStartsWith, IEnumerable<string> ignoredCarriers)
+        [TestCaseSource(nameof(NotIgnored_GetCarriers_Source))]
+        public IEnumerable<string> NotIgnored_GetCarriers(string nameStartsWith, IEnumerable<string> ignoredCarriers)
         {
             Guild.IgnoredCarriers.Clear();
             foreach (string carrierName in ignoredCarriers)
@@ -62,15 +62,14 @@ namespace OrderBot.Test.CarrierMovement
             }
             DbContext.SaveChanges();
 
-            return NotIgnoredCarriersAutocompleteHandler.Implementation(
-                DbContext, nameStartsWith, Guild.GuildId);
+            return new NotIgnoredCarriersAutocompleteHandler(DbContextFactory).GetCarriers(DbContext, Guild, nameStartsWith);
         }
 
-        public static IEnumerable<TestCaseData> Implementation_Source()
+        public static IEnumerable<TestCaseData> NotIgnored_GetCarriers_Source()
         {
             return new (string NameStartsWith, string[] IgnoredCarriers)[]
             {
-                ("", new string[0]),
+                ("", Array.Empty<string>()),
                 ("", new string[]
                     {
                         CarrierNames.HighGradeEmissions
@@ -101,5 +100,56 @@ namespace OrderBot.Test.CarrierMovement
                                   .Returns(Carriers.Where(c => c.StartsWith(tuple.NameStartsWith, StringComparison.OrdinalIgnoreCase)
                                                             && !tuple.IgnoredCarriers.Contains(c))));
         }
+
+        [Test]
+        [TestCaseSource(nameof(Ignored_GetCarriers_Source))]
+        public IEnumerable<string> Ignored_GetCarriers(string nameStartsWith, IEnumerable<string> ignoredCarriers)
+        {
+            Guild.IgnoredCarriers.Clear();
+            foreach (string carrierName in ignoredCarriers)
+            {
+                Guild.IgnoredCarriers.Add(DbContext.Carriers.First(c => c.Name == carrierName));
+            }
+            DbContext.SaveChanges();
+
+            return new IgnoredCarriersAutocompleteHandler(DbContextFactory).GetCarriers(DbContext, Guild, nameStartsWith);
+        }
+
+        public static IEnumerable<TestCaseData> Ignored_GetCarriers_Source()
+        {
+            return new (string NameStartsWith, string[] IgnoredCarriers)[]
+            {
+                ("", Array.Empty<string>()),
+                ("", new string[]
+                    {
+                        CarrierNames.HighGradeEmissions
+                    }),
+                ("a", new string[]
+                    {
+                        CarrierNames.HighGradeEmissions
+                    }),
+                ("pr", new string[]
+                    {
+                        CarrierNames.HighGradeEmissions
+                    }),
+                ("p", new string[]
+                    {
+                        CarrierNames.PriorityZero
+                    }),
+                ("p", new string[]
+                    {
+                        CarrierNames.PizzaDeliveryVan,
+                        CarrierNames.PriorityZero
+                    }),
+                ("U.S.S. ", new string[]
+                    {
+                        CarrierNames.PizzaDeliveryVan,
+                        CarrierNames.PriorityZero
+                    })
+            }.Select(tuple => new TestCaseData(tuple.NameStartsWith, tuple.IgnoredCarriers)
+                                  .Returns(Carriers.Where(c => c.StartsWith(tuple.NameStartsWith, StringComparison.OrdinalIgnoreCase)
+                                                            && tuple.IgnoredCarriers.Contains(c))));
+        }
+
     }
 }
