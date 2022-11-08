@@ -16,7 +16,7 @@ namespace OrderBot.ToDo
         /// Prevent instantiation.
         /// </summary>
         private MaintainGoal()
-            : base("Maintain", "Maintain a presence in the system but do not control it.")
+            : base("Maintain", $"Keep influence above {Math.Round(LowerInfluenceThreshold * 100, 0)}% and below the controlling minor faction.")
         {
             // Do nothing
         }
