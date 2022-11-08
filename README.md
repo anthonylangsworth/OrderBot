@@ -16,7 +16,9 @@ This bot is not intended to replace squadron officers, although it can be used t
 
 ## Sample Suggestions
 
-The sample suggestions are listed with explanations to help players understand relevant in-game actions. This is shown as markdown to prevent Github auto-formatting the output differently to Discord. The format is a work in progress so this may be out of date.
+Suggested BGS work includes explanations to help players understand relevant in-game actions. The example below is shown as markdown to prevent Github auto-formatting the output differently to Discord. 
+
+The format is a work in progress so this may be out of date.
 
 ```
 ---------------------------------------------------------------------------------------------------------------------------------
