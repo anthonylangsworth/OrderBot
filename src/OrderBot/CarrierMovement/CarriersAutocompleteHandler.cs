@@ -12,7 +12,7 @@ namespace OrderBot.CarrierMovement
     public abstract class CarriersAutocompleteHandler : AutocompleteHandler
     {
         /// <summary>
-        /// Create a new <see cref="IgnoredCarriersAutocompleteHandler"/>.
+        /// Create a new <see cref="CarriersAutocompleteHandler"/>.
         /// </summary>
         /// <param name="dbContextFactory">
         /// The database to check.
