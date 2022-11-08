@@ -16,7 +16,7 @@ namespace OrderBot.ToDo
         /// Prevent instantiation.
         /// </summary>
         private ControlGoal()
-            : base("Control", $"Be the minor faction with the highest influence. Keep influence between {Math.Round(LowerInfluenceThreshold * 100, 0)}% and {Math.Round(UpperInfluenceThreshold * 100, 0)}%.")
+            : base("Control", $"Have the highest influence. Keep influence between {Math.Round(LowerInfluenceThreshold * 100, 0)}% and {Math.Round(UpperInfluenceThreshold * 100, 0)}%.")
         {
             // Do nothing
         }

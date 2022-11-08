@@ -10,7 +10,7 @@ namespace OrderBot.Test.ToDo
         public void Instance()
         {
             Assert.That(IgnoreGoal.Instance.Name, Is.EqualTo("Ignore"));
-            Assert.That(IgnoreGoal.Instance.Description, Is.EqualTo("Never suggested activity."));
+            Assert.That(IgnoreGoal.Instance.Description, Is.EqualTo("Never suggest activity."));
         }
 
         [Test]

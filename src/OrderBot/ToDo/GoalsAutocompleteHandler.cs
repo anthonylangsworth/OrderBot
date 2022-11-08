@@ -17,10 +17,10 @@ namespace OrderBot.ToDo
 
             return Task.FromResult(
                 AutocompletionResult.FromSuccess(
-                    Goals.Map.Keys
-                         .OrderBy(gn => gn)
-                         .Where(gn => gn.StartsWith(enteredGoal, StringComparison.OrdinalIgnoreCase))
-                         .Select(gn => new AutocompleteResult(gn, gn))
+                    Goals.Map.Values
+                         .OrderBy(g => g.Name)
+                         .Where(g => g.Name.StartsWith(enteredGoal, StringComparison.OrdinalIgnoreCase))
+                         .Select(g => new AutocompleteResult($"{g.Name} ({g.Description})", g.Name))
                          .Take(SlashCommandBuilder.MaxOptionsCount)
                          .ToList()));
         }

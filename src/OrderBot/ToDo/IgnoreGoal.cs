@@ -13,7 +13,7 @@ namespace OrderBot.ToDo
         /// Prevent instantiation.
         /// </summary>
         private IgnoreGoal()
-            : base("Ignore", $"Never suggested activity.")
+            : base("Ignore", "Never suggest activity.")
         {
             // Do nothing
         }

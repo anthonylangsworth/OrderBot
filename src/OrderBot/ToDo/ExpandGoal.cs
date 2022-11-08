@@ -16,7 +16,7 @@ namespace OrderBot.ToDo
         /// Prevent instantiation.
         /// </summary>
         private ExpandGoal()
-            : base("Expand", "Expand this minor faction out of this system.")
+            : base("Expand", "Expand out of this system.")
         {
             // Do nothing
         }

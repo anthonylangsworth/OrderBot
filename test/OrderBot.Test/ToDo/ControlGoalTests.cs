@@ -10,7 +10,7 @@ namespace OrderBot.Test.ToDo
         public void Instance()
         {
             Assert.That(ControlGoal.Instance.Name, Is.EqualTo("Control"));
-            Assert.That(ControlGoal.Instance.Description, Is.EqualTo("Be the minor faction with the highest influence. Keep influence between 55% and 65%."));
+            Assert.That(ControlGoal.Instance.Description, Is.EqualTo("Have the highest influence. Keep influence between 55% and 65%."));
             Assert.That(ControlGoal.LowerInfluenceThreshold, Is.EqualTo(0.55));
             Assert.That(ControlGoal.UpperInfluenceThreshold, Is.EqualTo(0.65));
         }
