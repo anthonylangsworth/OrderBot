@@ -18,7 +18,7 @@ To setup the bot:
 
 Use [/todo-list show](CommandReference.md#todo-list-show) to see a list of suggested BGS work. The result is ephemeral, only visible to the calling user, as with all commands for this bot. Specify goals using [/todo-list goal add](CommandReference.md#todo-list-goal-add) to further refine the suggestions.
 
-To get an editable version can you can edit and post in a Discord channel, use [/todo-list raw](CommandReference.md#todo-list-raw). 
+To get a version you can copy, edit and post in a Discord channel without losing formatting, use [/todo-list raw](CommandReference.md#todo-list-raw). 
 
 ## Backup, Bulk Edit and Restore Settings
 
