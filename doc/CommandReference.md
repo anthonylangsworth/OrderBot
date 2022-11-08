@@ -49,13 +49,17 @@ Parameters:
 
 Similar to [/todo-list show](#todo-list-show), this outputs a list of suggested in-game activities. Unlike `/todo-list show`, this escapes the markdown formatting, allowing easy copying and pasting into another Discord channel to preserve the formatting. This command is intended for squadron admins that want to use this bot as an aid, customizing its output before posting it.
 
+**NOTE**: This is currently hard-coded to a specific minor faction.
+
 ### /todo-list show
 
 Show a list of suggested in-game activites. This can be run by (1) squadron admins to help create daily suggested activities to support a minor faction or (2) squadron members themselves if admins are happy to delegate the work to this bot. To get a version that admins can edit before pasting into a Discord channel without losing formatting, use [/todo-list raw](#todo-list-raw).
 
+**NOTE**: This is currently hard-coded to a specific minor faction.
+
 ### /todo-list support add
 
-Support a minor faction. This (1) instructs the bot to listen for BGS information for star systems where this minor faction as a presence and (2) adds an implicit `Control` [goal](Goals.md) for each system the minor faction is present in. Override this implicit goal for specific star systems using [/todo-list goal add](#todo-list-goal-add). Use [/todo-list support remove](#todo-list-support-remove) to stop supporting a minor faction.
+Support a minor faction. For each system where this minor faction is present, this (1) instructs the bot to listen for BGS information, (2) adds an implicit `Control` [goal](Goals.md) for that minor faction and (3) writes details of carrier's jumping in to the carrier movement channel. Override this implicit goal for specific star systems using [/todo-list goal add](#todo-list-goal-add). Use [/todo-list support remove](#todo-list-support-remove) to stop supporting a minor faction.
 
 Parameters:
 
