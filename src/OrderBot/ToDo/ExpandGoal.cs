@@ -16,7 +16,7 @@ namespace OrderBot.ToDo
         /// Prevent instantiation.
         /// </summary>
         private ExpandGoal()
-            : base("Expand", $"Increase influence over {Math.Round(InfluenceThreshold * 100, 0)}%.")
+            : base("Expand", $"Increase influence over {Math.Round(InfluenceThreshold * 100, 0)}% and keep it there.")
         {
             // Do nothing
         }

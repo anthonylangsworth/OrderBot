@@ -10,7 +10,7 @@ namespace OrderBot.Test.ToDo
         public void Instance()
         {
             Assert.That(RetreatGoal.Instance.Name, Is.EqualTo("Retreat"));
-            Assert.That(RetreatGoal.Instance.Description, Is.EqualTo("Retreat from the system by reducing influence below 5% and keeping it there."));
+            Assert.That(RetreatGoal.Instance.Description, Is.EqualTo("Reduce influence below 5% and keep it there."));
             Assert.That(RetreatGoal.InfluenceThreshold, Is.EqualTo(0.05));
         }
 

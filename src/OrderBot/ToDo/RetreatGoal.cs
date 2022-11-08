@@ -16,7 +16,7 @@ namespace OrderBot.ToDo
         /// Prevent instantiation.
         /// </summary>
         private RetreatGoal()
-            : base("Retreat", $"Retreat from the system by reducing influence below {Math.Round(InfluenceThreshold * 100, 0)}% and keeping it there.")
+            : base("Retreat", $"Reduce influence below {Math.Round(InfluenceThreshold * 100, 0)}% and keep it there.")
         {
             // Do nothing
         }

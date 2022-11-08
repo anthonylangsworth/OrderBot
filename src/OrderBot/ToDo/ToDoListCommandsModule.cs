@@ -234,7 +234,7 @@ namespace OrderBot.ToDo
                 [Summary("star-system", "The star system")]
                 string starSystemName,
                 [
-                    Summary("goal", "The intenion or aim"),
+                    Summary("goal", "The intention or aim"),
                     Autocomplete(typeof(GoalsAutocompleteHandler))
                 ]
                 string goalName
