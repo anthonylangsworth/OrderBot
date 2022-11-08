@@ -59,13 +59,13 @@ Like support, no goals are specified by default. Each must be manually added.
 
 ## Carrier Movements
 
-The bot also monitors fleet carriers jumping into systems. This can be a good indication of commanders from other squadrons acting against you, such as by "hydrogen bombing". Specify the channel to write alerts to using (/carrier-movement channel set)[CommandReference.md#carrier-movement-channel-set]. The bot needs `Send Messages` permission to the channel.
+The bot also monitors fleet carriers jumping into systems. This can be a good indication of commanders from other squadrons acting against you, such as by "hydrogen bombing". Specify the channel to write alerts to using [/carrier-movement channel set](CommandReference.md#carrier-movement-channel-set). The bot needs `Send Messages` permission to the channel.
 
-The bot also supports a list of fleet carriers to ignore (see (/carrier-movement ignored-carriers add)[CommandReference#carrier-movement-ignored-carriers-add]). This stops the bot from reporting the movement of friendly or known carriers.
+The bot also supports a list of fleet carriers to ignore (see [/carrier-movement ignored-carriers add](CommandReference#carrier-movement-ignored-carriers-add)). This stops the bot from reporting the movement of friendly or known carriers.
 
 # Limitations
 
 This bot depends on data from the Elite Dangerous Data Network (EDDN). This is the same place where Inara, EDDB, EDSM and similar websites source their data. This means the bot is only as accurate as the data it receives from EDDN. This means:
-1. **Elite Dangerous** players not running EDMC or a similar program while playing will not report their data to EDDN. EDMC and similar programs get data from the client's journal file.
+1. **Elite Dangerous** players not running EDMC or a similar program while playing will not report their data to EDDN. 
 2. BGS data changes on daily and weekly ticks. If players have not visited the relevant systems since they tick, the data the bot uses to determine suggestions will be out of date.
-3. If visited by a player running EDMC after the tick, sometimes the data in the client's journal file does not match that in-game or takes several hours to catch up.
+3. If visited by a player running EDMC after the tick, EDMC and similar programs get data from the client's journal file. sometimes the data in the client's journal file does not match that in-game or takes several hours to catch up. The bot will be out of date or incorrect until the journal matches the in-game data.
