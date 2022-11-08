@@ -30,7 +30,7 @@ Periodically, after setup or after major changes, export configuration data and 
 You can edit the CSV files in a text editor or spreadsheet program to add details in bulk.
 
 You can them import the data using 
-1. [/todo-list support add](CommandReference.md#todo-list-support-add) for each minor faction in the support list (presumably short)
+1. [/todo-list support add](CommandReference.md#todo-list-support-add) for each minor faction in the support list (presumably a short list)
 2. [/todo-list goal import](CommandReference.md#todo-list-goal-import)
 3. [/carrier-movement ignored-carriers import](CommandReference.md#carrier-movement-ignored-carriers-import)
 
