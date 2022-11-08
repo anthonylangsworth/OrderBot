@@ -10,7 +10,7 @@ namespace OrderBot.Test.ToDo
         public void Instance()
         {
             Assert.That(ExpandGoal.Instance.Name, Is.EqualTo("Expand"));
-            Assert.That(ExpandGoal.Instance.Description, Is.EqualTo("Expand out of this system."));
+            Assert.That(ExpandGoal.Instance.Description, Is.EqualTo("Increase influence over 75%."));
             Assert.That(ExpandGoal.InfluenceThreshold, Is.EqualTo(0.75));
         }
 
