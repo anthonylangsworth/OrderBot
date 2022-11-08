@@ -16,7 +16,7 @@ This project is not intended to replace squadron officers, although it can be us
 
 ## Sample Suggestions
 
-This is shown as markdown to prevent Github auto-formatting the output. The structure is a work in progress so this may be out of date.
+This is shown as markdown to prevent Github auto-formatting the output differently to Discord. The format is a work in progress so this may be out of date.
 
 ```
 ---------------------------------------------------------------------------------------------------------------------------------
