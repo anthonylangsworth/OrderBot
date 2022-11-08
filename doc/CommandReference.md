@@ -28,7 +28,7 @@ Export the set goals as a CSV (command separated variable) file. You can view or
 
 ### /todo-list goal import
 
-Import a list of set goals as a CSV (command separated variable) file. This allows easy backup or transfer of the goals previously exported using [/todo-list goal export](#todo-list-goal-export).
+Import a list of set goals as a CSV (command separated variable) file, adding (not replacing) to the existing goals. This allows easy backup or transfer of the goals previously exported using [/todo-list goal export](#todo-list-goal-export).
 
 ### /todo-list goal list
 
@@ -121,7 +121,7 @@ Export the list of ignored fleet carrers as a CSV (command separated variable) f
 
 ### /carrier-movement ignored-carriers import
 
-Import a list of ignored fleet carriers as a CSV (command separated variable) file. This allows easy backup or transfer of the goals previously exported using [/carrier-movement ignored-carriers export](#carrier-movement-ignored-carriers-export).
+Import a list of ignored fleet carriers as a CSV (command separated variable) file, adding to (not replacing) the ignored carriers. This allows easy backup or transfer of the goals previously exported using [/carrier-movement ignored-carriers export](#carrier-movement-ignored-carriers-export).
 
 ### /carrier-movement ignored-carriers list
 
