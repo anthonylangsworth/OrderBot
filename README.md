@@ -46,3 +46,7 @@ Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls
 ## Development and Contributions
 
 See [Development](doc/Development.md).
+
+## License
+
+See [LICENSE](LICENSE) for the license (GPL v3).
