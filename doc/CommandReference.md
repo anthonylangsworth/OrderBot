@@ -10,9 +10,9 @@ Command details, particularly validation and autocomplate, are a work in progres
 
 ### /todo-list goal add
 
-Set a [goal](Goals.md) for a minor faction in a star system. This overrides the implicit `Control` [goal](Goals.md) for a supported minor faction (see [/todo-list support add](#todo-list-support-add)).
+Set a [goal](Goals.md) for a minor faction in a star system. This overrides the implicit `Control` [goal](Goals.md) for a supported minor faction (see [/todo-list support add](#todo-list-support-add)). There are no goals for any system or minor faction by default.
 
-To change the goal, use this command again, specifying the same star system and minor faction but the new goal. To remove any goal for a star system and minor faction, use [/todo-list goal remove](#todo-list-goal-remove).
+To change a goal, use this command again, specifying the same star system and minor faction but the new goal. To remove any goal for a star system and minor faction, use [/todo-list goal remove](#todo-list-goal-remove).
 
 Parameters:
 
