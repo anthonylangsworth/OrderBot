@@ -103,11 +103,13 @@ Parameters:
 
 Ignore a fleet carrier. This prevents the bot reporting when it jumps into a system where a supported minor faction is present. This stops the bot from reporting on friendly or squadron carriers.
 
-To remove it from the ignore list and remove its movements, use [/carrier-movement ignored-carriers remove](#carrier-movement-ignored-carriers-remove).
+To remove a carrier from the ignore list and report its movements, use [/carrier-movement ignored-carriers remove](#carrier-movement-ignored-carriers-remove).
+
+Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
-|carrier-name|The name of the carrier to ignore.|A valid carrier name, ending with the seven character serial number.|A list of channels on this server.|
+|carrier-name|The name of the carrier to ignore.|A valid carrier name, ending with the seven character serial number.|Carriers that are not ignored.|
 
 ### /carrier-movement ignored-carriers export
 
@@ -125,5 +127,9 @@ Similar to [/carrier-movement ignored-carriers export](#carrier-movement-ignored
 
 Track a fleet carrier, reporting when it jumps into a system where a supported minor faction is present. All carriers are tracked by default. To remove it from the ignore list and report its movements, use [/carrier-movement ignored-carriers remove](#carrier-movement-ignored-carriers-remove).
 
+Parameters:
 
+|name|Description|Validation|Autocomplete|
+|----|-----------|----------|------------|
+|carrier-name|The name of an ignored carrier.|A valid carrier name, ending with the seven character serial number.|Ignored carriers.|
 
