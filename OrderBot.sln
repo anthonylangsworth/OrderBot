@@ -36,13 +36,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OrderBot.Test", "test\Order
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{62230308-C973-4BBF-96EC-720E7F068DDB}"
 	ProjectSection(SolutionItems) = preProject
+		doc\CommandReference.md = doc\CommandReference.md
+		doc\ConceptsAndTasks.md = doc\ConceptsAndTasks.md
 		doc\Development.md = doc\Development.md
 		doc\Goals.md = doc\Goals.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{6BA4F775-E6D0-4F12-BD7E-FFA9815D851F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EddnMessageLogger", "tools\EddnMessageLogger\EddnMessageLogger.csproj", "{50A6D9B5-C97D-432A-9349-4F5FBA178C64}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EddnMessageLogger", "tools\EddnMessageLogger\EddnMessageLogger.csproj", "{50A6D9B5-C97D-432A-9349-4F5FBA178C64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
