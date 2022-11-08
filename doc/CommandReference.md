@@ -1,8 +1,10 @@
 # Command Reference
 
-Command are listed alphabetically within the two main functional areas: [To-Do List](#To-Do-List) and [Carrier Movement](#Carrier-Movement). To understand the concepts and common tasks, giving these commands context, see (TODO: Create page and insert link here).
+Command are listed alphabetically within the two main functional areas: [To-Do List](#To-Do-List) and [Carrier Movement](#Carrier-Movement). To understand the concepts and common tasks, giving these commands context, see [Concepts and Tasks](ConceptsAndTasks.md).
 
 All commands can be run by users that can manage channels and users. In the future, it will be possible to also allow specific users or roles access to commands.
+
+The results of all commands are ephemeral, only shown to the calling user. 
 
 Command details, particularly validation and autocomplate, are a work in progress. Some commands may write details to an audit channel or the Discord server's audit log in the future.
 
