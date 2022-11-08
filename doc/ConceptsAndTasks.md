@@ -8,7 +8,7 @@ To setup the bot:
 1. Add the bot to your Discord server by (URL Not Available Yet).
 2. Give Discord a few minutes to process the registration and the bot's commands to become available. 
 3. Choose a minor faction to support using [/todo-list support add](CommandReference.md#todo-list-support-add). This must match the name of the in-game minor faction exactly, although it is not case sensitive.
-4. Optionally, override the behaviour for specific systems or add goals for other minor factions using [/todo-list goal add](CommandReference.md#todo-list-goal-add). See [Goals](doc/Goals.md) for details. You can add or remove these at any time as needs or whims dictate.
+4. Optionally, override the behaviour for specific systems or add goals for other minor factions using [/todo-list goal add](CommandReference.md#todo-list-goal-add). See [Goals](Goals.md) for details. You can add or remove these at any time as needs or whims dictate.
 5. Either visit the systems where your supported minor faction is present while running [EDMC](https://github.com/EDCD/EDMarketConnector/wiki) or a similar tool or wait for someone else to do so. This sends data to EDDN and then on to this bot.
 6. Run [/todo-list show](CommandReference.md#todo-list-show) to see the suggestions.
 
@@ -61,11 +61,11 @@ Like support, no goals are specified by default. Each must be manually added.
 
 The bot also monitors fleet carriers jumping into systems. This can be a good indication of commanders from other squadrons acting against you, such as by "hydrogen bombing". Specify the channel to write alerts to using [/carrier-movement channel set](CommandReference.md#carrier-movement-channel-set). The bot needs `Send Messages` permission to the channel.
 
-The bot also supports a list of fleet carriers to ignore (see [/carrier-movement ignored-carriers add](CommandReference#carrier-movement-ignored-carriers-add)). This stops the bot from reporting the movement of friendly or known carriers.
+The bot also supports a list of fleet carriers to ignore (see [/carrier-movement ignored-carriers add](CommandReference.md#carrier-movement-ignored-carriers-add)). This stops the bot from reporting the movement of friendly or known carriers.
 
 # Limitations
 
 This bot depends on data from the Elite Dangerous Data Network (EDDN). This is the same place where Inara, EDDB, EDSM and similar websites source their data. This means the bot is only as accurate as the data it receives from EDDN. This means:
-1. **Elite Dangerous** players not running EDMC or a similar program while playing will not report their data to EDDN. 
-2. BGS data changes on daily and weekly ticks. If players have not visited the relevant systems since they tick, the data the bot uses to determine suggestions will be out of date.
-3. If visited by a player running EDMC after the tick, EDMC and similar programs get data from the client's journal file. sometimes the data in the client's journal file does not match that in-game or takes several hours to catch up. The bot will be out of date or incorrect until the journal matches the in-game data.
+1. **Elite Dangerous** players not running EDMC or a similar program while playing will not report their data to EDDN. EDDN and, therefore. this bot, will never see this data.
+2. BGS data changes on daily and weekly ticks. If players have not visited the relevant systems since the last tick, the data the bot uses to determine suggestions will be out of date.
+3. If visited by a player running EDMC after the tick, EDMC and similar programs get data from the client's journal file. sometimes the data in the client's journal file does not match that in-game or takes several hours to catch up. The bot's data will be out of date or incorrect until the journal matches the in-game data.
