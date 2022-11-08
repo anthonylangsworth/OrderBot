@@ -12,6 +12,8 @@ Based on the specified goal, this bot generates the following suggestions:
 |Retreat  |Fight against the minor faction in all conflicts.|If there are no conflicts, always work against the minor faction to force a retreat.|N/A|(TODO)|(TODO)|
 |Ignore   |(None)|(None)|N/A|(None)|Never|
 
+Note that the bot does not check whether a minor faction targeted with a `Retreat` goal is non-native. Using a retreat goal with a non-native minor faction will continually generate suggestions to work against that minor faction.
+
 ## Principles
 
 Goals are designed with the following principles:
