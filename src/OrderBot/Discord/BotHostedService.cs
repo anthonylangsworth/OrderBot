@@ -130,8 +130,9 @@ namespace OrderBot.Discord
             string errorMessage = null!;
             try
             {
-                SocketInteractionContext context = new SocketInteractionContext(Client, interaction);
-                IResult result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
+                IResult result = await InteractionService.ExecuteCommandAsync(
+                    new SocketInteractionContext(Client, interaction),
+                    ServiceProvider);
                 if (!result.IsSuccess)
                 {
                     errorMessage = result.ErrorReason;

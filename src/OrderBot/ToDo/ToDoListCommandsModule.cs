@@ -1,7 +1,6 @@
 ﻿using CsvHelper;
 using Discord;
 using Discord.Interactions;
-using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
@@ -35,27 +34,13 @@ namespace OrderBot.ToDo
         public async Task ShowToDoList()
         {
             await Context.Interaction.DeferAsync(ephemeral: true);
-            using (Logger.BeginScope("show"))
+            using (Logger.BeginScope("show", Context.Guild.Name))
             {
-                try
-                {
-                    // Context.Guild is null for some reason
-                    SocketGuild guild = ((SocketGuildUser)Context.User).Guild;
-
-                    const string minorFactionName = "EDA Kunti League";
-                    string report = Formatter.Format(Generator.Generate(guild.Id, minorFactionName));
-
-                    await Context.Interaction.FollowupAsync(
-                        text: report,
-                        ephemeral: true
-                    );
-                }
-                catch
-                {
-                    await Context.Interaction.ModifyOriginalResponseAsync(
-                        messageProperties => messageProperties.Content = "I have failed.");
-                    throw;
-                }
+                const string minorFactionName = "EDA Kunti League";
+                await Context.Interaction.FollowupAsync(
+                    text: Formatter.Format(Generator.Generate(Context.Guild.Id, minorFactionName)),
+                    ephemeral: true
+                );
             }
         }
 
@@ -65,29 +50,15 @@ namespace OrderBot.ToDo
         public async Task ShowRawToDoList()
         {
             await Context.Interaction.DeferAsync(ephemeral: true);
-            using (Logger.BeginScope("show"))
+            using (Logger.BeginScope("raw", Context.Guild.Name))
             {
-                try
-                {
-                    // Context.Guild is null for some reason
-                    SocketGuild guild = ((SocketGuildUser)Context.User).Guild;
-
-                    const string minorFactionName = "EDA Kunti League";
-                    string report = $"```\n" +
-                        $"{Formatter.Format(Generator.Generate(guild.Id, minorFactionName))}\n" +
-                        $"```";
-
-                    await Context.Interaction.FollowupAsync(
-                        text: report,
-                        ephemeral: true
-                    );
-                }
-                catch
-                {
-                    await Context.Interaction.ModifyOriginalResponseAsync(
-                        messageProperties => messageProperties.Content = "I have failed.");
-                    throw;
-                }
+                const string minorFactionName = "EDA Kunti League";
+                await Context.Interaction.FollowupAsync(
+                    text: $"```\n" +
+                    $"{Formatter.Format(Generator.Generate(Context.Guild.Id, minorFactionName))}\n" +
+                    $"```",
+                    ephemeral: true
+                );
             }
         }
 
@@ -111,9 +82,9 @@ namespace OrderBot.ToDo
             )
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
-                string message;
-                try
+                using (Logger.BeginScope(("Add", Context.Guild.Name, name)))
                 {
+                    string message;
                     using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                     MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == name);
                     if (minorFaction == null)
@@ -131,16 +102,11 @@ namespace OrderBot.ToDo
                         message = $"Now supporting *{minorFaction.Name}*";
                     }
                     dbContext.SaveChanges();
+                    await Context.Interaction.FollowupAsync(
+                           text: message,
+                           ephemeral: true
+                    );
                 }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Add Failed");
-                    message = "Failed";
-                }
-                await Context.Interaction.FollowupAsync(
-                       text: message,
-                       ephemeral: true
-                );
             }
 
             [SlashCommand("remove", "Stop supporting this minor faction")]
@@ -150,9 +116,9 @@ namespace OrderBot.ToDo
             )
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
-                string message;
-                try
+                using (Logger.BeginScope(("Remove", Context.Guild.Name, name)))
                 {
+                    string message;
                     using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                     MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == name);
                     if (minorFaction == null)
@@ -170,47 +136,37 @@ namespace OrderBot.ToDo
                         message = $"**NOT** supporting *{minorFaction.Name}*";
                     }
                     dbContext.SaveChanges();
+                    await Context.Interaction.FollowupAsync(
+                           text: message,
+                           ephemeral: true
+                    );
                 }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "Remove Failed");
-                    message = "Failed";
-                }
-                await Context.Interaction.FollowupAsync(
-                       text: message,
-                       ephemeral: true
-                );
             }
 
             [SlashCommand("list", "List supported minor factions")]
             public async Task List()
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
-                string message;
-                try
+                using (Logger.BeginScope(("List", Context.Guild.Name)))
                 {
+                    string message;
                     using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                     DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
                         dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
                     if (discordGuild.SupportedMinorFactions.Any())
                     {
                         message = string.Join(Environment.NewLine,
-                                              discordGuild.SupportedMinorFactions.Select(mf => mf.Name));
+                                                discordGuild.SupportedMinorFactions.Select(mf => mf.Name));
                     }
                     else
                     {
                         message = $"No supported minor factions";
                     }
+                    await Context.Interaction.FollowupAsync(
+                           text: message,
+                           ephemeral: true
+                    );
                 }
-                catch (Exception ex)
-                {
-                    Logger.LogError(ex, "List Failed");
-                    message = "Failed";
-                }
-                await Context.Interaction.FollowupAsync(
-                       text: message,
-                       ephemeral: true
-                );
             }
         }
 
@@ -243,25 +199,11 @@ namespace OrderBot.ToDo
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using (Logger.BeginScope(("Add", Context.Guild.Name, minorFactionName, starSystemName, goalName)))
                 {
-                    string message;
-                    try
-                    {
-                        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                        AddImplementation(dbContext, Context.Guild, minorFactionName, starSystemName, goalName);
-                        message = $"Goal {goalName} for *{minorFactionName}* in {starSystemName} added";
-                    }
-                    catch (ArgumentException ex)
-                    {
-                        message = ex.Message;
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex, "Add failed");
-                        message = "Add failed";
-                    }
+                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                    AddImplementation(dbContext, Context.Guild, minorFactionName, starSystemName, goalName);
                     await Context.Interaction.FollowupAsync(
-                           text: message,
-                           ephemeral: true
+                        text: $"Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
+                        ephemeral: true
                     );
                 }
             }
@@ -328,25 +270,11 @@ namespace OrderBot.ToDo
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using (Logger.BeginScope(("Remove", Context.Guild.Name, minorFactionName, starSystemName)))
                 {
-                    string message;
-                    try
-                    {
-                        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                        RemoveImplementation(dbContext, Context.Guild, minorFactionName, starSystemName);
-                        message = $"Goal for *{minorFactionName}* in {starSystemName} removed";
-                    }
-                    catch (ArgumentException ex)
-                    {
-                        message = ex.Message;
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex, "Remove failed");
-                        message = "Remove failed";
-                    }
+                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                    RemoveImplementation(dbContext, Context.Guild, minorFactionName, starSystemName);
                     await Context.Interaction.FollowupAsync(
-                           text: message,
-                           ephemeral: true
+                        text: $"Goal for *{minorFactionName}* in {starSystemName} removed",
+                        ephemeral: true
                     );
                 }
             }
@@ -389,43 +317,24 @@ namespace OrderBot.ToDo
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using (Logger.BeginScope(("List", Context.Guild.Name)))
                 {
-                    string message = "";
-                    string result = "";
-                    try
+                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                    string result = string.Join(Environment.NewLine,
+                        ListImplementation(dbContext, Context.Guild).Select(
+                            dgssmfg => $"{dgssmfg.Goal} {dgssmfg.Presence.MinorFaction.Name} in {dgssmfg.Presence.StarSystem.Name}"));
+                    if (result.Length == 0)
                     {
-                        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                        result = string.Join(Environment.NewLine,
-                            ListImplementation(dbContext, Context.Guild).Select(
-                                dgssmfg => $"{dgssmfg.Goal} {dgssmfg.Presence.MinorFaction.Name} in {dgssmfg.Presence.StarSystem.Name}"));
-                        if (result.Length == 0)
-                        {
-                            message = "No goals specified";
-                        }
+                        await Context.Interaction.FollowupAsync(
+                              text: "No goals specified",
+                              ephemeral: true
+                       );
                     }
-                    catch (ArgumentException ex)
-                    {
-                        message = ex.Message;
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex, "List failed");
-                        message = "List failed";
-                    }
-
-                    if (result.Length > 0)
+                    else
                     {
                         using MemoryStream memoryStream = new(Encoding.UTF8.GetBytes(result));
                         await Context.Interaction.FollowupWithFileAsync(
                             fileStream: memoryStream,
                             fileName: "Goals.txt",
                             ephemeral: true
-                        );
-                    }
-                    else
-                    {
-                        await Context.Interaction.FollowupAsync(
-                               text: message,
-                               ephemeral: true
                         );
                     }
                 }
@@ -446,56 +355,36 @@ namespace OrderBot.ToDo
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using (Logger.BeginScope(("Export", Context.Guild.Name)))
                 {
-                    string errorMessage = null!;
-                    try
+                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                    IList<GoalCsvRow> result =
+                        ListImplementation(dbContext, Context.Guild)
+                            .Select(dgssmfg => new GoalCsvRow()
+                            {
+                                Goal = dgssmfg.Goal,
+                                MinorFaction = dgssmfg.Presence.MinorFaction.Name,
+                                StarSystem = dgssmfg.Presence.StarSystem.Name
+                            })
+                            .ToList();
+                    if (result.Count == 0)
                     {
-                        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                        IList<GoalCsvRow> result =
-                            ListImplementation(dbContext, Context.Guild)
-                                .Select(dgssmfg => new GoalCsvRow()
-                                {
-                                    Goal = dgssmfg.Goal,
-                                    MinorFaction = dgssmfg.Presence.MinorFaction.Name,
-                                    StarSystem = dgssmfg.Presence.StarSystem.Name
-                                })
-                                .ToList();
-                        if (result.Count == 0)
-                        {
-                            errorMessage = "No goals specified";
-                        }
-                        else
-                        {
-                            using MemoryStream memoryStream = new();
-                            using StreamWriter streamWriter = new(memoryStream);
-                            using CsvWriter csvWriter = new(streamWriter, CultureInfo.InvariantCulture);
-                            csvWriter.WriteRecords(result);
-                            csvWriter.Flush();
-                            memoryStream.Seek(0, SeekOrigin.Begin);
-                            await Context.Interaction.FollowupWithFileAsync(
-                                fileStream: memoryStream,
-                                fileName: $"{Context.Guild.Name} Goals.csv",
-                                ephemeral: true
-                            );
-                        }
+                        await Context.Interaction.FollowupAsync(
+                            text: "No goals specified",
+                            ephemeral: true
+                        );
                     }
-                    catch (ArgumentException ex)
+                    else
                     {
-                        errorMessage = ex.Message;
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex, "Export failed");
-                        errorMessage = "Export failed";
-                    }
-                    finally
-                    {
-                        if (!string.IsNullOrEmpty(errorMessage))
-                        {
-                            await Context.Interaction.FollowupAsync(
-                                   text: errorMessage,
-                                   ephemeral: true
-                            );
-                        }
+                        using MemoryStream memoryStream = new();
+                        using StreamWriter streamWriter = new(memoryStream);
+                        using CsvWriter csvWriter = new(streamWriter, CultureInfo.InvariantCulture);
+                        csvWriter.WriteRecords(result);
+                        csvWriter.Flush();
+                        memoryStream.Seek(0, SeekOrigin.Begin);
+                        await Context.Interaction.FollowupWithFileAsync(
+                            fileStream: memoryStream,
+                            fileName: $"{Context.Guild.Name} Goals.csv",
+                            ephemeral: true
+                        );
                     }
                 }
             }
@@ -509,7 +398,6 @@ namespace OrderBot.ToDo
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using (Logger.BeginScope(("Import", Context.Guild.Name, goalsAttachement.Url)))
                 {
-                    string errorMessage = null!;
                     try
                     {
                         using HttpClient client = new();
@@ -533,28 +421,9 @@ namespace OrderBot.ToDo
                                 ephemeral: true
                         );
                     }
-                    catch (CsvHelperException)
+                    catch (CsvHelperException ex)
                     {
-                        errorMessage = $"{goalsAttachement.Filename} is not a valid goals file";
-                    }
-                    catch (ArgumentException ex)
-                    {
-                        errorMessage = ex.Message;
-                    }
-                    catch (Exception ex)
-                    {
-                        Logger.LogError(ex, "Import failed");
-                        errorMessage = "Import failed";
-                    }
-                    finally
-                    {
-                        if (!string.IsNullOrEmpty(errorMessage))
-                        {
-                            await Context.Interaction.FollowupAsync(
-                                   text: errorMessage,
-                                   ephemeral: true
-                            );
-                        }
+                        throw new ArgumentException($"{goalsAttachement.Filename} is not a valid goals file", ex);
                     }
                 }
             }
