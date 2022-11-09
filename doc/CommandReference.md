@@ -159,3 +159,24 @@ Parameters:
 |----|-----------|----------|------------|
 |carrier-name|The name of an ignored carrier.|A valid carrier name, ending with the seven character serial number.|Ignored carriers.|
 
+## Admin Commands
+
+### /bgs-order-bot audit-channel clear
+
+Stop auditing. 
+
+The bot writes a short description of this to any previous audit log.
+
+### /bgs-order-bot audit-channel get
+
+Get the channel used for auditing.
+
+### /bgs-order-bot audit-channel set
+
+Set the channel used for auditing. The discord bot checks that the bot can write to the channel before setting it.
+
+Parameters:
+
+|name|Description|Validation|Autocomplete|
+|----|-----------|----------|------------|
+|channel|The channel.|Must be a channel on this server.|A list of channels on this server.|
