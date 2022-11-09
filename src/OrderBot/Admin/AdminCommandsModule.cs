@@ -93,7 +93,7 @@ namespace OrderBot.CarrierMovement
             public async Task Get()
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
-                using (Logger.BeginScope(("bgs-order-bot audit-channel  get", Context.Guild.Name)))
+                using (Logger.BeginScope(("bgs-order-bot audit-channel get", Context.Guild.Name)))
                 {
                     using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
                     DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
