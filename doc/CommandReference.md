@@ -20,9 +20,9 @@ Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
-|minor-faction|The name of the minor faction to support|None|None|
-|star-system|The name of the star system|None|None|
-|goal|The name of the goal|None|None|
+|minor-faction|The name of the minor faction to support|Must be a minor system already in the database.|None|
+|star-system|The name of the star system|Must be a star system already in the database.|None|
+|goal|The name of the goal|Must be a valid goal.|Known goals.|
 
 ### /todo-list goal export
 
@@ -30,7 +30,9 @@ Export the set goals as a CSV (command separated variable) file. You can view or
 
 ### /todo-list goal import
 
-Import a list of set goals as a CSV (command separated variable) file, adding (not replacing) to the existing goals. This allows easy backup or transfer of the goals previously exported using [/todo-list goal export](#todo-list-goal-export).
+Import a list of set goals as a CSV (command separated variable) file, adding (not replacing) to the existing goals. This allows easy backup or transfer of the goals previously exported using [/todo-list goal export](#todo-list-goal-export). 
+
+Existing goals are NOT cleared first. This is additive.
 
 ### /todo-list goal list
 
@@ -44,8 +46,8 @@ Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
-|minor-faction|The name of the minor faction to support|None|None|
-|star-system|The name of the star system|None|None|
+|minor-faction|The name of the minor faction to support|Must be a minor faction already used with a goal.|None|
+|star-system|The name of the star system|Must be a star system already used with a goal.|None|
 
 ### /todo-list raw
 
@@ -81,7 +83,7 @@ Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
-|minor-faction|The name of the minor faction to stop supporting.|None|None|
+|minor-faction|The name of the minor faction to stop supporting.|Must be a supported minor faction.|None|
 
 ## Carrier Movement
 
@@ -124,6 +126,8 @@ Export the list of ignored fleet carrers as a CSV (command separated variable) f
 ### /carrier-movement ignored-carriers import
 
 Import a list of ignored fleet carriers as a CSV (command separated variable) file, adding to (not replacing) the ignored carriers. This allows easy backup or transfer of the goals previously exported using [/carrier-movement ignored-carriers export](#carrier-movement-ignored-carriers-export).
+
+Existing ignored carriers are NOT cleared first. This is additive.
 
 ### /carrier-movement ignored-carriers list
 
