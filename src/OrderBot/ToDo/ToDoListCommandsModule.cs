@@ -55,8 +55,8 @@ namespace OrderBot.ToDo
                 const string minorFactionName = "EDA Kunti League";
                 await Context.Interaction.FollowupAsync(
                     text: $"```\n" +
-                    $"{Formatter.Format(Generator.Generate(Context.Guild.Id, minorFactionName))}\n" +
-                    $"```",
+                        $"{Formatter.Format(Generator.Generate(Context.Guild.Id, minorFactionName))}\n" +
+                        $"```",
                     ephemeral: true
                 );
             }
