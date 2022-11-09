@@ -20,9 +20,9 @@ Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
-|minor-faction|The name of the minor faction to support|None|None|
-|star-system|The name of the star system|None|None|
-|goal|The name of the goal|None|None|
+|minor-faction|The name of the minor faction to support|Must be a minor system already in the database.|None|
+|star-system|The name of the star system|Must be a star system already in the database.|None|
+|goal|The name of the goal|Must be a valid goal.|Known goals.|
 
 ### /todo-list goal export
 
@@ -46,8 +46,8 @@ Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
-|minor-faction|The name of the minor faction to support|None|None|
-|star-system|The name of the star system|None|None|
+|minor-faction|The name of the minor faction to support|Must be a minor faction already in the database.|None|
+|star-system|The name of the star system|Must be a star system already in the database.|None|
 
 ### /todo-list raw
 
@@ -83,7 +83,7 @@ Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
-|minor-faction|The name of the minor faction to stop supporting.|None|None|
+|minor-faction|The name of the minor faction to stop supporting.|Must be a supported minor faction.|None|
 
 ## Carrier Movement
 
