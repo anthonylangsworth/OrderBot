@@ -16,6 +16,8 @@ Set a [goal](Goals.md) for a minor faction in a star system. This overrides the 
 
 To change a goal, use this command again, specifying the same star system and minor faction but the new goal. To remove any goal for a star system and minor faction, use [/todo-list goal remove](#todo-list-goal-remove).
 
+The bot writes a short description of the goal to the audit channel.
+
 Parameters:
 
 |name|Description|Validation|Autocomplete|
@@ -34,6 +36,8 @@ Import a list of set goals as a CSV (command separated variable) file, adding (n
 
 Existing goals are NOT cleared first. This is additive.
 
+The bot writes a short description of each goal imported to the audit channel.
+
 ### /todo-list goal list
 
 Similar to [/todo-list goal export](#todo-list-goal-export), this shows a list of set goals in a more human readable format. This helps see what goals are set.
@@ -41,6 +45,8 @@ Similar to [/todo-list goal export](#todo-list-goal-export), this shows a list o
 ### /todo-list goal remove
 
 Remove any goal added by [/todo-list goal add](#todo-list-goal-add) for a minor faction in a star system. 
+
+The bot writes a short description of the removed goal to the audit channel.
 
 Parameters:
 
@@ -65,6 +71,8 @@ Show a list of suggested in-game activites. This can be run by (1) squadron admi
 
 Support a minor faction. For each system where this minor faction is present, this (1) instructs the bot to listen for BGS information, (2) adds an implicit `Control` [goal](Goals.md) for that minor faction and (3) writes details of carrier's jumping in to the carrier movement channel. Override this implicit goal for specific star systems using [/todo-list goal add](#todo-list-goal-add). Use [/todo-list support remove](#todo-list-support-remove) to stop supporting a minor faction.
 
+The bot writes a short description of the supported minor faction.
+
 Parameters:
 
 |name|Description|Validation|Autocomplete|
@@ -78,6 +86,8 @@ Show a list of supported minor factions.
 ### /todo-list support remove
 
 Stop supporting a minor faction previously supported using [/todo-list support add](#todo-list-support-add). 
+
+The bot writes a short description of the removed minor faction.
 
 Parameters:
 
@@ -113,6 +123,8 @@ Ignore a fleet carrier. This prevents the bot reporting when it jumps into a sys
 
 To remove a carrier from the ignore list and report its movements, use [/carrier-movement ignored-carriers remove](#carrier-movement-ignored-carriers-remove).
 
+The bot writes a short description of the ignored carrier to the audit log.
+
 Parameters:
 
 |name|Description|Validation|Autocomplete|
@@ -127,6 +139,8 @@ Export the list of ignored fleet carrers as a CSV (command separated variable) f
 
 Import a list of ignored fleet carriers as a CSV (command separated variable) file, adding to (not replacing) the ignored carriers. This allows easy backup or transfer of the goals previously exported using [/carrier-movement ignored-carriers export](#carrier-movement-ignored-carriers-export).
 
+The bot writes a short description of each ignored carrier to the audit log.
+
 Existing ignored carriers are NOT cleared first. This is additive.
 
 ### /carrier-movement ignored-carriers list
@@ -136,6 +150,8 @@ Similar to [/carrier-movement ignored-carriers export](#carrier-movement-ignored
 ### /carrier-movement ignored-carriers remove
 
 Track a fleet carrier, reporting when it jumps into a system where a supported minor faction is present. All carriers are tracked by default. To remove it from the ignore list and report its movements, use [/carrier-movement ignored-carriers remove](#carrier-movement-ignored-carriers-remove).
+
+The bot writes a short description of the tracked carrier to the audit log.
 
 Parameters:
 
