@@ -20,8 +20,13 @@ namespace OrderBot.CarrierMovement
             /// <summary>
             /// Create a new <see cref="Audit"/>.
             /// </summary>
-            /// <param name="contextFactory"></param>
-            /// <param name="logger"></param>
+            /// <param name="contextFactory">
+            /// </param>
+            /// <param name="logger">
+            /// A <see cref="Logger{AuditChannel}"/> to log to.
+            /// </param>
+            /// <param name="auditLogFactory">
+            /// </param>
             public AuditChannel(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<AuditChannel> logger,
                 DiscordChannelAuditLogFactory auditLogFactory)
             {
