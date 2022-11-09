@@ -23,16 +23,16 @@ namespace OrderBot.CarrierMovement
             /// <param name="contextFactory"></param>
             /// <param name="logger"></param>
             public AuditChannel(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<AuditChannel> logger,
-                DiscordChannelAuditLog auditLog)
+                DiscordChannelAuditLogFactory auditLogFactory)
             {
                 ContextFactory = contextFactory;
                 Logger = logger;
-                AuditLog = auditLog;
+                AuditLogFactory = auditLogFactory;
             }
 
             public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
             public ILogger<AuditChannel> Logger { get; }
-            public DiscordChannelAuditLog AuditLog { get; }
+            public DiscordChannelAuditLogFactory AuditLogFactory { get; }
 
             [SlashCommand("set", "Change the channel to which audit messages are written")]
             public async Task Set(
@@ -122,7 +122,7 @@ namespace OrderBot.CarrierMovement
                 {
                     using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
                     DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
-                    AuditLog.AuditAsync(Context, discordGuild, "Auditing disabled");
+                    AuditLogFactory.CreateAuditLog(Context).Audit(discordGuild, "Auditing disabled");
                     if (discordGuild.AuditChannel != null)
                     {
                         discordGuild.AuditChannel = null;

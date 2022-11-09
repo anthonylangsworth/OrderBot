@@ -19,6 +19,7 @@ namespace OrderBot.Test.CarrierMovement
                 "Delta VT4-GKW",
             };
 
+            NullDiscordAuditLog nullDiscordAuditLog = new();
             using OrderBotDbContextFactory contextFactory = new();
             using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();
@@ -31,7 +32,8 @@ namespace OrderBot.Test.CarrierMovement
 
             foreach (string ignoreCarrier in ignoreCarriers)
             {
-                CarrierMovementCommandsModule.IgnoredCarriers.AddImplementation(dbContext, guild, ignoreCarrier);
+                CarrierMovementCommandsModule.IgnoredCarriers.AddImplementation(dbContext, guild,
+                    ignoreCarrier, nullDiscordAuditLog);
                 Assert.That(
                     CarrierMovementCommandsModule.IgnoredCarriers.ListImplementation(dbContext, guild)
                                                                  .Any(c => c.Name == ignoreCarrier), Is.True);
@@ -43,7 +45,8 @@ namespace OrderBot.Test.CarrierMovement
 
             foreach (string ignoreCarrier in ignoreCarriers)
             {
-                CarrierMovementCommandsModule.IgnoredCarriers.RemoveImplementation(dbContext, guild, ignoreCarrier);
+                CarrierMovementCommandsModule.IgnoredCarriers.RemoveImplementation(dbContext, guild,
+                    ignoreCarrier, nullDiscordAuditLog);
                 Assert.That(
                     CarrierMovementCommandsModule.IgnoredCarriers.ListImplementation(dbContext, guild)
                                                                  .All(c => c.Name != ignoreCarrier), Is.True);

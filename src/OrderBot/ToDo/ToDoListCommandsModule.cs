@@ -3,6 +3,7 @@ using Discord;
 using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using OrderBot.Admin;
 using OrderBot.Core;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
@@ -66,14 +67,17 @@ namespace OrderBot.ToDo
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         public class Support : InteractionModuleBase<SocketInteractionContext>
         {
-            public Support(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Support> logger)
+            public Support(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Support> logger,
+                DiscordChannelAuditLogFactory auditLogFactory)
             {
                 ContextFactory = contextFactory;
                 Logger = logger;
+                AuditLogFactory = auditLogFactory;
             }
 
             public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
             public ILogger<Support> Logger { get; }
+            public DiscordChannelAuditLogFactory AuditLogFactory { get; }
 
             [SlashCommand("add", "Start supporting this minor faction")]
             public async Task Add(
@@ -100,6 +104,7 @@ namespace OrderBot.ToDo
                             discordGuild.SupportedMinorFactions.Add(minorFaction);
                         }
                         message = $"Now supporting *{minorFaction.Name}*";
+                        AuditLogFactory.CreateAuditLog(Context).Audit(discordGuild, $"Support minor faction '{name}'");
                     }
                     dbContext.SaveChanges();
                     await Context.Interaction.FollowupAsync(
@@ -134,6 +139,8 @@ namespace OrderBot.ToDo
                             discordGuild.SupportedMinorFactions.Remove(minorFaction);
                         }
                         message = $"**NOT** supporting *{minorFaction.Name}*";
+                        AuditLogFactory.CreateAuditLog(Context).Audit(discordGuild,
+                            $"Stop supporting minor faction '{name}'");
                     }
                     dbContext.SaveChanges();
                     await Context.Interaction.FollowupAsync(
@@ -174,14 +181,17 @@ namespace OrderBot.ToDo
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         public class Goals : InteractionModuleBase<SocketInteractionContext>
         {
-            public Goals(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Goals> logger)
+            public Goals(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Goals> logger,
+                DiscordChannelAuditLogFactory auditLogFactory)
             {
                 ContextFactory = contextFactory;
                 Logger = logger;
+                AuditLogFactory = auditLogFactory;
             }
 
             public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
             public ILogger<Goals> Logger { get; }
+            public DiscordChannelAuditLogFactory AuditLogFactory { get; }
 
             [SlashCommand("add", "Set a specific goal for this minor faction in this system")]
             public async Task Add(
@@ -200,7 +210,8 @@ namespace OrderBot.ToDo
                 using (Logger.BeginScope(("Add", Context.Guild.Name, minorFactionName, starSystemName, goalName)))
                 {
                     using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    AddImplementation(dbContext, Context.Guild, minorFactionName, starSystemName, goalName);
+                    AddImplementation(dbContext, Context.Guild, minorFactionName, starSystemName,
+                        goalName, AuditLogFactory.CreateAuditLog(Context));
                     await Context.Interaction.FollowupAsync(
                         text: $"Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
                         ephemeral: true
@@ -208,7 +219,8 @@ namespace OrderBot.ToDo
                 }
             }
 
-            internal static void AddImplementation(OrderBotDbContext dbContext, IGuild guild, string minorFactionName, string starSystemName, string goalName)
+            internal static void AddImplementation(OrderBotDbContext dbContext, IGuild guild, string minorFactionName,
+                string starSystemName, string goalName, IDiscordAuditLog auditLog)
             {
                 DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild);
 
@@ -246,7 +258,7 @@ namespace OrderBot.ToDo
                                 .Include(dgssmfg => dgssmfg.Presence.StarSystem)
                                 .Include(dgssmfg => dgssmfg.Presence.MinorFaction)
                                 .FirstOrDefault(
-                                dgssmfg => dgssmfg.DiscordGuild == discordGuild
+                                    dgssmfg => dgssmfg.DiscordGuild == discordGuild
                                             && dgssmfg.Presence.MinorFaction == minorFaction
                                             && dgssmfg.Presence.StarSystem == starSystem);
                 if (discordGuildStarSystemMinorFactionGoal == null)
@@ -257,6 +269,7 @@ namespace OrderBot.ToDo
                 }
                 discordGuildStarSystemMinorFactionGoal.Goal = goalName;
                 dbContext.SaveChanges();
+                auditLog.Audit(discordGuild, $"{goalName} {minorFactionName} in {starSystemName}");
             }
 
             [SlashCommand("remove", "Remove the specific goal for this minor faction in this system")]
@@ -271,7 +284,8 @@ namespace OrderBot.ToDo
                 using (Logger.BeginScope(("Remove", Context.Guild.Name, minorFactionName, starSystemName)))
                 {
                     using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    RemoveImplementation(dbContext, Context.Guild, minorFactionName, starSystemName);
+                    RemoveImplementation(dbContext, Context.Guild, minorFactionName, starSystemName,
+                        AuditLogFactory.CreateAuditLog(Context));
                     await Context.Interaction.FollowupAsync(
                         text: $"Goal for *{minorFactionName}* in {starSystemName} removed",
                         ephemeral: true
@@ -279,7 +293,8 @@ namespace OrderBot.ToDo
                 }
             }
 
-            internal static void RemoveImplementation(OrderBotDbContext dbContext, IGuild guild, string minorFactionName, string starSystemName)
+            internal static void RemoveImplementation(OrderBotDbContext dbContext, IGuild guild, string minorFactionName,
+                string starSystemName, IDiscordAuditLog auditLog)
             {
                 DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild);
 
@@ -301,7 +316,7 @@ namespace OrderBot.ToDo
                                 .Include(dgssmfg => dgssmfg.Presence.StarSystem)
                                 .Include(dgssmfg => dgssmfg.Presence.MinorFaction)
                                 .FirstOrDefault(
-                                dgssmfg => dgssmfg.DiscordGuild == discordGuild
+                                    dgssmfg => dgssmfg.DiscordGuild == discordGuild
                                             && dgssmfg.Presence.MinorFaction == minorFaction
                                             && dgssmfg.Presence.StarSystem == starSystem);
                 if (discordGuildStarSystemMinorFactionGoal != null)
@@ -309,6 +324,7 @@ namespace OrderBot.ToDo
                     dbContext.DiscordGuildPresenceGoals.Remove(discordGuildStarSystemMinorFactionGoal);
                 }
                 dbContext.SaveChanges();
+                auditLog.Audit(discordGuild, $"Removed goal for {minorFactionName} in {starSystemName}");
             }
 
             [SlashCommand("list", "List any specific goals per minor faction and per system")]
@@ -409,9 +425,11 @@ namespace OrderBot.ToDo
                         using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                         using (TransactionScope transactionScope = new())
                         {
+                            IDiscordAuditLog auditLog = AuditLogFactory.CreateAuditLog(Context);
                             foreach (GoalCsvRow row in goals)
                             {
-                                AddImplementation(dbContext, Context.Guild, row.MinorFaction, row.StarSystem, row.Goal);
+                                AddImplementation(dbContext, Context.Guild, row.MinorFaction, row.StarSystem,
+                                    row.Goal, auditLog);
                             }
                             transactionScope.Complete();
                         }

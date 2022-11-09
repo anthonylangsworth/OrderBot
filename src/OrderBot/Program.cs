@@ -20,7 +20,7 @@ internal class Program
                              services.AddTodoList();
                              services.AddCarrierMovement();
                              services.AddDiscordBot(hostContext.Configuration);
-                             services.AddDiscordChannelAuditor();
+                             services.AddDiscordChannelAuditLogFactory();
                          })
                          .Build();
 
