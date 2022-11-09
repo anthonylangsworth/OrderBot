@@ -43,9 +43,10 @@ namespace OrderBot.Admin
         {
             if (context.Guild.GetChannel(discordGuild.AuditChannel ?? 0) is SocketTextChannel auditChannel)
             {
-                await auditChannel.SendMessageAsync($"{context.User.Username}: {message}");
+                string displayName = context.Guild.GetUser(context.User.Id).DisplayName;
+                await auditChannel.SendMessageAsync($"{displayName}: {message}");
                 Logger.LogInformation("Audit message for '{discordGuildName}': {user}: {message}",
-                    discordGuild.Name, context.User.Username, message);
+                    discordGuild.Name, displayName, message);
             }
         }
     }
