@@ -119,6 +119,8 @@ namespace OrderBot.EntityFramework
                       .HasMaxLength(100);
 
                 entity.Property(e => e.CarrierMovementChannel);
+
+                entity.Property(e => e.AuditChannel);
             });
 
             modelBuilder.Entity<DiscordGuild>()

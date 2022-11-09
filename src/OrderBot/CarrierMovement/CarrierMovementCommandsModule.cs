@@ -13,6 +13,7 @@ using System.Transactions;
 namespace OrderBot.CarrierMovement
 {
     [Group("carrier-movement", "Monitor carrier movements")]
+    [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
     public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInteractionContext>
     {
         [Group("channel", "Send carrier movement alerts")]

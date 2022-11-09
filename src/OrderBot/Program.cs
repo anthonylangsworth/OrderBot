@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using OrderBot.Admin;
 using OrderBot.CarrierMovement;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
@@ -19,6 +20,7 @@ internal class Program
                              services.AddTodoList();
                              services.AddCarrierMovement();
                              services.AddDiscordBot(hostContext.Configuration);
+                             services.AddDiscordChannelAuditor();
                          })
                          .Build();
 
