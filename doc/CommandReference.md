@@ -46,8 +46,8 @@ Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
-|minor-faction|The name of the minor faction to support|Must be a minor faction already in the database.|None|
-|star-system|The name of the star system|Must be a star system already in the database.|None|
+|minor-faction|The name of the minor faction to support|Must be a minor faction already used with a goal.|None|
+|star-system|The name of the star system|Must be a star system already used with a goal.|None|
 
 ### /todo-list raw
 
