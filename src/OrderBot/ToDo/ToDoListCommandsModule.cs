@@ -94,7 +94,7 @@ namespace OrderBot.ToDo
                     MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == name);
                     if (minorFaction == null)
                     {
-                        message = $"{name} is not a known minor faction";
+                        message = $"**Error**: {name} is not a known minor faction";
                     }
                     else
                     {
@@ -104,7 +104,7 @@ namespace OrderBot.ToDo
                         {
                             discordGuild.SupportedMinorFactions.Add(minorFaction);
                         }
-                        message = $"Now supporting *{minorFaction.Name}*";
+                        message = $"**Success**! Now supporting *{minorFaction.Name}*";
                         auditLogger.Audit($"Support minor faction '{name}'");
                     }
                     dbContext.SaveChanges();
@@ -130,7 +130,7 @@ namespace OrderBot.ToDo
                     MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == name);
                     if (minorFaction == null)
                     {
-                        message = $"{name} is not a known minor faction";
+                        message = $"**Error**: {name} is not a known minor faction";
                     }
                     else
                     {
@@ -140,7 +140,7 @@ namespace OrderBot.ToDo
                         {
                             discordGuild.SupportedMinorFactions.Remove(minorFaction);
                         }
-                        message = $"**NOT** supporting *{minorFaction.Name}*";
+                        message = $"**Success**! **NOT** supporting *{minorFaction.Name}*";
                         auditLogger.Audit($"Stop supporting minor faction '{name}'");
                     }
                     dbContext.SaveChanges();
@@ -215,7 +215,7 @@ namespace OrderBot.ToDo
                     AddImplementation(dbContext, Context.Guild, new[] { (minorFactionName, starSystemName,
                         goalName) }, auditLogger);
                     await Context.Interaction.FollowupAsync(
-                        text: $"Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
+                        text: $"**Success**! Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
                         ephemeral: true
                     );
                 }
@@ -293,7 +293,7 @@ namespace OrderBot.ToDo
                     RemoveImplementation(dbContext, Context.Guild, minorFactionName, starSystemName);
                     auditLogger.Audit($"Removed goal for {minorFactionName} in {starSystemName}");
                     await Context.Interaction.FollowupAsync(
-                        text: $"Goal for *{minorFactionName}* in {starSystemName} removed",
+                        text: $"**Success**! Goal for *{minorFactionName}* in {starSystemName} removed",
                         ephemeral: true
                     );
                 }
@@ -441,13 +441,13 @@ namespace OrderBot.ToDo
                         }
 
                         await Context.Interaction.FollowupAsync(
-                                text: $"{goalsAttachement.Filename} added to goals",
+                                text: $"**Success**! {goalsAttachement.Filename} added to goals",
                                 ephemeral: true
                         );
                     }
                     catch (CsvHelperException ex)
                     {
-                        throw new ArgumentException($"{goalsAttachement.Filename} is not a valid goals file", ex);
+                        throw new ArgumentException($"**Error**: {goalsAttachement.Filename} is not a valid goals file", ex);
                     }
                 }
             }

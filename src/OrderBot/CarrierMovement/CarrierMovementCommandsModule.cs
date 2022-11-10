@@ -57,7 +57,7 @@ namespace OrderBot.CarrierMovement
                     await dbContext.SaveChangesAsync();
                     auditLogger.Audit($"Set the carrier movement channel to {channel.Name}");
                     await Context.Interaction.FollowupAsync(
-                        text: $"Carrier movements will be mentioned in #{channel.Name}. Ensure this bot has 'Send Messages' permission to that channel.",
+                        text: $"**Success**! Carrier movements will be mentioned in #{channel.Name}. Ensure this bot has 'Send Messages' permission to that channel.",
                         ephemeral: true
                     );
                 }
@@ -80,7 +80,7 @@ namespace OrderBot.CarrierMovement
                     else
                     {
                         IChannel channel = Context.Guild.GetChannel(discordGuild.CarrierMovementChannel ?? 0);
-                        message = $"Carrier movements will be mentioned in #{channel.Name}";
+                        message = $"**Success**! Carrier movements will be mentioned in #{channel.Name}";
                     }
                     await Context.Interaction.FollowupAsync(
                         text: message,
@@ -106,7 +106,7 @@ namespace OrderBot.CarrierMovement
                     }
                     auditLogger.Audit("Cleared carrier alert channel");
                     await Context.Interaction.FollowupAsync(
-                        text: "No alerts sent for carrier movements",
+                        text: "**Success**! No alerts sent for carrier movements",
                         ephemeral: true
                     );
                 }
@@ -150,7 +150,7 @@ namespace OrderBot.CarrierMovement
                     AddImplementation(dbContext, Context.Guild, name);
                     auditLogger.Audit($"Ignored carrier '{name}'");
                     await Context.Interaction.FollowupAsync(
-                        text: $"Fleet carrier '{name}' will **NOT** be tracked and its location reported",
+                        text: $"**Success**! Fleet carrier '{name}' will **NOT** be tracked and its location reported",
                         ephemeral: true
                     );
                 }
@@ -191,7 +191,7 @@ namespace OrderBot.CarrierMovement
                     RemoveImplementation(dbContext, Context.Guild, name,
                         AuditLogFactory.CreateAuditLogger(Context));
                     await Context.Interaction.FollowupAsync(
-                        text: $"Fleet carrier '{name}' will be tracked and its location reported",
+                        text: $"**Success**! Fleet carrier '{name}' will be tracked and its location reported",
                         ephemeral: true
                     );
                 }
@@ -308,7 +308,7 @@ namespace OrderBot.CarrierMovement
                         }
 
                         await Context.Interaction.FollowupAsync(
-                                text: $"{ignoredCarriersAttachement.Filename} added to ignored carriers",
+                                text: $"**Success**! {ignoredCarriersAttachement.Filename} added to ignored carriers",
                                 ephemeral: true
                         );
                     }

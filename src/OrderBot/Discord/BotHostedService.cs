@@ -140,7 +140,7 @@ namespace OrderBot.Discord
             }
             catch (ArgumentException ex)
             {
-                errorMessage = ex.Message;
+                errorMessage = "**Error**: " + ex.Message;
             }
             catch (Exception ex)
             {
