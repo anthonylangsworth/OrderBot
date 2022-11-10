@@ -28,7 +28,7 @@ namespace OrderBot.CarrierMovement
             /// <param name="auditLogFactory">
             /// </param>
             public Channel(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Channel> logger,
-                DiscordChannelAuditLogFactory auditLogFactory)
+                DiscordChannelAuditLoggerFactory auditLogFactory)
             {
                 ContextFactory = contextFactory;
                 Logger = logger;
@@ -37,7 +37,7 @@ namespace OrderBot.CarrierMovement
 
             public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
             public ILogger<Channel> Logger { get; }
-            public DiscordChannelAuditLogFactory AuditLogFactory { get; }
+            public DiscordChannelAuditLoggerFactory AuditLogFactory { get; }
 
             [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
             // [RequirePerGuildRole("EDAKL Leaders", "EDAKL Veterans")]
@@ -48,13 +48,14 @@ namespace OrderBot.CarrierMovement
             )
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
+                using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 using (Logger.BeginScope(("carrier-movement channel set", Context.Guild.Name)))
                 {
                     using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
                     DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
                     discordGuild.CarrierMovementChannel = channel.Id;
                     await dbContext.SaveChangesAsync();
-                    AuditLogFactory.CreateAuditLog(Context).Audit(discordGuild, $"Set the carrier movement channel to {channel.Name}");
+                    auditLogger.Audit(true, $"Set the carrier movement channel to {channel.Name}");
                     await Context.Interaction.FollowupAsync(
                         text: $"Carrier movements will be mentioned in #{channel.Name}. Ensure this bot has 'Send Messages' permission to that channel.",
                         ephemeral: true
@@ -93,6 +94,7 @@ namespace OrderBot.CarrierMovement
             public async Task Clear()
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
+                using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 using (Logger.BeginScope(("carrier-movement channel clear", Context.Guild.Name)))
                 {
                     using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
@@ -102,7 +104,7 @@ namespace OrderBot.CarrierMovement
                         discordGuild.CarrierMovementChannel = null;
                         await dbContext.SaveChangesAsync();
                     }
-                    AuditLogFactory.CreateAuditLog(Context).Audit(discordGuild, "Cleared carrier alert channel");
+                    auditLogger.Audit(true, "Cleared carrier alert channel");
                     await Context.Interaction.FollowupAsync(
                         text: "No alerts sent for carrier movements",
                         ephemeral: true
@@ -121,7 +123,7 @@ namespace OrderBot.CarrierMovement
             /// <param name="contextFactory"></param>
             /// <param name="logger"></param>
             public IgnoredCarriers(IDbContextFactory<OrderBotDbContext> contextFactory,
-                ILogger<IgnoredCarriers> logger, DiscordChannelAuditLogFactory auditLogFactory)
+                ILogger<IgnoredCarriers> logger, DiscordChannelAuditLoggerFactory auditLogFactory)
             {
                 ContextFactory = contextFactory;
                 Logger = logger;
@@ -130,7 +132,7 @@ namespace OrderBot.CarrierMovement
 
             public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
             public ILogger<IgnoredCarriers> Logger { get; }
-            public DiscordChannelAuditLogFactory AuditLogFactory { get; }
+            public DiscordChannelAuditLoggerFactory AuditLogFactory { get; }
 
             [SlashCommand("add", "Do not track this carrier or report its movements (case insensitive).")]
             public async Task AddIgnoredCarrier(
@@ -141,10 +143,11 @@ namespace OrderBot.CarrierMovement
                 string name)
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
+                using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 using (Logger.BeginScope(("carrier-movement ignored-carriers add", Context.Guild.Name)))
                 {
                     using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    AddImplementation(dbContext, Context.Guild, name, AuditLogFactory.CreateAuditLog(Context));
+                    AddImplementation(dbContext, Context.Guild, name, auditLogger);
                     await Context.Interaction.FollowupAsync(
                         text: $"Fleet carrier '{name}' will **NOT** be tracked and its location reported",
                         ephemeral: true
@@ -153,7 +156,7 @@ namespace OrderBot.CarrierMovement
             }
 
             internal static void AddImplementation(OrderBotDbContext dbContext, IGuild guild, string name,
-                IDiscordAuditLog auditLog)
+                IAuditLogger auditLogger)
             {
                 string serialNumber = Carrier.GetSerialNumber(name);
                 DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
@@ -170,7 +173,7 @@ namespace OrderBot.CarrierMovement
                     discordGuild.IgnoredCarriers.Add(carrier);
                 }
                 dbContext.SaveChanges();
-                auditLog.Audit(discordGuild, $"Ignored carrier '{name}'");
+                auditLogger.Audit(true, $"Ignored carrier '{name}'");
             }
 
             [SlashCommand("remove", "Track this carrier and report its movements")]
@@ -187,7 +190,7 @@ namespace OrderBot.CarrierMovement
                 {
                     using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                     RemoveImplementation(dbContext, Context.Guild, name,
-                        AuditLogFactory.CreateAuditLog(Context));
+                        AuditLogFactory.CreateAuditLogger(Context));
                     await Context.Interaction.FollowupAsync(
                         text: $"Fleet carrier '{name}' will be tracked and its location reported",
                         ephemeral: true
@@ -196,7 +199,7 @@ namespace OrderBot.CarrierMovement
             }
 
             internal static void RemoveImplementation(OrderBotDbContext dbContext, IGuild guild, string name,
-                IDiscordAuditLog auditLog)
+                IAuditLogger auditLog)
             {
                 string serialNumber = Carrier.GetSerialNumber(name);
                 DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
@@ -207,7 +210,7 @@ namespace OrderBot.CarrierMovement
                     discordGuild.IgnoredCarriers.Remove(ignoredCarrier);
                 }
                 dbContext.SaveChanges();
-                auditLog.Audit(discordGuild, $"Tracking carrier '{name}'");
+                auditLog.Audit(true, $"Not ignoring carrier '{name}'");
             }
 
             [SlashCommand("list", "List ignored fleet carriers")]
@@ -283,6 +286,7 @@ namespace OrderBot.CarrierMovement
             )
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
+                using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 using (Logger.BeginScope(("Import", Context.Guild.Name, ignoredCarriersAttachement.Url)))
                 {
                     try
@@ -296,10 +300,9 @@ namespace OrderBot.CarrierMovement
                         using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                         using (TransactionScope transactionScope = new())
                         {
-                            IDiscordAuditLog auditLog = AuditLogFactory.CreateAuditLog(Context);
                             foreach (CarrierCsvRow row in goals)
                             {
-                                AddImplementation(dbContext, Context.Guild, row.Name, auditLog);
+                                AddImplementation(dbContext, Context.Guild, row.Name, auditLogger);
                             }
                             transactionScope.Complete();
                         }

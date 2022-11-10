@@ -15,7 +15,7 @@ namespace OrderBot.Admin
         /// </param>
         public static void AddDiscordChannelAuditLogFactory(this IServiceCollection services)
         {
-            services.AddSingleton<DiscordChannelAuditLogFactory>();
+            services.AddSingleton<DiscordChannelAuditLoggerFactory>();
         }
     }
 }

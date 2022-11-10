@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Moq;
 using NUnit.Framework;
+using OrderBot.Admin;
 using OrderBot.CarrierMovement;
 using OrderBot.EntityFramework;
 using System.Transactions;
@@ -19,7 +20,7 @@ namespace OrderBot.Test.CarrierMovement
                 "Delta VT4-GKW",
             };
 
-            NullDiscordAuditLog nullDiscordAuditLog = new();
+            NullAuditLogger nullDiscordAuditLog = new();
             using OrderBotDbContextFactory contextFactory = new();
             using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
             using TransactionScope transactionScope = new();
