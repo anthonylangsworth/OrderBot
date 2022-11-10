@@ -25,7 +25,7 @@ namespace OrderBot.Discord
                 }
                 else
                 {
-                    return Task.FromResult(PreconditionResult.FromError($"You do not have permission to run this command."));
+                    return Task.FromResult(PreconditionResult.FromError($"You must be in one of the roles {string.Join(",", Roles)} to run this command."));
                 }
             }
             else
