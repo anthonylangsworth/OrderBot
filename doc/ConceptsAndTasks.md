@@ -9,10 +9,12 @@ To setup the bot:
 2. Give Discord a few minutes to process the registration and the bot's commands to become available. 
 3. Choose a minor faction to support using [/todo-list support add](CommandReference.md#todo-list-support-add). This must match the name of the in-game minor faction exactly, although it is not case sensitive.
 4. Optionally, override the behaviour for specific systems or add goals for other minor factions using [/todo-list goal add](CommandReference.md#todo-list-goal-add). See [Goals](Goals.md) for details. You can add or remove these at any time as needs or whims dictate.
-5. Either visit the systems where your supported minor faction is present while running [EDMC](https://github.com/EDCD/EDMarketConnector/wiki) or a similar tool or wait for someone else to do so. This sends data to EDDN and then on to this bot.
-6. Run [/todo-list show](CommandReference.md#todo-list-show) to see the suggestions.
+5. Optionally, set an audit channel where changes are logged to using [/bgs-order-bot audit-channel set](CommandReference.md#bgs-order-bot-audit-channel-set).
+6. Optionally, set an channel where fleet carrier movements are logged to using [/carrier-movement channel set](CommandReference.md#carrier-movement-channels-set).
+7. Either visit the systems where your supported minor faction is present while running [EDMC](https://github.com/EDCD/EDMarketConnector/wiki) or a similar tool or wait for someone else to do so. This sends data to EDDN and then on to this bot.
+8. Run [/todo-list show](CommandReference.md#todo-list-show) to see the suggestions.
 
-(TODO: Setup command security. Setup carrier movement channel, etc)
+(TODO: Setup command security.)
 
 ## See BGS Work
 
