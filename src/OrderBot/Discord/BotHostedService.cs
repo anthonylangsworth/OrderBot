@@ -71,14 +71,15 @@ namespace OrderBot.Discord
         internal ILogger<BotHostedService> Logger { get; }
 
         /// <summary>
-        /// Start
+        /// Start.
         /// </summary>
         /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="InvalidOperationException">
+        /// Connection state must be disconnected.
+        /// </exception>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            if (Client.ConnectionState == ConnectionState.Connected)
+            if (Client.ConnectionState != ConnectionState.Disconnected)
             {
                 throw new InvalidOperationException("Already started");
             }
@@ -92,10 +93,9 @@ namespace OrderBot.Discord
         }
 
         /// <summary>
-        /// 
+        /// Stop.
         /// </summary>
         /// <param name="cancellationToken"></param>
-        /// <returns></returns>
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             await Client.StopAsync();
