@@ -21,5 +21,6 @@ Note:
 
 Goals are designed with the following principles:
 
-1. Succint, descriptive goal names: Goals should have short, descriptive names and preferably a single word verb. Their effect should be clear to those familiar with the background simulation in Elite Dangerous.
-2. Few, useful goals over many, niche goals: Goals should be broadly applicable. Niche goals should be handled manually.
+1. Strategy: Goals represent strategy, either to enforce a permanent state (e.g. `Control` or `Maintain`) or something that may take weeks of effort (`Expand` or `Retreat`). They are not intended for small tweaks or whims. Get a raw order list and edit that if small tweaks are desired or common.
+2. Succint, descriptive goal names: Goals should have short, descriptive names and preferably a single word verb. Their effect should be clear to those familiar with the background simulation in Elite Dangerous.
+3. Few, useful goals over many, niche goals: Goals should be broadly applicable. Niche goals should be handled manually.
