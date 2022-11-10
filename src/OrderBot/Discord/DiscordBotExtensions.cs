@@ -27,7 +27,7 @@ namespace OrderBot.Discord
         /// </exception>
         public static void AddDiscordBot(this IServiceCollection services, IConfiguration configuration)
         {
-            string discordApiKey = configuration.GetRequiredSection(DiscordApiKeyEnvironmentVariable).Value;
+            string? discordApiKey = configuration.GetRequiredSection(DiscordApiKeyEnvironmentVariable).Value;
             if (string.IsNullOrEmpty(discordApiKey))
             {
                 throw new InvalidOperationException(

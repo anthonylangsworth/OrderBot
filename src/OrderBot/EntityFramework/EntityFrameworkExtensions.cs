@@ -22,7 +22,7 @@ namespace OrderBot.EntityFramework
         /// </exception>
         public static void AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
-            string dbConnectionString = configuration.GetConnectionString(DatabaseEnvironmentVariable);
+            string? dbConnectionString = configuration.GetConnectionString(DatabaseEnvironmentVariable);
             if (string.IsNullOrEmpty(dbConnectionString))
             {
                 throw new InvalidOperationException(
