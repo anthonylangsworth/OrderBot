@@ -127,7 +127,7 @@ namespace OrderBot.CarrierMovement
                 {
                     using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
                     DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
-                    AuditLogFactory.CreateAuditLogger(Context).Audit(true, "Auditing disabled");
+                    AuditLogFactory.CreateAuditLogger(Context).Audit("Auditing disabled");
                     if (discordGuild.AuditChannel != null)
                     {
                         discordGuild.AuditChannel = null;

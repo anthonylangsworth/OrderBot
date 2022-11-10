@@ -79,9 +79,9 @@ namespace OrderBot.Admin
         public string UserName { get; }
 
         /// <inheritdoc/>
-        public void Audit(bool success, string message)
+        public void Audit(string message)
         {
-            _streamWriter.WriteLine($"{UserName}: {(success ? "Success" : "Failure")} {message}");
+            _streamWriter.WriteLine($"{UserName}: {message}");
         }
     }
 }

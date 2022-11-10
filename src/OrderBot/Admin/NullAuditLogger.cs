@@ -6,7 +6,7 @@
     internal class NullAuditLogger : IAuditLogger
     {
         /// <inheritdoc/>
-        public void Audit(bool success, string message)
+        public void Audit(string message)
         {
             // Do nothing
         }

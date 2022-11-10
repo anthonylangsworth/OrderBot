@@ -34,7 +34,7 @@ namespace OrderBot.Test.CarrierMovement
             foreach (string ignoreCarrier in ignoreCarriers)
             {
                 CarrierMovementCommandsModule.IgnoredCarriers.AddImplementation(dbContext, guild,
-                    ignoreCarrier, nullDiscordAuditLog);
+                    ignoreCarrier);
                 Assert.That(
                     CarrierMovementCommandsModule.IgnoredCarriers.ListImplementation(dbContext, guild)
                                                                  .Any(c => c.Name == ignoreCarrier), Is.True);
