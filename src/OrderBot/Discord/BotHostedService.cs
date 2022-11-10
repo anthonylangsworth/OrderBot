@@ -78,7 +78,7 @@ namespace OrderBot.Discord
         {
             if (Client.ConnectionState != ConnectionState.Disconnected)
             {
-                throw new InvalidOperationException("Already started");
+                throw new InvalidOperationException("Not disconnected");
             }
 
             await InteractionService.AddModulesAsync(Assembly.GetExecutingAssembly(), ServiceProvider);
@@ -95,6 +95,7 @@ namespace OrderBot.Discord
         /// <param name="cancellationToken"></param>
         public async Task StopAsync(CancellationToken cancellationToken)
         {
+            Logger.LogInformation("Stopped");
             await Client.StopAsync();
         }
 

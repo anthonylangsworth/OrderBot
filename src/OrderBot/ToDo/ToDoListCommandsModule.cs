@@ -37,6 +37,7 @@ namespace OrderBot.ToDo
             await Context.Interaction.DeferAsync(ephemeral: true);
             using (Logger.BeginScope("show", Context.Guild.Name))
             {
+                Logger.LogTrace("Called");
                 const string minorFactionName = "EDA Kunti League";
                 await Context.Interaction.FollowupAsync(
                     text: Formatter.Format(Generator.Generate(Context.Guild.Id, minorFactionName)),
@@ -53,6 +54,7 @@ namespace OrderBot.ToDo
             await Context.Interaction.DeferAsync(ephemeral: true);
             using (Logger.BeginScope("raw", Context.Guild.Name))
             {
+                Logger.LogTrace("Called");
                 const string minorFactionName = "EDA Kunti League";
                 await Context.Interaction.FollowupAsync(
                     text: $"```\n" +
