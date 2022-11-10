@@ -35,7 +35,7 @@ namespace OrderBot.ToDo
         public async Task ShowToDoList()
         {
             await Context.Interaction.DeferAsync(ephemeral: true);
-            using (Logger.BeginScope("show", Context.Guild.Name))
+            using (Logger.BeginScope(new ScopeBuilder(Context).Build()))
             {
                 Logger.LogInformation("Called");
                 const string minorFactionName = "EDA Kunti League";
@@ -52,7 +52,7 @@ namespace OrderBot.ToDo
         public async Task ShowRawToDoList()
         {
             await Context.Interaction.DeferAsync(ephemeral: true);
-            using (Logger.BeginScope("raw", Context.Guild.Name))
+            using (Logger.BeginScope(new ScopeBuilder(Context).Build()))
             {
                 Logger.LogInformation("Called");
                 const string minorFactionName = "EDA Kunti League";
