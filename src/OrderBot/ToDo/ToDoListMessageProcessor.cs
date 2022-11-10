@@ -8,8 +8,23 @@ using System.Transactions;
 
 namespace OrderBot.ToDo
 {
+    /// <summary>
+    /// Save EDDN messages with relevant BGS data. Called by <see cref="EddnMessageHostedService"/>.
+    /// </summary>
     internal class ToDoListMessageProcessor : EddnMessageProcessor
     {
+        /// <summary>
+        /// Create a new <see cref="ToDoListMessageProcessor"/>.
+        /// </summary>
+        /// <param name="logger">
+        /// Used for logging.
+        /// </param>
+        /// <param name="dbContextFactory">
+        /// Database access.
+        /// </param>
+        /// <param name="filter">
+        /// Control which systems to log data for.
+        /// </param>
         public ToDoListMessageProcessor(ILogger<ToDoListMessageProcessor> logger,
             IDbContextFactory<OrderBotDbContext> dbContextFactory, MinorFactionNameFilter filter)
         {
@@ -22,6 +37,7 @@ namespace OrderBot.ToDo
         public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
         public MinorFactionNameFilter Filter { get; }
 
+        /// <inheritDoc/>
         public override void Process(JsonDocument message)
         {
             using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
@@ -46,7 +62,7 @@ namespace OrderBot.ToDo
         /// <param name="message">
         /// The message received from EDDN.
         /// </param>
-        /// <param name="minorFactionNameFilters">
+        /// <param name="minorFactionNameFilter">
         /// Filter out systems that do not match this filter.
         /// </param>
         /// <returns>
@@ -63,7 +79,7 @@ namespace OrderBot.ToDo
         /// One or more fields are not of the expected format.
         /// </exception>
         internal static EddnStarSystemData? GetBgsData(JsonDocument message,
-            MinorFactionNameFilter minorFactionNameFilters)
+            MinorFactionNameFilter minorFactionNameFilter)
         {
             DateTime timestamp = message.RootElement
                     .GetProperty("header")
@@ -90,7 +106,7 @@ namespace OrderBot.ToDo
                     }
                     if (starSystemName != null
                         && messageElement.TryGetProperty("Factions", out JsonElement factionsProperty)
-                        && factionsProperty.EnumerateArray().Any(element => minorFactionNameFilters.Matches(element.GetProperty("Name").GetString() ?? "")))
+                        && factionsProperty.EnumerateArray().Any(element => minorFactionNameFilter.Matches(element.GetProperty("Name").GetString() ?? "")))
                     {
                         minorFactionInfos = factionsProperty.EnumerateArray().Select(element =>
                             new EddnMinorFactionInfluence()
