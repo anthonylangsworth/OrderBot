@@ -63,7 +63,7 @@ namespace OrderBot.CarrierMovement
             }
         }
 
-        private Carrier[] UpdateNewCarrierLocations(OrderBotDbContext dbContext, StarSystem starSystem, IReadOnlyList<DiscordGuild> discordGuilds, DateTime timestamp, Signal[] signals)
+        internal Carrier[] UpdateNewCarrierLocations(OrderBotDbContext dbContext, StarSystem starSystem, IReadOnlyList<DiscordGuild> discordGuilds, DateTime timestamp, Signal[] signals)
         {
             List<Carrier> observedCarriers = new();
             foreach (Signal signal in signals.Where(s => s.IsStation && Carrier.IsCarrier(s.Name)))

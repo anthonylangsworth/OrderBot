@@ -433,8 +433,9 @@ namespace OrderBot.ToDo
                         {
                             foreach (GoalCsvRow row in goals)
                             {
-                                AddImplementation(dbContext, Context.Guild, new[] { (row.MinorFaction, row.StarSystem,
-                                    row.Goal) }, auditLogger);
+                                AddImplementation(dbContext, Context.Guild,
+                                    new[] { (row.MinorFaction, row.StarSystem, row.Goal) },
+                                    auditLogger);
                             }
                             transactionScope.Complete();
                         }
