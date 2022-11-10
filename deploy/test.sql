@@ -41,9 +41,10 @@ delete from StarSystemMinorFactionState
 */
 
 -- Ignored carriers
-select dg.GuildId, c.SerialNumber, c.Name
+select dg.GuildId, c.SerialNumber, c.Name, ss.Name
 from IgnoredCarrier ic left join DiscordGuild dg on ic.DiscordGuildId = dg.Id
 	left join Carrier c on ic.CarrierId = c.Id
+	left join StarSystem ss on c.StarSystemId = ss.Id
 
 -- Conflicts
 select ss.Name as [Star System], mf1.Name as [Minor Faction 1], c.MinorFaction1WonDays, mf2.Name as [Minor Faction 2], c.MinorFaction2WonDays, c.Status, c.WarType
