@@ -2,7 +2,7 @@
 
 namespace OrderBot.Admin
 {
-    public interface IDiscordAuditLog
+    public interface IDiscordAuditLog : IDisposable
     {
         void Audit(DiscordGuild discordGuild, string message);
     }

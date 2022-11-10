@@ -36,8 +36,9 @@ namespace OrderBot.Test.ToDo
             string minorFactionName = minorFaction.Name;
             string starSystemName = starSystem.Name;
             string goalName = goal.Name;
-            ToDoListCommandsModule.Goals.AddImplementation(dbContext, guild, minorFactionName, starSystemName,
-                goalName, new NullDiscordAuditLog());
+            ToDoListCommandsModule.Goals.AddImplementation(dbContext, guild,
+                new[] { (minorFactionName, starSystemName, goalName) },
+                new NullDiscordAuditLog());
 
             DiscordGuildPresenceGoal? discordGuildStarSystemMinorFactionGoal =
                 dbContext.DiscordGuildPresenceGoals.Include(dgssmfg => dgssmfg.Presence)
@@ -97,8 +98,9 @@ namespace OrderBot.Test.ToDo
             dbContext.DiscordGuildPresenceGoals.Add(discordGuildStarSystemMinorFactionGoal);
             dbContext.SaveChanges();
 
-            ToDoListCommandsModule.Goals.AddImplementation(dbContext, guild, minorFaction.Name, starSystem.Name,
-                goal.Name, new NullDiscordAuditLog());
+            ToDoListCommandsModule.Goals.AddImplementation(dbContext, guild,
+                new[] { (minorFaction.Name, starSystem.Name, goal.Name) },
+                new NullDiscordAuditLog());
 
             DiscordGuildPresenceGoal? newDiscordGuildStarSystemMinorFactionGoal =
                 dbContext.DiscordGuildPresenceGoals.Include(dgssmfg => dgssmfg.Presence)

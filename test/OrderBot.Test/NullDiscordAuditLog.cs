@@ -9,5 +9,10 @@ namespace OrderBot.Test
         {
             // Do nothing
         }
+
+        public void Dispose()
+        {
+            // Do nothing
+        }
     }
 }

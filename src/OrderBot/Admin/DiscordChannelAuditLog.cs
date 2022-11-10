@@ -10,6 +10,8 @@ namespace OrderBot.Admin
     /// </summary>
     public class DiscordChannelAuditLog : IDiscordAuditLog
     {
+        private bool disposedValue;
+
         /// <summary>
         /// Create a new <see cref="Audit"/>.
         /// </summary>
@@ -21,6 +23,7 @@ namespace OrderBot.Admin
         {
             Context = context;
             Logger = logger;
+            AuditMessages = new List<string>();
         }
 
         public SocketInteractionContext Context { get; }
@@ -29,6 +32,8 @@ namespace OrderBot.Admin
         /// Also log audit events.
         /// </summary>
         public ILogger<DiscordChannelAuditLog> Logger { get; }
+
+        internal List<string> AuditMessages { get; }
 
         /// <summary>
         /// Write an audit message for the given <see cref="DiscordGuild"/>.
@@ -51,6 +56,35 @@ namespace OrderBot.Admin
                 Logger.LogInformation("Audit message for '{discordGuildName}': {user}: {message}",
                     discordGuild.Name, displayName, message);
             }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                //if (Context.Guild.GetChannel(discordGuild.AuditChannel ?? 0) is SocketTextChannel auditChannel)
+                //{
+                //    foreach (string auditMessage in AuditMessages)
+                //    {
+                //        auditChannel.SendMessageAsync(auditMessage).GetAwaiter().GetResult();
+                //    }
+                //}
+                disposedValue = true;
+            }
+        }
+
+        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+        // ~DiscordChannelAuditLog()
+        // {
+        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        //     Dispose(disposing: false);
+        // }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }
