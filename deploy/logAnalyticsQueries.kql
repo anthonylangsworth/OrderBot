@@ -1,0 +1,3 @@
+Event_CL
+| where CategoryName_s startswith_cs "OrderBot"
+| order by TimeGenerated desc

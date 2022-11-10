@@ -17,6 +17,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "deploy", "deploy", "{EB55A3E1-9089-47E6-AB28-DE9AA2ADF9CE}"
 	ProjectSection(SolutionItems) = preProject
 		deploy\db.sql = deploy\db.sql
+		deploy\logAnalyticsQueries.kql = deploy\logAnalyticsQueries.kql
 		deploy\tables.sql = deploy\tables.sql
 		deploy\test.sql = deploy\test.sql
 	EndProjectSection
