@@ -22,6 +22,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.17.0" />
     <PackageReference Include="NetMQ" Version="4.0.1.10" />
+    <PackageReference Include="Tingle.Extensions.Logging.LogAnalytics" Version="3.7.0" />
   </ItemGroup>
 
 </Project>
