@@ -34,7 +34,6 @@ namespace OrderBot.ToDo
         // [RequirePerGuildRole("EDAKL Leaders", "EDAKL Veterans")]
         public async Task ShowToDoList()
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
             const string minorFactionName = "EDA Kunti League";
             await Context.Interaction.FollowupAsync(
                 text: Formatter.Format(Generator.Generate(Context.Guild.Id, minorFactionName)),
@@ -47,7 +46,6 @@ namespace OrderBot.ToDo
         // [RequirePerGuildRole("EDAKL Leaders", "EDAKL Veterans")]
         public async Task ShowRawToDoList()
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
             const string minorFactionName = "EDA Kunti League";
             await Context.Interaction.FollowupAsync(
                 text: $"```\n" +
@@ -79,7 +77,6 @@ namespace OrderBot.ToDo
                 string name
             )
             {
-                await Context.Interaction.DeferAsync(ephemeral: true);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 string message;
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
@@ -112,7 +109,6 @@ namespace OrderBot.ToDo
                 string name
             )
             {
-                await Context.Interaction.DeferAsync(ephemeral: true);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 string message;
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
@@ -142,7 +138,6 @@ namespace OrderBot.ToDo
             [SlashCommand("list", "List supported minor factions")]
             public async Task List()
             {
-                await Context.Interaction.DeferAsync(ephemeral: true);
                 string message;
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                 DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
@@ -192,7 +187,6 @@ namespace OrderBot.ToDo
                 string goalName
             )
             {
-                await Context.Interaction.DeferAsync(ephemeral: true);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                 try
@@ -280,7 +274,6 @@ namespace OrderBot.ToDo
                 string starSystemName
             )
             {
-                await Context.Interaction.DeferAsync(ephemeral: true);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                 try
@@ -339,7 +332,6 @@ namespace OrderBot.ToDo
             [SlashCommand("list", "List any specific goals per minor faction and per system")]
             public async Task List()
             {
-                await Context.Interaction.DeferAsync(ephemeral: true);
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                 string result = string.Join(Environment.NewLine,
                     ListImplementation(dbContext, Context.Guild).Select(
@@ -374,7 +366,6 @@ namespace OrderBot.ToDo
             [SlashCommand("export", "Export the current goals for backup")]
             public async Task Export()
             {
-                await Context.Interaction.DeferAsync(ephemeral: true);
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                 IList<GoalCsvRow> result =
                     ListImplementation(dbContext, Context.Guild)
@@ -414,7 +405,6 @@ namespace OrderBot.ToDo
                 IAttachment goalsAttachement
             )
             {
-                await Context.Interaction.DeferAsync(ephemeral: true);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 IList<GoalCsvRow> goals;
                 try

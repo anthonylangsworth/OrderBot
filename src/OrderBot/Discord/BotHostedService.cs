@@ -131,6 +131,10 @@ namespace OrderBot.Discord
             using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(context).Build());
             Logger.LogInformation("Started");
 
+            if (interaction is not IAutocompleteInteraction)
+            {
+                await interaction.DeferAsync(ephemeral: true);
+            }
             IResult result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
             if (result.IsSuccess)
             {

@@ -84,6 +84,7 @@ namespace OrderBot.CarrierMovement
 
                     // TODO: Separate the messages from processing, e.g. pass in a Func or object
                     // TODO: Only notify each guild if the system has a presence or a goal
+                    // TODO: Batch messages, e.g. using GuildNotifier
 
                     foreach (DiscordGuild discordGuild in
                         discordGuilds.Where(dg => !dg.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber)))

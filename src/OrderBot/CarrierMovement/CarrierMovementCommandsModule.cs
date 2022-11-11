@@ -47,7 +47,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             IChannel channel
         )
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
@@ -64,7 +63,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         [SlashCommand("get", "Retrieve the channel that receives carrier jump alerts")]
         public async Task Get()
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
             string message;
@@ -87,7 +85,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         [SlashCommand("clear", "Turn off alerts for carrier jumps")]
         public async Task Clear()
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
@@ -133,7 +130,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             ]
             string name)
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
             try
@@ -187,7 +183,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             string name
         )
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
             RemoveImplementation(dbContext, Context.Guild, name);
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
@@ -214,7 +209,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         [SlashCommand("list", "List ignored fleet carriers")]
         public async Task List()
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
             string result = string.Join("\n", ListImplementation(dbContext, Context.Guild).Select(c => c.Name));
             if (!result.Any())
@@ -245,7 +239,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         [SlashCommand("export", "Export the ignored carriers for backup")]
         public async Task Export()
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
             IList<CarrierCsvRow> result =
                 ListImplementation(dbContext, Context.Guild)
@@ -280,7 +273,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             IAttachment ignoredCarriersAttachement
         )
         {
-            await Context.Interaction.DeferAsync(ephemeral: true);
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             IList<CarrierCsvRow> goals;
             try
