@@ -312,7 +312,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             catch (ArgumentException ex)
             {
                 await Context.Interaction.FollowupAsync(
-                        text: $"**Error**! {ex.Message}",
+                        text: $"**Error**: {ex.Message}",
                         ephemeral: true
                     );
             }
