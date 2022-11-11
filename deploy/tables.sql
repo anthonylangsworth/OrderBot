@@ -150,3 +150,23 @@ GO
 CREATE INDEX [IX_Conflict_StarSystem]
 ON [dbo].[Conflict]([StarSystemId])
 GO
+CREATE TABLE [dbo].[Role](
+	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
+	[Name] [nvarchar](100) NOT NULL
+)
+GO
+CREATE UNIQUE INDEX [IX_Role_Name]
+ON [dbo].[Role]([Name])
+GO
+CREATE TABLE [dbo].[DiscordRoleMember](
+	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
+	[DiscordGuildId] [int] NOT NULL FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE,
+	[RoleId] [int] NOT NULL FOREIGN KEY REFERENCES [Role]([Id]) ON DELETE CASCADE,
+	[Member] [numeric](20,0) NOT NULL 
+)
+GO
+CREATE INDEX [IX_DiscordRoleMember_DiscordGuildRole]
+ON [dbo].[DiscordRoleMember]([DiscordGuildId], [RoleId])
+GO
+
+

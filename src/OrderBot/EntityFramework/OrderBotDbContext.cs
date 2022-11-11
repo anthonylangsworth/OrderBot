@@ -32,6 +32,8 @@ namespace OrderBot.EntityFramework
         public DbSet<Carrier> Carriers { get; protected set; } = null!;
         public DbSet<DiscordGuildMinorFaction> DiscordGuildMinorFactions { get; protected set; } = null!;
         public DbSet<Conflict> Conflicts { get; protected set; } = null!;
+        public DbSet<Role> Roles { get; protected set; } = null!;
+        public DbSet<RoleMember> RoleMembers { get; protected set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -243,8 +245,38 @@ namespace OrderBot.EntityFramework
                         .WithMany()
                         .IsRequired();
 
-            // May need to configure correct pluralization of many-to-many field names.
-            // Possibly related to https://docs.microsoft.com/en-us/ef/core/what-is-new/ef-core-6.0/whatsnew#less-configuration-for-many-to-many-relationships.
+            modelBuilder.Entity<Role>(entity =>
+            {
+                entity.ToTable("Role");
+
+                entity.Property(e => e.Id)
+                      .UseIdentityColumn();
+
+                entity.Property(e => e.Name)
+                      .HasMaxLength(100)
+                      .IsRequired();
+            });
+
+            modelBuilder.Entity<RoleMember>(entity =>
+            {
+                entity.ToTable("RoleMember");
+
+                entity.Property(e => e.Id)
+                      .UseIdentityColumn();
+
+                entity.Property(e => e.MentionableId)
+                      .IsRequired();
+            });
+
+            modelBuilder.Entity<RoleMember>()
+                        .HasOne(e => e.DiscordGuild)
+                        .WithMany()
+                        .IsRequired();
+
+            modelBuilder.Entity<RoleMember>()
+                        .HasOne(e => e.Role)
+                        .WithMany()
+                        .IsRequired();
         }
     }
 }
