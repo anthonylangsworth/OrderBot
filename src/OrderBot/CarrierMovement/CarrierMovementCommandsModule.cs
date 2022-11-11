@@ -136,7 +136,7 @@ namespace OrderBot.CarrierMovement
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                AddImplementation(dbContext, Context.Guild, name);
+                AddImplementation(dbContext, Context.Guild, new[] { name });
                 auditLogger.Audit($"Ignored carrier '{name}'");
                 await Context.Interaction.FollowupAsync(
                     text: $"**Success**! Fleet carrier '{name}' will **NOT** be tracked and its location reported",
@@ -144,23 +144,28 @@ namespace OrderBot.CarrierMovement
                 );
             }
 
-            internal static void AddImplementation(OrderBotDbContext dbContext, IGuild guild, string name)
+            internal static void AddImplementation(OrderBotDbContext dbContext, IGuild guild, IEnumerable<string> names)
             {
-                string serialNumber = Carrier.GetSerialNumber(name);
+                using TransactionScope scope = new();
                 DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
                     dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
-                Carrier? ignoredCarrier = discordGuild.IgnoredCarriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
-                if (!discordGuild.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber))
+                foreach (string name in names)
                 {
-                    Carrier? carrier = dbContext.Carriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
-                    if (carrier == null)
+                    string serialNumber = Carrier.GetSerialNumber(name);
+                    Carrier? ignoredCarrier = discordGuild.IgnoredCarriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
+                    if (!discordGuild.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber))
                     {
-                        carrier = new Carrier() { Name = name };
-                        dbContext.Carriers.Add(carrier);
+                        Carrier? carrier = dbContext.Carriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
+                        if (carrier == null)
+                        {
+                            carrier = new Carrier() { Name = name };
+                            dbContext.Carriers.Add(carrier);
+                        }
+                        discordGuild.IgnoredCarriers.Add(carrier);
                     }
-                    discordGuild.IgnoredCarriers.Add(carrier);
+                    dbContext.SaveChanges();
                 }
-                dbContext.SaveChanges();
+                scope.Complete();
             }
 
             [SlashCommand("remove", "Track this carrier and report its movements")]
@@ -174,16 +179,16 @@ namespace OrderBot.CarrierMovement
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                RemoveImplementation(dbContext, Context.Guild, name,
-                    AuditLogFactory.CreateAuditLogger(Context));
+                RemoveImplementation(dbContext, Context.Guild, name);
+                using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
+                auditLogger.Audit($"Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.");
                 await Context.Interaction.FollowupAsync(
-                    text: $"**Success**! Fleet carrier '{name}' will be tracked and its location reported",
+                    text: $"**Success**! Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.",
                     ephemeral: true
                 );
             }
 
-            internal static void RemoveImplementation(OrderBotDbContext dbContext, IGuild guild, string name,
-                IAuditLogger auditLog)
+            internal static void RemoveImplementation(OrderBotDbContext dbContext, IGuild guild, string name)
             {
                 string serialNumber = Carrier.GetSerialNumber(name);
                 DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
@@ -194,7 +199,6 @@ namespace OrderBot.CarrierMovement
                     discordGuild.IgnoredCarriers.Remove(ignoredCarrier);
                 }
                 dbContext.SaveChanges();
-                auditLog.Audit($"Not ignoring carrier '{name}'");
             }
 
             [SlashCommand("list", "List ignored fleet carriers")]
@@ -280,14 +284,7 @@ namespace OrderBot.CarrierMovement
                     }
 
                     using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    using (TransactionScope transactionScope = new())
-                    {
-                        foreach (CarrierCsvRow row in goals)
-                        {
-                            AddImplementation(dbContext, Context.Guild, row.Name);
-                        }
-                        transactionScope.Complete();
-                    }
+                    AddImplementation(dbContext, Context.Guild, goals.Select(g => g.Name));
 
                     auditLogger.Audit($"Ignored carriers:\n{string.Join("\n", goals.Select(g => g.Name))}");
                     await Context.Interaction.FollowupAsync(
