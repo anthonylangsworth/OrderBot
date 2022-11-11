@@ -1,3 +1,10 @@
+// Basic OrderBot messages
 Event_CL
 | where CategoryName_s startswith_cs "OrderBot"
 | order by TimeGenerated desc
+| project Command_s, InteractionId_s, LogLevel_s, Message, Guild_s, User_s
+
+//  OrderBot errors
+Event_CL
+| where CategoryName_s startswith_cs "OrderBot"
+| where LogLevel_s == "Error"
