@@ -28,7 +28,7 @@ namespace OrderBot.CarrierMovement
             /// <param name="auditLogFactory">
             /// </param>
             public AuditChannel(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<AuditChannel> logger,
-                DiscordChannelAuditLoggerFactory auditLogFactory)
+                TextChannelAuditLoggerFactory auditLogFactory)
             {
                 ContextFactory = contextFactory;
                 Logger = logger;
@@ -37,7 +37,7 @@ namespace OrderBot.CarrierMovement
 
             public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
             public ILogger<AuditChannel> Logger { get; }
-            public DiscordChannelAuditLoggerFactory AuditLogFactory { get; }
+            public TextChannelAuditLoggerFactory AuditLogFactory { get; }
 
             [SlashCommand("set", "Change the channel to which audit messages are written")]
             public async Task Set(

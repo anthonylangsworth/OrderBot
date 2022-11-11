@@ -7,15 +7,13 @@ namespace OrderBot.Admin
     /// <summary>
     /// An audit log that writes to a Discord channel.
     /// </summary>
-    public class DiscordChannelAuditLogger : IAuditLogger
+    public class TextChannelAuditLogger : IAuditLogger
     {
         private bool _disposedValue;
-        private readonly DiscordChannelStream _discordChannelStream;
-        private readonly BufferedStream _bufferedStream;
-        private readonly StreamWriter _streamWriter;
+        private readonly TextChannelWriter _textChannelWriter;
 
         /// <summary>
-        /// Create a new <see cref="DiscordChannelAuditLogger"/>.
+        /// Create a new <see cref="TextChannelAuditLogger"/>.
         /// </summary>
         /// <param name="channelId">
         /// The channel ID to receive audit messages.
@@ -23,34 +21,26 @@ namespace OrderBot.Admin
         /// <param name="logger">
         /// Also log audit events.
         /// </param>
-        /// <exception cref="ArgumentException">
+        /// <exception cref="ArgumentException">    
         /// Either <paramref name="context"/> is invalid or <paramref name="channelId"/> is not a valid channel.
         /// </exception>
-        public DiscordChannelAuditLogger(SocketInteractionContext context, ulong channelId)
+        public TextChannelAuditLogger(SocketInteractionContext context, ulong channelId)
         {
             if (context.Guild.GetChannel(channelId) is not ITextChannel textChannel)
             {
                 throw new ArgumentException(
                     $"Either {nameof(context)} is invalid or {nameof(channelId)} {channelId} is not a valid channel");
             }
-            _discordChannelStream = new DiscordChannelStream(textChannel);
-            _bufferedStream = new BufferedStream(_discordChannelStream, DiscordConfig.MaxMessageSize);
-            _streamWriter = new StreamWriter(_bufferedStream);
+            _textChannelWriter = new TextChannelWriter(textChannel);
             UserName = context.Guild.GetUser(context.User.Id).DisplayName;
-        }
-        ~DiscordChannelAuditLogger()
-        {
-            Dispose(disposing: false);
         }
 
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposedValue)
             {
-                _streamWriter.Flush();
-                _streamWriter.Dispose();
-                _bufferedStream.Dispose();
-                _discordChannelStream.Dispose();
+                _textChannelWriter.Flush();
+                _textChannelWriter.Dispose();
                 _disposedValue = true;
             }
         }
@@ -69,7 +59,7 @@ namespace OrderBot.Admin
         /// <inheritdoc/>
         public void Audit(string message)
         {
-            _streamWriter.WriteLine($"{UserName}: {message}");
+            _textChannelWriter.WriteLine($"{UserName}: {message}");
         }
     }
 }

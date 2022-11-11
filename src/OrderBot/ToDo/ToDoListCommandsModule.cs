@@ -62,7 +62,7 @@ namespace OrderBot.ToDo
         public class Support : InteractionModuleBase<SocketInteractionContext>
         {
             public Support(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Support> logger,
-                DiscordChannelAuditLoggerFactory auditLogFactory)
+                TextChannelAuditLoggerFactory auditLogFactory)
             {
                 ContextFactory = contextFactory;
                 Logger = logger;
@@ -71,7 +71,7 @@ namespace OrderBot.ToDo
 
             public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
             public ILogger<Support> Logger { get; }
-            public DiscordChannelAuditLoggerFactory AuditLogFactory { get; }
+            public TextChannelAuditLoggerFactory AuditLogFactory { get; }
 
             [SlashCommand("add", "Start supporting this minor faction")]
             public async Task Add(
@@ -168,7 +168,7 @@ namespace OrderBot.ToDo
         public class Goals : InteractionModuleBase<SocketInteractionContext>
         {
             public Goals(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Goals> logger,
-                DiscordChannelAuditLoggerFactory auditLogFactory)
+                TextChannelAuditLoggerFactory auditLogFactory)
             {
                 ContextFactory = contextFactory;
                 Logger = logger;
@@ -177,7 +177,7 @@ namespace OrderBot.ToDo
 
             public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
             public ILogger<Goals> Logger { get; }
-            public DiscordChannelAuditLoggerFactory AuditLogFactory { get; }
+            public TextChannelAuditLoggerFactory AuditLogFactory { get; }
 
             [SlashCommand("add", "Set a specific goal for this minor faction in this system")]
             public async Task Add(

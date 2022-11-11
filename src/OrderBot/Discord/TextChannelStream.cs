@@ -6,15 +6,15 @@ namespace OrderBot.Discord
     /// <summary>
     /// A <see cref="Stream"/> that wraps a <see cref="ITextChannel"/>. It only allows writes.
     /// </summary>
-    public class DiscordChannelStream : Stream
+    public class TextChannelStream : Stream
     {
         /// <summary>
-        /// Create a new <see cref="DiscordChannelStream"/>.
+        /// Create a new <see cref="TextChannelStream"/>.
         /// </summary>
         /// <param name="textChannel">
         /// The Discord channel to write to. The caller needs `Send Messages` permission on this channel.
         /// </param>
-        public DiscordChannelStream(ITextChannel textChannel)
+        public TextChannelStream(ITextChannel textChannel)
         {
             TextChannel = textChannel;
         }

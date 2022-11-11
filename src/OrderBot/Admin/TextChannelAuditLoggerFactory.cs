@@ -5,18 +5,18 @@ using OrderBot.EntityFramework;
 namespace OrderBot.Admin
 {
     /// <summary>
-    /// A factory class to produce <see cref="DiscordChannelAuditLogger"/> objects.
+    /// A factory class to produce <see cref="TextChannelAuditLogger"/> objects.
     /// </summary>
-    public class DiscordChannelAuditLoggerFactory
+    public class TextChannelAuditLoggerFactory
     {
         /// <summary>
-        /// Create a new <see cref="DiscordChannelAuditLogger"/>.
+        /// Create a new <see cref="TextChannelAuditLogger"/>.
         /// </summary>
         /// <param name="dbContextFactory">
         /// The <see cref="IDbContextFactory{OrderBotDbContext}"/> used to access
         /// database stored configuration.
         /// </param>
-        public DiscordChannelAuditLoggerFactory(IDbContextFactory<OrderBotDbContext> dbContextFactory)
+        public TextChannelAuditLoggerFactory(IDbContextFactory<OrderBotDbContext> dbContextFactory)
         {
             DbContextFactory = dbContextFactory;
         }
@@ -39,7 +39,7 @@ namespace OrderBot.Admin
         {
             ulong auditChannelId = GetAuditChannel(context);
             return auditChannelId != 0
-                ? new DiscordChannelAuditLogger(context, auditChannelId)
+                ? new TextChannelAuditLogger(context, auditChannelId)
                 : new NullAuditLogger();
         }
 
@@ -58,14 +58,6 @@ namespace OrderBot.Admin
             // TODO: Add caching
             // MemoryCache memoryCache = new MemoryCache();
             return dbContext.DiscordGuilds.FirstOrDefault(dg => dg.GuildId == context.Guild.Id)?.AuditChannel ?? 0;
-        }
-
-        /// <summary>
-        /// Invalidate the cache.
-        /// </summary>
-        public void InvalidateCache()
-        {
-            // Do nothing
         }
     }
 }
