@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace OrderBot.Admin
+namespace OrderBot.Audit
 {
     internal static class DiscordBotExtensions
     {

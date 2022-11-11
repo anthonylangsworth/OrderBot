@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OrderBot.Admin;
+using OrderBot.Audit;
 using OrderBot.CarrierMovement;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;

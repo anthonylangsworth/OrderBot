@@ -2,7 +2,7 @@
 using Discord.Interactions;
 using OrderBot.Discord;
 
-namespace OrderBot.Admin
+namespace OrderBot.Audit
 {
     /// <summary>
     /// An audit log that writes to a Discord channel.

@@ -1,4 +1,4 @@
-﻿namespace OrderBot.Admin
+﻿namespace OrderBot.Audit
 {
     /// <summary>
     /// A "do nothing" implemntation of <see cref="IAuditLogger"/>.

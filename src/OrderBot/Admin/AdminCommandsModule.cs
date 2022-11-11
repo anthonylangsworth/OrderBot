@@ -3,7 +3,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using OrderBot.Admin;
+using OrderBot.Audit;
 using OrderBot.Core;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
@@ -95,7 +95,7 @@ namespace OrderBot.CarrierMovement
                 }
                 else
                 {
-                    discordGuild.AuditChannel = channel.Id;
+                    discordGuild.AuditChannel = channel?.Id;
                     await dbContext.SaveChangesAsync();
                     await Context.Interaction.FollowupAsync(
                         text: $"Audit messages will now be written to {MentionUtils.MentionChannel(channel.Id)}.",

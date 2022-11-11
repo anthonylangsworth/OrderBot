@@ -3,7 +3,7 @@ using Discord.Interactions;
 using Discord.WebSocket;
 using System.Text;
 
-namespace OrderBot
+namespace OrderBot.Discord
 {
     internal class ScopeBuilder
     {
@@ -41,24 +41,12 @@ namespace OrderBot
 
         public string GetCommand(SocketInteractionContext context)
         {
-            string result;
-            switch (context.Interaction)
+            return context.Interaction switch
             {
-                case SocketSlashCommand socketSlashCommand:
-                    // result = $"/{socketSlashCommand.CommandName} {string.Join(" ", socketSlashCommand.Data.Options.Select(o => o.Name + (o.Value != null ? " " + o.Value : "")))}";
-                    result = $"/{socketSlashCommand.CommandName}{GetCommandOptions(socketSlashCommand.Data.Options)}";
-                    break;
-
-                case SocketAutocompleteInteraction autocomplete:
-                    // result = $"Autocomplete {autocomplete.Data.CommandName} {string.Join(" ", autocomplete.Data.Options.Select(o => o.Name + (o.Value != null ? " " + o.Value : "")))}";
-                    result = $"Autocomplete {autocomplete.Data.CommandName}{GetAutocompleteOptions(autocomplete.Data.Options)}";
-                    break;
-
-                default:
-                    result = "Unknown";
-                    break;
-            }
-            return result;
+                SocketSlashCommand socketSlashCommand => $"/{socketSlashCommand.CommandName}{GetCommandOptions(socketSlashCommand.Data.Options)}",
+                SocketAutocompleteInteraction autocomplete => $"Autocomplete {autocomplete.Data.CommandName}{GetAutocompleteOptions(autocomplete.Data.Options)}",
+                _ => "Unknown",
+            };
         }
 
         public string GetCommandOptions(IEnumerable<IApplicationCommandInteractionDataOption> options)

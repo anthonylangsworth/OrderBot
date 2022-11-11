@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OrderBot.EntityFramework;
 
-namespace OrderBot.Admin
+namespace OrderBot.Audit
 {
     /// <summary>
     /// A factory class to produce <see cref="TextChannelAuditLogger"/> objects.
