@@ -237,7 +237,7 @@ namespace OrderBot.ToDo
 
                     if (!ToDo.Goals.Map.TryGetValue(goalName, out Goal? goal))
                     {
-                        throw new ArgumentException($"{minorFactionName} is not a known goal");
+                        throw new ArgumentException($"{goalName} is not a known goal");
                     }
 
                     Presence? starSystemMinorFaction =
