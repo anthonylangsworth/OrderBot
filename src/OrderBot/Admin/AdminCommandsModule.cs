@@ -45,6 +45,8 @@ namespace OrderBot.CarrierMovement
                 IChannel channel
             )
             {
+                string errorMessage = null!;
+                using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(Context).Build());
                 using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
                 DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
 
@@ -74,20 +76,32 @@ namespace OrderBot.CarrierMovement
                     }
                     catch (Exception ex)
                     {
-                        throw new ArgumentException($"Cannot write to new audit channel {newAuditChannel?.Mention}. Ensure the bot has 'Send Messages' permission.", ex);
+                        errorMessage = $"**Error**: Cannot write to new audit channel {newAuditChannel?.Mention}. Ensure the bot has 'Send Messages' permission.";
+                        Logger.LogWarning(ex, "Cannot write to audit channel {ChannelId}.", newAuditChannel?.Id ?? 0);
                     }
                 }
                 else
                 {
-                    throw new ArgumentException($"{MentionUtils.MentionChannel(channel.Id)} must be a text channel");
+                    errorMessage = $"**Error**: {MentionUtils.MentionChannel(channel.Id)} must be a text channel";
+                    Logger.LogWarning("{ChannelId} is not a text channel", channel?.Id);
                 }
 
-                discordGuild.AuditChannel = channel.Id;
-                await dbContext.SaveChangesAsync();
-                await Context.Interaction.FollowupAsync(
-                    text: $"Audit messages will be written to {MentionUtils.MentionChannel(channel.Id)}.",
-                    ephemeral: true
-                );
+                if (errorMessage != null)
+                {
+                    await Context.Interaction.FollowupAsync(
+                        text: errorMessage,
+                        ephemeral: true
+                    );
+                }
+                else
+                {
+                    discordGuild.AuditChannel = channel.Id;
+                    await dbContext.SaveChangesAsync();
+                    await Context.Interaction.FollowupAsync(
+                        text: $"Audit messages will now be written to {MentionUtils.MentionChannel(channel.Id)}.",
+                        ephemeral: true
+                    );
+                }
             }
 
             [SlashCommand("get", "Get the channel to which audit log messages are written")]
