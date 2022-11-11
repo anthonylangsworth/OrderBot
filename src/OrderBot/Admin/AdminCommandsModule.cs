@@ -286,10 +286,8 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
         [SlashCommand("list", "List role members")]
         public async Task List()
         {
-            using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(Context).Build());
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
-
 
             IList<RoleMember> roleMembers = dbContext.RoleMembers.Include(rm => rm.Role)
                                                      .Where(rm => rm.DiscordGuild == discordGuild)
