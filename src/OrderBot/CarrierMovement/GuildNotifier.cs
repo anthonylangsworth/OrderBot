@@ -3,15 +3,22 @@ using OrderBot.Discord;
 
 namespace OrderBot.CarrierMovement
 {
+    /// <summary>
+    /// Abstract away writing to per-guild channels by <see cref="CarrierMovementMessageProcessor"/>.
+    /// </summary>
     internal class GuildNotifier : IDisposable
     {
-        Dictionary<ulong, TextChannelWriter?> _guildTextChannelWriters = new();
+        private readonly Dictionary<ulong, TextChannelWriter?> _guildTextChannelWriters = new();
 
+        /// <summary>
+        /// Create a new <see cref="GuildNotifier"/>.
+        /// </summary>
         public GuildNotifier()
         {
             _guildTextChannelWriters = new();
         }
 
+        /// <inheritdoc/>
         public void Dispose()
         {
             foreach (TextChannelWriter? textChannelWriter in _guildTextChannelWriters.Values)
@@ -20,6 +27,12 @@ namespace OrderBot.CarrierMovement
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="getTextChannel"></param>
+        /// <param name="channelId"></param>
+        /// <param name="message"></param>
         public void NotifyGuild(Func<ulong, ITextChannel> getTextChannel, ulong? channelId, string message)
         {
             if (!_guildTextChannelWriters.TryGetValue(channelId ?? 0, out TextChannelWriter? textChannelWriter))
@@ -36,10 +49,7 @@ namespace OrderBot.CarrierMovement
                 }
             }
 
-            if (textChannelWriter != null)
-            {
-                textChannelWriter.WriteLine(message);
-            }
+            textChannelWriter?.WriteLine(message);
         }
     }
 }
