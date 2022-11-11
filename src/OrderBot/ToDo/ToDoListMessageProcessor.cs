@@ -50,7 +50,7 @@ namespace OrderBot.ToDo
                 //executionStrategy.Execute(() => InnerSink(timestamp, starSystemName, minorFactionDetails, dbContext));
                 Update(dbContext, bgsSystemData);
 
-                Logger.LogInformation("System {system} updated", bgsSystemData.StarSystemName);
+                Logger.LogInformation("System {System} updated", bgsSystemData.StarSystemName);
             }
 
             transactionScope.Complete();

@@ -20,19 +20,13 @@ namespace OrderBot.Admin
         /// <param name="channelId">
         /// The channel ID to receive audit messages.
         /// </param>
-        /// <param name="guildName">
-        /// The name of the Discord guild.
-        /// </param>
-        /// <param name="userName">
-        /// The user naem to write messages for.
-        /// </param>
         /// <param name="logger">
         /// Also log audit events.
         /// </param>
         /// <exception cref="ArgumentException">
         /// Either <paramref name="context"/> is invalid or <paramref name="channelId"/> is not a valid channel.
         /// </exception>
-        public DiscordChannelAuditLogger(SocketInteractionContext context, ulong channelId, string guildName, string userName)
+        public DiscordChannelAuditLogger(SocketInteractionContext context, ulong channelId)
         {
             if (context.Guild.GetChannel(channelId) is not ITextChannel textChannel)
             {
@@ -42,8 +36,7 @@ namespace OrderBot.Admin
             _discordChannelStream = new DiscordChannelStream(textChannel);
             _bufferedStream = new BufferedStream(_discordChannelStream, DiscordConfig.MaxMessageSize);
             _streamWriter = new StreamWriter(_bufferedStream);
-            GuildName = guildName;
-            UserName = userName;
+            UserName = context.Guild.GetUser(context.User.Id).DisplayName;
         }
         ~DiscordChannelAuditLogger()
         {
@@ -67,11 +60,6 @@ namespace OrderBot.Admin
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
-
-        /// <summary>
-        /// The name of the Discord guild to audit messages for.
-        /// </summary>
-        public string GuildName { get; }
 
         /// <summary>
         /// The user whose actions are being audited.

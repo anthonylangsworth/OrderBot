@@ -108,7 +108,7 @@ namespace OrderBot.Discord
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                 DiscordHelper.GetOrAddGuild(dbContext, guild);
 
-                Logger.LogInformation("Guild {name} ({guildId}) added and commands registered", guild.Name, guild.Id);
+                Logger.LogInformation("Guild {Guild} ({GuildId}) added and commands registered", guild.Name, guild.Id);
             }
 
             await Client.SetActivityAsync(new Game("BGS", ActivityType.Watching));
@@ -126,24 +126,29 @@ namespace OrderBot.Discord
         private async Task Client_InteractionCreated(SocketInteraction interaction)
         {
             string errorMessage = null!;
+            SocketInteractionContext context = new SocketInteractionContext(Client, interaction);
+            using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(context).Build());
             try
             {
-                IResult result = await InteractionService.ExecuteCommandAsync(
-                    new SocketInteractionContext(Client, interaction),
-                    ServiceProvider);
+                Logger.LogInformation("Started");
+                IResult result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
                 if (!result.IsSuccess)
                 {
                     errorMessage = result.ErrorReason;
                 }
-            }
-            catch (ArgumentException ex)
-            {
-                errorMessage = "**Error**: " + ex.Message;
+                Logger.LogInformation("Completed Successfully");
             }
             catch (Exception ex)
             {
+                if (ex is ArgumentException)
+                {
+                    errorMessage = "**Error**: " + ex.Message;
+                }
+                else
+                {
+                    errorMessage = "Command failed";
+                }
                 Logger.LogError(ex, "Command failed");
-                errorMessage = "Command failed";
             }
             finally
             {

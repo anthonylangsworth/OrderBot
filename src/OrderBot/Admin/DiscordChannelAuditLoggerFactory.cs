@@ -39,8 +39,7 @@ namespace OrderBot.Admin
         {
             ulong auditChannelId = GetAuditChannel(context);
             return auditChannelId != 0
-                ? new DiscordChannelAuditLogger(context, auditChannelId, context.Guild.Name,
-                    context.Guild.GetUser(context.User.Id).DisplayName)
+                ? new DiscordChannelAuditLogger(context, auditChannelId)
                 : new NullAuditLogger();
         }
 

@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
-using OrderBot.Admin;
 using OrderBot.Core;
 using OrderBot.EntityFramework;
 using OrderBot.ToDo;
@@ -38,8 +37,7 @@ namespace OrderBot.Test.ToDo
             string starSystemName = starSystem.Name;
             string goalName = goal.Name;
             ToDoListCommandsModule.Goals.AddImplementation(dbContext, guild,
-                new[] { (minorFactionName, starSystemName, goalName) },
-                new NullAuditLogger());
+                new[] { (minorFactionName, starSystemName, goalName) });
 
             DiscordGuildPresenceGoal? discordGuildStarSystemMinorFactionGoal =
                 dbContext.DiscordGuildPresenceGoals.Include(dgssmfg => dgssmfg.Presence)
@@ -100,8 +98,7 @@ namespace OrderBot.Test.ToDo
             dbContext.SaveChanges();
 
             ToDoListCommandsModule.Goals.AddImplementation(dbContext, guild,
-                new[] { (minorFaction.Name, starSystem.Name, goal.Name) },
-                new NullAuditLogger());
+                new[] { (minorFaction.Name, starSystem.Name, goal.Name) });
 
             DiscordGuildPresenceGoal? newDiscordGuildStarSystemMinorFactionGoal =
                 dbContext.DiscordGuildPresenceGoals.Include(dgssmfg => dgssmfg.Presence)

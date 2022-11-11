@@ -35,15 +35,11 @@ namespace OrderBot.ToDo
         public async Task ShowToDoList()
         {
             await Context.Interaction.DeferAsync(ephemeral: true);
-            using (Logger.BeginScope(new ScopeBuilder(Context).Build()))
-            {
-                Logger.LogInformation("Called");
-                const string minorFactionName = "EDA Kunti League";
-                await Context.Interaction.FollowupAsync(
-                    text: Formatter.Format(Generator.Generate(Context.Guild.Id, minorFactionName)),
-                    ephemeral: true
-                );
-            }
+            const string minorFactionName = "EDA Kunti League";
+            await Context.Interaction.FollowupAsync(
+                text: Formatter.Format(Generator.Generate(Context.Guild.Id, minorFactionName)),
+                ephemeral: true
+            );
         }
 
         [SlashCommand("raw", "List the work required for supporting a minor faction in a copyable format")]
@@ -52,17 +48,13 @@ namespace OrderBot.ToDo
         public async Task ShowRawToDoList()
         {
             await Context.Interaction.DeferAsync(ephemeral: true);
-            using (Logger.BeginScope(new ScopeBuilder(Context).Build()))
-            {
-                Logger.LogInformation("Called");
-                const string minorFactionName = "EDA Kunti League";
-                await Context.Interaction.FollowupAsync(
-                    text: $"```\n" +
-                        $"{Formatter.Format(Generator.Generate(Context.Guild.Id, minorFactionName))}\n" +
-                        $"```",
-                    ephemeral: true
-                );
-            }
+            const string minorFactionName = "EDA Kunti League";
+            await Context.Interaction.FollowupAsync(
+                text: $"```\n" +
+                    $"{Formatter.Format(Generator.Generate(Context.Guild.Id, minorFactionName))}\n" +
+                    $"```",
+                ephemeral: true
+            );
         }
 
         [Group("support", "Support a minor faction")]
@@ -89,32 +81,29 @@ namespace OrderBot.ToDo
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-                using (Logger.BeginScope(("Add", Context.Guild.Name, name)))
+                string message;
+                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == name);
+                if (minorFaction == null)
                 {
-                    string message;
-                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == name);
-                    if (minorFaction == null)
-                    {
-                        message = $"**Error**: {name} is not a known minor faction";
-                    }
-                    else
-                    {
-                        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
-                            dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
-                        if (!discordGuild.SupportedMinorFactions.Contains(minorFaction))
-                        {
-                            discordGuild.SupportedMinorFactions.Add(minorFaction);
-                        }
-                        message = $"**Success**! Now supporting *{minorFaction.Name}*";
-                        auditLogger.Audit($"Support minor faction '{name}'");
-                    }
-                    dbContext.SaveChanges();
-                    await Context.Interaction.FollowupAsync(
-                           text: message,
-                           ephemeral: true
-                    );
+                    message = $"**Error**: {name} is not a known minor faction";
                 }
+                else
+                {
+                    DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
+                        dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
+                    if (!discordGuild.SupportedMinorFactions.Contains(minorFaction))
+                    {
+                        discordGuild.SupportedMinorFactions.Add(minorFaction);
+                    }
+                    message = $"**Success**! Now supporting *{minorFaction.Name}*";
+                    auditLogger.Audit($"Support minor faction '{name}'");
+                }
+                dbContext.SaveChanges();
+                await Context.Interaction.FollowupAsync(
+                        text: message,
+                        ephemeral: true
+                );
             }
 
             [SlashCommand("remove", "Stop supporting this minor faction")]
@@ -125,58 +114,52 @@ namespace OrderBot.ToDo
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-                using (Logger.BeginScope(("Remove", Context.Guild.Name, name)))
+                string message;
+                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == name);
+                if (minorFaction == null)
                 {
-                    string message;
-                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == name);
-                    if (minorFaction == null)
-                    {
-                        message = $"**Error**: {name} is not a known minor faction";
-                    }
-                    else
-                    {
-                        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
-                            dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
-                        if (discordGuild.SupportedMinorFactions.Contains(minorFaction))
-                        {
-                            discordGuild.SupportedMinorFactions.Remove(minorFaction);
-                        }
-                        message = $"**Success**! **NOT** supporting *{minorFaction.Name}*";
-                        auditLogger.Audit($"Stop supporting minor faction '{name}'");
-                    }
-                    dbContext.SaveChanges();
-                    await Context.Interaction.FollowupAsync(
-                           text: message,
-                           ephemeral: true
-                    );
+                    message = $"**Error**: {name} is not a known minor faction";
                 }
+                else
+                {
+                    DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
+                        dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
+                    if (discordGuild.SupportedMinorFactions.Contains(minorFaction))
+                    {
+                        discordGuild.SupportedMinorFactions.Remove(minorFaction);
+                    }
+                    message = $"**Success**! **NOT** supporting *{minorFaction.Name}*";
+                    auditLogger.Audit($"Stop supporting minor faction '{name}'");
+                }
+                dbContext.SaveChanges();
+                await Context.Interaction.FollowupAsync(
+                        text: message,
+                        ephemeral: true
+                );
             }
 
             [SlashCommand("list", "List supported minor factions")]
             public async Task List()
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
-                using (Logger.BeginScope(("List", Context.Guild.Name)))
+                string message;
+                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
+                    dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
+                if (discordGuild.SupportedMinorFactions.Any())
                 {
-                    string message;
-                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
-                        dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
-                    if (discordGuild.SupportedMinorFactions.Any())
-                    {
-                        message = string.Join(Environment.NewLine,
-                                                discordGuild.SupportedMinorFactions.Select(mf => mf.Name));
-                    }
-                    else
-                    {
-                        message = $"No supported minor factions";
-                    }
-                    await Context.Interaction.FollowupAsync(
-                           text: message,
-                           ephemeral: true
-                    );
+                    message = string.Join(Environment.NewLine,
+                                            discordGuild.SupportedMinorFactions.Select(mf => mf.Name));
                 }
+                else
+                {
+                    message = $"No supported minor factions";
+                }
+                await Context.Interaction.FollowupAsync(
+                        text: message,
+                        ephemeral: true
+                );
             }
         }
 
@@ -210,22 +193,22 @@ namespace OrderBot.ToDo
             )
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
-                using (Logger.BeginScope(("Add", Context.Guild.Name, minorFactionName, starSystemName, goalName)))
-                {
-                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-                    AddImplementation(dbContext, Context.Guild, new[] { (minorFactionName, starSystemName,
-                        goalName) }, auditLogger);
-                    await Context.Interaction.FollowupAsync(
-                        text: $"**Success**! Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
-                        ephemeral: true
-                    );
-                }
+                using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
+                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                AddImplementation(dbContext, Context.Guild,
+                    new[] { (minorFactionName, starSystemName, goalName) });
+                auditLogger.Audit($"Added goal to {goalName} *{minorFactionName}* in {starSystemName}");
+                await Context.Interaction.FollowupAsync(
+                    text: $"**Success**! Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
+                    ephemeral: true
+                );
             }
 
             internal static void AddImplementation(OrderBotDbContext dbContext, IGuild guild,
-                IReadOnlyList<(string minorFactionName, string starSystemName, string goalName)> goals, IAuditLogger auditLogger)
+                IEnumerable<(string minorFactionName, string starSystemName, string goalName)> goals)
             {
+                using TransactionScope transactionScope = new();
+
                 DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild);
 
                 foreach ((string minorFactionName, string starSystemName, string goalName) in goals)
@@ -274,9 +257,9 @@ namespace OrderBot.ToDo
                         dbContext.DiscordGuildPresenceGoals.Add(discordGuildStarSystemMinorFactionGoal);
                     }
                     discordGuildStarSystemMinorFactionGoal.Goal = goalName;
-                    auditLogger.Audit($"{goalName} {minorFactionName} in {starSystemName}");
+                    dbContext.SaveChanges();
                 }
-                dbContext.SaveChanges();
+                transactionScope.Complete();
             }
 
             [SlashCommand("remove", "Remove the specific goal for this minor faction in this system")]
@@ -289,21 +272,19 @@ namespace OrderBot.ToDo
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-                using (Logger.BeginScope(("Remove", Context.Guild.Name, minorFactionName, starSystemName)))
-                {
-                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    RemoveImplementation(dbContext, Context.Guild, minorFactionName, starSystemName);
-                    auditLogger.Audit($"Removed goal for {minorFactionName} in {starSystemName}");
-                    await Context.Interaction.FollowupAsync(
-                        text: $"**Success**! Goal for *{minorFactionName}* in {starSystemName} removed",
-                        ephemeral: true
-                    );
-                }
+                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                RemoveImplementation(dbContext, Context.Guild, minorFactionName, starSystemName);
+                auditLogger.Audit($"Removed goal for *{minorFactionName}* in {starSystemName}");
+                await Context.Interaction.FollowupAsync(
+                    text: $"**Success**! Goal for *{minorFactionName}* in {starSystemName} removed",
+                    ephemeral: true
+                );
             }
 
             internal static void RemoveImplementation(OrderBotDbContext dbContext, IGuild guild, string minorFactionName,
                 string starSystemName)
             {
+                using TransactionScope transactionScope = new();
                 DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild);
 
                 MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
@@ -332,34 +313,32 @@ namespace OrderBot.ToDo
                     dbContext.DiscordGuildPresenceGoals.Remove(discordGuildStarSystemMinorFactionGoal);
                 }
                 dbContext.SaveChanges();
+                transactionScope.Complete();
             }
 
             [SlashCommand("list", "List any specific goals per minor faction and per system")]
             public async Task List()
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
-                using (Logger.BeginScope(("List", Context.Guild.Name)))
+                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                string result = string.Join(Environment.NewLine,
+                    ListImplementation(dbContext, Context.Guild).Select(
+                        dgssmfg => $"{dgssmfg.Goal} {dgssmfg.Presence.MinorFaction.Name} in {dgssmfg.Presence.StarSystem.Name}"));
+                if (result.Length == 0)
                 {
-                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    string result = string.Join(Environment.NewLine,
-                        ListImplementation(dbContext, Context.Guild).Select(
-                            dgssmfg => $"{dgssmfg.Goal} {dgssmfg.Presence.MinorFaction.Name} in {dgssmfg.Presence.StarSystem.Name}"));
-                    if (result.Length == 0)
-                    {
-                        await Context.Interaction.FollowupAsync(
-                              text: "No goals specified",
-                              ephemeral: true
-                       );
-                    }
-                    else
-                    {
-                        using MemoryStream memoryStream = new(Encoding.UTF8.GetBytes(result));
-                        await Context.Interaction.FollowupWithFileAsync(
-                            fileStream: memoryStream,
-                            fileName: "Goals.txt",
+                    await Context.Interaction.FollowupAsync(
+                            text: "No goals specified",
                             ephemeral: true
-                        );
-                    }
+                    );
+                }
+                else
+                {
+                    using MemoryStream memoryStream = new(Encoding.UTF8.GetBytes(result));
+                    await Context.Interaction.FollowupWithFileAsync(
+                        fileStream: memoryStream,
+                        fileName: "Goals.txt",
+                        ephemeral: true
+                    );
                 }
             }
 
@@ -376,39 +355,36 @@ namespace OrderBot.ToDo
             public async Task Export()
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
-                using (Logger.BeginScope(("Export", Context.Guild.Name)))
+                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                IList<GoalCsvRow> result =
+                    ListImplementation(dbContext, Context.Guild)
+                        .Select(dgssmfg => new GoalCsvRow()
+                        {
+                            Goal = dgssmfg.Goal,
+                            MinorFaction = dgssmfg.Presence.MinorFaction.Name,
+                            StarSystem = dgssmfg.Presence.StarSystem.Name
+                        })
+                        .ToList();
+                if (result.Count == 0)
                 {
-                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                    IList<GoalCsvRow> result =
-                        ListImplementation(dbContext, Context.Guild)
-                            .Select(dgssmfg => new GoalCsvRow()
-                            {
-                                Goal = dgssmfg.Goal,
-                                MinorFaction = dgssmfg.Presence.MinorFaction.Name,
-                                StarSystem = dgssmfg.Presence.StarSystem.Name
-                            })
-                            .ToList();
-                    if (result.Count == 0)
-                    {
-                        await Context.Interaction.FollowupAsync(
-                            text: "No goals specified",
-                            ephemeral: true
-                        );
-                    }
-                    else
-                    {
-                        using MemoryStream memoryStream = new();
-                        using StreamWriter streamWriter = new(memoryStream);
-                        using CsvWriter csvWriter = new(streamWriter, CultureInfo.InvariantCulture);
-                        csvWriter.WriteRecords(result);
-                        csvWriter.Flush();
-                        memoryStream.Seek(0, SeekOrigin.Begin);
-                        await Context.Interaction.FollowupWithFileAsync(
-                            fileStream: memoryStream,
-                            fileName: $"{Context.Guild.Name} Goals.csv",
-                            ephemeral: true
-                        );
-                    }
+                    await Context.Interaction.FollowupAsync(
+                        text: "No goals specified",
+                        ephemeral: true
+                    );
+                }
+                else
+                {
+                    using MemoryStream memoryStream = new();
+                    using StreamWriter streamWriter = new(memoryStream);
+                    using CsvWriter csvWriter = new(streamWriter, CultureInfo.InvariantCulture);
+                    csvWriter.WriteRecords(result);
+                    csvWriter.Flush();
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    await Context.Interaction.FollowupWithFileAsync(
+                        fileStream: memoryStream,
+                        fileName: $"{Context.Guild.Name} Goals.csv",
+                        ephemeral: true
+                    );
                 }
             }
 
@@ -420,38 +396,29 @@ namespace OrderBot.ToDo
             {
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-                using (Logger.BeginScope(("Import", Context.Guild.Name, goalsAttachement.Url)))
+                IList<GoalCsvRow> goals;
+                try
                 {
-                    try
-                    {
-                        using HttpClient client = new();
-                        using Stream stream = await client.GetStreamAsync(goalsAttachement.Url);
-                        using StreamReader reader = new(stream);
-                        using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
-                        IList<GoalCsvRow> goals = await csvReader.GetRecordsAsync<GoalCsvRow>().ToListAsync();
-
-                        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                        using (TransactionScope transactionScope = new())
-                        {
-                            foreach (GoalCsvRow row in goals)
-                            {
-                                AddImplementation(dbContext, Context.Guild,
-                                    new[] { (row.MinorFaction, row.StarSystem, row.Goal) },
-                                    auditLogger);
-                            }
-                            transactionScope.Complete();
-                        }
-
-                        await Context.Interaction.FollowupAsync(
-                                text: $"**Success**! {goalsAttachement.Filename} added to goals",
-                                ephemeral: true
-                        );
-                    }
-                    catch (CsvHelperException ex)
-                    {
-                        throw new ArgumentException($"**Error**: {goalsAttachement.Filename} is not a valid goals file", ex);
-                    }
+                    using HttpClient client = new();
+                    using Stream stream = await client.GetStreamAsync(goalsAttachement.Url);
+                    using StreamReader reader = new(stream);
+                    using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
+                    goals = await csvReader.GetRecordsAsync<GoalCsvRow>().ToListAsync();
                 }
+                catch (CsvHelperException ex)
+                {
+                    throw new ArgumentException($"**Error**: {goalsAttachement.Filename} is not a valid goals file", ex);
+                }
+
+                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                AddImplementation(dbContext, Context.Guild,
+                    goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
+
+                auditLogger.Audit($"Imported goals:\n{string.Join("\n", goals.Select(g => $"{g.Goal} {g.MinorFaction} in {g.StarSystem}"))}");
+                await Context.Interaction.FollowupAsync(
+                        text: $"**Success**! {goalsAttachement.Filename} added to goals",
+                        ephemeral: true
+                );
             }
         }
     }
