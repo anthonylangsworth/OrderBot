@@ -195,13 +195,23 @@ namespace OrderBot.ToDo
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                AddImplementation(dbContext, Context.Guild,
-                    new[] { (minorFactionName, starSystemName, goalName) });
-                auditLogger.Audit($"Added goal to {goalName} *{minorFactionName}* in {starSystemName}");
-                await Context.Interaction.FollowupAsync(
-                    text: $"**Success**! Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
-                    ephemeral: true
-                );
+                try
+                {
+                    AddImplementation(dbContext, Context.Guild,
+                        new[] { (minorFactionName, starSystemName, goalName) });
+                    auditLogger.Audit($"Added goal to {goalName} *{minorFactionName}* in {starSystemName}");
+                    await Context.Interaction.FollowupAsync(
+                        text: $"**Success**! Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
+                        ephemeral: true
+                    );
+                }
+                catch (ArgumentException ex)
+                {
+                    await Context.Interaction.FollowupAsync(
+                            text: $"**Error**! {ex.Message}",
+                            ephemeral: true
+                        );
+                }
             }
 
             internal static void AddImplementation(OrderBotDbContext dbContext, IGuild guild,
@@ -273,12 +283,22 @@ namespace OrderBot.ToDo
                 await Context.Interaction.DeferAsync(ephemeral: true);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                RemoveImplementation(dbContext, Context.Guild, minorFactionName, starSystemName);
-                auditLogger.Audit($"Removed goal for *{minorFactionName}* in {starSystemName}");
-                await Context.Interaction.FollowupAsync(
-                    text: $"**Success**! Goal for *{minorFactionName}* in {starSystemName} removed",
-                    ephemeral: true
-                );
+                try
+                {
+                    RemoveImplementation(dbContext, Context.Guild, minorFactionName, starSystemName);
+                    auditLogger.Audit($"Removed goal for *{minorFactionName}* in {starSystemName}");
+                    await Context.Interaction.FollowupAsync(
+                        text: $"**Success**! Goal for *{minorFactionName}* in {starSystemName} removed",
+                        ephemeral: true
+                    );
+                }
+                catch (ArgumentException ex)
+                {
+                    await Context.Interaction.FollowupAsync(
+                        text: $"**Error**! {ex.Message}",
+                        ephemeral: true
+                    );
+                }
             }
 
             internal static void RemoveImplementation(OrderBotDbContext dbContext, IGuild guild, string minorFactionName,
@@ -399,26 +419,38 @@ namespace OrderBot.ToDo
                 IList<GoalCsvRow> goals;
                 try
                 {
-                    using HttpClient client = new();
-                    using Stream stream = await client.GetStreamAsync(goalsAttachement.Url);
-                    using StreamReader reader = new(stream);
-                    using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
-                    goals = await csvReader.GetRecordsAsync<GoalCsvRow>().ToListAsync();
+                    using (HttpClient client = new())
+                    {
+                        using Stream stream = await client.GetStreamAsync(goalsAttachement.Url);
+                        using StreamReader reader = new(stream);
+                        using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
+                        goals = await csvReader.GetRecordsAsync<GoalCsvRow>().ToListAsync();
+                    }
+
+                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                    AddImplementation(dbContext, Context.Guild,
+                        goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
+
+                    auditLogger.Audit($"Imported goals:\n{string.Join("\n", goals.Select(g => $"{g.Goal} {g.MinorFaction} in {g.StarSystem}"))}");
+                    await Context.Interaction.FollowupAsync(
+                            text: $"**Success**! {goalsAttachement.Filename} added to goals",
+                            ephemeral: true
+                    );
                 }
-                catch (CsvHelperException ex)
+                catch (CsvHelperException)
                 {
-                    throw new ArgumentException($"**Error**: {goalsAttachement.Filename} is not a valid goals file", ex);
+                    await Context.Interaction.FollowupAsync(
+                            text: $"**Error**: {goalsAttachement.Filename} is not a valid goals file",
+                            ephemeral: true
+                        );
                 }
-
-                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                AddImplementation(dbContext, Context.Guild,
-                    goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
-
-                auditLogger.Audit($"Imported goals:\n{string.Join("\n", goals.Select(g => $"{g.Goal} {g.MinorFaction} in {g.StarSystem}"))}");
-                await Context.Interaction.FollowupAsync(
-                        text: $"**Success**! {goalsAttachement.Filename} added to goals",
-                        ephemeral: true
-                );
+                catch (ArgumentException ex)
+                {
+                    await Context.Interaction.FollowupAsync(
+                            text: $"**Error**! {ex.Message}",
+                            ephemeral: true
+                        );
+                }
             }
         }
     }

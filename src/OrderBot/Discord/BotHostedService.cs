@@ -126,36 +126,33 @@ namespace OrderBot.Discord
         private async Task Client_InteractionCreated(SocketInteraction interaction)
         {
             string errorMessage = null!;
-            SocketInteractionContext context = new SocketInteractionContext(Client, interaction);
+            SocketInteractionContext context = new(Client, interaction);
+
             using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(context).Build());
-            try
+            Logger.LogInformation("Started");
+
+            IResult result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
+            if (result.IsSuccess)
             {
-                Logger.LogInformation("Started");
-                IResult result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
-                if (!result.IsSuccess)
-                {
-                    errorMessage = result.ErrorReason;
-                }
                 Logger.LogInformation("Completed Successfully");
             }
-            catch (Exception ex)
+            else
             {
-                if (ex is ArgumentException)
+                if (result.Error == InteractionCommandError.UnmetPrecondition)
                 {
-                    errorMessage = "**Error**: " + ex.Message;
+                    errorMessage = $"**Error**: {result.ErrorReason}";
+                    Logger.LogWarning("Error: {ErrorMessage}", result.ErrorReason);
                 }
                 else
                 {
-                    errorMessage = "Command failed";
+                    errorMessage = $"**Error**: Command failed. It is not you, it's me.";
+                    Logger.LogError("Error: {ErrorMessage}", result.ErrorReason);
                 }
-                Logger.LogError(ex, "Command failed");
             }
-            finally
+
+            if (!string.IsNullOrEmpty(errorMessage))
             {
-                if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    await interaction.FollowupAsync(text: errorMessage, ephemeral: true);
-                }
+                await interaction.FollowupAsync(text: errorMessage, ephemeral: true);
             }
         }
     }

@@ -239,7 +239,10 @@ namespace OrderBot.CarrierMovement
                         .ToList();
                 if (result.Count == 0)
                 {
-                    throw new ArgumentException("No goals specified");
+                    await Context.Interaction.FollowupAsync(
+                        text: "No goals specified",
+                        ephemeral: true
+                    );
                 }
                 else
                 {
@@ -268,32 +271,44 @@ namespace OrderBot.CarrierMovement
                 IList<CarrierCsvRow> goals;
                 try
                 {
-                    using HttpClient client = new();
-                    using Stream stream = await client.GetStreamAsync(ignoredCarriersAttachement.Url);
-                    using StreamReader reader = new(stream);
-                    using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
-                    goals = await csvReader.GetRecordsAsync<CarrierCsvRow>().ToListAsync();
+                    using (HttpClient client = new())
+                    {
+                        using Stream stream = await client.GetStreamAsync(ignoredCarriersAttachement.Url);
+                        using StreamReader reader = new(stream);
+                        using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
+                        goals = await csvReader.GetRecordsAsync<CarrierCsvRow>().ToListAsync();
+                    }
+
+                    using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                    using (TransactionScope transactionScope = new())
+                    {
+                        foreach (CarrierCsvRow row in goals)
+                        {
+                            AddImplementation(dbContext, Context.Guild, row.Name);
+                        }
+                        transactionScope.Complete();
+                    }
+
+                    auditLogger.Audit($"Ignored carriers:\n{string.Join("\n", goals.Select(g => g.Name))}");
+                    await Context.Interaction.FollowupAsync(
+                            text: $"**Success**! {ignoredCarriersAttachement.Filename} added to ignored carriers",
+                            ephemeral: true
+                    );
                 }
                 catch (CsvHelperException)
                 {
-                    throw new ArgumentException($"{ignoredCarriersAttachement.Filename} is not a valid ignored carriers file");
+                    await Context.Interaction.FollowupAsync(
+                            text: $"**Error**: {ignoredCarriersAttachement.Filename} is not a valid ignored carriers file",
+                            ephemeral: true
+                        );
                 }
-
-                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                using (TransactionScope transactionScope = new())
+                catch (ArgumentException ex)
                 {
-                    foreach (CarrierCsvRow row in goals)
-                    {
-                        AddImplementation(dbContext, Context.Guild, row.Name);
-                    }
-                    transactionScope.Complete();
+                    await Context.Interaction.FollowupAsync(
+                            text: $"**Error**! {ex.Message}",
+                            ephemeral: true
+                        );
                 }
-
-                auditLogger.Audit($"Ignored carriers:\n{string.Join("\n", goals.Select(g => g.Name))}");
-                await Context.Interaction.FollowupAsync(
-                        text: $"**Success**! {ignoredCarriersAttachement.Filename} added to ignored carriers",
-                        ephemeral: true
-                );
             }
         }
     }
