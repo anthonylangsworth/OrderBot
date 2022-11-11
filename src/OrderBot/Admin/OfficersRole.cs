@@ -8,15 +8,17 @@
         /// <summary>
         /// Singleton.
         /// </summary>
-        public static OfficersRole Instance => new OfficersRole();
+        public static OfficersRole Instance => new();
 
         /// <summary>
         /// Prevent instantiation.
         /// </summary>
         private OfficersRole()
-            : base("Officers", "Squadron officers that can change settings")
+            : base(RoleName, "Squadron officers that can change settings")
         {
             // Do nothing
         }
+
+        public const string RoleName = "Officers";
     }
 }

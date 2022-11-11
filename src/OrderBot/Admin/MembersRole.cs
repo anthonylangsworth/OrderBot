@@ -8,15 +8,17 @@
         /// <summary>
         /// Singleton.
         /// </summary>
-        public static MembersRole Instance => new MembersRole();
+        public static MembersRole Instance => new();
 
         /// <summary>
         /// Prevent instantiation.
         /// </summary>
         private MembersRole()
-            : base("Members", "Squadron members can view the todo list and some settings")
+            : base(RoleName, "Squadron members can view the todo list and some settings")
         {
             // Do nothing
         }
+
+        public const string RoleName = "Members";
     }
 }

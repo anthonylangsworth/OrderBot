@@ -146,8 +146,8 @@ namespace OrderBot.Discord
             {
                 if (result.Error == InteractionCommandError.UnmetPrecondition)
                 {
-                    errorMessage = $"**Error**: {result.ErrorReason}";
-                    Logger.LogWarning("Error: {ErrorMessage}", result.ErrorReason);
+                    errorMessage = $"**Error**: You do not have access to run this command";
+                    Logger.LogWarning("Error: You do not have access to run this command");
                 }
                 else
                 {

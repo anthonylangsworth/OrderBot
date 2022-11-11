@@ -3,6 +3,7 @@ using Discord;
 using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using OrderBot.Admin;
 using OrderBot.Audit;
 using OrderBot.Core;
 using OrderBot.Discord;
@@ -14,7 +15,6 @@ using System.Transactions;
 namespace OrderBot.CarrierMovement;
 
 [Group("carrier-movement", "Monitor carrier movements")]
-[RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
 public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInteractionContext>
 {
     [Group("channel", "Send carrier movement alerts")]
@@ -39,9 +39,9 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         public ILogger<Channel> Logger { get; }
         public TextChannelAuditLoggerFactory AuditLogFactory { get; }
 
-        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
-        // [RequirePerGuildRole("EDAKL Leaders", "EDAKL Veterans")]
         [SlashCommand("set", "Set the channel to receive carrier jump alerts")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
+        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Set(
             [Summary("Channel", "Send carrier movement alerts to this channel")]
             IChannel channel
@@ -59,8 +59,9 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             );
         }
 
-        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         [SlashCommand("get", "Retrieve the channel that receives carrier jump alerts")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
+        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Get()
         {
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
@@ -81,8 +82,9 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             );
         }
 
-        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         [SlashCommand("clear", "Turn off alerts for carrier jumps")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
+        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Clear()
         {
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
@@ -101,7 +103,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         }
     }
 
-    [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
     [Group("ignored-carriers", "Monitor carrier movements")]
     public class IgnoredCarriers : InteractionModuleBase<SocketInteractionContext>
     {
@@ -123,6 +124,8 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         public TextChannelAuditLoggerFactory AuditLogFactory { get; }
 
         [SlashCommand("add", "Do not track this carrier or report its movements (case insensitive).")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
+        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task AddIgnoredCarrier(
             [
                  Summary("name", "The full name or just the ending serial number of the carrier to ignore"),
@@ -175,6 +178,8 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         }
 
         [SlashCommand("remove", "Track this carrier and report its movements")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
+        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Remove(
             [
                 Summary("Name", "The full name or just the ending serial number of the carrier to track (case insensitive)."),
@@ -207,6 +212,8 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         }
 
         [SlashCommand("list", "List ignored fleet carriers")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
+        [Discord.RequireRole(MembersRole.RoleName, Group = "Permission")]
         public async Task List()
         {
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
@@ -223,7 +230,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
                 using MemoryStream memoryStream = new(Encoding.UTF8.GetBytes(result));
                 await Context.Interaction.FollowupWithFileAsync(
                     fileStream: memoryStream,
-                    fileName: "IgnoredCarriers.txt",
+                    fileName: $"{Context.Guild.Name} Ignored Carriers.txt",
                     ephemeral: true
                 );
             }
@@ -237,6 +244,8 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         }
 
         [SlashCommand("export", "Export the ignored carriers for backup")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
+        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Export()
         {
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
@@ -268,6 +277,8 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         }
 
         [SlashCommand("import", "Import new goals")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
+        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Import(
             [Summary("carriers", "Export output: CSV with ignored carrier name")]
             IAttachment ignoredCarriersAttachement
