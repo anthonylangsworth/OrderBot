@@ -131,6 +131,8 @@ namespace OrderBot.Discord
             using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(context).Build());
             Logger.LogInformation("Started");
 
+            // Only tested with slash commands and autocomplete. May need excluding from other
+            // interaction types.
             if (interaction is not IAutocompleteInteraction)
             {
                 await interaction.DeferAsync(ephemeral: true);
