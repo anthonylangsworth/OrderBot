@@ -172,7 +172,10 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
 
         [SlashCommand("add-member", "Add a member to a role")]
         public async Task AddMember(
-            [Summary("bot-role", "The Discord bot role to add the member to")]
+            [
+                Summary("bot-role", "The Discord bot role to add the member to"),
+                Autocomplete(typeof(RolesAutocompleteHandler))
+            ]
             string roleName,
             [Summary("discord-role", "The role to add")]
             IRole discordRole
@@ -235,7 +238,10 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
 
         [SlashCommand("remove-member", "Remove a member from a role")]
         public async Task RemoveMember(
-            [Summary("bot-role", "The bot role to remove the member from")]
+            [
+                Summary("bot-role", "The bot role to remove the member from"),
+                Autocomplete(typeof(RolesAutocompleteHandler))
+            ]
             string roleName,
             [Summary("discord-role", "The role to remove")]
             IRole discordRole
