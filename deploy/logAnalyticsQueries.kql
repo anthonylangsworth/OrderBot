@@ -8,3 +8,4 @@ Event_CL
 Event_CL
 | where CategoryName_s startswith_cs "OrderBot"
 | where LogLevel_s == "Error"
+| order by TimeGenerated desc
