@@ -40,8 +40,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         public TextChannelAuditLoggerFactory AuditLogFactory { get; }
 
         [SlashCommand("set", "Set the channel to receive carrier jump alerts")]
-        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         public async Task Set(
             [Summary("Channel", "Send carrier movement alerts to this channel")]
             IChannel channel
@@ -60,8 +59,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         }
 
         [SlashCommand("get", "Retrieve the channel that receives carrier jump alerts")]
-        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         public async Task Get()
         {
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
@@ -83,8 +81,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         }
 
         [SlashCommand("clear", "Turn off alerts for carrier jumps")]
-        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         public async Task Clear()
         {
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
@@ -126,7 +123,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         [SlashCommand("add", "Do not track this carrier or report its movements (case insensitive).")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
         [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
-        public async Task AddIgnoredCarrier(
+        public async Task Add(
             [
                  Summary("name", "The full name or just the ending serial number of the carrier to ignore"),
                  Autocomplete(typeof(NotIgnoredCarriersAutocompleteHandler))
@@ -213,6 +210,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
 
         [SlashCommand("list", "List ignored fleet carriers")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
+        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
         [Discord.RequireRole(MembersRole.RoleName, Group = "Permission")]
         public async Task List()
         {
@@ -284,7 +282,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             IAttachment ignoredCarriersAttachement
         )
         {
-            using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             IList<CarrierCsvRow> goals;
             try
             {
@@ -299,6 +296,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                 AddImplementation(dbContext, Context.Guild, goals.Select(g => g.Name));
 
+                using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 auditLogger.Audit($"Ignored carriers:\n{string.Join("\n", goals.Select(g => g.Name))}");
                 await Context.Interaction.FollowupAsync(
                         text: $"**Success**! {ignoredCarriersAttachement.Filename} added to ignored carriers",

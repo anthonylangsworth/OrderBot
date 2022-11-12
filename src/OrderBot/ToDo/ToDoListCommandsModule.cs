@@ -33,6 +33,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
     [SlashCommand("show", "List the work required for supporting a minor faction")]
     [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
+    [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
     [Discord.RequireRole(MembersRole.RoleName, Group = "Permission")]
     public async Task ShowToDoList()
     {
@@ -142,6 +143,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
         [SlashCommand("list", "List supported minor factions")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
+        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
         [Discord.RequireRole(MembersRole.RoleName, Group = "Permission")]
         public async Task List()
         {
@@ -341,6 +343,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
         [SlashCommand("list", "List any specific goals per minor faction and per system")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
+        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
         [Discord.RequireRole(MembersRole.RoleName, Group = "Permission")]
         public async Task List()
         {
