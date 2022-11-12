@@ -6,14 +6,14 @@ NOTE: This Discord Bot is **NOT** currently open to joining other Discord server
 
 To start, you need an accound in the Discord server with the following permissions:
 1. `Manage Server`: Required to add the bot to the server.
-2. `Manage Channels` and `Manage Roles`: This bot's commands can only run by a user with these permissions by default. They can be delegated to other roles. See [Security](Security.md) for details. 
+2. `Manage Channels` and `Manage Roles`: This bot's commands can only run by a user with these permissions by default. However, the bot's commands can be delegated to other roles. See [Security](Security.md) for details. 
 
 To setup the bot:
 1. Add the bot to your Discord server opening (URL Not Available Yet).
 2. Give Discord a few minutes to process the registration and the bot's commands to become available. 
-3. Choose a minor faction to support using [/todo-list support add](CommandReference.md#todo-list-support-add). This must match the name of the in-game minor faction exactly, although it is not case sensitive.
+3. Choose a minor faction to support using [/todo-list support add](CommandReference.md#todo-list-support-add), such as the one associated with an in-game squadron. The name entered must match the name of the in-game minor faction *exactly*, although it is not case sensitive.
 4. Either (1) visit the systems where your supported minor faction is present while running [EDMC](https://github.com/EDCD/EDMarketConnector/wiki) or a similar tool or (2) wait for someone else to do so. This sends data to this bot.
-5. Run [/todo-list show](CommandReference.md#todo-list-show) to see the suggestions. These suggestions update automatically over time as new data comes in over time.
+5. Run [/todo-list show](CommandReference.md#todo-list-show) to see the suggestions. These suggestions update automatically over time as new data comes in.
 
 Optional, additional tasks:
 1. Override the behaviour for specific systems or add goals for other minor factions using [/todo-list goal add](CommandReference.md#todo-list-goal-add). See [Goals](Goals.md) for details. You can add or remove these at any time as needs or whims dictate.
