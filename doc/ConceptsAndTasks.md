@@ -4,17 +4,22 @@
 
 NOTE: This Discord Bot is **NOT** currently open to joining other Discord servers. It is still a work in progress and some values are hard coded.
 
+To start, you need an accound in the Discord server with the following permissions:
+1. `Manage Server`: Required to add the bot to the server.
+2. `Manage Channels` and `Manage Roles`: This bot's commands can only run by a user with these permissions by default. They can be delegated to other roles. See [Security](Security.md) for details. 
+
 To setup the bot:
-1. Add the bot to your Discord server by (URL Not Available Yet).
+1. Add the bot to your Discord server opening (URL Not Available Yet).
 2. Give Discord a few minutes to process the registration and the bot's commands to become available. 
 3. Choose a minor faction to support using [/todo-list support add](CommandReference.md#todo-list-support-add). This must match the name of the in-game minor faction exactly, although it is not case sensitive.
-4. Optionally, override the behaviour for specific systems or add goals for other minor factions using [/todo-list goal add](CommandReference.md#todo-list-goal-add). See [Goals](Goals.md) for details. You can add or remove these at any time as needs or whims dictate.
-5. Optionally, set an audit channel where changes are logged to using [/bgs-order-bot audit-channel set](CommandReference.md#bgs-order-bot-audit-channel-set).
-6. Optionally, set an channel where fleet carrier movements are logged to using [/carrier-movement channel set](CommandReference.md#carrier-movement-channel-set).
-7. Either visit the systems where your supported minor faction is present while running [EDMC](https://github.com/EDCD/EDMarketConnector/wiki) or a similar tool or wait for someone else to do so. This sends data to EDDN and then on to this bot.
-8. Run [/todo-list show](CommandReference.md#todo-list-show) to see the suggestions.
+4. Either (1) visit the systems where your supported minor faction is present while running [EDMC](https://github.com/EDCD/EDMarketConnector/wiki) or a similar tool or (2) wait for someone else to do so. This sends data to this bot.
+5. Run [/todo-list show](CommandReference.md#todo-list-show) to see the suggestions. These suggestions update automatically over time as new data comes in over time.
 
-(TODO: Setup command security.)
+Optional, additional tasks:
+1. Override the behaviour for specific systems or add goals for other minor factions using [/todo-list goal add](CommandReference.md#todo-list-goal-add). See [Goals](Goals.md) for details. You can add or remove these at any time as needs or whims dictate.
+2. Set an channel where fleet carrier movements are logged to using [/carrier-movement channel set](CommandReference.md#carrier-movement-channel-set). Ignore your squadron or trusted carriers using [/carrier-movement ignored-carriers add](CommandReference.md#carrier-movement-ignored-carriers-add).
+3. Allow other people on the Discord server to see the todo list or configure the bot by adding them to the bot roles. See [Security](Security.md) for details.
+4. Set an audit channel where changes are logged to using [/bgs-order-bot audit-channel set](CommandReference.md#bgs-order-bot-audit-channel-set). See [Security](Security.md) for more details.
 
 ## See BGS Work
 
