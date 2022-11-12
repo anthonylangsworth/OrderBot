@@ -1,18 +1,17 @@
 ﻿using System.Text.Json;
 
-namespace OrderBot.MessageProcessors
+namespace OrderBot.MessageProcessors;
+
+/// <summary>
+/// Process a message received by <see cref="EddnMessageHostedService"/>.
+/// </summary>
+internal abstract class EddnMessageProcessor
 {
     /// <summary>
-    /// Process a message received by <see cref="EddnMessageHostedService"/>.
+    /// Process the <see cref="message"/>.
     /// </summary>
-    internal abstract class EddnMessageProcessor
-    {
-        /// <summary>
-        /// Process the <see cref="message"/>.
-        /// </summary>
-        /// <param name="message">
-        /// The message to process.
-        /// </param>
-        public abstract void Process(JsonDocument message);
-    }
+    /// <param name="message">
+    /// The message to process.
+    /// </param>
+    public abstract void Process(JsonDocument message);
 }

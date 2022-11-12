@@ -97,10 +97,10 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
             }
             else
             {
-                discordGuild.AuditChannel = channel?.Id;
+                discordGuild.AuditChannel = channel?.Id ?? 0;
                 await dbContext.SaveChangesAsync();
                 await Context.Interaction.FollowupAsync(
-                    text: $"**Success**: Audit messages will now be written to {MentionUtils.MentionChannel(channel.Id)}.",
+                    text: $"**Success**: Audit messages will now be written to {MentionUtils.MentionChannel(channel?.Id ?? 0)}.",
                     ephemeral: true
                 );
             }

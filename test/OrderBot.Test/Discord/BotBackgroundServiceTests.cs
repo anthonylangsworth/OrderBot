@@ -1,6 +1,5 @@
-﻿namespace OrderBot.Test.Discord
+﻿namespace OrderBot.Test.Discord;
+
+internal class BotBackgroundServiceTests
 {
-    internal class BotBackgroundServiceTests
-    {
-    }
 }

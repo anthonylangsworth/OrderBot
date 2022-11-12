@@ -1,7 +1,6 @@
-﻿namespace OrderBot.ToDo
+﻿namespace OrderBot.ToDo;
+
+public record SecuritySuggestion : Suggestion, IEquatable<SecuritySuggestion?>
 {
-    public record SecuritySuggestion : Suggestion, IEquatable<SecuritySuggestion?>
-    {
-        public string SecurityLevel { get; set; } = null!;
-    }
+    public string SecurityLevel { get; set; } = null!;
 }

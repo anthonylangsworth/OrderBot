@@ -1,10 +1,9 @@
 ﻿using OrderBot.Core;
 
-namespace OrderBot.ToDo
+namespace OrderBot.ToDo;
+
+public abstract record Suggestion
 {
-    public abstract record Suggestion
-    {
-        public StarSystem StarSystem { get; init; } = null!;
-        public string? Description { get; set; } = null;
-    }
+    public StarSystem StarSystem { get; init; } = null!;
+    public string? Description { get; set; } = null;
 }

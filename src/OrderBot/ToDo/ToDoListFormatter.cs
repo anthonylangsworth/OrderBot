@@ -1,10 +1,10 @@
 ﻿using OrderBot.Core;
 
-namespace OrderBot.ToDo
+namespace OrderBot.ToDo;
+
+public class ToDoListFormatter
 {
-    public class ToDoListFormatter
-    {
-        internal static string GetOutput(string minorFactionName, string proList, string proSecurityList, string antiList, string otherList, string warList, string electionList) =>
+    internal static string GetOutput(string minorFactionName, string proList, string proSecurityList, string antiList, string otherList, string warList, string electionList) =>
 $@"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-{minorFactionName}** support required* - Work for EDA in these systems.
 E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *{minorFactionName}* controlled stations.
@@ -27,89 +27,88 @@ Redeem bounty vouchers to increase security in systems *{minorFactionName}* cont
 {electionList}
 ";
 
-        internal static string GetInfluenceList(IEnumerable<InfluenceSuggestion> suggestions, bool ascending)
+    internal static string GetInfluenceList(IEnumerable<InfluenceSuggestion> suggestions, bool ascending)
+    {
+        string result;
+        if (suggestions.Any())
         {
-            string result;
-            if (suggestions.Any())
-            {
-                IEnumerable<InfluenceSuggestion> sortedActions =
-                    ascending ? suggestions.OrderBy(action => action.Influence) : suggestions.OrderByDescending(action => action.Influence);
-                result = string.Join(Environment.NewLine,
-                    sortedActions.Select(action => $"- {FormatSystemName(action.StarSystem.Name)} - {Math.Round(action.Influence * 100, 1)}%"));
-            }
-            else
-            {
-                result = "(None)";
-            }
-            return result;
+            IEnumerable<InfluenceSuggestion> sortedActions =
+                ascending ? suggestions.OrderBy(action => action.Influence) : suggestions.OrderByDescending(action => action.Influence);
+            result = string.Join(Environment.NewLine,
+                sortedActions.Select(action => $"- {FormatSystemName(action.StarSystem.Name)} - {Math.Round(action.Influence * 100, 1)}%"));
         }
-
-        internal static string GetSecurityList(IEnumerable<SecuritySuggestion> suggestions)
+        else
         {
-            string result;
-            if (suggestions.Any())
-            {
-                result = string.Join(Environment.NewLine,
-                    suggestions.OrderBy(sis => sis.StarSystem.Name)
-                               .Select(action => $"- {FormatSystemName(action.StarSystem.Name)} - {SecurityLevel.Name[action.SecurityLevel]}"));
-            }
-            else
-            {
-                result = "(None)";
-            }
-            return result;
+            result = "(None)";
         }
+        return result;
+    }
 
-        internal static string FormatSystemName(string systemName)
+    internal static string GetSecurityList(IEnumerable<SecuritySuggestion> suggestions)
+    {
+        string result;
+        if (suggestions.Any())
         {
-            // Temporarily removed because this bumped the order message size over the 2K character limit.
-            // The < > prevent auto-embed creation for the links.
-            // return $"[{systemName}](<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(systemName)}>)";
-            return $"{systemName}";
+            result = string.Join(Environment.NewLine,
+                suggestions.OrderBy(sis => sis.StarSystem.Name)
+                           .Select(action => $"- {FormatSystemName(action.StarSystem.Name)} - {SecurityLevel.Name[action.SecurityLevel]}"));
         }
-
-        internal static string GetWarList(IEnumerable<ConflictSuggestion> suggestions)
+        else
         {
-            string result;
-            if (suggestions.Any())
-            {
-                result = string.Join(Environment.NewLine,
-                    suggestions.OrderBy(cs => cs.FightFor.Name)
-                               .OrderBy(cs => cs.StarSystem.Name)
-                               .Select(cs => $"- {FormatSystemName(cs.StarSystem.Name)} - Fight for *{cs.FightFor.Name}* against *{cs.FightAgainst.Name}* - {cs.FightForWonDays} vs {cs.FightAgainstWonDays} (*{cs.State}*)"));
-            }
-            else
-            {
-                result = "(None)";
-            }
-            return result;
+            result = "(None)";
         }
+        return result;
+    }
 
-        public string Format(ToDoList toDoList)
+    internal static string FormatSystemName(string systemName)
+    {
+        // Temporarily removed because this bumped the order message size over the 2K character limit.
+        // The < > prevent auto-embed creation for the links.
+        // return $"[{systemName}](<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(systemName)}>)";
+        return $"{systemName}";
+    }
+
+    internal static string GetWarList(IEnumerable<ConflictSuggestion> suggestions)
+    {
+        string result;
+        if (suggestions.Any())
         {
-            return GetOutput(toDoList.MinorFaction,
-                GetInfluenceList(
-                    toDoList.Suggestions.Where(s => s is InfluenceSuggestion infSuggestion && infSuggestion.Pro)
-                                        .Cast<InfluenceSuggestion>(),
-                    true),
-                GetSecurityList(
-                    toDoList.Suggestions.Where(s => s is SecuritySuggestion)
-                                        .Cast<SecuritySuggestion>()
+            result = string.Join(Environment.NewLine,
+                suggestions.OrderBy(cs => cs.FightFor.Name)
+                           .OrderBy(cs => cs.StarSystem.Name)
+                           .Select(cs => $"- {FormatSystemName(cs.StarSystem.Name)} - Fight for *{cs.FightFor.Name}* against *{cs.FightAgainst.Name}* - {cs.FightForWonDays} vs {cs.FightAgainstWonDays} (*{cs.State}*)"));
+        }
+        else
+        {
+            result = "(None)";
+        }
+        return result;
+    }
+
+    public string Format(ToDoList toDoList)
+    {
+        return GetOutput(toDoList.MinorFaction,
+            GetInfluenceList(
+                toDoList.Suggestions.Where(s => s is InfluenceSuggestion infSuggestion && infSuggestion.Pro)
+                                    .Cast<InfluenceSuggestion>(),
+                true),
+            GetSecurityList(
+                toDoList.Suggestions.Where(s => s is SecuritySuggestion)
+                                    .Cast<SecuritySuggestion>()
+            ),
+            GetInfluenceList(
+                toDoList.Suggestions.Where(s => s is InfluenceSuggestion infSuggestion && !infSuggestion.Pro)
+                                    .Cast<InfluenceSuggestion>(),
+                false),
+            "(None)",
+            GetWarList(
+                toDoList.Suggestions.Where(s => s is ConflictSuggestion cs && Conflict.IsWar(cs.WarType))
+                                    .Cast<ConflictSuggestion>()
                 ),
-                GetInfluenceList(
-                    toDoList.Suggestions.Where(s => s is InfluenceSuggestion infSuggestion && !infSuggestion.Pro)
-                                        .Cast<InfluenceSuggestion>(),
-                    false),
-                "(None)",
-                GetWarList(
-                    toDoList.Suggestions.Where(s => s is ConflictSuggestion cs && Conflict.IsWar(cs.WarType))
-                                        .Cast<ConflictSuggestion>()
-                    ),
-                GetWarList(
-                    toDoList.Suggestions.Where(s => s is ConflictSuggestion cs && Conflict.IsElection(cs.WarType))
-                                        .Cast<ConflictSuggestion>()
-                    )
-                );
-        }
+            GetWarList(
+                toDoList.Suggestions.Where(s => s is ConflictSuggestion cs && Conflict.IsElection(cs.WarType))
+                                    .Cast<ConflictSuggestion>()
+                )
+            );
     }
 }

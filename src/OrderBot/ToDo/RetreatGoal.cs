@@ -1,54 +1,53 @@
 ﻿using OrderBot.Core;
 
-namespace OrderBot.ToDo
+namespace OrderBot.ToDo;
+
+/// <summary>
+/// Retreat the minor faction by lowering its influence.
+/// </summary>
+internal class RetreatGoal : Goal
 {
     /// <summary>
-    /// Retreat the minor faction by lowering its influence.
+    /// Singleton.
     /// </summary>
-    internal class RetreatGoal : Goal
+    public static readonly RetreatGoal Instance = new();
+
+    /// <summary>
+    /// Prevent instantiation.
+    /// </summary>
+    private RetreatGoal()
+        : base("Retreat", $"Reduce influence below {Math.Round(InfluenceThreshold * 100, 0)}% and keep it there.")
     {
-        /// <summary>
-        /// Singleton.
-        /// </summary>
-        public static readonly RetreatGoal Instance = new();
+        // Do nothing
+    }
 
-        /// <summary>
-        /// Prevent instantiation.
-        /// </summary>
-        private RetreatGoal()
-            : base("Retreat", $"Reduce influence below {Math.Round(InfluenceThreshold * 100, 0)}% and keep it there.")
+    /// <summary>
+    /// The influence threshold to force a retreat.
+    /// </summary>
+    public static double InfluenceThreshold => 0.05;
+
+    /// <inheritdoc/>
+    public override IEnumerable<Suggestion> GetSuggestions(Presence starSystemMinorFaction,
+        IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts)
+    {
+        CheckAddActionsPreconditions(starSystemMinorFaction, systemPresences, systemConflicts);
+
+        ConflictSuggestion? conflictSuggestion = GetConflict(systemConflicts,
+            c => Fight.Against(starSystemMinorFaction.MinorFaction, c));
+        if (conflictSuggestion != null)
         {
-            // Do nothing
+            yield return conflictSuggestion;
         }
-
-        /// <summary>
-        /// The influence threshold to force a retreat.
-        /// </summary>
-        public static double InfluenceThreshold => 0.05;
-
-        /// <inheritdoc/>
-        public override IEnumerable<Suggestion> GetSuggestions(Presence starSystemMinorFaction,
-            IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts)
+        else
         {
-            CheckAddActionsPreconditions(starSystemMinorFaction, systemPresences, systemConflicts);
-
-            ConflictSuggestion? conflictSuggestion = GetConflict(systemConflicts,
-                c => Fight.Against(starSystemMinorFaction.MinorFaction, c));
-            if (conflictSuggestion != null)
+            if (starSystemMinorFaction.Influence >= InfluenceThreshold)
             {
-                yield return conflictSuggestion;
-            }
-            else
-            {
-                if (starSystemMinorFaction.Influence >= InfluenceThreshold)
+                yield return new InfluenceSuggestion
                 {
-                    yield return new InfluenceSuggestion
-                    {
-                        StarSystem = starSystemMinorFaction.StarSystem,
-                        Influence = starSystemMinorFaction.Influence,
-                        Pro = false
-                    };
-                }
+                    StarSystem = starSystemMinorFaction.StarSystem,
+                    Influence = starSystemMinorFaction.Influence,
+                    Pro = false
+                };
             }
         }
     }

@@ -1,43 +1,42 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace OrderBot.Test
+namespace OrderBot.Test;
+
+/// <summary>
+/// SQL Server's datetime type has a resolution to ms. The .Net DateTime type
+/// has a higher resolution. This IEqualityComparer compares two DateTime
+/// objects down to the millisecond.
+/// </summary>
+public class DbDateTimeComparer : IEqualityComparer<DateTime?>
 {
+    public static readonly DbDateTimeComparer Instance = new();
+
     /// <summary>
-    /// SQL Server's datetime type has a resolution to ms. The .Net DateTime type
-    /// has a higher resolution. This IEqualityComparer compares two DateTime
-    /// objects down to the millisecond.
+    /// Prevent instantiation
     /// </summary>
-    public class DbDateTimeComparer : IEqualityComparer<DateTime?>
+    protected DbDateTimeComparer()
     {
-        public static readonly DbDateTimeComparer Instance = new();
+        // Do nothing
+    }
 
-        /// <summary>
-        /// Prevent instantiation
-        /// </summary>
-        protected DbDateTimeComparer()
+    public bool Equals(DateTime? x, DateTime? y)
+    {
+        if (x == null && y == null)
         {
-            // Do nothing
+            return true;
         }
+        else if (x != null && y != null)
+        {
+            return (x - y).Value.TotalMilliseconds < 1000;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
-        public bool Equals(DateTime? x, DateTime? y)
-        {
-            if (x == null && y == null)
-            {
-                return true;
-            }
-            else if (x != null && y != null)
-            {
-                return (x - y).Value.TotalMilliseconds < 1000;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
-        public int GetHashCode([DisallowNull] DateTime? obj)
-        {
-            throw new NotImplementedException();
-        }
+    public int GetHashCode([DisallowNull] DateTime? obj)
+    {
+        throw new NotImplementedException();
     }
 }

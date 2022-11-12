@@ -1,9 +1,8 @@
-﻿namespace OrderBot.ToDo
+﻿namespace OrderBot.ToDo;
+
+internal record EddnConflictFaction
 {
-    internal record EddnConflictFaction
-    {
-        public string Name { get; set; } = null!;
-        public string Stake { get; set; } = null!;
-        public int WonDays { get; set; }
-    }
+    public string Name { get; set; } = null!;
+    public string Stake { get; set; } = null!;
+    public int WonDays { get; set; }
 }

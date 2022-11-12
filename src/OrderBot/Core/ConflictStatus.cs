@@ -1,7 +1,6 @@
-﻿namespace OrderBot.Core
+﻿namespace OrderBot.Core;
+
+internal static class ConflictStatus
 {
-    internal static class ConflictStatus
-    {
-        public static string Active => "active";
-    }
+    public static string Active => "active";
 }

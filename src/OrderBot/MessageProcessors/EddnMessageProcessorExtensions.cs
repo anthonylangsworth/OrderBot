@@ -1,12 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace OrderBot.MessageProcessors
+namespace OrderBot.MessageProcessors;
+
+internal static class EddnMessageProcessorExtensions
 {
-    internal static class EddnMessageProcessorExtensions
+    internal static void AddEddnMessageProcessor(this IServiceCollection services)
     {
-        internal static void AddEddnMessageProcessor(this IServiceCollection services)
-        {
-            services.AddHostedService<EddnMessageHostedService>();
-        }
+        services.AddHostedService<EddnMessageHostedService>();
     }
 }

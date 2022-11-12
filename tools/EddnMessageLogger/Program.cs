@@ -76,7 +76,7 @@ while (true)
                 && edaSystems.Contains(starSystemProperty.GetString(), StringComparer.OrdinalIgnoreCase)
                 && messageElement.TryGetProperty("signals", out JsonElement signalsElement))
             {
-                string fileName = $"{timestamp.ToString("yyyyMMddTHHmmssFF")}.json";
+                string fileName = $"{timestamp:yyyyMMddTHHmmssFF}.json";
                 using FileStream fileStream = File.Create(fileName);
                 using Utf8JsonWriter streamWriter = new(fileStream, new JsonWriterOptions() { Indented = true });
                 jsonDocument.WriteTo(streamWriter);

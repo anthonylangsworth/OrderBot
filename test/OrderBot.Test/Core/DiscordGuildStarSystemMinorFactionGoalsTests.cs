@@ -1,7 +1,6 @@
-﻿namespace OrderBot.Test.Core
+﻿namespace OrderBot.Test.Core;
+
+internal class DiscordGuildStarSystemMinorFactionGoalsTests
 {
-    internal class DiscordGuildStarSystemMinorFactionGoalsTests
-    {
-        // None (for now)
-    }
+    // None (for now)
 }

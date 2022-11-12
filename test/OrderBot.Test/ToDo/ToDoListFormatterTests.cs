@@ -2,15 +2,15 @@
 using OrderBot.Core;
 using OrderBot.ToDo;
 
-namespace OrderBot.Test.ToDo
+namespace OrderBot.Test.ToDo;
+
+internal class ToDoListFormatterTests
 {
-    internal class ToDoListFormatterTests
+    [Test]
+    public void Format_Empty()
     {
-        [Test]
-        public void Format_Empty()
-        {
-            ToDoList toDoList = new("The Dark Wheel");
-            Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
+        ToDoList toDoList = new("The Dark Wheel");
+        Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
 E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dark Wheel* controlled stations.
@@ -32,22 +32,22 @@ Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls
 **Election Systems**
 (None)
 "));
-        }
+    }
 
-        [Test]
-        public void Format_ProAndAnti()
-        {
-            ToDoList toDoList = new("The Dark Wheel");
-            toDoList.Suggestions.UnionWith(
-                new Suggestion[]
-                {
-                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Shinrarta Dezhra" }, Influence = 0.1, Pro = true },
-                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Tau Ceti" }, Influence = 0.2, Pro = true },
-                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Wolf 359" }, Influence = 0.7, Pro = false },
-                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Alpha Centauri" }, Influence = 0.65, Pro = false },
-                    new SecuritySuggestion() { StarSystem = new StarSystem() { Name = "Maia" }, SecurityLevel = SecurityLevel.Low }
-                });
-            Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
+    [Test]
+    public void Format_ProAndAnti()
+    {
+        ToDoList toDoList = new("The Dark Wheel");
+        toDoList.Suggestions.UnionWith(
+            new Suggestion[]
+            {
+                new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Shinrarta Dezhra" }, Influence = 0.1, Pro = true },
+                new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Tau Ceti" }, Influence = 0.2, Pro = true },
+                new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Wolf 359" }, Influence = 0.7, Pro = false },
+                new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Alpha Centauri" }, Influence = 0.65, Pro = false },
+                new SecuritySuggestion() { StarSystem = new StarSystem() { Name = "Maia" }, SecurityLevel = SecurityLevel.Low }
+            });
+        Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
 E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dark Wheel* controlled stations.
@@ -72,16 +72,15 @@ Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls
 (None)
 "));
 
-            /*- [Shinrarta Dezhra](<https://inara.cz/elite/search/?search=Shinrarta+Dezhra>) - 10%
-            - [Tau Ceti](<https://inara.cz/elite/search/?search=Tau+Ceti>) - 20%
+        /*- [Shinrarta Dezhra](<https://inara.cz/elite/search/?search=Shinrarta+Dezhra>) - 10%
+        - [Tau Ceti](<https://inara.cz/elite/search/?search=Tau+Ceti>) - 20%
 
-            Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls.
-            - [Maia](<https://inara.cz/elite/search/?search=Maia>) - Low
+        Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls.
+        - [Maia](<https://inara.cz/elite/search/?search=Maia>) - Low
 
-            ***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to avoid an unwanted expansion.
-            - [Wolf 359](<https://inara.cz/elite/search/?search=Wolf+359>) - 70%
-            - [Alpha Centauri](<https://inara.cz/elite/search/?search=Alpha+Centauri>) - 65%
-            */
-        }
+        ***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to avoid an unwanted expansion.
+        - [Wolf 359](<https://inara.cz/elite/search/?search=Wolf+359>) - 70%
+        - [Alpha Centauri](<https://inara.cz/elite/search/?search=Alpha+Centauri>) - 65%
+        */
     }
 }

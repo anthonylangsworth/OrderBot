@@ -1,11 +1,10 @@
-﻿namespace OrderBot.Rbac
+﻿namespace OrderBot.Rbac;
+
+internal static class Roles
 {
-    internal static class Roles
+    public static IReadOnlyDictionary<string, Role> Map => new Dictionary<string, Role>()
     {
-        public static IReadOnlyDictionary<string, Role> Map => new Dictionary<string, Role>()
-        {
-            { MembersRole.Instance.Name, MembersRole.Instance },
-            { OfficersRole.Instance.Name, OfficersRole.Instance }
-        };
-    }
+        { MembersRole.Instance.Name, MembersRole.Instance },
+        { OfficersRole.Instance.Name, OfficersRole.Instance }
+    };
 }

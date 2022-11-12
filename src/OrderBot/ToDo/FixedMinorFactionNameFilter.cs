@@ -1,21 +1,20 @@
-﻿namespace OrderBot.ToDo
+﻿namespace OrderBot.ToDo;
+
+/// <summary>
+/// Use a fixed set of minor factions.
+/// </summary>
+internal class FixedMinorFactionNameFilter : MinorFactionNameFilter
 {
-    /// <summary>
-    /// Use a fixed set of minor factions.
-    /// </summary>
-    internal class FixedMinorFactionNameFilter : MinorFactionNameFilter
+    public FixedMinorFactionNameFilter(IEnumerable<string> minorFactions)
     {
-        public FixedMinorFactionNameFilter(IEnumerable<string> minorFactions)
-        {
-            MinorFactions = new HashSet<string>(minorFactions);
-        }
+        MinorFactions = new HashSet<string>(minorFactions);
+    }
 
-        public IReadOnlySet<string> MinorFactions { get; }
+    public IReadOnlySet<string> MinorFactions { get; }
 
-        /// <inheritdoc/>
-        public override bool Matches(string name)
-        {
-            return MinorFactions.Contains(name);
-        }
+    /// <inheritdoc/>
+    public override bool Matches(string name)
+    {
+        return MinorFactions.Contains(name);
     }
 }

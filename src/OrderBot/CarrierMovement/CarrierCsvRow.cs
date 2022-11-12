@@ -1,11 +1,10 @@
 ﻿using CsvHelper.Configuration.Attributes;
 
-namespace OrderBot.CarrierMovement
+namespace OrderBot.CarrierMovement;
+
+internal record CarrierCsvRow
 {
-    internal record CarrierCsvRow
-    {
-        [Index(0)]
-        [Name("Name")]
-        public string Name { get; set; } = null!;
-    }
+    [Index(0)]
+    [Name("Name")]
+    public string Name { get; set; } = null!;
 }
