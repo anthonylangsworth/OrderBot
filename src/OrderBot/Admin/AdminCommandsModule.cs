@@ -7,6 +7,7 @@ using OrderBot.Audit;
 using OrderBot.Core;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
+using OrderBot.Rbac;
 using System.Text;
 
 namespace OrderBot.Admin;

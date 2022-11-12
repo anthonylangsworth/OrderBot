@@ -1,24 +1,24 @@
-﻿namespace OrderBot.Admin
+﻿namespace OrderBot.Rbac
 {
     /// <summary>
     /// Squadron members, that can view the todo list and some settings.
     /// </summary>
-    internal record MembersRole : Role
+    internal record OfficersRole : Role
     {
         /// <summary>
         /// Singleton.
         /// </summary>
-        public static MembersRole Instance => new();
+        public static OfficersRole Instance => new();
 
         /// <summary>
         /// Prevent instantiation.
         /// </summary>
-        private MembersRole()
-            : base(RoleName, "Squadron members can view the todo list and some settings")
+        private OfficersRole()
+            : base(RoleName, "Squadron officers that can change settings")
         {
             // Do nothing
         }
 
-        public const string RoleName = "Members";
+        public const string RoleName = "Officers";
     }
 }

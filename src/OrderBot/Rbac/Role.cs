@@ -1,4 +1,4 @@
-﻿namespace OrderBot.Admin;
+﻿namespace OrderBot.Rbac;
 
 internal record Role
 {
