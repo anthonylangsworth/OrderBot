@@ -10,23 +10,23 @@ namespace OrderBot.Discord;
 /// <summary>
 /// Require the user to be a member of a role.
 /// </summary>
-internal class RequireRoleAttribute : PreconditionAttribute
+internal class RequireBotRoleAttribute : PreconditionAttribute
 {
     /// <summary>
-    /// Create a new <see cref="RequireRoleAttribute"/>.
+    /// Create a new <see cref="RequireBotRoleAttribute"/>.
     /// </summary>
     /// <param name="roleName">
     /// The role name.
     /// </param>
-    public RequireRoleAttribute(string roleName)
+    public RequireBotRoleAttribute(params string[] roleNames)
     {
-        RoleName = roleName;
+        RoleNames = roleNames;
     }
 
     /// <summary>
     /// The role name.
     /// </summary>
-    public string RoleName { get; }
+    public string[] RoleNames { get; }
 
     /// <inheritdoc/>
     public override async Task<PreconditionResult> CheckRequirementsAsync(IInteractionContext context, ICommandInfo commandInfo,
@@ -37,7 +37,7 @@ internal class RequireRoleAttribute : PreconditionAttribute
 
         DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, context.Guild);
         IList<ulong> roleIds = dbContext.RoleMembers.Where(rm => rm.DiscordGuild == discordGuild
-                                                              && rm.Role.Name == RoleName)
+                                                              && RoleNames.Contains(rm.Role.Name))
                                                     .Select(rm => rm.MentionableId)
                                                     .ToList();
         if ((await context.Guild.GetUserAsync(context.User.Id)).RoleIds.Intersect(roleIds).Any())

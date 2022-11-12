@@ -122,7 +122,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
 
         [SlashCommand("add", "Do not track this carrier or report its movements (case insensitive).")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Add(
             [
                  Summary("name", "The full name or just the ending serial number of the carrier to ignore"),
@@ -176,7 +176,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
 
         [SlashCommand("remove", "Track this carrier and report its movements")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Remove(
             [
                 Summary("Name", "The full name or just the ending serial number of the carrier to track (case insensitive)."),
@@ -210,8 +210,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
 
         [SlashCommand("list", "List ignored fleet carriers")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
-        [Discord.RequireRole(MembersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, MembersRole.RoleName, Group = "Permission")]
         public async Task List()
         {
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
@@ -243,7 +242,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
 
         [SlashCommand("export", "Export the ignored carriers for backup")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Export()
         {
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
@@ -276,7 +275,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
 
         [SlashCommand("import", "Import new goals")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Import(
             [Summary("carriers", "Export output: CSV with ignored carrier name")]
             IAttachment ignoredCarriersAttachement

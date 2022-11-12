@@ -33,8 +33,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
     [SlashCommand("show", "List the work required for supporting a minor faction")]
     [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-    [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
-    [Discord.RequireRole(MembersRole.RoleName, Group = "Permission")]
+    [RequireBotRole(OfficersRole.RoleName, MembersRole.RoleName, Group = "Permission")]
     public async Task ShowToDoList()
     {
         const string minorFactionName = "EDA Kunti League";
@@ -46,7 +45,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
     [SlashCommand("raw", "List the work required for supporting a minor faction in a copyable format")]
     [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-    [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+    [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
     public async Task ShowRawToDoList()
     {
         const string minorFactionName = "EDA Kunti League";
@@ -75,7 +74,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
         [SlashCommand("add", "Start supporting this minor faction")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Add(
             [Summary("minor-faction", "Start supporting this minor faction")]
             string name
@@ -109,7 +108,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
         [SlashCommand("remove", "Stop supporting this minor faction")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Remove(
             [Summary("minor-faction", "Stop supporting this minor faction")]
             string name
@@ -143,8 +142,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
         [SlashCommand("list", "List supported minor factions")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
-        [Discord.RequireRole(MembersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, MembersRole.RoleName, Group = "Permission")]
         public async Task List()
         {
             string message;
@@ -184,7 +182,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
         [SlashCommand("add", "Set a specific goal for this minor faction in this system")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Add(
             [Summary("minor-faction", "The minor faction")]
             string minorFactionName,
@@ -278,7 +276,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
         [SlashCommand("remove", "Remove the specific goal for this minor faction in this system")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Remove(
             [Summary("minor-faction", "The minor faction")]
             string minorFactionName,
@@ -343,8 +341,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
         [SlashCommand("list", "List any specific goals per minor faction and per system")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
-        [Discord.RequireRole(MembersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, MembersRole.RoleName, Group = "Permission")]
         public async Task List()
         {
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
@@ -380,7 +377,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
         [SlashCommand("export", "Export the current goals for backup")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Export()
         {
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
@@ -418,7 +415,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
         [SlashCommand("import", "Import new goals")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
-        [Discord.RequireRole(OfficersRole.RoleName, Group = "Permission")]
+        [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Import(
             [Summary("goals", "Export output: CSV with goal, minor faction and star system")]
             IAttachment goalsAttachement
