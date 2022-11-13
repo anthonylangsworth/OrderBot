@@ -148,7 +148,9 @@ internal class ToDoListGeneratorTests
         ToDoListGenerator generator = new(DbContextFactory);
         ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
-        Assert.That(toDoList.Suggestions, Is.Empty);
+        Assert.That(toDoList.Suggestions,
+            Is.EquivalentTo(new[] { new InfluenceSuggestion() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence, Pro = true } })
+              .Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
     }
 
     [Test]
