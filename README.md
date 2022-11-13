@@ -10,10 +10,6 @@ This bot aims to fix that. It receives BGS data from the [Elite Dangerous Data N
 
 This bot is not intended to replace squadron officers, although it can be used that way, or existing tools like those mentioned above. For example, it will not give graphs of influence history like Inara or Elite BGS. However, it can save time and increase accuracy by automating much of the work.
 
-## Use
-
-[Setup instructions](doc/ConceptsAndTasks.md#setup) outlines setting up the bot in your Discord server. [Concepts and Tasks](doc/ConceptsAndTasks.md) describes foundational concepts and common use cases. The [Command Reference](doc/CommandReference.md) explains the bot's commands and their use.
-
 ## Sample Suggestions
 
 Suggested BGS work includes explanations to help players understand relevant in-game actions. The example below is shown as markdown to prevent Github auto-formatting the output differently to Discord. 
@@ -44,6 +40,14 @@ Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls
 **Election Systems**
 (None)
 ```
+
+## Use
+
+See:
+1. [Setup instructions](doc/ConceptsAndTasks.md#setup) to setup the bot in your Discord server. 
+2. [Concepts and Tasks](doc/ConceptsAndTasks.md) for foundational concepts and common use cases. 
+3. [Security](doc/Security.md) for details about access control and auditing.
+4. [Command Reference](doc/CommandReference.md) about the commands available.
 
 ## Development and Contributions
 
