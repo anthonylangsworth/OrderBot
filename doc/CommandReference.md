@@ -12,11 +12,11 @@ Command details, particularly validation and autocomplate, are a work in progres
 
 ### /todo-list goal add
 
-Set a [goal](Goals.md) for a minor faction in a star system. This overrides the implicit `Control` [goal](Goals.md) for a supported minor faction (see [/todo-list support add](#todo-list-support-add)). There are no goals for any system or minor faction by default.
+Set a [goal](Goals.md) for a minor faction in a star system. This overrides the implicit `Control` [goal](Goals.md) for a supported minor faction (see [/todo-list support set](#todo-list-support-set)). There are no goals for any system or minor faction by default.
 
 To change a goal, use this command again, specifying the same star system and minor faction but the new goal. To remove any goal for a star system and minor faction, use [/todo-list goal remove](#todo-list-goal-remove).
 
-The bot writes a short description of the goal to the audit channel.
+This command is audited.
 
 Parameters:
 
@@ -36,7 +36,7 @@ Import a list of set goals as a CSV (command separated variable) file, adding (n
 
 Existing goals are NOT cleared first. This is additive.
 
-The bot writes a short description of each goal imported to the audit channel.
+This command is audited.
 
 ### /todo-list goal list
 
@@ -46,7 +46,7 @@ Similar to [/todo-list goal export](#todo-list-goal-export), this shows a list o
 
 Remove any goal added by [/todo-list goal add](#todo-list-goal-add) for a minor faction in a star system. 
 
-The bot writes a short description of the removed goal to the audit channel.
+This command is audited.
 
 Parameters:
 
@@ -59,41 +59,35 @@ Parameters:
 
 Similar to [/todo-list show](#todo-list-show), this outputs a list of suggested in-game activities. Unlike `/todo-list show`, this escapes the markdown formatting, allowing easy copying and pasting into another Discord channel to preserve the formatting. This command is intended for squadron admins that want to use this bot as an aid, customizing its output before posting it.
 
-**NOTE**: This is currently hard-coded to a specific minor faction.
-
 ### /todo-list show
 
 Show a list of suggested in-game activites. This can be run by (1) squadron admins to help create daily suggested activities to support a minor faction or (2) squadron members themselves if admins are happy to delegate the work to this bot. To get a version that admins can edit before pasting into a Discord channel without losing formatting, use [/todo-list raw](#todo-list-raw).
 
-**NOTE**: This is currently hard-coded to a specific minor faction.
+### /todo-list support clear
 
-### /todo-list support add
-
-Support a minor faction. For each system where this minor faction is present, this (1) instructs the bot to listen for BGS information, (2) adds an implicit `Control` [goal](Goals.md) for that minor faction and (3) writes details of carrier's jumping in to the carrier movement channel. Override this implicit goal for specific star systems using [/todo-list goal add](#todo-list-goal-add). Use [/todo-list support remove](#todo-list-support-remove) to stop supporting a minor faction.
-
-The bot writes a short description of the supported minor faction.
-
-Parameters:
-
-|name|Description|Validation|Autocomplete|
-|----|-----------|----------|------------|
-|minor-faction|The name of the minor faction to support.|None|None|
-
-### /todo-list support list
-
-Show a list of supported minor factions.
-
-### /todo-list support remove
-
-Stop supporting a minor faction previously supported using [/todo-list support add](#todo-list-support-add). 
-
-The bot writes a short description of the removed minor faction.
+Stop supporting a minor faction previously supported using [/todo-list support set](#todo-list-support-set). This command is audited.
 
 Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
 |minor-faction|The name of the minor faction to stop supporting.|Must be a supported minor faction.|None|
+
+### /todo-list support get
+
+Show the supported minor faction, if any.
+
+### /todo-list support set
+
+Support a minor faction. For each system where this minor faction is present, this (1) instructs the bot to listen for BGS information, (2) adds an implicit `Control` [goal](Goals.md) for that minor faction and (3) writes details of carrier's jumping in to the carrier movement channel, if set. Override this implicit goal for specific star systems using [/todo-list goal add](#todo-list-goal-add). Use [/todo-list support clear](#todo-list-support-clear) to stop supporting a minor faction.
+
+This command is audited.
+
+Parameters:
+
+|name|Description|Validation|Autocomplete|
+|----|-----------|----------|------------|
+|minor-faction|The name of the minor faction to support.|None|None|
 
 ## Carrier Movement
 
@@ -123,7 +117,7 @@ Ignore a fleet carrier. This prevents the bot reporting when it jumps into a sys
 
 To remove a carrier from the ignore list and report its movements, use [/carrier-movement ignored-carriers remove](#carrier-movement-ignored-carriers-remove).
 
-The bot writes a short description of the ignored carrier to the audit log.
+This command is audited.
 
 Parameters:
 
@@ -141,7 +135,7 @@ Import a list of ignored fleet carriers as a CSV (command separated variable) fi
 
 The bot writes a short description of each ignored carrier to the audit log.
 
-Existing ignored carriers are NOT cleared first. This is additive.
+This command is audited.
 
 ### /carrier-movement ignored-carriers list
 
@@ -151,7 +145,7 @@ Similar to [/carrier-movement ignored-carriers export](#carrier-movement-ignored
 
 Track a fleet carrier, reporting when it jumps into a system where a supported minor faction is present. All carriers are tracked by default. To remove it from the ignore list and report its movements, use [/carrier-movement ignored-carriers remove](#carrier-movement-ignored-carriers-remove).
 
-The bot writes a short description of the tracked carrier to the audit log.
+This command is audited.
 
 Parameters:
 
@@ -165,7 +159,7 @@ Parameters:
 
 Stop auditing. 
 
-The bot writes a short description of this to any previous audit log.
+The bot writes a short description of this to any previous audit log. This command is audited.
 
 ### /bgs-order-bot audit-channel get
 
@@ -173,10 +167,41 @@ Get the channel used for auditing.
 
 ### /bgs-order-bot audit-channel set
 
-Set the channel used for auditing. The discord bot checks that the bot can write to the channel before setting it.
+Set the channel used for auditing. This command is audited.
 
 Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
 |channel|The channel.|Must be a channel on this server.|A list of channels on this server.|
+
+### /bgs-order-bot rbac add-member
+
+Add a Discord role to a bot role. By default, bot roles are empty. See [Security](Security.md) for a description of the roles.
+
+This command is audited.
+
+Parameters:
+
+|name|Description|Validation|Autocomplete|
+|----|-----------|----------|------------|
+|bot-role|One of this bot's roles (Officer or Member).|Either Officer or Member.|Either OFficer or Member.|
+|discord-role|The Discord role to add.|Must be a valid Discord role.|A list of roles on calling Discord server.|
+
+### /bgs-order-bot rbac list
+
+List each bot role with the Discord roles assigned to each. See [Security](Security.md) for a description of the roles.
+
+### /bgs-order-bot rbac remove-member
+
+Removed a Discord role from a bot role.  See [Security](Security.md) for a description of the roles.
+
+This command is audited.
+
+Parameters:
+
+|name|Description|Validation|Autocomplete|
+|----|-----------|----------|------------|
+|bot-role|One of this bot's roles (Officer or Member).|Either Officer or Member.|Either OFficer or Member.|
+|discord-role|The Discord role to add.|Must be a valid Discord role.|A list of roles on calling Discord server.|
+
