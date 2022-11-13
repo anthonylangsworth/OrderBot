@@ -21,14 +21,20 @@ internal class DbConflictInitiatedSuggestionEqualityComparer : IEqualityComparer
 
     public bool Equals(ConflictSuggestion? x, ConflictSuggestion? y)
     {
+        // Comparig MinorFaction.SupportedBy is hazardous
+
         return x is not null &&
                y is not null &&
                x.StarSystem.Id == y.StarSystem.Id &&
                x.StarSystem.Name == y.StarSystem.Name &&
                DbDateTimeComparer.Instance.Equals(x.StarSystem.LastUpdated, y.StarSystem.LastUpdated) &&
-               x.FightFor.Equals(y.FightFor) &&
+               x.FightFor.Id == y.FightFor.Id &&
+               x.FightFor.Name == y.FightFor.Name &&
+               // x.FightFor.SupportedBy.SetEquals(y.FightFor.SupportedBy) &&
                x.FightForWonDays == y.FightForWonDays &&
-               x.FightAgainst.Equals(y.FightAgainst) &&
+               x.FightAgainst.Id == y.FightAgainst.Id &&
+               x.FightAgainst.Name == y.FightAgainst.Name &&
+               // x.FightAgainst.SupportedBy.SetEquals(y.FightAgainst.SupportedBy) &&
                x.FightAgainstWonDays == y.FightAgainstWonDays &&
                x.State == y.State &&
                x.WarType == y.WarType;

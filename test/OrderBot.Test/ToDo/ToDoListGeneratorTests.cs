@@ -181,4 +181,109 @@ internal class ToDoListGeneratorTests
                new InfluenceSuggestion() { StarSystem = maia, Influence = purplePeopleEastersMaia.Presence.Influence, Pro = false }
            }).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
     }
+
+    [Test]
+    public void Generate_Conflict_NoGoal()
+    {
+        StarSystem celaeno = new() { Name = "Celaeno" };
+        MinorFaction yellowSubmariners = new() { Name = "Yellow Submariners" };
+        Presence purplePeopleEastersInCelaeno = new()
+        {
+            MinorFaction = PurplePeopleEaters,
+            StarSystem = celaeno,
+            Influence = 0.4
+        };
+        Presence yellowSubmarinersInCalaeno = new()
+        {
+            MinorFaction = yellowSubmariners,
+            StarSystem = celaeno,
+            Influence = 0.3
+        };
+        DbContext.Presences.AddRange(purplePeopleEastersInCelaeno, yellowSubmarinersInCalaeno);
+        Conflict conflict = new()
+        {
+            MinorFaction1 = PurplePeopleEaters,
+            MinorFaction1WonDays = 2,
+            MinorFaction2 = yellowSubmariners,
+            MinorFaction2WonDays = 1,
+            StarSystem = celaeno,
+            WarType = WarType.War,
+            Status = ConflictStatus.Active
+        };
+        DbContext.Conflicts.Add(conflict);
+        DbContext.SaveChanges();
+
+        ToDoListGenerator generator = new(DbContextFactory);
+        ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
+        Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
+        Assert.That(toDoList.Suggestions, Is.EquivalentTo(
+           new Suggestion[] {
+               new ConflictSuggestion()
+               {
+                   StarSystem = conflict.StarSystem,
+                   FightFor = conflict.MinorFaction1,
+                   FightForWonDays = conflict.MinorFaction1WonDays,
+                   FightAgainst = conflict.MinorFaction2,
+                   FightAgainstWonDays = conflict.MinorFaction2WonDays,
+                   State = ConflictState.CloseVictory,
+                   WarType = conflict.WarType
+               }
+           }).Using(DbConflictInitiatedSuggestionEqualityComparer.Instance));
+    }
+
+    [Test]
+    public void Generate_Conflict_Goal()
+    {
+        StarSystem celaeno = new() { Name = "Celaeno" };
+        MinorFaction yellowSubmariners = new() { Name = "Yellow Submariners" };
+        Presence purplePeopleEastersInCelaeno = new()
+        {
+            MinorFaction = PurplePeopleEaters,
+            StarSystem = celaeno,
+            Influence = 0.4
+        };
+        Presence yellowSubmarinersInCalaeno = new()
+        {
+            MinorFaction = yellowSubmariners,
+            StarSystem = celaeno,
+            Influence = 0.3
+        };
+        DbContext.Presences.AddRange(purplePeopleEastersInCelaeno, yellowSubmarinersInCalaeno);
+        Conflict conflict = new()
+        {
+            MinorFaction1 = PurplePeopleEaters,
+            MinorFaction1WonDays = 2,
+            MinorFaction2 = yellowSubmariners,
+            MinorFaction2WonDays = 1,
+            StarSystem = celaeno,
+            WarType = WarType.War,
+            Status = ConflictStatus.Active
+        };
+        DbContext.Conflicts.Add(conflict);
+        DiscordGuildPresenceGoal yellowSubmarinesControlCelaeno = new()
+        {
+            DiscordGuild = DiscordGuild,
+            Presence = purplePeopleEastersInCelaeno,
+            Goal = MaintainGoal.Instance.Name
+        };
+        DbContext.DiscordGuildPresenceGoals.Add(yellowSubmarinesControlCelaeno);
+        DbContext.SaveChanges();
+
+        ToDoListGenerator generator = new(DbContextFactory);
+        ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
+        Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
+        Assert.That(toDoList.Suggestions, Is.EquivalentTo(
+           new Suggestion[] {
+               new ConflictSuggestion()
+               {
+                   StarSystem = conflict.StarSystem,
+                   FightFor = conflict.MinorFaction2,
+                   FightForWonDays = conflict.MinorFaction2WonDays,
+                   FightAgainst = conflict.MinorFaction1,
+                   FightAgainstWonDays = conflict.MinorFaction1WonDays,
+                   State = ConflictState.CloseDefeat,
+                   WarType = conflict.WarType
+               }
+           }).Using(DbConflictInitiatedSuggestionEqualityComparer.Instance));
+    }
 }

@@ -89,11 +89,11 @@ public class ToDoListApi
     /// </exception>
     public void SetSupportedMinorFaction(OrderBotDbContext dbContext, IGuild guild, string minorFactionName)
     {
-        MinorFaction minorFaction;
         using TransactionScope transactionScope = new();
 
         // TODO: Use a different validation mechanism, e.g. web service call. Otherwise,
         // we have a "chicken and egg" problem with minor faction creation.
+        MinorFaction minorFaction;
         try
         {
             minorFaction = dbContext.MinorFactions.First(mf => mf.Name == minorFactionName);

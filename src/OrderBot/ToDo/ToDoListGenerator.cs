@@ -54,16 +54,15 @@ public class ToDoListGenerator
 
         IReadOnlyList<Presence> bgsData =
             dbContext.Presences.Include(ssmf => ssmf.MinorFaction)
-                                             .Include(ssmf => ssmf.StarSystem)
-                                             .ToList();
+                               .Include(ssmf => ssmf.StarSystem)
+                               .ToList();
 
         IReadOnlyList<DiscordGuildPresenceGoal> dgssmfgs =
             dbContext.DiscordGuildPresenceGoals.Include(dgssmf => dgssmf.DiscordGuild)
-                                                             .Include(dgssmf => dgssmf.Presence.StarSystem)
-                                                             .Include(dgssmf => dgssmf.Presence.MinorFaction)
-                                                             .Where(dgssmf => dgssmf.DiscordGuild.GuildId == guildId
-                                                                           && dgssmf.Presence.MinorFaction.Name == supportedMinorFactionName)
-                                                             .ToList();
+                                               .Include(dgssmf => dgssmf.Presence.StarSystem)
+                                               .Include(dgssmf => dgssmf.Presence.MinorFaction)
+                                               .Where(dgssmf => dgssmf.DiscordGuild.GuildId == guildId)
+                                               .ToList();
 
         // Handle explicit goals
         foreach (DiscordGuildPresenceGoal dgssmfg in dgssmfgs)
