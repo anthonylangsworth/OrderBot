@@ -1,12 +1,12 @@
 # Command Reference
 
-Command are listed alphabetically within the two main functional areas: [To-Do List](#To-Do-List) and [Carrier Movement](#Carrier-Movement). To understand the concepts and common tasks, giving these commands context, see [Concepts and Tasks](ConceptsAndTasks.md).
+Command are listed alphabetically within the two main functional areas: [To-Do List](#to-do-list) and [Carrier Movement](#carrier-movement). It also provides several [administration commands](#administration-commands). To understand the concepts and common tasks, giving these commands context, see [Concepts and Tasks](ConceptsAndTasks.md).
 
-All commands can be run by users that can manage channels and users. In the future, it will be possible to also allow specific users or roles access to commands.
+All commands can be run by users that can manage channels and users. Some can be delegated to roles. Some commands are also written to the Discord server's audit channel, if specified. See [Security](Security.md) for details.
 
 The results of all commands are ephemeral, only shown to the calling user. 
 
-Command details, particularly validation and autocomplate, are a work in progress. Some commands may write details to an audit channel or the Discord server's audit log in the future.
+Command details, particularly validation and autocomplate, are a work in progress. 
 
 ## To Do List
 
@@ -153,7 +153,7 @@ Parameters:
 |----|-----------|----------|------------|
 |carrier-name|The name of an ignored carrier.|A valid carrier name, ending with the seven character serial number.|Ignored carriers.|
 
-## Admin Commands
+## Administration Commands
 
 ### /bgs-order-bot audit-channel clear
 
