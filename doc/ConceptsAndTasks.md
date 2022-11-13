@@ -30,14 +30,14 @@ To get a version you can copy, edit and post in a Discord channel without losing
 ## Backup, Bulk Edit and Restore Settings
 
 Periodically, after setup or after major changes, export configuration data and save it in a safe place. Save the output of the following commands:
-1. [/todo-list support list](CommandReference.md#todo-list-support-list)
+1. [/todo-list support get](CommandReference.md#todo-list-support-get)
 2. [/todo-list goal export](CommandReference.md#todo-list-goal-export)
 3. [/carrier-movement ignored-carriers export](CommandReference.md#carrier-movement-ignored-carriers-export)
 
 You can edit the CSV files in a text editor or spreadsheet program to add details in bulk.
 
 You can them import the data using 
-1. [/todo-list support add](CommandReference.md#todo-list-support-add) for each minor faction in the support list (presumably a short list)
+1. [/todo-list support set](CommandReference.md#todo-list-support-set)
 2. [/todo-list goal import](CommandReference.md#todo-list-goal-import)
 3. [/carrier-movement ignored-carriers import](CommandReference.md#carrier-movement-ignored-carriers-import)
 
