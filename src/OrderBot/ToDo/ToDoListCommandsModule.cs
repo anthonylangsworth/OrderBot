@@ -101,7 +101,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
             {
                 Api.SetSupportedMinorFaction(dbContext, Context.Guild, name);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-                auditLogger.Audit($"Supporting minor faction '{name}'");
+                auditLogger.Audit($"Supporting minor faction *{name}*");
                 message = $"**Success**! Now supporting *{name}*";
             }
             catch (ArgumentException)
