@@ -47,7 +47,7 @@ This bot has two ways of specifying how to interact with the BGS. It can also mo
 
 ## Support
 
-The first is "supporting" a minor faction (see [/todo-list support add](CommandReference.md#todo-list-support-add)). This does three things:
+The first is "supporting" a minor faction (see [/todo-list support set](CommandReference.md#todo-list-support-set)). This does three things:
 1. The bot monitors BGS activity in star systems where this minor faction has a presence. It does not monitor any systems where supported minor factions are not present.
 2. Creates an implicit 'Control' goal for the minor faction in each system. See below for details on goals. This can be overridden in individual star sytems (see [/todo-list goal add](CommandReference.md#todo-list-goal-add)).
 3. Monitors carrier movements, writing the details to the specified carrier movement channel (see [/carrier-movement channel set](CommandReference.md#carrier-movement-channel-set)).
