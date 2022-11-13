@@ -111,6 +111,8 @@ public class OrderBotDbContext : DbContext
         {
             entity.ToTable("DiscordGuild");
 
+            entity.HasKey(e => e.Id);
+
             entity.Property(e => e.Id)
                   .UseIdentityColumn();
 

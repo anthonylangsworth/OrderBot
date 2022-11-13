@@ -17,6 +17,9 @@ internal static class DiscordHelper
     /// <param name="guild">
     /// The <see cref="IGuild"/> to get or create a <see cref="DiscordGuild"/> for.
     /// </param>
+    /// <param name="discordGuilds">
+    /// (Optional) Used to filter or include additional data with returned <see cref="DiscordGuid"/>.
+    /// </param>
     /// <returns>
     /// The created or retrieved <see cref="DiscordGuild"/>.
     /// </returns>

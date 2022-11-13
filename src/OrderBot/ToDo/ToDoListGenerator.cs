@@ -1,29 +1,56 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using OrderBot.EntityFramework;
 using System.Transactions;
 
 namespace OrderBot.ToDo;
 
+/// <summary>
+/// Generate a <see cref="ToDoList"/>.
+/// </summary>
 public class ToDoListGenerator
 {
-    public ToDoListGenerator(ILogger<ToDoListGenerator> logger,
-        IDbContextFactory<OrderBotDbContext> dbContextFactory)
+    public ToDoListGenerator(IDbContextFactory<OrderBotDbContext> dbContextFactory)
     {
-        Logger = logger;
         DbContextFactory = dbContextFactory;
     }
 
-    public ILogger<ToDoListGenerator> Logger { get; }
     public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
 
-    public ToDoList Generate(ulong guildId, string minorFactionName)
+    /// <summary>
+    /// Generate a <see cref="ToDoList"/>.
+    /// </summary>
+    /// <param name="guildId">
+    /// The guild ID to generate the suggestions for.
+    /// </param>
+    /// <returns>
+    /// The generated <see cref="ToDoList"/>.
+    /// </returns>
+    /// <exception cref="UnknownGoalException">
+    /// An unknown <see cref="Goal"/> is used for a star system and minor faction.
+    /// </exception>
+    /// <exception cref="NoSupportedMinorFactionException">
+    /// 
+    /// </exception>
+    public ToDoList Generate(ulong guildId)
     {
-        ToDoList toDoList = new(minorFactionName);
-
         using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
         using TransactionScope transactionScope = new();
+
+        string supportedMinorFactionName;
+        try
+        {
+            supportedMinorFactionName =
+                dbContext.DiscordGuilds.Include(dg => dg.SupportedMinorFactions)
+                                       .First(dg => dg.GuildId == guildId)
+                                       .SupportedMinorFactions.First().Name;
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new NoSupportedMinorFactionException(guildId, ex);
+        }
+
+        ToDoList toDoList = new(supportedMinorFactionName);
 
         IReadOnlyList<Presence> bgsData =
             dbContext.Presences.Include(ssmf => ssmf.MinorFaction)
@@ -35,9 +62,10 @@ public class ToDoListGenerator
                                                              .Include(dgssmf => dgssmf.Presence.StarSystem)
                                                              .Include(dgssmf => dgssmf.Presence.MinorFaction)
                                                              .Where(dgssmf => dgssmf.DiscordGuild.GuildId == guildId
-                                                                           && dgssmf.Presence.MinorFaction.Name == minorFactionName)
+                                                                           && dgssmf.Presence.MinorFaction.Name == supportedMinorFactionName)
                                                              .ToList();
 
+        // Handle explicit goals
         foreach (DiscordGuildPresenceGoal dgssmfg in dgssmfgs)
         {
             HashSet<Presence> starSystemBgsData =
@@ -50,7 +78,7 @@ public class ToDoListGenerator
 
             if (!Goals.Map.TryGetValue(dgssmfg.Goal, out Goal? goal))
             {
-                Logger.LogError("Skipping unknown goal '{goal}' for star system '{starSystem}' for minor faction '{minorFaction}'",
+                throw new UnknownGoalException(
                     dgssmfg.Goal, dgssmfg.Presence.StarSystem.Name, dgssmfg.Presence.MinorFaction.Name);
             }
             else
@@ -60,9 +88,10 @@ public class ToDoListGenerator
             }
         }
 
+        // Handle remaing systems using default goal
         IReadOnlyList<Presence> filtered =
             bgsData.Where(ssmf => !dgssmfgs.Select(dgssmfg => dgssmfg.Presence.Id).Contains(ssmf.Id)
-                                                                    && ssmf.MinorFaction.Name == minorFactionName)
+                                                           && ssmf.MinorFaction.Name == supportedMinorFactionName)
                    .ToList();
         foreach (Presence ssmf in filtered)
         {

@@ -10,7 +10,7 @@ using Goal = OrderBot.ToDo.Goal;
 
 namespace OrderBot.Test.ToDo;
 
-internal class ToDoListCommandsModuleTests
+internal class ToDoListApiTests
 {
     [Test]
     public void Add_Empty()
@@ -18,6 +18,9 @@ internal class ToDoListCommandsModuleTests
         using OrderBotDbContextFactory contextFactory = new();
         using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
         using TransactionScope transactionScope = new();
+        ToDoListApi api = new(
+            new ToDoListGenerator(contextFactory),
+            new ToDoListFormatter());
 
         StarSystem starSystem = new() { Name = "Alpha Centauri" };
         dbContext.StarSystems.Add(starSystem);
@@ -36,7 +39,7 @@ internal class ToDoListCommandsModuleTests
         string minorFactionName = minorFaction.Name;
         string starSystemName = starSystem.Name;
         string goalName = goal.Name;
-        ToDoListCommandsModule.Goals.AddImplementation(dbContext, guild,
+        api.AddGoals(dbContext, guild,
             new[] { (minorFactionName, starSystemName, goalName) });
 
         DiscordGuildPresenceGoal? discordGuildStarSystemMinorFactionGoal =
@@ -67,7 +70,9 @@ internal class ToDoListCommandsModuleTests
         using OrderBotDbContextFactory contextFactory = new();
         using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
         using TransactionScope transactionScope = new();
-
+        ToDoListApi api = new(
+            new ToDoListGenerator(contextFactory),
+            new ToDoListFormatter());
         const ulong testGuildId = 1234567890;
         const string testGuildName = "My Discord Server";
         DiscordGuild discordGuild = new() { Name = testGuildName, GuildId = testGuildId };
@@ -96,8 +101,7 @@ internal class ToDoListCommandsModuleTests
         };
         dbContext.DiscordGuildPresenceGoals.Add(discordGuildStarSystemMinorFactionGoal);
         dbContext.SaveChanges();
-
-        ToDoListCommandsModule.Goals.AddImplementation(dbContext, guild,
+        api.AddGoals(dbContext, guild,
             new[] { (minorFaction.Name, starSystem.Name, goal.Name) });
 
         DiscordGuildPresenceGoal? newDiscordGuildStarSystemMinorFactionGoal =
