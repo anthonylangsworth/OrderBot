@@ -6,9 +6,11 @@
 ## Overview
 For any squadron in the game **Elite Dangerous** that supports a minor faction, keeping up to date with the background simulation (BGS) is an onerous task. For example, player activity and BGS randomness can reduce or increase influence, leading to conflicts, expansions or retreats. Trawling through each system on websites like [Inara](https://inara.cz/) or [Elite BGS](https://elitebgs.app/) is time-consuming and error prone.
 
-This bot aims to fix that. It receives BGS data from the [Elite Dangerous Data Network (EDDN)](https://eddn.edcd.io/) and creates a list of suggestions based on an admin-specified minor faction(s) to support and star system-specific goals. This allows the bot to produce specific and useful suggestions, unlike the websites mentioned above.
+This Discord bot aims to fix that. It receives BGS data from the [Elite Dangerous Data Network (EDDN)](https://eddn.edcd.io/) and creates a list of suggestions based on an admin-specified minor faction(s) to support and star system-specific goals. This allows the bot to produce specific and useful suggestions, unlike the websites mentioned above.
 
-This bot is not intended to replace squadron officers, although it can be used that way, or existing tools like those mentioned above. For example, it will not give graphs of influence history like Inara or Elite BGS. However, it can save time and increase accuracy by automating much of the work.
+This Discord bot is not intended to replace squadron officers, although it can be used that way, or existing tools like those mentioned above. For example, it will not give graphs of influence history like Inara or Elite BGS. However, it can save time and increase accuracy by automating much of the work.
+
+This Discord bot can send alerts to a Discord channel when unknown carriers jump into system where their supported minor faction is present. This may indicate when others are working against you.
 
 ## Sample Suggestions
 
