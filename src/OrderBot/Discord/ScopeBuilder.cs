@@ -30,6 +30,7 @@ internal class ScopeBuilder
         if (context.Guild != null)
         {
             _scope["Guild"] = context.Guild.Name;
+            _scope["GuildId"] = context.Guild.Id;
             _scope["User"] = context.Guild.GetUser(context.User.Id).DisplayName;
         }
         else
