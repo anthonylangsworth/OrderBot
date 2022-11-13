@@ -13,7 +13,32 @@ namespace OrderBot.Test.ToDo;
 internal class ToDoListApiTests
 {
     [Test]
-    public void Add_Empty()
+    public void SupportedFaction()
+    {
+        using OrderBotDbContextFactory contextFactory = new();
+        using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
+        using TransactionScope transactionScope = new();
+        ToDoListApi api = new(
+            new ToDoListGenerator(contextFactory),
+            new ToDoListFormatter());
+
+        MinorFaction minorFaction = new() { Name = "Hutton Truckers" };
+        dbContext.MinorFactions.Add(minorFaction);
+        dbContext.SaveChanges();
+
+        const ulong testGuildId = 1234567890;
+        const string testGuildName = "My Discord Server";
+        IGuild guild = Mock.Of<IGuild>(g => g.Id == testGuildId && g.Name == testGuildName);
+
+        Assert.That(api.GetSupportedMinorFaction(dbContext, guild), Is.Null);
+        api.SetSupportedMinorFaction(dbContext, guild, minorFaction.Name);
+        Assert.That(api.GetSupportedMinorFaction(dbContext, guild), Is.EqualTo(minorFaction));
+        api.ClearSupportedMinorFaction(dbContext, guild);
+        Assert.That(api.GetSupportedMinorFaction(dbContext, guild), Is.Null);
+    }
+
+    [Test]
+    public void AddGoals_Empty()
     {
         using OrderBotDbContextFactory contextFactory = new();
         using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
@@ -65,7 +90,7 @@ internal class ToDoListApiTests
     }
 
     [Test]
-    public void Add_Existing()
+    public void AddGoals_Existing()
     {
         using OrderBotDbContextFactory contextFactory = new();
         using OrderBotDbContext dbContext = contextFactory.CreateDbContext();

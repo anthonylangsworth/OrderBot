@@ -79,7 +79,7 @@ public class ToDoListApi
     /// The <see cref="OrderBotDbContext"/> to use.
     /// </param>
     /// <param name="guild">
-    /// The <see cref="IGuild"/> to get the supported minor faction.
+    /// The <see cref="IGuild"/> to set the supported minor faction for.
     /// </param>
     /// <param name="minorFactionName">
     /// The minor faction to support.
@@ -110,6 +110,46 @@ public class ToDoListApi
             discordGuild.SupportedMinorFactions.Add(minorFaction);
         }
 
+        dbContext.SaveChanges();
+        transactionScope.Complete();
+    }
+
+    /// <summary>
+    /// Get the supported minor faction.
+    /// </summary>
+    /// <param name="dbContext">
+    /// The <see cref="OrderBotDbContext"/> to use.
+    /// </param>
+    /// <param name="guild">
+    /// The <see cref="IGuild"/> to get the supported minor faction for.
+    /// </param>
+    /// <returns>
+    /// The supported minor faction or <see cref="null"/> if there is none.
+    /// </returns>
+    public MinorFaction? GetSupportedMinorFaction(OrderBotDbContext dbContext, IGuild guild)
+    {
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
+            dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
+        return discordGuild.SupportedMinorFactions.Any()
+            ? discordGuild.SupportedMinorFactions.FirstOrDefault()
+            : null;
+    }
+
+    /// <summary>
+    /// Clear the supported minor faction.
+    /// </summary>
+    /// <param name="dbContext">
+    /// The <see cref="OrderBotDbContext"/> to use.
+    /// </param>
+    /// <param name="guild">
+    /// The <see cref="IGuild"/> to gclear the supported minor faction for.
+    /// </param>
+    public void ClearSupportedMinorFaction(OrderBotDbContext dbContext, IGuild guild)
+    {
+        using TransactionScope transactionScope = new();
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
+            dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
+        discordGuild.SupportedMinorFactions.Clear();
         dbContext.SaveChanges();
         transactionScope.Complete();
     }

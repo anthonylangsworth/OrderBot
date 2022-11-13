@@ -4,7 +4,6 @@ using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Audit;
-using OrderBot.Core;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
 using OrderBot.Rbac;
@@ -75,106 +74,74 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
     public class Support : InteractionModuleBase<SocketInteractionContext>
     {
         public Support(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Support> logger,
-            TextChannelAuditLoggerFactory auditLogFactory)
+            TextChannelAuditLoggerFactory auditLogFactory, ToDoListApi api)
         {
             ContextFactory = contextFactory;
             Logger = logger;
             AuditLogFactory = auditLogFactory;
+            Api = api;
         }
 
         public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
         public ILogger<Support> Logger { get; }
         public TextChannelAuditLoggerFactory AuditLogFactory { get; }
+        public ToDoListApi Api { get; }
 
-        [SlashCommand("add", "Start supporting this minor faction")]
+        [SlashCommand("set", "Set the minor faction this Discord server supports")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
         [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
-        public async Task Add(
+        public async Task Set(
             [Summary("minor-faction", "Start supporting this minor faction")]
             string name
         )
         {
-            using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
+            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             string message;
-            using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-            MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == name);
-            if (minorFaction == null)
+            try
             {
-                message = $"**Error**: {name} is not a known minor faction";
+                Api.SetSupportedMinorFaction(dbContext, Context.Guild, name);
+                using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
+                auditLogger.Audit($"Supporting minor faction '{name}'");
+                message = $"**Success**! Now supporting *{name}*";
             }
-            else
+            catch (ArgumentException)
             {
-                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
-                    dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
-                if (!discordGuild.SupportedMinorFactions.Contains(minorFaction))
-                {
-                    discordGuild.SupportedMinorFactions.Add(minorFaction);
-                }
-                message = $"**Success**! Now supporting *{minorFaction.Name}*";
-                auditLogger.Audit($"Support minor faction '{name}'");
+                message = $"**Error**: *{name}* is not a known minor faction";
             }
-            dbContext.SaveChanges();
             await Context.Interaction.FollowupAsync(
-                    text: message,
-                    ephemeral: true
+                text: message,
+                ephemeral: true
             );
         }
 
-        [SlashCommand("remove", "Stop supporting this minor faction")]
+        [SlashCommand("clear", "Stop supporting a minor faction")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
         [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
-        public async Task Remove(
-            [Summary("minor-faction", "Stop supporting this minor faction")]
-            string name
-        )
+        public async Task Clear()
         {
+            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
+            Api.ClearSupportedMinorFaction(dbContext, Context.Guild);
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-            string message;
-            using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-            MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == name);
-            if (minorFaction == null)
-            {
-                message = $"**Error**: {name} is not a known minor faction";
-            }
-            else
-            {
-                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
-                    dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
-                if (discordGuild.SupportedMinorFactions.Contains(minorFaction))
-                {
-                    discordGuild.SupportedMinorFactions.Remove(minorFaction);
-                }
-                message = $"**Success**! **NOT** supporting *{minorFaction.Name}*";
-                auditLogger.Audit($"Stop supporting minor faction '{name}'");
-            }
-            dbContext.SaveChanges();
+            auditLogger.Audit($"Not supporting any minor faction");
             await Context.Interaction.FollowupAsync(
-                    text: message,
-                    ephemeral: true
+                text: $"**Success**! Not supporting any minor faction",
+                ephemeral: true
             );
         }
 
-        [SlashCommand("list", "List supported minor factions")]
+        [SlashCommand("get", "Get the minor faction this Discord server supports")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
         [RequireBotRole(OfficersRole.RoleName, MembersRole.RoleName, Group = "Permission")]
-        public async Task List()
+        public async Task Get()
         {
-            string message;
-            using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild,
-                dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
-            if (discordGuild.SupportedMinorFactions.Any())
-            {
-                message = string.Join(Environment.NewLine,
-                                        discordGuild.SupportedMinorFactions.Select(mf => mf.Name));
-            }
-            else
-            {
-                message = $"No supported minor factions";
-            }
+            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
+            string? minorFactionName = Api.GetSupportedMinorFaction(dbContext, Context.Guild)?.Name;
+            string message = string.IsNullOrEmpty(minorFactionName)
+                ? $"Not supporting any minor faction"
+                : $"Supporting *{minorFactionName}*";
             await Context.Interaction.FollowupAsync(
-                    text: message,
-                    ephemeral: true
+                text: message,
+                ephemeral: true
             );
         }
     }
