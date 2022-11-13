@@ -11,13 +11,14 @@ Access to commands follows these principles:
 2. Channel setting and role management are restricted to Admins.
 3. Officers can control the supported minor faction, goals and ignored carriers. Officers can do everything Members can.
 4. Members can view the orders, the supported minor faction, goals and ignored carriers.
-5. Any modifications are audited to the audit channel. See Auditing below.
 
 ## Auditing
 
 This discord bot can log changes to an audit channel. This helps when multiple Officers are controlling the BGS, allowing them to observe others' behaviour and prevent duplicate or conflicting work.
 
-This discord bot requires `Send Messages` permission to the channel. Set the audit channel using [/bgs-order-bot audit-channel set](CommandReference.md#bgs-order-bot-audit-channel-set). Other users should not have `Send Messages` or `Manage Messages` access to this channel to prevent accidental or deliberate deletion of audit messages.
+This discord bot requires `Send Messages` permission to the channel. Set the audit channel using [/bgs-order-bot audit-channel set](CommandReference.md#bgs-order-bot-audit-channel-set). The audit channel should be:
+1. Read-only my non-admin users. That is, they should not have `Send Messages` or `Manage Messages` access to this channel to prevent accidental or deliberate deletion of audit messages.
+2. Only visible to members of the `Officers` role and discord administrationrs. That is, only those roles should have `View Channel` permission. Adding emotes and other things are unecessary.
 
 ## Reference
 
@@ -41,13 +42,11 @@ A summary of access for each command is:
 |/carrier-movement ignored-carriers remove|❌|✅|✅|✅|
 |/todo-list show|✅|✅|✅|❌|
 |/todo-list raw|❌|✅|✅|❌|
-|/todo-list support add|❌|❌|✅|✅|✅|
-|/todo-list support list|✅|✅|✅|❌|
-|/todo-list support remove|❌|✅|✅|✅|
+|/todo-list support set|❌|❌|✅|✅|✅|
+|/todo-list support get|✅|✅|✅|❌|
+|/todo-list support clear|❌|✅|✅|✅|
 |/todo-list goal add|❌|✅|✅|✅|
 |/todo-list goal export|❌|✅|✅|❌|
 |/todo-list goal import|❌|✅|✅|✅|
 |/todo-list goal list|✅|✅|✅|❌|
 |/todo-list goal remove|❌|✅|✅|✅|
-
-
