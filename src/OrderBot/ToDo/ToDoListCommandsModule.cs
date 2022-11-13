@@ -17,17 +17,12 @@ namespace OrderBot.ToDo;
 [Group("todo-list", "Work supporting minor faction(s)")]
 public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionContext>
 {
-    public ToDoListCommandsModule(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<ToDoListCommandsModule> logger,
-        ToDoListGenerator generator, ToDoListFormatter formatter)
+    public ToDoListCommandsModule(ToDoListGenerator generator, ToDoListFormatter formatter)
     {
-        ContextFactory = contextFactory;
-        Logger = logger;
         Generator = generator;
         Formatter = formatter;
     }
 
-    public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
-    public ILogger<ToDoListCommandsModule> Logger { get; }
     public ToDoListGenerator Generator { get; }
     public ToDoListFormatter Formatter { get; }
 
