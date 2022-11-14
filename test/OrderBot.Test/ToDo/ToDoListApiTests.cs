@@ -13,7 +13,7 @@ namespace OrderBot.Test.ToDo;
 internal class ToDoListApiTests
 {
     [Test]
-    public void SupportedFaction()
+    public async Task SupportedFaction()
     {
         using OrderBotDbContextFactory contextFactory = new();
         using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
@@ -31,7 +31,7 @@ internal class ToDoListApiTests
 
         Assert.That(() => api.GetTodoList(), Throws.TypeOf<NoSupportedMinorFactionException>());
         Assert.That(api.GetSupportedMinorFaction(), Is.Null);
-        api.SetSupportedMinorFaction(minorFaction.Name);
+        await api.SetSupportedMinorFactionAsync(minorFaction.Name);
         Assert.That(() => api.GetTodoList(), Throws.Nothing);
         Assert.That(api.GetSupportedMinorFaction(), Is.EqualTo(minorFaction));
         api.ClearSupportedMinorFaction();

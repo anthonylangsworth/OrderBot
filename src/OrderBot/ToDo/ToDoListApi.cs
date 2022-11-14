@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using OrderBot.Core;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
+using System.Net;
+using System.Text.Json;
 using System.Transactions;
 
 namespace OrderBot.ToDo;
@@ -78,16 +80,16 @@ public class ToDoListApi
     /// <exception cref="ArgumentException">
     /// <paramref name="minorFactionName"/> is not a known or valid minor faction.
     /// </exception>
-    public void SetSupportedMinorFaction(string minorFactionName)
+    public async Task SetSupportedMinorFactionAsync(string minorFactionName)
     {
-        // TODO: Use a different validation mechanism, e.g. web service call. Otherwise,
-        // we have a "chicken and egg" problem with minor faction creation.
-        MinorFaction minorFaction;
-        try
+        MinorFaction? minorFaction = DbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
+        if (minorFaction == null && await IsKnownMinorFaction(minorFactionName))
         {
-            minorFaction = DbContext.MinorFactions.First(mf => mf.Name == minorFactionName);
+            minorFaction = new() { Name = minorFactionName };
+            DbContext.MinorFactions.Add(minorFaction);
+            DbContext.SaveChanges();
         }
-        catch (InvalidOperationException)
+        else
         {
             throw new ArgumentException($"Minor faction {minorFactionName} is not known");
         }
@@ -249,5 +251,15 @@ public class ToDoListApi
             DbContext.DiscordGuildPresenceGoals.Remove(discordGuildStarSystemMinorFactionGoal);
         }
         DbContext.SaveChanges();
+    }
+
+    private async Task<bool> IsKnownMinorFaction(string minorFactionName)
+    {
+        using HttpClient client = new();
+        using Stream stream = await client.GetStreamAsync(
+            $"https://elitebgs.app/api/ebgs/v5/factions?name={WebUtility.UrlEncode(minorFactionName)}");
+        using StreamReader reader = new(stream);
+        JsonDocument jsonDocument = JsonDocument.Parse(stream);
+        return jsonDocument.RootElement.GetProperty("docs").GetArrayLength() > 0;
     }
 }
