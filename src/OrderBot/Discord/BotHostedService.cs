@@ -151,7 +151,7 @@ internal class BotHostedService : IHostedService
         IResult result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
         if (result.IsSuccess)
         {
-            Logger.LogInformation("Completed Successfully");
+            Logger.LogInformation("Completed");
         }
         else
         {

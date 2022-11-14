@@ -13,6 +13,9 @@ using System.Transactions;
 
 namespace OrderBot.ToDo;
 
+// TODO: Ideally,  would pass in ToDoListApi and and AuditLogger. However,
+// the lack of DI support for SocketInteractionContext curtails this.
+
 [Group("todo-list", "Work supporting minor faction(s)")]
 public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionContext>
 {
@@ -46,7 +49,6 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
     private async Task ShowTodoListInternal(bool raw)
     {
-        using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(Context).Build());
         using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
         try
         {
