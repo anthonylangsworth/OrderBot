@@ -44,14 +44,14 @@ internal class ToDoListGeneratorTests
     [Test]
     public void Ctor()
     {
-        ToDoListGenerator generator = new(DbContextFactory);
-        Assert.That(generator.DbContextFactory, Is.EqualTo(DbContextFactory));
+        ToDoListGenerator generator = new(DbContext);
+        Assert.That(generator.DbContext, Is.EqualTo(DbContext));
     }
 
     [Test]
     public void Generate_Empty()
     {
-        ToDoListGenerator generator = new(DbContextFactory);
+        ToDoListGenerator generator = new(DbContext);
         ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
         Assert.That(toDoList.Suggestions, Is.Empty);
     }
@@ -76,7 +76,7 @@ internal class ToDoListGeneratorTests
         DbContext.DiscordGuildPresenceGoals.Add(discordGuild);
         DbContext.SaveChanges();
 
-        ToDoListGenerator generator = new(DbContextFactory);
+        ToDoListGenerator generator = new(DbContext);
         ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions, Is.Empty);
@@ -97,7 +97,7 @@ internal class ToDoListGeneratorTests
         DbContext.DiscordGuildPresenceGoals.Add(discordGuild);
         DbContext.SaveChanges();
 
-        ToDoListGenerator generator = new(DbContextFactory);
+        ToDoListGenerator generator = new(DbContext);
         ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions,
@@ -120,7 +120,7 @@ internal class ToDoListGeneratorTests
         DbContext.DiscordGuildPresenceGoals.Add(discordGuild);
         DbContext.SaveChanges();
 
-        ToDoListGenerator generator = new(DbContextFactory);
+        ToDoListGenerator generator = new(DbContext);
         ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions,
@@ -145,7 +145,7 @@ internal class ToDoListGeneratorTests
         DbContext.DiscordGuildPresenceGoals.Add(discordGuild);
         DbContext.SaveChanges();
 
-        ToDoListGenerator generator = new(DbContextFactory);
+        ToDoListGenerator generator = new(DbContext);
         ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions,
@@ -174,7 +174,7 @@ internal class ToDoListGeneratorTests
         DbContext.DiscordGuildPresenceGoals.Add(purplePeopleEastersMaia);
         DbContext.SaveChanges();
 
-        ToDoListGenerator generator = new(DbContextFactory);
+        ToDoListGenerator generator = new(DbContext);
         ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions, Is.EquivalentTo(
@@ -215,7 +215,7 @@ internal class ToDoListGeneratorTests
         DbContext.Conflicts.Add(conflict);
         DbContext.SaveChanges();
 
-        ToDoListGenerator generator = new(DbContextFactory);
+        ToDoListGenerator generator = new(DbContext);
         ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions, Is.EquivalentTo(
@@ -271,7 +271,7 @@ internal class ToDoListGeneratorTests
         DbContext.DiscordGuildPresenceGoals.Add(yellowSubmarinesControlCelaeno);
         DbContext.SaveChanges();
 
-        ToDoListGenerator generator = new(DbContextFactory);
+        ToDoListGenerator generator = new(DbContext);
         ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions, Is.EquivalentTo(

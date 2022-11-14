@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OrderBot.Core;
 using OrderBot.EntityFramework;
-using System.Transactions;
 
 namespace OrderBot.ToDo;
 
@@ -10,12 +9,12 @@ namespace OrderBot.ToDo;
 /// </summary>
 public class ToDoListGenerator
 {
-    public ToDoListGenerator(IDbContextFactory<OrderBotDbContext> dbContextFactory)
+    public ToDoListGenerator(OrderBotDbContext dbContext)
     {
-        DbContextFactory = dbContextFactory;
+        DbContext = dbContext;
     }
 
-    public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
+    internal OrderBotDbContext DbContext { get; }
 
     /// <summary>
     /// Generate a <see cref="ToDoList"/>.
@@ -34,14 +33,11 @@ public class ToDoListGenerator
     /// </exception>
     public ToDoList Generate(ulong guildId)
     {
-        using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
-        using TransactionScope transactionScope = new();
-
         string supportedMinorFactionName;
         try
         {
             supportedMinorFactionName =
-                dbContext.DiscordGuilds.Include(dg => dg.SupportedMinorFactions)
+                DbContext.DiscordGuilds.Include(dg => dg.SupportedMinorFactions)
                                        .First(dg => dg.GuildId == guildId)
                                        .SupportedMinorFactions.First().Name;
         }
@@ -53,12 +49,12 @@ public class ToDoListGenerator
         ToDoList toDoList = new(supportedMinorFactionName);
 
         IReadOnlyList<Presence> bgsData =
-            dbContext.Presences.Include(ssmf => ssmf.MinorFaction)
+            DbContext.Presences.Include(ssmf => ssmf.MinorFaction)
                                .Include(ssmf => ssmf.StarSystem)
                                .ToList();
 
         IReadOnlyList<DiscordGuildPresenceGoal> dgssmfgs =
-            dbContext.DiscordGuildPresenceGoals.Include(dgssmf => dgssmf.DiscordGuild)
+            DbContext.DiscordGuildPresenceGoals.Include(dgssmf => dgssmf.DiscordGuild)
                                                .Include(dgssmf => dgssmf.Presence.StarSystem)
                                                .Include(dgssmf => dgssmf.Presence.MinorFaction)
                                                .Where(dgssmf => dgssmf.DiscordGuild.GuildId == guildId)
@@ -70,7 +66,7 @@ public class ToDoListGenerator
             HashSet<Presence> starSystemBgsData =
                 bgsData.Where(ssmf2 => ssmf2.StarSystem == dgssmfg.Presence.StarSystem)
                        .ToHashSet();
-            HashSet<Conflict> conflicts = dbContext.Conflicts.Include(c => c.MinorFaction1)
+            HashSet<Conflict> conflicts = DbContext.Conflicts.Include(c => c.MinorFaction1)
                                                              .Include(c => c.MinorFaction2)
                                                              .Where(c => c.StarSystem == dgssmfg.Presence.StarSystem)
                                                              .ToHashSet();
@@ -97,7 +93,7 @@ public class ToDoListGenerator
             HashSet<Presence> starSystemBgsData =
                 bgsData.Where(ssmf2 => ssmf2.StarSystem == ssmf.StarSystem)
                        .ToHashSet();
-            HashSet<Conflict> conflicts = dbContext.Conflicts.Include(c => c.MinorFaction1)
+            HashSet<Conflict> conflicts = DbContext.Conflicts.Include(c => c.MinorFaction1)
                                                              .Include(c => c.MinorFaction2)
                                                              .Where(c => c.StarSystem == ssmf.StarSystem)
                                                              .ToHashSet();

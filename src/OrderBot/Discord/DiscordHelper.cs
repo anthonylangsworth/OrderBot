@@ -1,7 +1,6 @@
 ﻿using Discord;
 using OrderBot.Core;
 using OrderBot.EntityFramework;
-using System.Transactions;
 
 namespace OrderBot.Discord;
 
@@ -9,7 +8,7 @@ internal static class DiscordHelper
 {
     /// <summary>
     /// Get a <see cref="DiscordGuild"/> from the database, for the given <see cref="guild"/>,
-    /// creating one if it does not exist.
+    /// creating one if it does not exist. The caller should wrap this in a <see cref="TransactionScope"/>.
     /// </summary>
     /// <param name="dbContext">
     /// The <see cref="OrderBotDbContext"/> reprsenting the database.
@@ -25,7 +24,6 @@ internal static class DiscordHelper
     /// </returns>
     public static DiscordGuild GetOrAddGuild(OrderBotDbContext dbContext, IGuild guild, IQueryable<DiscordGuild>? discordGuilds = null)
     {
-        using TransactionScope transactionScope = new();
         DiscordGuild? discordGuild = (discordGuilds ?? dbContext.DiscordGuilds).FirstOrDefault(dg => dg.GuildId == guild.Id);
         if (discordGuild == null)
         {
@@ -37,7 +35,6 @@ internal static class DiscordHelper
             discordGuild.Name = guild.Name;
         }
         dbContext.SaveChanges();
-        transactionScope.Complete();
         return discordGuild;
     }
 }

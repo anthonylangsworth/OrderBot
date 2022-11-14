@@ -18,15 +18,14 @@ namespace OrderBot.ToDo;
 /// responsibility to respond to the caller, audit and log details.
 /// </li>
 /// <li>
-/// The class is stateless. Do not save or require state from one call to the next.
+/// The class is stateless. Do not save or require state from one call to the next. Passing in 
+/// the <see cref="OrderBotDbContext"/> in the constructor forces the caller to instantiate a
+/// new instance each interaction, anyway.
 /// </li>
 /// <li>
-/// Pass in a <see cref="OrderBotDbContext"/> to allow transactions across calls to multiple 
-/// exposed methods or easier testing. This should be the first argument for consistency.
-/// </li>
-/// <li>
-/// Use <see cref="TransactionScope"/> to create transactions around adds, updates or deletes 
-/// to ensure consistency.
+/// The caller should always wrap calls in a <see cref="TransactionScope"> to ensure 
+/// consistency. The calls cannot do it themselves because exceptions may be thrown as
+/// part of normal behaviour, in turn throwing a <see cref="TransactionAbortedException"/>.
 /// </li>
 /// <li>
 /// Since the code uses <see cref="TransactionScope"/> for transactions, avoid async/await.
@@ -39,26 +38,24 @@ public class ToDoListApi
     /// <summary>
     /// Create a new <see cref="ToDoListApi"/>.
     /// </summary>
-    /// <param name="generator"></param>
-    /// <param name="formatter"></param>
-    public ToDoListApi(ToDoListGenerator generator, ToDoListFormatter formatter)
-    {
-        Generator = generator;
-        Formatter = formatter;
-    }
-
-    internal ToDoListGenerator Generator { get; }
-    internal ToDoListFormatter Formatter { get; }
-
-    /// <summary>
-    /// Get the list of suggestions.
-    /// </summary>
     /// <param name="dbContext">
     /// The <see cref="OrderBotDbContext"/> to use.
     /// </param>
     /// <param name="guild">
-    /// The <see cref="IGuild"/> to get the list for.
+    /// The <see cref="IGuild"/> to act on or for.
     /// </param>
+    public ToDoListApi(OrderBotDbContext dbContext, IGuild guild)
+    {
+        DbContext = dbContext;
+        Guild = guild;
+    }
+
+    internal OrderBotDbContext DbContext { get; }
+    internal IGuild Guild { get; }
+
+    /// <summary>
+    /// Get the list of suggestions.
+    /// </summary>
     /// <exception cref="InvalidOperationException">
     /// Either there is no <see cref="DiscordGuild"/> for <paramref name="guild"/>
     /// in the database, that guild supports no minor factions.
@@ -66,70 +63,54 @@ public class ToDoListApi
     /// <exception cref="UnknownGoalException">
     /// A goal in a star system for a minor faction is not known.
     /// </exception>
-    public string GetTodoList(OrderBotDbContext dbContext, IGuild guild)
+    public string GetTodoList()
     {
-        // TODO: Consider using the passed in dbContext for consistency
-        return Formatter.Format(Generator.Generate(guild.Id));
+        return new ToDoListFormatter().Format(new ToDoListGenerator(DbContext).Generate(Guild.Id));
     }
 
     /// <summary>
     /// Set the supported minor faction.
     /// </summary>
-    /// <param name="dbContext">
-    /// The <see cref="OrderBotDbContext"/> to use.
-    /// </param>
-    /// <param name="guild">
-    /// The <see cref="IGuild"/> to set the supported minor faction for.
-    /// </param>
     /// <param name="minorFactionName">
     /// The minor faction to support.
     /// </param>
     /// <exception cref="ArgumentException">
     /// <paramref name="minorFactionName"/> is not a known or valid minor faction.
     /// </exception>
-    public void SetSupportedMinorFaction(OrderBotDbContext dbContext, IGuild guild, string minorFactionName)
+    public void SetSupportedMinorFaction(string minorFactionName)
     {
-        using TransactionScope transactionScope = new();
-
         // TODO: Use a different validation mechanism, e.g. web service call. Otherwise,
         // we have a "chicken and egg" problem with minor faction creation.
         MinorFaction minorFaction;
         try
         {
-            minorFaction = dbContext.MinorFactions.First(mf => mf.Name == minorFactionName);
+            minorFaction = DbContext.MinorFactions.First(mf => mf.Name == minorFactionName);
         }
         catch (InvalidOperationException)
         {
             throw new ArgumentException($"Minor faction {minorFactionName} is not known");
         }
 
-        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
-            dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild,
+            DbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
         if (!discordGuild.SupportedMinorFactions.Contains(minorFaction))
         {
             discordGuild.SupportedMinorFactions.Add(minorFaction);
         }
 
-        dbContext.SaveChanges();
-        transactionScope.Complete();
+        DbContext.SaveChanges();
     }
 
     /// <summary>
     /// Get the supported minor faction.
     /// </summary>
-    /// <param name="dbContext">
-    /// The <see cref="OrderBotDbContext"/> to use.
-    /// </param>
-    /// <param name="guild">
-    /// The <see cref="IGuild"/> to get the supported minor faction for.
-    /// </param>
     /// <returns>
     /// The supported minor faction or <see cref="null"/> if there is none.
     /// </returns>
-    public MinorFaction? GetSupportedMinorFaction(OrderBotDbContext dbContext, IGuild guild)
+    public MinorFaction? GetSupportedMinorFaction()
     {
-        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
-            dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild,
+            DbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
         return discordGuild.SupportedMinorFactions.Any()
             ? discordGuild.SupportedMinorFactions.FirstOrDefault()
             : null;
@@ -138,53 +119,37 @@ public class ToDoListApi
     /// <summary>
     /// Clear the supported minor faction.
     /// </summary>
-    /// <param name="dbContext">
-    /// The <see cref="OrderBotDbContext"/> to use.
-    /// </param>
-    /// <param name="guild">
-    /// The <see cref="IGuild"/> to gclear the supported minor faction for.
-    /// </param>
-    public void ClearSupportedMinorFaction(OrderBotDbContext dbContext, IGuild guild)
+    public void ClearSupportedMinorFaction()
     {
-        using TransactionScope transactionScope = new();
-        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
-            dbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild,
+            DbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
         discordGuild.SupportedMinorFactions.Clear();
-        dbContext.SaveChanges();
-        transactionScope.Complete();
+        DbContext.SaveChanges();
     }
 
     /// <summary>
     /// Add goals.
     /// </summary>
-    /// <param name="dbContext">
-    /// The <see cref="OrderBotDbContext"/> to use.
-    /// </param>
-    /// <param name="guild">
-    /// Add goals for this <see cref="IGuild"/>.
-    /// </param>
     /// <param name="goals">
     /// The goal(s) to add.
     /// </param>
     /// <exception cref="ArgumentException">
     /// Either the minor faction, system name or goal is invalid.
     /// </exception>
-    public void AddGoals(OrderBotDbContext dbContext, IGuild guild,
+    public void AddGoals(
         IEnumerable<(string minorFactionName, string starSystemName, string goalName)> goals)
     {
-        using TransactionScope transactionScope = new();
-
-        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild);
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild);
 
         foreach ((string minorFactionName, string starSystemName, string goalName) in goals)
         {
-            MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
+            MinorFaction? minorFaction = DbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
             if (minorFaction == null)
             {
                 throw new ArgumentException($"*{minorFactionName}* is not a known minor faction");
             }
 
-            StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
+            StarSystem? starSystem = DbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
             if (starSystem == null)
             {
                 throw new ArgumentException($"{starSystemName} is not a known star system");
@@ -196,18 +161,18 @@ public class ToDoListApi
             }
 
             Presence? starSystemMinorFaction =
-                dbContext.Presences.Include(ssmf => ssmf.StarSystem)
+                DbContext.Presences.Include(ssmf => ssmf.StarSystem)
                                    .Include(ssmf => ssmf.MinorFaction)
                                    .FirstOrDefault(ssmf => ssmf.StarSystem.Name == starSystemName
                                                         && ssmf.MinorFaction.Name == minorFactionName);
             if (starSystemMinorFaction == null)
             {
                 starSystemMinorFaction = new Presence() { MinorFaction = minorFaction, StarSystem = starSystem };
-                dbContext.Presences.Add(starSystemMinorFaction);
+                DbContext.Presences.Add(starSystemMinorFaction);
             }
 
             DiscordGuildPresenceGoal? discordGuildStarSystemMinorFactionGoal =
-                dbContext.DiscordGuildPresenceGoals
+                DbContext.DiscordGuildPresenceGoals
                          .Include(dgssmfg => dgssmfg.Presence)
                          .Include(dgssmfg => dgssmfg.Presence.StarSystem)
                          .Include(dgssmfg => dgssmfg.Presence.MinorFaction)
@@ -219,30 +184,23 @@ public class ToDoListApi
             {
                 discordGuildStarSystemMinorFactionGoal = new DiscordGuildPresenceGoal()
                 { DiscordGuild = discordGuild, Presence = starSystemMinorFaction };
-                dbContext.DiscordGuildPresenceGoals.Add(discordGuildStarSystemMinorFactionGoal);
+                DbContext.DiscordGuildPresenceGoals.Add(discordGuildStarSystemMinorFactionGoal);
             }
             discordGuildStarSystemMinorFactionGoal.Goal = goalName;
-            dbContext.SaveChanges();
+            DbContext.SaveChanges();
         }
-        transactionScope.Complete();
     }
 
     /// <summary>
     /// List goals.
     /// </summary>
-    /// <param name="dbContext">
-    /// The <see cref="OrderBotDbContext"/> to use.
-    /// </param>
-    /// <param name="guild">
-    /// List goals for this <see cref="IGuild"/>.
-    /// </param>
     /// <returns>
     /// The goals.
     /// </returns>
-    public IEnumerable<DiscordGuildPresenceGoal> ListGoals(OrderBotDbContext dbContext, IGuild guild)
+    public IEnumerable<DiscordGuildPresenceGoal> ListGoals()
     {
-        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild);
-        return dbContext.DiscordGuildPresenceGoals
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild);
+        return DbContext.DiscordGuildPresenceGoals
                         .Include(dgssmfg => dgssmfg.Presence)
                         .Include(dgssmfg => dgssmfg.Presence.StarSystem)
                         .Include(dgssmfg => dgssmfg.Presence.MinorFaction);
@@ -251,33 +209,33 @@ public class ToDoListApi
     /// <summary>
     /// Remove a goal.
     /// </summary>
-    /// <param name="dbContext">
-    /// The <see cref="OrderBotDbContext"/> to use.
+    /// <param name="minorFactionName">
     /// </param>
-    /// <param name="guild">
-    /// Remove goals for this <see cref="IGuild"/>.
-    /// The goals.
-    /// </returns>
-    public void RemoveGoals(OrderBotDbContext dbContext, IGuild guild, string minorFactionName,
+    /// <param name="starSystemName">
+    /// </param>
+    /// <exception cref="ArgumentException">
+    /// Both <paramref name="minorFactionName"/> and <paramref name="starSystemName"/>
+    /// must be valid.
+    /// </exception>
+    public void RemoveGoals(string minorFactionName,
         string starSystemName)
     {
-        using TransactionScope transactionScope = new();
-        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild);
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild);
 
-        MinorFaction? minorFaction = dbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
+        MinorFaction? minorFaction = DbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
         if (minorFaction == null)
         {
             throw new ArgumentException($"*{minorFactionName}* is not a known minor faction");
         }
 
-        StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
+        StarSystem? starSystem = DbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
         if (starSystem == null)
         {
             throw new ArgumentException($"{starSystemName} is not a known star system");
         }
 
         DiscordGuildPresenceGoal? discordGuildStarSystemMinorFactionGoal =
-            dbContext.DiscordGuildPresenceGoals
+            DbContext.DiscordGuildPresenceGoals
                         .Include(dgssmfg => dgssmfg.Presence)
                         .Include(dgssmfg => dgssmfg.Presence.StarSystem)
                         .Include(dgssmfg => dgssmfg.Presence.MinorFaction)
@@ -287,9 +245,8 @@ public class ToDoListApi
                                     && dgssmfg.Presence.StarSystem == starSystem);
         if (discordGuildStarSystemMinorFactionGoal != null)
         {
-            dbContext.DiscordGuildPresenceGoals.Remove(discordGuildStarSystemMinorFactionGoal);
+            DbContext.DiscordGuildPresenceGoals.Remove(discordGuildStarSystemMinorFactionGoal);
         }
-        dbContext.SaveChanges();
-        transactionScope.Complete();
+        DbContext.SaveChanges();
     }
 }

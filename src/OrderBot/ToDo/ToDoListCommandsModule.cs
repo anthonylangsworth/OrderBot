@@ -9,6 +9,7 @@ using OrderBot.EntityFramework;
 using OrderBot.Rbac;
 using System.Globalization;
 using System.Text;
+using System.Transactions;
 
 namespace OrderBot.ToDo;
 
@@ -16,16 +17,16 @@ namespace OrderBot.ToDo;
 public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionContext>
 {
     public ToDoListCommandsModule(IDbContextFactory<OrderBotDbContext> contextFactory,
-        ILogger<Support> logger, ToDoListApi toDoListApi)
+        ILogger<Support> logger, ToDoListApiFactory toDoListApiFactory)
     {
         ContextFactory = contextFactory;
         Logger = logger;
-        Api = toDoListApi;
+        ApiFactory = toDoListApiFactory;
     }
 
     public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
     public ILogger<Support> Logger { get; }
-    public ToDoListApi Api { get; }
+    public ToDoListApiFactory ApiFactory { get; }
 
     [SlashCommand("show", "List the work required for supporting a minor faction")]
     [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
@@ -47,12 +48,14 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
     {
         using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(Context).Build());
         using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+        using TransactionScope transactionScope = new TransactionScope();
         try
         {
+            ToDoListApi api = ApiFactory.CreateApi(dbContext, Context.Guild);
             await Context.Interaction.FollowupAsync(
                 text: raw
-                    ? $"```\n{Api.GetTodoList(dbContext, Context.Guild)}\n```"
-                    : Api.GetTodoList(dbContext, Context.Guild),
+                    ? $"```\n{api.GetTodoList()}\n```"
+                    : api.GetTodoList(),
                 ephemeral: true
             );
         }
@@ -74,18 +77,18 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
     public class Support : InteractionModuleBase<SocketInteractionContext>
     {
         public Support(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Support> logger,
-            TextChannelAuditLoggerFactory auditLogFactory, ToDoListApi api)
+            TextChannelAuditLoggerFactory auditLogFactory, ToDoListApiFactory toDoListApiFactory)
         {
             ContextFactory = contextFactory;
             Logger = logger;
             AuditLogFactory = auditLogFactory;
-            Api = api;
+            ApiFactory = toDoListApiFactory;
         }
 
         public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
         public ILogger<Support> Logger { get; }
         public TextChannelAuditLoggerFactory AuditLogFactory { get; }
-        public ToDoListApi Api { get; }
+        public ToDoListApiFactory ApiFactory { get; }
 
         [SlashCommand("set", "Set the minor faction this Discord server supports")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
@@ -96,10 +99,11 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         )
         {
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
+            using TransactionScope transactionScope = new TransactionScope();
             string message;
             try
             {
-                Api.SetSupportedMinorFaction(dbContext, Context.Guild, name);
+                ApiFactory.CreateApi(dbContext, Context.Guild).SetSupportedMinorFaction(name);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 auditLogger.Audit($"Supporting minor faction *{name}*");
                 message = $"**Success**! Now supporting *{name}*";
@@ -120,7 +124,8 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         public async Task Clear()
         {
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            Api.ClearSupportedMinorFaction(dbContext, Context.Guild);
+            using TransactionScope transactionScope = new TransactionScope();
+            ApiFactory.CreateApi(dbContext, Context.Guild).ClearSupportedMinorFaction();
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             auditLogger.Audit($"Not supporting any minor faction");
             await Context.Interaction.FollowupAsync(
@@ -135,7 +140,8 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         public async Task Get()
         {
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            string? minorFactionName = Api.GetSupportedMinorFaction(dbContext, Context.Guild)?.Name;
+            using TransactionScope transactionScope = new TransactionScope();
+            string? minorFactionName = ApiFactory.CreateApi(dbContext, Context.Guild).GetSupportedMinorFaction()?.Name;
             string message = string.IsNullOrEmpty(minorFactionName)
                 ? $"Not supporting any minor faction"
                 : $"Supporting *{minorFactionName}*";
@@ -150,18 +156,18 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
     public class Goals : InteractionModuleBase<SocketInteractionContext>
     {
         public Goals(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Goals> logger,
-            TextChannelAuditLoggerFactory auditLogFactory, ToDoListApi api)
+            TextChannelAuditLoggerFactory auditLogFactory, ToDoListApiFactory toDoListApiFactory)
         {
             ContextFactory = contextFactory;
             Logger = logger;
             AuditLogFactory = auditLogFactory;
-            Api = api;
+            ApiFactory = toDoListApiFactory;
         }
 
         public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
         public ILogger<Goals> Logger { get; }
         public TextChannelAuditLoggerFactory AuditLogFactory { get; }
-        public ToDoListApi Api { get; }
+        public ToDoListApiFactory ApiFactory { get; }
 
         [SlashCommand("add", "Set a specific goal for this minor faction in this system")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
@@ -180,9 +186,10 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         {
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+            using TransactionScope transactionScope = new TransactionScope();
             try
             {
-                Api.AddGoals(dbContext, Context.Guild,
+                ApiFactory.CreateApi(dbContext, Context.Guild).AddGoals(
                     new[] { (minorFactionName, starSystemName, goalName) });
                 auditLogger.Audit($"Added goal to {goalName} *{minorFactionName}* in {starSystemName}");
                 await Context.Interaction.FollowupAsync(
@@ -211,9 +218,10 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         {
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+            using TransactionScope transactionScope = new TransactionScope();
             try
             {
-                Api.RemoveGoals(dbContext, Context.Guild, minorFactionName, starSystemName);
+                ApiFactory.CreateApi(dbContext, Context.Guild).RemoveGoals(minorFactionName, starSystemName);
                 auditLogger.Audit($"Removed goal for *{minorFactionName}* in {starSystemName}");
                 await Context.Interaction.FollowupAsync(
                     text: $"**Success**! Goal for *{minorFactionName}* in {starSystemName} removed",
@@ -235,8 +243,9 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         public async Task List()
         {
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+            using TransactionScope transactionScope = new TransactionScope();
             string result = string.Join(Environment.NewLine,
-                Api.ListGoals(dbContext, Context.Guild).Select(
+                ApiFactory.CreateApi(dbContext, Context.Guild).ListGoals().Select(
                     dgssmfg => $"{dgssmfg.Goal} {dgssmfg.Presence.MinorFaction.Name} in {dgssmfg.Presence.StarSystem.Name}"));
             if (result.Length == 0)
             {
@@ -262,7 +271,8 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         public async Task Export()
         {
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-            IList<GoalCsvRow> result = Api.ListGoals(dbContext, Context.Guild)
+            using TransactionScope transactionScope = new TransactionScope();
+            IList<GoalCsvRow> result = ApiFactory.CreateApi(dbContext, Context.Guild).ListGoals()
                     .Select(dgssmfg => new GoalCsvRow()
                     {
                         Goal = dgssmfg.Goal,
@@ -302,6 +312,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         )
         {
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
+            using TransactionScope transactionScope = new TransactionScope();
             IList<GoalCsvRow> goals;
             try
             {
@@ -314,8 +325,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                 }
 
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                Api.AddGoals(dbContext, Context.Guild,
-                    goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
+                ApiFactory.CreateApi(dbContext, Context.Guild).AddGoals(goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
 
                 auditLogger.Audit($"Imported goals:\n{string.Join("\n", goals.Select(g => $"{g.Goal} {g.MinorFaction} in {g.StarSystem}"))}");
                 await Context.Interaction.FollowupAsync(
