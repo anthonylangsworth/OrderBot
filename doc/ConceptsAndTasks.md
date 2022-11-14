@@ -9,7 +9,7 @@ To start, you need an accound in the Discord server with the following permissio
 2. `Manage Channels` and `Manage Roles`: This bot's commands can only run by a user with these permissions by default. However, the bot's commands can be delegated to other roles. See [Security](Security.md) for details. 
 
 To setup the bot:
-1. Add the bot to your Discord server opening (URL Not Available Yet).
+1. Add the bot to your Discord server by following this [link](https://discordapp.com/oauth2/authorize?client_id=1032610954325790760&scope=bot&permissions=0).
 2. Give Discord a few minutes to process the registration and the bot's commands to become available. 
 3. Choose a minor faction to support using [/todo-list support set](CommandReference.md#todo-list-support-set), such as the one associated with an in-game squadron. The name entered must match the name of the in-game minor faction *exactly*, although it is not case sensitive.
 4. Either (1) visit the systems where your supported minor faction is present while running [EDMC](https://github.com/EDCD/EDMarketConnector/wiki) or a similar tool or (2) wait for someone else to do so. This sends data to this bot.
