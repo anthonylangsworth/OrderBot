@@ -23,9 +23,12 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     /// <param name="dbContextFactory">
     /// Database access.
     /// </param>
+    /// <param name="memoryCache">
+    /// Cache.
+    /// </param>
     public ToDoListMessageProcessor(ILogger<ToDoListMessageProcessor> logger,
         IDbContextFactory<OrderBotDbContext> dbContextFactory,
-        MemoryCache memoryCache)
+        IMemoryCache memoryCache)
     {
         Logger = logger;
         DbContextFactory = dbContextFactory;
@@ -34,7 +37,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
 
     public ILogger<ToDoListMessageProcessor> Logger { get; }
     public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
-    public MemoryCache MemoryCache { get; }
+    public IMemoryCache MemoryCache { get; }
 
     /// <inheritDoc/>
     public override void Process(JsonDocument message)

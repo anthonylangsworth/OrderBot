@@ -116,6 +116,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                 text: message,
                 ephemeral: true
             );
+            transactionScope.Complete();
         }
 
         [SlashCommand("clear", "Stop supporting a minor faction")]
@@ -131,6 +132,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                 text: $"**Success**! Not supporting any minor faction",
                 ephemeral: true
             );
+            transactionScope.Complete();
         }
 
         [SlashCommand("get", "Get the minor faction this Discord server supports")]
@@ -147,6 +149,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                 text: message,
                 ephemeral: true
             );
+            transactionScope.Complete();
         }
     }
 
@@ -201,6 +204,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                         ephemeral: true
                     );
             }
+            transactionScope.Complete();
         }
 
         [SlashCommand("remove", "Remove the specific goal for this minor faction in this system")]
@@ -231,6 +235,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                     ephemeral: true
                 );
             }
+            transactionScope.Complete();
         }
 
         [SlashCommand("list", "List any specific goals per minor faction and per system")]
@@ -258,6 +263,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                     ephemeral: true
                 );
             }
+            transactionScope.Complete();
         }
 
         [SlashCommand("export", "Export the current goals for backup")]
@@ -295,6 +301,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                     ephemeral: true
                 );
             }
+            transactionScope.Complete();
         }
 
         [SlashCommand("import", "Import new goals")]
@@ -325,6 +332,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                         text: $"**Success**! {goalsAttachement.Filename} added to goals",
                         ephemeral: true
                 );
+                transactionScope.Complete();
             }
             catch (CsvHelperException)
             {
