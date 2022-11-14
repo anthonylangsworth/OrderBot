@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using OrderBot.EntityFramework;
@@ -23,14 +24,17 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     /// Database access.
     /// </param>
     public ToDoListMessageProcessor(ILogger<ToDoListMessageProcessor> logger,
-        IDbContextFactory<OrderBotDbContext> dbContextFactory)
+        IDbContextFactory<OrderBotDbContext> dbContextFactory,
+        MemoryCache memoryCache)
     {
         Logger = logger;
         DbContextFactory = dbContextFactory;
+        MemoryCache = memoryCache;
     }
 
     public ILogger<ToDoListMessageProcessor> Logger { get; }
     public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
+    public MemoryCache MemoryCache { get; }
 
     /// <inheritDoc/>
     public override void Process(JsonDocument message)
@@ -38,7 +42,22 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
         using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
         using TransactionScope transactionScope = new();
 
-        EddnStarSystemData? bgsSystemData = GetBgsData(message, GetSupportedMinorFactions(dbContext), GetGoalSystems(dbContext));
+        IReadOnlySet<string> supportedMinorFactions = MemoryCache.GetOrCreate(
+            $"{nameof(ToDoListMessageProcessor)}_SupportedMinorFactions",
+            ce =>
+            {
+                ce.AbsoluteExpiration = DateTime.Now.AddMinutes(5);
+                return GetSupportedMinorFactions(dbContext);
+            });
+        IReadOnlySet<string> goalStarSystems = MemoryCache.GetOrCreate(
+            $"{nameof(ToDoListMessageProcessor)}_GoalStarSystems",
+            ce =>
+            {
+                ce.AbsoluteExpiration = DateTime.Now.AddMinutes(5);
+                return GetGoalSystems(dbContext);
+            });
+
+        EddnStarSystemData? bgsSystemData = GetBgsData(message, supportedMinorFactions, goalStarSystems);
         if (bgsSystemData != null)
         {
             //IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();

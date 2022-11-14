@@ -89,7 +89,7 @@ public class ToDoListApi
             DbContext.MinorFactions.Add(minorFaction);
             DbContext.SaveChanges();
         }
-        else
+        if (minorFaction == null)
         {
             throw new ArgumentException($"Minor faction {minorFactionName} is not known");
         }

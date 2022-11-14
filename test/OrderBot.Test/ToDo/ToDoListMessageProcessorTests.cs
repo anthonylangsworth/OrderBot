@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
@@ -19,8 +20,9 @@ internal class ToDoListMessageProcessorTests
     {
         ILogger<ToDoListMessageProcessor> logger = new NullLogger<ToDoListMessageProcessor>();
         OrderBotDbContextFactory dbContextFactory = new();
+        MemoryCache memoryCache = new(new MemoryCacheOptions());
 
-        ToDoListMessageProcessor systemMinorFactionMessageProcessor = new(logger, dbContextFactory);
+        ToDoListMessageProcessor systemMinorFactionMessageProcessor = new(logger, dbContextFactory, memoryCache);
         Assert.That(systemMinorFactionMessageProcessor.Logger, Is.EqualTo(logger));
         Assert.That(systemMinorFactionMessageProcessor.DbContextFactory, Is.EqualTo(dbContextFactory));
     }

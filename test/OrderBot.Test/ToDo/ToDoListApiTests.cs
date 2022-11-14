@@ -19,7 +19,7 @@ internal class ToDoListApiTests
         using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
         using TransactionScope transactionScope = new();
 
-        MinorFaction minorFaction = new() { Name = "Hutton Truckers" };
+        MinorFaction minorFaction = new() { Name = "Hutton Orbital Truckers Co-operative" };
         dbContext.MinorFactions.Add(minorFaction);
         dbContext.SaveChanges();
 
