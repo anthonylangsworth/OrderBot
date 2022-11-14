@@ -23,9 +23,10 @@ namespace OrderBot.ToDo;
 /// new instance each interaction, anyway.
 /// </li>
 /// <li>
-/// The caller should always wrap calls in a <see cref="TransactionScope"> to ensure 
-/// consistency. The calls cannot do it themselves because exceptions may be thrown as
-/// part of normal behaviour, in turn throwing a <see cref="TransactionAbortedException"/>.
+/// The caller should always wrap calls in a <see cref="TransactionScope"> passing
+/// <see cref="TransactionScopeAsyncFlowOption.Enabled"/> to ensure consistency even with 
+/// async/await. The methods in this class cannot do it themselves because exceptions may be 
+/// thrown as part of normal behaviour, in turn throwing a <see cref="TransactionAbortedException"/>.
 /// </li>
 /// <li>
 /// Since the code uses <see cref="TransactionScope"/> for transactions, avoid async/await.

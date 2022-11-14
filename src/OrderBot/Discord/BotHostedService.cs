@@ -2,6 +2,7 @@
 using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OrderBot.EntityFramework;
@@ -137,7 +138,11 @@ internal class BotHostedService : IHostedService
         {
             await interaction.DeferAsync(ephemeral: true);
         }
-        IResult result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
+        IResult result;
+        using (ServiceProvider.CreateScope())
+        {
+            result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
+        }
         if (result.IsSuccess)
         {
             Logger.LogInformation("Completed Successfully");
