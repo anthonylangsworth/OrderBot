@@ -31,5 +31,7 @@ internal static class EntityFrameworkExtensions
         }
         services.AddDbContextFactory<OrderBotDbContext>(
             dbContextOptionsBuilder => dbContextOptionsBuilder.UseSqlServer(dbConnectionString));
+        services.AddDbContext<OrderBotDbContext>(
+            dbContextOptionsBuilder => dbContextOptionsBuilder.UseSqlServer(dbConnectionString));
     }
 }

@@ -59,6 +59,12 @@ internal class BotHostedService : IHostedService
     public static GatewayIntents Intents => GatewayIntents.GuildMembers | GatewayIntents.Guilds;
 
     /// <summary>
+    /// The current <see cref="SocketInteractionContext"/>, or <see cref="null"/> if there is none.
+    /// </summary>
+    public static AsyncLocal<SocketInteractionContext> CurrentContext { get; } =
+        new AsyncLocal<SocketInteractionContext>();
+
+    /// <summary>
     /// The Discord client.
     /// </summary>
     internal DiscordSocketClient Client { get; }
@@ -126,11 +132,15 @@ internal class BotHostedService : IHostedService
 
     private async Task Client_InteractionCreated(SocketInteraction interaction)
     {
+        using IServiceScope serviceScope = ServiceProvider.CreateScope();
+
         string errorMessage = null!;
         SocketInteractionContext context = new(Client, interaction);
 
-        using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(context).Build());
-        Logger.LogInformation("Started");
+        // Get an ILogger from the scope.
+        ILogger<BotHostedService> logger = ServiceProvider.GetRequiredService<ILogger<BotHostedService>>();
+        using IDisposable loggerScope = logger.BeginScope(new ScopeBuilder(context).Build());
+        logger.LogInformation("Started");
 
         // Only tested with slash commands and autocomplete. May need excluding from other
         // interaction types.
@@ -138,11 +148,7 @@ internal class BotHostedService : IHostedService
         {
             await interaction.DeferAsync(ephemeral: true);
         }
-        IResult result;
-        using (ServiceProvider.CreateScope())
-        {
-            result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
-        }
+        IResult result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
         if (result.IsSuccess)
         {
             Logger.LogInformation("Completed Successfully");
