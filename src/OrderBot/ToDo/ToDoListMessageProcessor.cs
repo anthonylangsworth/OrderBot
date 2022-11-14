@@ -22,20 +22,15 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     /// <param name="dbContextFactory">
     /// Database access.
     /// </param>
-    /// <param name="filter">
-    /// Control which systems to log data for.
-    /// </param>
     public ToDoListMessageProcessor(ILogger<ToDoListMessageProcessor> logger,
-        IDbContextFactory<OrderBotDbContext> dbContextFactory, MinorFactionNameFilter filter)
+        IDbContextFactory<OrderBotDbContext> dbContextFactory)
     {
         Logger = logger;
         DbContextFactory = dbContextFactory;
-        Filter = filter;
     }
 
     public ILogger<ToDoListMessageProcessor> Logger { get; }
     public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
-    public MinorFactionNameFilter Filter { get; }
 
     /// <inheritDoc/>
     public override void Process(JsonDocument message)
@@ -43,7 +38,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
         using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
         using TransactionScope transactionScope = new();
 
-        EddnStarSystemData? bgsSystemData = GetBgsData(message, Filter);
+        EddnStarSystemData? bgsSystemData = GetBgsData(message, GetSupportedMinorFactions(dbContext), GetGoalSystems(dbContext));
         if (bgsSystemData != null)
         {
             //IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();
@@ -54,6 +49,32 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
         }
 
         transactionScope.Complete();
+    }
+
+    /// <summary>
+    /// Get the star systems used with goals. Details from these star systems should be processed.
+    /// </summary>
+    /// <param name="dbContext">
+    /// The <see cref="OrderBotDbContext"/> to use.
+    /// </param>
+    /// <returns>
+    /// The star systems associated with <see cref="Goal"/>s.
+    /// </returns>
+    internal static IReadOnlySet<string> GetGoalSystems(OrderBotDbContext dbContext)
+    {
+        return dbContext.DiscordGuildPresenceGoals.Select(dgpg => dgpg.Presence.StarSystem.Name).Distinct().ToHashSet();
+    }
+
+    /// <summary>
+    /// Get the su
+    /// </summary>
+    /// <param name="dbContext"></param>
+    /// <returns>
+    /// The supported minor factions.
+    /// </returns>
+    internal static IReadOnlySet<string> GetSupportedMinorFactions(OrderBotDbContext dbContext)
+    {
+        return dbContext.DiscordGuildMinorFactions.Select(dgmf => dgmf.MinorFaction.Name).Distinct().ToHashSet();
     }
 
     /// <summary>
@@ -78,8 +99,10 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     /// <exception cref="FormatException">
     /// One or more fields are not of the expected format.
     /// </exception>
-    internal static EddnStarSystemData? GetBgsData(JsonDocument message,
-        MinorFactionNameFilter minorFactionNameFilter)
+    internal static EddnStarSystemData? GetBgsData(
+        JsonDocument message,
+        IReadOnlySet<string> supportedMinorFactions,
+        IReadOnlySet<string> goalStarSystems)
     {
         DateTime timestamp = message.RootElement
                 .GetProperty("header")
@@ -106,7 +129,8 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
                 }
                 if (starSystemName != null
                     && messageElement.TryGetProperty("Factions", out JsonElement factionsProperty)
-                    && factionsProperty.EnumerateArray().Any(element => minorFactionNameFilter.Matches(element.GetProperty("Name").GetString() ?? "")))
+                    && (factionsProperty.EnumerateArray().Any(element => supportedMinorFactions.Contains(element.GetProperty("Name").GetString() ?? ""))
+                        || goalStarSystems.Contains(starSystemName)))
                 {
                     minorFactionInfos = factionsProperty.EnumerateArray().Select(element =>
                         new EddnMinorFactionInfluence()
@@ -119,14 +143,14 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
                         }
                         ).ToArray();
                 }
-                if (messageElement.TryGetProperty("SystemSecurity", out JsonElement securityProperty))
-                {
-                    systemSecurityState = securityProperty.GetString();
-                }
-                if (messageElement.TryGetProperty("Conflicts", out JsonElement conflictsProperty))
-                {
-                    conflicts = conflictsProperty.Deserialize<EddnConflict[]>();
-                }
+            }
+            if (messageElement.TryGetProperty("SystemSecurity", out JsonElement securityProperty))
+            {
+                systemSecurityState = securityProperty.GetString();
+            }
+            if (messageElement.TryGetProperty("Conflicts", out JsonElement conflictsProperty))
+            {
+                conflicts = conflictsProperty.Deserialize<EddnConflict[]>();
             }
         }
 

@@ -8,7 +8,7 @@ internal class MinorFactionInfluenceTests
     [TestCaseSource(nameof(Ctor_Source))]
     public void Ctor(string minorFaction, double influence, IReadOnlyList<string> states)
     {
-        EddnMinorFactionInfluence minorFactionInfluence = new EddnMinorFactionInfluence()
+        EddnMinorFactionInfluence minorFactionInfluence = new()
         {
             MinorFaction = minorFaction,
             Influence = influence,

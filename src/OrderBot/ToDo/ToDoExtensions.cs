@@ -9,7 +9,6 @@ internal static class ToDoExtensions
     {
         services.AddSingleton<ToDoListApiFactory>();
 
-        services.AddSingleton<MinorFactionNameFilter, FixedMinorFactionNameFilter>(sp => new FixedMinorFactionNameFilter(new[] { "EDA Kunti League" }));
         services.AddSingleton<EddnMessageProcessor, ToDoListMessageProcessor>();
     }
 }
