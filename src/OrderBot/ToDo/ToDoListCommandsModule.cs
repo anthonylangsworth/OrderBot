@@ -48,7 +48,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
     {
         using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(Context).Build());
         using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-        using TransactionScope transactionScope = new TransactionScope();
+        using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
         try
         {
             ToDoListApi api = ApiFactory.CreateApi(dbContext, Context.Guild);
@@ -99,7 +99,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         )
         {
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            using TransactionScope transactionScope = new TransactionScope();
+            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
             string message;
             try
             {
@@ -124,7 +124,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         public async Task Clear()
         {
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            using TransactionScope transactionScope = new TransactionScope();
+            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
             ApiFactory.CreateApi(dbContext, Context.Guild).ClearSupportedMinorFaction();
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             auditLogger.Audit($"Not supporting any minor faction");
@@ -140,7 +140,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         public async Task Get()
         {
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            using TransactionScope transactionScope = new TransactionScope();
+            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
             string? minorFactionName = ApiFactory.CreateApi(dbContext, Context.Guild).GetSupportedMinorFaction()?.Name;
             string message = string.IsNullOrEmpty(minorFactionName)
                 ? $"Not supporting any minor faction"
@@ -186,7 +186,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         {
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-            using TransactionScope transactionScope = new TransactionScope();
+            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
                 ApiFactory.CreateApi(dbContext, Context.Guild).AddGoals(
@@ -218,7 +218,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         {
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-            using TransactionScope transactionScope = new TransactionScope();
+            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
                 ApiFactory.CreateApi(dbContext, Context.Guild).RemoveGoals(minorFactionName, starSystemName);
@@ -243,7 +243,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         public async Task List()
         {
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-            using TransactionScope transactionScope = new TransactionScope();
+            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
             string result = string.Join(Environment.NewLine,
                 ApiFactory.CreateApi(dbContext, Context.Guild).ListGoals().Select(
                     dgssmfg => $"{dgssmfg.Goal} {dgssmfg.Presence.MinorFaction.Name} in {dgssmfg.Presence.StarSystem.Name}"));
@@ -271,7 +271,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         public async Task Export()
         {
             using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-            using TransactionScope transactionScope = new TransactionScope();
+            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
             IList<GoalCsvRow> result = ApiFactory.CreateApi(dbContext, Context.Guild).ListGoals()
                     .Select(dgssmfg => new GoalCsvRow()
                     {
@@ -312,7 +312,6 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         )
         {
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-            using TransactionScope transactionScope = new TransactionScope();
             IList<GoalCsvRow> goals;
             try
             {
@@ -325,6 +324,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                 }
 
                 using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+                using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
                 ApiFactory.CreateApi(dbContext, Context.Guild).AddGoals(goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
 
                 auditLogger.Audit($"Imported goals:\n{string.Join("\n", goals.Select(g => $"{g.Goal} {g.MinorFaction} in {g.StarSystem}"))}");
