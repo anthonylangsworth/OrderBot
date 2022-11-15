@@ -12,6 +12,9 @@ using System.Transactions;
 
 namespace OrderBot.CarrierMovement;
 
+/// <summary>
+/// Update non-ignored carrier locations and notify Discord Guilds. Called by <see cref="EddnMessageHostedService"/>.
+/// </summary>
 public class CarrierMovementMessageProcessor : EddnMessageProcessor
 {
     public CarrierMovementMessageProcessor(IDbContextFactory<OrderBotDbContext> contextFactory,
