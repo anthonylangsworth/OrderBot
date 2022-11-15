@@ -42,7 +42,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
 
     /// <inheritDoc/>
-    public override void Process(JsonDocument message)
+    public override Task ProcessAsync(JsonDocument message)
     {
         using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
         using TransactionScope transactionScope = new();
@@ -73,6 +73,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
         }
 
         transactionScope.Complete();
+        return Task.CompletedTask;
     }
 
     /// <summary>

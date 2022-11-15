@@ -96,7 +96,7 @@ internal class CarrierMovementMessageProcessorTests
 
             CarrierMovementMessageProcessor messageProcessor = new(contextFactory,
                 logger, discordClient, memoryCache);
-            messageProcessor.Process(JsonDocument.Parse(stream));
+            messageProcessor.ProcessAsync(JsonDocument.Parse(stream)).GetAwaiter().GetResult();
 
             Assert.That(
                 dbContext.Carriers,

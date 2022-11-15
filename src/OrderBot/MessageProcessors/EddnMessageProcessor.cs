@@ -13,5 +13,5 @@ public abstract class EddnMessageProcessor
     /// <param name="message">
     /// The message to process.
     /// </param>
-    public abstract void Process(JsonDocument message);
+    public abstract Task ProcessAsync(JsonDocument message);
 }

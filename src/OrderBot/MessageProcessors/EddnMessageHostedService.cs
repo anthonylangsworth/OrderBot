@@ -47,7 +47,7 @@ internal class EddnMessageHostedService : BackgroundService
                 {
                     try
                     {
-                        await Task.Factory.StartNew(() => messageProcessor.Process(JsonDocument.Parse(message)));
+                        await Task.Factory.StartNew(() => messageProcessor.ProcessAsync(JsonDocument.Parse(message)));
                     }
                     catch (JsonException)
                     {

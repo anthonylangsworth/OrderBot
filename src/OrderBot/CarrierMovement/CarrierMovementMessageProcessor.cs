@@ -32,7 +32,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
 
     /// <inheritdoc/>
-    public override void Process(JsonDocument message)
+    public override async Task ProcessAsync(JsonDocument message)
     {
         DateTime timestamp = message.RootElement
                 .GetProperty("header")
@@ -94,7 +94,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 {
                     using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
                     IReadOnlyList<Carrier> observedCarriers = UpdateNewCarrierLocations(dbContext, starSystem, timestamp, signals);
-                    NotifyCarrierJumps(starSystem, observedCarriers, discordGuildPresenceGoals, presences).GetAwaiter().GetResult();
+                    await NotifyCarrierJumps(starSystem, observedCarriers, discordGuildPresenceGoals, presences);
                     // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
                     // if we do not receive a signal for it.
                     // RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, observedCarriers);
