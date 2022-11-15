@@ -22,7 +22,7 @@ To setup locally:
 
 ## Writing Discord Commands
 
-`Client_InteractionCreated` in [BotHostedService](../../../src/OrderBot/Discord/BotHostedService.cs) provides the following:
+`Client_InteractionCreated` in [BotHostedService](../../../tree/main/src/OrderBot/Discord/BotHostedService.cs) provides the following:
 1. Creates a `IServiceScope` so scoped DI services can be returned and cleaned up.
 2. Adds a logging scope with common details such as the user, guild and command details.
 3. Acknowledges non autocomplete requests using `DeferAsync`. This ensures long running commands do not time out withing three seconds. 
