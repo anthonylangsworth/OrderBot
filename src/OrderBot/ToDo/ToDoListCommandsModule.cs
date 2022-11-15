@@ -68,7 +68,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         catch (NoSupportedMinorFactionException ex)
         {
             throw new DiscordUserInteractionException(
-                "**Error** No minor faction supported. Support one using `/todo-list support set`.", ex);
+                "**Error**: No minor faction supported. Support one using `/todo-list support set`.", ex);
         }
     }
 
