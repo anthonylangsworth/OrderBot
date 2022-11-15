@@ -8,7 +8,7 @@ To setup locally:
 2. Create the database container:
     1. Download the SQL Server instance using `docker pull mcr.microsoft.com/mssql/server:2019-latest`
     2. Create and run a new SQL Server container using `docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=<password>" -e "MSSQL_PID=Express" -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest`, substituting `<password>` with a strong password.
-    3. Set the password for the `OrderBot` in `deploy/db.sql` login around line 7. 
+    3. Set the password for the new `OrderBot` login in `deploy/db.sql` login around line 7. 
     4. Run `deploy/db.sql`, such as via SQL Management Studio, to create the database.
     5. Run `deploy/tables.sql` to create the table structure.
 3. Create the application container:
