@@ -5,7 +5,7 @@ namespace OrderBot.MessageProcessors;
 /// <summary>
 /// Process a message received by <see cref="EddnMessageHostedService"/>.
 /// </summary>
-internal abstract class EddnMessageProcessor
+public abstract class EddnMessageProcessor
 {
     /// <summary>
     /// Process the <see cref="message"/>.

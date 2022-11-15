@@ -1,8 +1,8 @@
 ﻿using Discord;
-using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
+using OrderBot.Discord;
 using OrderBot.EntityFramework;
 using OrderBot.MessageProcessors;
 using System.Net;
@@ -11,7 +11,7 @@ using System.Transactions;
 
 namespace OrderBot.CarrierMovement;
 
-internal class CarrierMovementMessageProcessor : EddnMessageProcessor
+public class CarrierMovementMessageProcessor : EddnMessageProcessor
 {
     public CarrierMovementMessageProcessor(IDbContextFactory<OrderBotDbContext> contextFactory,
         ILogger<CarrierMovementMessageProcessor> logger, IDiscordClient discordClient)
@@ -54,7 +54,7 @@ internal class CarrierMovementMessageProcessor : EddnMessageProcessor
                     IReadOnlyList<DiscordGuild> discordGuilds = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
                                                                                        .Where(dg => dg.CarrierMovementChannel != null)
                                                                                        .ToList();
-                    IReadOnlyList<Carrier> observedCarriers = UpdateNewCarrierLocationsAsync(dbContext, starSystem, discordGuilds, timestamp, signals).GetAwaiter().GetResult();
+                    IReadOnlyList<Carrier> observedCarriers = UpdateNewCarrierLocations(dbContext, starSystem, timestamp, signals);
                     NotifyCarrierJumps(starSystem, observedCarriers, discordGuilds).GetAwaiter().GetResult();
                     // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
                     // if we do not receive a signal for it.
@@ -65,8 +65,8 @@ internal class CarrierMovementMessageProcessor : EddnMessageProcessor
         }
     }
 
-    internal async Task<IReadOnlyList<Carrier>> UpdateNewCarrierLocationsAsync(OrderBotDbContext dbContext, StarSystem starSystem,
-        IReadOnlyList<DiscordGuild> discordGuilds, DateTime timestamp, Signal[] signals)
+    internal IReadOnlyList<Carrier> UpdateNewCarrierLocations(OrderBotDbContext dbContext,
+        StarSystem starSystem, DateTime timestamp, Signal[] signals)
     {
         List<Carrier> observedCarriers = new();
         foreach (Signal signal in signals.Where(s => s.IsStation && Carrier.IsCarrier(s.Name)))
@@ -84,10 +84,6 @@ internal class CarrierMovementMessageProcessor : EddnMessageProcessor
             {
                 carrier.StarSystem = starSystem;
                 carrier.FirstSeen = timestamp;
-
-                // TODO: Separate the messages from processing, e.g. pass in a Func or object
-                // TODO: Only notify each guild if the system has a presence or a goal
-                // TODO: Batch messages, e.g. using GuildNotifier
             }
         }
         dbContext.SaveChanges();
@@ -98,31 +94,45 @@ internal class CarrierMovementMessageProcessor : EddnMessageProcessor
     {
         foreach (DiscordGuild discordGuild in discordGuilds)
         {
-            if (await DiscordClient.GetChannelAsync(discordGuild.CarrierMovementChannel ?? 0) is ISocketMessageChannel channel)
+            if (await DiscordClient.GetChannelAsync(discordGuild.CarrierMovementChannel ?? 0) is ITextChannel channel)
             {
-                foreach (Carrier carrier in observedCarriers)
+                try
                 {
-                    if (!discordGuild.IgnoredCarriers.Any(c => c.SerialNumber == carrier.SerialNumber))
+                    // TODO: Only notify each guild if the system has a presence or a goal
+
+                    using TextChannelWriter textChannelWriter = new(channel);
+                    foreach (Carrier carrier in observedCarriers.Except(discordGuild.IgnoredCarriers).OrderBy(c => c.Name))
                     {
-                        try
-                        {
-                            await channel.SendMessageAsync(
-                                    text: $"New fleet carrier '{carrier.Name}'(<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(carrier.SerialNumber)}>) seen in '{starSystem.Name}'(<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(starSystem.Name)}>)."
-                                );
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.LogError(
-                                ex,
-                                "Sending carrier notification to channel '{channelId}' for discord Guid '{discordGuildId}' failed",
-                                channel.Id,
-                                discordGuild.Id
-                            );
-                        }
+                        textChannelWriter.WriteLine(GetCarrierMovementMessage(carrier, starSystem));
+                        // await channel.SendMessageAsync(GetCarrierMovementMessage(carrier, starSystem));
                     }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError(
+                        ex, "Sending carrier notification to channel '{ChannelId}' for discord Guid '{GuildId}' failed",
+                        channel.Id, discordGuild.Id
+                    );
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Construct the message written to <see cref="DiscordGuild.CarrierMovementChannel"/> on a carrier jump.
+    /// </summary>
+    /// <param name="carrier">
+    /// The carrier to write details for.
+    /// </param>
+    /// <param name="starSystem">
+    /// The star system to write details for.
+    /// </param>
+    /// <returns>
+    /// The message.
+    /// </returns>
+    internal static string GetCarrierMovementMessage(Carrier carrier, StarSystem starSystem)
+    {
+        return $"New fleet carrier '{carrier.Name}' (<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(carrier.SerialNumber)}>) seen in '{starSystem.Name}' (<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(starSystem.Name)}>).";
     }
 
     // Not all messages are complete. Therefore, we cannot say a carrier has jumped out

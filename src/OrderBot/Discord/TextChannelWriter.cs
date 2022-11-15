@@ -62,7 +62,7 @@ public class TextChannelWriter : IDisposable
     /// </param>
     public void WriteLine(string message)
     {
-        _streamWriter.Write(message);
+        _streamWriter.WriteLine(message);
     }
 
     // Add other members, similar to StreamWriter, as needed

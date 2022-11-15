@@ -6,7 +6,7 @@ namespace OrderBot.Discord;
 /// <summary>
 /// A <see cref="Stream"/> that wraps a <see cref="ITextChannel"/>. It only allows writes.
 /// </summary>
-public class TextChannelStream : Stream
+internal class TextChannelStream : Stream
 {
     /// <summary>
     /// Create a new <see cref="TextChannelStream"/>.
