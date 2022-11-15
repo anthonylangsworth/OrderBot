@@ -63,11 +63,12 @@ internal class CarrierMovementMessageProcessorTests
                 new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp}
             };
 
-            // MockBehavior.Strict fails. Default works around the problem. TODO: Fix
-            MockRepository mockRepository = new(MockBehavior.Default);
+            MockRepository mockRepository = new(MockBehavior.Strict);
             ILogger<CarrierMovementMessageProcessor> logger = mockRepository.Create<ILogger<CarrierMovementMessageProcessor>>().Object;
 
-            Mock<ITextChannel> mockMessageChannel = mockRepository.Create<ITextChannel>();
+            IUserMessage userMessage = mockRepository.Create<IUserMessage>().Object;
+
+            Mock<ITextChannel> mockTextChannel = mockRepository.Create<ITextChannel>();
             StringBuilder carrierMovementMessage = new();
             foreach (Carrier carrier in expectedCarriers.Except(testGuild.IgnoredCarriers).OrderBy(c => c.Name))
             {
@@ -76,11 +77,12 @@ internal class CarrierMovementMessageProcessorTests
             }
             if (carrierMovementMessage.Length > 0)
             {
-                mockMessageChannel.Setup(smc => smc.SendMessageAsync(
-                    carrierMovementMessage.ToString(), false, null, null, null, null, null, null, null, MessageFlags.None));
+                mockTextChannel.Setup(tc => tc.SendMessageAsync(
+                                    carrierMovementMessage.ToString(), false, null, null, null, null, null, null, null, MessageFlags.None))
+                               .Returns(Task.FromResult(userMessage));
             }
-            mockMessageChannel.SetupGet(smc => smc.Id).Returns(carrierMovementChannelId);
-            ITextChannel socketMessageChannel = mockMessageChannel.Object;
+            mockTextChannel.SetupGet(smc => smc.Id).Returns(carrierMovementChannelId);
+            ITextChannel socketMessageChannel = mockTextChannel.Object;
 
             Mock<IDiscordClient> mockDiscordClient = mockRepository.Create<IDiscordClient>();
             mockDiscordClient.Setup(dc => dc.GetChannelAsync(carrierMovementChannelId, CacheMode.AllowDownload, null))
