@@ -1,4 +1,5 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -8,7 +9,7 @@ using OrderBot.EntityFramework;
 
 namespace OrderBot.Discord;
 
-internal static class DiscordBotExtensions
+internal static class BotExtensions
 {
 
     const string DiscordApiKeyEnvironmentVariable = "DiscordApiKey";
@@ -37,6 +38,7 @@ internal static class DiscordBotExtensions
         {
             GatewayIntents = BotHostedService.Intents
         }));
+        services.AddSingleton<IDiscordClient, DiscordSocketClient>();
         services.AddSingleton(sp => new InteractionService(
             sp.GetRequiredService<DiscordSocketClient>(),
             new InteractionServiceConfig()

@@ -7,14 +7,14 @@ namespace OrderBot.Test.ToDo;
 /// Compare two <see cref="ConflictSuggestion"/>s, ignoring database-induced 
 /// differences with <see cref="DateTime"/>s.
 /// </summary>
-internal class DbConflictInitiatedSuggestionEqualityComparer : IEqualityComparer<ConflictSuggestion?>
+internal class DbConflictSuggestionEqualityComparer : IEqualityComparer<ConflictSuggestion?>
 {
-    public static readonly DbConflictInitiatedSuggestionEqualityComparer Instance = new();
+    public static readonly DbConflictSuggestionEqualityComparer Instance = new();
 
     /// <summary>
     /// Prevent instantiation.
     /// </summary>
-    protected DbConflictInitiatedSuggestionEqualityComparer()
+    protected DbConflictSuggestionEqualityComparer()
     {
         // Do nothing
     }

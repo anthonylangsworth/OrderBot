@@ -1,0 +1,116 @@
+{
+  "$schemaRef": "https://eddn.edcd.io/schemas/fsssignaldiscovered/1",
+  "header": {
+    "gatewayTimestamp": "2022-10-30T13:56:59.678072Z",
+    "softwareName": "E:D Market Connector [Windows]",
+    "softwareVersion": "5.5.0",
+    "uploaderID": "90f354f2ad67e7c99af890f185cabf10e1fec324"
+  },
+  "message": {
+    "StarPos": [
+      105.375,
+      -41.5,
+      -8.75
+    ],
+    "StarSystem": "LTT 2684",
+    "SystemAddress": 358931731154,
+    "event": "FSSSignalDiscovered",
+    "horizons": true,
+    "odyssey": true,
+    "signals": [
+      {
+        "SignalName": "$MULTIPLAYER_SCENARIO77_TITLE;",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "SignalName": "$MULTIPLAYER_SCENARIO14_TITLE;",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "SignalName": "$MULTIPLAYER_SCENARIO79_TITLE;",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "SignalName": "$MULTIPLAYER_SCENARIO77_TITLE;",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "IsStation": true,
+        "SignalName": "Parsons Station",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "IsStation": true,
+        "SignalName": "Cowboy B X9Z-B0B",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "SignalName": "$MULTIPLAYER_SCENARIO42_TITLE;",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "SignalName": "Secret Nightingale Pastures",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "IsStation": true,
+        "SignalName": "Pauling Gateway",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "IsStation": true,
+        "SignalName": "T.N.V.A COSMOS HNV-L7X",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "SignalName": "Old Tree Produce",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "SignalName": "Governmental Immigration Commission",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "SignalName": "Cunningham Station",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "IsStation": true,
+        "SignalName": "Morin Port",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "IsStation": true,
+        "SignalName": "E.D.A. WALKABOUT KHF-79Z",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "IsStation": true,
+        "SignalName": "Lindsey Orbital",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "SignalName": "PYE-691 Hercules-class Hauler",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "IsStation": true,
+        "SignalName": "ODIN W6B-94Z",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "SignalName": "SHA-868 Sagan-class Traveller",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "SignalName": "Kooi Orbital",
+        "timestamp": "2022-10-30T13:56:57Z"
+      },
+      {
+        "SignalName": "Scarlet Galaxies Construction",
+        "timestamp": "2022-10-30T13:56:57Z"
+      }
+    ],
+    "timestamp": "2022-10-30T13:56:57Z"
+  }
+}

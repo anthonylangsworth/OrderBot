@@ -102,7 +102,7 @@ internal class ToDoListGeneratorTests
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions,
             Is.EquivalentTo(new[] { new InfluenceSuggestion() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence, Pro = true } })
-              .Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
+              .Using(DbInfluenceSuggestionEqualityComparer.Instance));
     }
 
     [Test]
@@ -125,7 +125,7 @@ internal class ToDoListGeneratorTests
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions,
             Is.EquivalentTo(new[] { new InfluenceSuggestion() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence, Pro = true } })
-              .Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
+              .Using(DbInfluenceSuggestionEqualityComparer.Instance));
     }
 
     [Test]
@@ -150,7 +150,7 @@ internal class ToDoListGeneratorTests
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions,
             Is.EquivalentTo(new[] { new InfluenceSuggestion() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence, Pro = true } })
-              .Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
+              .Using(DbInfluenceSuggestionEqualityComparer.Instance));
     }
 
     [Test]
@@ -181,7 +181,7 @@ internal class ToDoListGeneratorTests
            new Suggestion[] {
                new InfluenceSuggestion() { StarSystem = alphCentauri, Influence = purplePeopleEastersAlphaCentauri.Presence.Influence, Pro = true },
                new InfluenceSuggestion() { StarSystem = maia, Influence = purplePeopleEastersMaia.Presence.Influence, Pro = false }
-           }).Using(DbInfluenceInitiatedSuggestionEqualityComparer.Instance));
+           }).Using(DbInfluenceSuggestionEqualityComparer.Instance));
     }
 
     [Test]
@@ -230,7 +230,7 @@ internal class ToDoListGeneratorTests
                    State = ConflictState.CloseVictory,
                    WarType = conflict.WarType
                }
-           }).Using(DbConflictInitiatedSuggestionEqualityComparer.Instance));
+           }).Using(DbConflictSuggestionEqualityComparer.Instance));
     }
 
     [Test]
@@ -286,6 +286,6 @@ internal class ToDoListGeneratorTests
                    State = ConflictState.CloseDefeat,
                    WarType = conflict.WarType
                }
-           }).Using(DbConflictInitiatedSuggestionEqualityComparer.Instance));
+           }).Using(DbConflictSuggestionEqualityComparer.Instance));
     }
 }

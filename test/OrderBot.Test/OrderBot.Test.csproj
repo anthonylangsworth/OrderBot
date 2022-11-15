@@ -18,6 +18,7 @@
     <None Remove="samples\HR 1597.json" />
     <None Remove="samples\Kutjara.json" />
     <None Remove="samples\LTT 2412.json" />
+    <None Remove="samples\LTT 2684 FSS.json" />
     <None Remove="samples\Ross 199.json" />
   </ItemGroup>
 
@@ -31,6 +32,7 @@
     <EmbeddedResource Include="samples\HR 1597.json" />
     <EmbeddedResource Include="samples\Kutjara.json" />
     <EmbeddedResource Include="samples\LTT 2412.json" />
+    <EmbeddedResource Include="samples\LTT 2684 FSS.json" />
     <EmbeddedResource Include="samples\Ross 199.json" />
   </ItemGroup>
 
