@@ -33,14 +33,15 @@ To setup locally:
 
 Best practice for writing slash (application) commands:
 1. Do not duplicate work in `BotHostedService.Client_InteractionCreated`. The general goal is to move as much work to there as possible. This standardizes behaviour and prevents code repetition.
-2. Throw a `DiscordUserInteractionException` to represent a user-relevent and -solvable error, with the error message in the Message property. The error message can contain Discord markdown. 
-3. Throw a different, appropriate exception for other errors.
-4. Acknowledge success using an ephemeral message.
-5. For success and error messages:
+2. Remember that the class housing the command handler is instantiated for each call.
+3. Throw a `DiscordUserInteractionException` to represent a user-relevent and -solvable error, with the error message in the Message property. The error message can contain Discord markdown. 
+4. Throw a different, appropriate exception for other errors.
+5. Acknowledge success using an ephemeral message.
+6. For success and error messages:
     1. Include `**Success**` or `**Error**` at the start to clearly indicate whether the command worked or did not, respectively.
     2. For errors, describe (1) why the error occured, (2) the resulting state and (3) how to fix or remedy.
-6. Use `TransactionScope` around any database work, remembering to call `Complete()` at the end.
-7. Log any modifications using an `IAuditLogger`.
+7. Use `TransactionScope` around any database work, remembering to call `Complete()` at the end. Pass `TransactionScopeAsyncFlowOption.Enabled` to ensure it is async-friendly.
+8. Audit any modifications using an `IAuditLogger`, ideally via a `TextChannelAuditLoggerFactory`.
 
 ## References
 1. Using Docker with .Net Core: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/visual-studio-tools-for-docker?view=aspnetcore-6.0
