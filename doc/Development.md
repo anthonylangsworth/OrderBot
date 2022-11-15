@@ -20,6 +20,26 @@ To setup locally:
         4. `LogAnalytics_WorkspaceKey`, containing an Azure LogAnalytics primary key.
 4. Download, build and run the code.
 
+## Writing Discord Commands
+
+`BotHostedService.Client_InteractionCreated` provides the following:
+1. Creates a `IServiceScope` so scoped DI services can be returned and cleaned up.
+2. Adds a logging scope with common details such as the user, guild and command details.
+3. Acknowledges non autocomplete requests using `DeferAsync`. This ensures long running commands do not time out withing three seconds. 
+4. Logs a "Completed Successfully" message if the command does not throw any exceptions.
+5. Shows an access denied-style error messages for unmet preconditions.
+6. Responds to the user with the ephemeral contents of the `Message` property for thrown `DiscordUserInteractionExceptions`.
+7. Logs details of other thrown exceptions.
+
+Best practice for writing slash (application) commands:
+1. Do not duplicate work in `BotHostedService.Client_InteractionCreated`. The general goal is tno move as much work to there as possible. This standardizes behaviour and prevents code repetition.
+2. Throw a `DiscordUserInteractionExceptions` to represent a user-error, with the error message, including markdown formatting, in the Message property.
+3. For error messages:
+    1. Include `**Success**` or `**Error**` at the start to clearly indicate whether the command worked or did not.
+    2. For errors, describe (1) why the error occured, (2) the resulting state and (3) how to fix or remedy.
+4. Use `TransactionScope` around any database work, remembering to call `Compelete()` at the end.
+5. Log any modifications using an `IAuditLogger`.
+
 ## References
 1. Using Docker with .Net Core: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/visual-studio-tools-for-docker?view=aspnetcore-6.0
 2. Github action to build SQL server database: https://github.com/ankane/setup-sqlserver
