@@ -34,11 +34,12 @@ To setup locally:
 Best practice for writing slash (application) commands:
 1. Do not duplicate work in `BotHostedService.Client_InteractionCreated`. The general goal is tno move as much work to there as possible. This standardizes behaviour and prevents code repetition.
 2. Throw a `DiscordUserInteractionExceptions` to represent a user-error, with the error message, including markdown formatting, in the Message property.
-3. For error messages:
+3. Acknowledge success using an ephemeral message.
+4. For success and error messages:
     1. Include `**Success**` or `**Error**` at the start to clearly indicate whether the command worked or did not.
     2. For errors, describe (1) why the error occured, (2) the resulting state and (3) how to fix or remedy.
-4. Use `TransactionScope` around any database work, remembering to call `Compelete()` at the end.
-5. Log any modifications using an `IAuditLogger`.
+5. Use `TransactionScope` around any database work, remembering to call `Compelete()` at the end.
+6. Log any modifications using an `IAuditLogger`.
 
 ## References
 1. Using Docker with .Net Core: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/visual-studio-tools-for-docker?view=aspnetcore-6.0
