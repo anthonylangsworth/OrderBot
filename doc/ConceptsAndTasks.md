@@ -2,17 +2,17 @@
 
 ## Setup
 
-NOTE: This Discord Bot is **NOT** currently open to joining other Discord servers. It is still a work in progress and some values are hard coded.
+**NOTE**: Add this Discord Bot to your Discord server at your own risk. It is a work in progress and some values are hard coded.
 
 To start, you need an accound in the Discord server with the following permissions:
 1. `Manage Server`: Required to add the bot to the server.
 2. `Manage Channels` and `Manage Roles`: This bot's commands can only run by a user with these permissions by default. However, the bot's commands can be delegated to other roles. See [Security](Security.md) for details. 
 
 To setup the bot:
-1. Add the bot to your Discord server by following this [link](https://discordapp.com/oauth2/authorize?client_id=1027594600212353094&scope=bot&permissions=0).
-2. Give Discord a few minutes to process the registration and the bot's commands to become available. 
+1. Add this bot to your Discord server by following this [link](https://discordapp.com/oauth2/authorize?client_id=1027594600212353094&scope=bot&permissions=0).
+2. Give Discord a few minutes to process the registration and make the bot's commands available. 
 3. Choose a minor faction to support using [/todo-list support set](CommandReference.md#todo-list-support-set), such as the one associated with an in-game squadron. The name entered must match the name of the in-game minor faction *exactly*, although it is not case sensitive.
-4. Either (1) visit the systems where your supported minor faction is present while running [EDMC](https://github.com/EDCD/EDMarketConnector/wiki) or a similar tool or (2) wait for someone else to do so. This sends data to this bot.
+4. Either (1) visit the systems in-game where your supported minor faction is present while running [EDMC](https://github.com/EDCD/EDMarketConnector/wiki) or a similar tool or (2) wait for someone else to do so. This sends data to this bot.
 5. Run [/todo-list show](CommandReference.md#todo-list-show) to see the suggestions. These suggestions update automatically over time as new data comes in.
 
 Optional, additional tasks:
