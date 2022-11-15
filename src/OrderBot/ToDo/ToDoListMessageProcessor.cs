@@ -39,6 +39,8 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
     public IMemoryCache MemoryCache { get; }
 
+    public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+
     /// <inheritDoc/>
     public override void Process(JsonDocument message)
     {
@@ -49,14 +51,14 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
             $"{nameof(ToDoListMessageProcessor)}_SupportedMinorFactions",
             ce =>
             {
-                ce.AbsoluteExpiration = DateTime.Now.AddMinutes(5);
+                ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
                 return GetSupportedMinorFactions(dbContext);
             });
         IReadOnlySet<string> goalStarSystems = MemoryCache.GetOrCreate(
             $"{nameof(ToDoListMessageProcessor)}_GoalStarSystems",
             ce =>
             {
-                ce.AbsoluteExpiration = DateTime.Now.AddMinutes(5);
+                ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
                 return GetGoalSystems(dbContext);
             });
 

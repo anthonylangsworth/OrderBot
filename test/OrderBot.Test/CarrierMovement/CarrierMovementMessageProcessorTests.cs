@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
@@ -22,9 +23,10 @@ internal class CarrierMovementMessageProcessorTests
         using OrderBotDbContextFactory contextFactory = new();
         ILogger<CarrierMovementMessageProcessor> logger = NullLogger<CarrierMovementMessageProcessor>.Instance;
         IDiscordClient discordClient = Mock.Of<IDiscordClient>();
+        using IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
 
         CarrierMovementMessageProcessor messageProcessor = new(contextFactory,
-            logger, discordClient);
+            logger, discordClient, memoryCache);
 
         Assert.That(messageProcessor.Logger, Is.EqualTo(logger));
         Assert.That(messageProcessor.DiscordClient, Is.EqualTo(discordClient));
@@ -41,6 +43,7 @@ internal class CarrierMovementMessageProcessorTests
             using OrderBotDbContextFactory contextFactory = new();
             using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
             using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+            using IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
 
             const ulong carrierMovementChannelId = 1234567890;
             Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B" };
@@ -53,6 +56,8 @@ internal class CarrierMovementMessageProcessorTests
             dbContext.DiscordGuilds.Add(testGuild);
             dbContext.MinorFactions.Add(minorFaction);
             dbContext.StarSystems.Add(ltt2684);
+            Presence presence = new() { MinorFaction = minorFaction, StarSystem = ltt2684, Influence = 0.1 };
+            dbContext.Presences.Add(presence);
             dbContext.SaveChanges();
 
             Carrier[] expectedCarriers = new Carrier[]
@@ -60,7 +65,7 @@ internal class CarrierMovementMessageProcessorTests
                 cowboyB, // Ignored, so should not update
                 new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
                 new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
-                new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp}
+                new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp }
             };
 
             MockRepository mockRepository = new(MockBehavior.Strict);
@@ -90,7 +95,7 @@ internal class CarrierMovementMessageProcessorTests
             IDiscordClient discordClient = mockDiscordClient.Object;
 
             CarrierMovementMessageProcessor messageProcessor = new(contextFactory,
-                logger, discordClient);
+                logger, discordClient, memoryCache);
             messageProcessor.Process(JsonDocument.Parse(stream));
 
             Assert.That(

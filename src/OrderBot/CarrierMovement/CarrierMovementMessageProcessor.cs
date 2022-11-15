@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using OrderBot.Discord;
@@ -14,16 +15,21 @@ namespace OrderBot.CarrierMovement;
 public class CarrierMovementMessageProcessor : EddnMessageProcessor
 {
     public CarrierMovementMessageProcessor(IDbContextFactory<OrderBotDbContext> contextFactory,
-        ILogger<CarrierMovementMessageProcessor> logger, IDiscordClient discordClient)
+        ILogger<CarrierMovementMessageProcessor> logger, IDiscordClient discordClient,
+        IMemoryCache memoryCache)
     {
         ContextFactory = contextFactory;
         Logger = logger;
         DiscordClient = discordClient;
+        MemoryCache = memoryCache;
     }
 
     public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
     public ILogger<CarrierMovementMessageProcessor> Logger { get; }
     public IDiscordClient DiscordClient { get; }
+    public IMemoryCache MemoryCache { get; }
+
+    public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
 
     /// <inheritdoc/>
     public override void Process(JsonDocument message)
@@ -37,6 +43,42 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
         // See https://github.com/EDCD/EDDN/blob/master/schemas/fsssignaldiscovered-v1.0.json for the schema
         // "signals": [{"IsStation": true, "SignalName": "THE PEAKY BLINDERS KNF-83G", "timestamp": "2022-10-13T12:13:09Z"}]
 
+        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
+        IList<DiscordGuildPresenceGoal> discordGuildPresenceGoals = MemoryCache.GetOrCreate(
+            $"{nameof(CarrierMovementMessageProcessor)}_DiscordGuildPresenceGoals",
+            ce =>
+            {
+                ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
+                return dbContext.DiscordGuildPresenceGoals.Include(dgpg => dgpg.DiscordGuild)
+                                                          .Include(dgpg => dgpg.DiscordGuild.IgnoredCarriers)
+                                                          .Include(dgpg => dgpg.Presence)
+                                                          .Include(dgpg => dgpg.Presence.StarSystem)
+                                                          .ToList();
+            });
+        IList<Presence> presences = MemoryCache.GetOrCreate(
+            $"{nameof(CarrierMovementMessageProcessor)}_Presences",
+            ce =>
+            {
+                ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
+                return dbContext.Presences.Include(p => p.MinorFaction)
+                                          .Include(p => p.MinorFaction.SupportedBy)
+                                          .Include(p => p.StarSystem)
+                                          .ToList();
+            });
+        IList<StarSystem> starSystems =
+            Enumerable.Concat(
+                discordGuildPresenceGoals.Select(dgpg => dgpg.Presence.StarSystem),
+                presences.Select(p => p.StarSystem)
+             ).Distinct()
+              .ToList();
+        IList<DiscordGuild> discordGuilds =
+            Enumerable.Concat(
+                discordGuildPresenceGoals.Select(dgpg => dgpg.DiscordGuild),
+                presences.SelectMany(p => p.MinorFaction.SupportedBy)
+            ).Distinct()
+             .Where(dg => dg.CarrierMovementChannel != null)
+             .ToList();
+
         JsonElement messageElement = message.RootElement.GetProperty("message");
         if (messageElement.TryGetProperty("event", out JsonElement eventProperty)
             && eventProperty.GetString() == "FSSSignalDiscovered"
@@ -47,16 +89,12 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
             if (signals != null)
             {
                 string starSystemName = starSystemProperty.GetString() ?? "";
-                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
+                StarSystem? starSystem = starSystems.FirstOrDefault(ss => ss.Name == starSystemName);
                 if (starSystem != null)
                 {
                     using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-                    IReadOnlyList<DiscordGuild> discordGuilds = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
-                                                                                       .Where(dg => dg.CarrierMovementChannel != null)
-                                                                                       .ToList();
                     IReadOnlyList<Carrier> observedCarriers = UpdateNewCarrierLocations(dbContext, starSystem, timestamp, signals);
-                    NotifyCarrierJumps(starSystem, observedCarriers, discordGuilds).GetAwaiter().GetResult();
+                    NotifyCarrierJumps(starSystem, observedCarriers, discordGuildPresenceGoals, presences).GetAwaiter().GetResult();
                     // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
                     // if we do not receive a signal for it.
                     // RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, observedCarriers);
@@ -118,19 +156,23 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// <param name="observedCarriers">
     /// The carriers that jumped in.
     /// </param>
-    /// <param name="discordGuilds">
-    /// The discord guilds to notify.
+    /// <param name="discordGuildPresenceGoals">
+    /// Notify the server has one or more goals for this system.
     /// </param>
-    internal async Task NotifyCarrierJumps(StarSystem starSystem, IReadOnlyList<Carrier> observedCarriers, IReadOnlyList<DiscordGuild> discordGuilds)
+    /// <param name="presences">
+    /// Notify the server supports a minor faction present in this system.
+    /// </param>
+    internal async Task NotifyCarrierJumps(StarSystem starSystem, IReadOnlyList<Carrier> observedCarriers,
+        IList<DiscordGuildPresenceGoal> discordGuildPresenceGoals, IList<Presence> presences)
     {
-        foreach (DiscordGuild discordGuild in discordGuilds)
+        foreach (DiscordGuild discordGuild in discordGuildPresenceGoals.Select(dgpg => dgpg.DiscordGuild).Distinct())
         {
-            if (await DiscordClient.GetChannelAsync(discordGuild.CarrierMovementChannel ?? 0) is ITextChannel channel)
+            if (await DiscordClient.GetChannelAsync(discordGuild.CarrierMovementChannel ?? 0) is ITextChannel channel
+                && (discordGuildPresenceGoals.Any(dgpg => dgpg.DiscordGuild == discordGuild && dgpg.Presence.StarSystem == starSystem)
+                    || presences.Any(p => p.MinorFaction.SupportedBy.Contains(discordGuild) && p.StarSystem == starSystem)))
             {
                 try
                 {
-                    // TODO: Only notify each guild if the system has a presence or a goal
-
                     using TextChannelWriter textChannelWriter = new(channel);
                     foreach (Carrier carrier in observedCarriers.Except(discordGuild.IgnoredCarriers).OrderBy(c => c.Name))
                     {
