@@ -37,7 +37,7 @@ Best practice for writing slash (application) commands:
 3. Throw a different, appropriate exception for other errors.
 4. Acknowledge success using an ephemeral message.
 5. For success and error messages:
-    1. Include `**Success**` or `**Error**` at the start to clearly indicate whether the command worked or did not.
+    1. Include `**Success**` or `**Error**` at the start to clearly indicate whether the command worked or did not, respectively.
     2. For errors, describe (1) why the error occured, (2) the resulting state and (3) how to fix or remedy.
 6. Use `TransactionScope` around any database work, remembering to call `Complete()` at the end.
 7. Log any modifications using an `IAuditLogger`.
