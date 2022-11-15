@@ -32,7 +32,7 @@ To setup locally:
 7. Logs details of other thrown exceptions.
 
 Best practice for writing slash (application) commands:
-1. Do not duplicate work in `BotHostedService.Client_InteractionCreated`. The general goal is tno move as much work to there as possible. This standardizes behaviour and prevents code repetition.
+1. Do not duplicate work in `BotHostedService.Client_InteractionCreated`. The general goal is to move as much work to there as possible. This standardizes behaviour and prevents code repetition.
 2. Throw a `DiscordUserInteractionException` to represent a user-relevent and -solvable error, with the error message in the Message property. The error message can contain Discord markdown. 
 3. Throw a different, appropriate exception for other errors.
 4. Acknowledge success using an ephemeral message.
