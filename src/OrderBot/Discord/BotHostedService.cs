@@ -140,7 +140,6 @@ internal class BotHostedService : IHostedService
         // Get an ILogger from the scope.
         ILogger<BotHostedService> logger = ServiceProvider.GetRequiredService<ILogger<BotHostedService>>();
         using IDisposable loggerScope = logger.BeginScope(new ScopeBuilder(context).Build());
-        logger.LogInformation("Started");
 
         // Only tested with slash commands and autocomplete. May need excluding from other
         // interaction types.
@@ -151,18 +150,32 @@ internal class BotHostedService : IHostedService
         IResult result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
         if (result.IsSuccess)
         {
-            Logger.LogInformation("Completed");
+            Logger.LogInformation("Completed successfully");
         }
         else
         {
-            if (result.Error == InteractionCommandError.UnmetPrecondition)
+            const string internalErrorMessage = "**Error**: Command failed. It's not you, it's me. The error has been logged for review.";
+            if (result is PreconditionResult)
             {
-                errorMessage = $"**Error**: You do not have access to run this command";
-                Logger.LogWarning("Error: You do not have access to run this command");
+                errorMessage = $"**Error**: You lack the permission to run this command. Contact your Discord admins if you think this is incorrect.";
+                Logger.LogWarning("Unmet precondition (e.g. access denied)");
+            }
+            else if (result is ExecuteResult executeResult)
+            {
+                if (executeResult.Exception is DiscordUserInteractionException discordUserInteractionException)
+                {
+                    errorMessage = discordUserInteractionException.Message;
+                    Logger.LogInformation("User error: {ArgumentError}", discordUserInteractionException.Message);
+                }
+                else
+                {
+                    errorMessage = internalErrorMessage;
+                    Logger.LogError(executeResult.Exception, "Unhandled exception");
+                }
             }
             else
             {
-                errorMessage = $"**Error**: Command failed. It is not you, it's me.";
+                errorMessage = internalErrorMessage;
                 Logger.LogError("Error: {ErrorMessage}", result.ErrorReason);
             }
         }

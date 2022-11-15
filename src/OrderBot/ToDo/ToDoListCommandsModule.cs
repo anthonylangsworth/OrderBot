@@ -65,12 +65,10 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
             Logger.LogError(ex, "Unknown goal");
             throw;
         }
-        catch (NoSupportedMinorFactionException)
+        catch (NoSupportedMinorFactionException ex)
         {
-            await Context.Interaction.FollowupAsync(
-                text: "**Error** No minor faction supported. Support one using `/todo-list support set`.",
-                ephemeral: true
-            );
+            throw new DiscordUserInteractionException(
+                "**Error** No minor faction supported. Support one using `/todo-list support set`.", ex);
         }
     }
 
@@ -100,22 +98,20 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         )
         {
             using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-            string message;
             try
             {
                 await ApiFactory.CreateApi(Context.Guild).SetSupportedMinorFactionAsync(name);
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 auditLogger.Audit($"Supporting minor faction *{name}*");
-                message = $"**Success**! Now supporting *{name}*";
+                await Context.Interaction.FollowupAsync(
+                    text: $"**Success**: Now supporting *{name}*",
+                    ephemeral: true
+                );
             }
-            catch (ArgumentException)
+            catch (ArgumentException ex)
             {
-                message = $"**Error**: *{name}* is not a known minor faction";
+                throw new DiscordUserInteractionException($"**Error**: *{name}* is not a known minor faction", ex);
             }
-            await Context.Interaction.FollowupAsync(
-                text: message,
-                ephemeral: true
-            );
             transactionScope.Complete();
         }
 
@@ -129,7 +125,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             auditLogger.Audit($"Not supporting any minor faction");
             await Context.Interaction.FollowupAsync(
-                text: $"**Success**! Not supporting any minor faction",
+                text: $"**Success**: Not supporting any minor faction",
                 ephemeral: true
             );
             transactionScope.Complete();
@@ -193,16 +189,13 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                     new[] { (minorFactionName, starSystemName, goalName) });
                 auditLogger.Audit($"Added goal to {goalName} *{minorFactionName}* in {starSystemName}");
                 await Context.Interaction.FollowupAsync(
-                    text: $"**Success**! Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
+                    text: $"**Success**: Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
                     ephemeral: true
                 );
             }
             catch (ArgumentException ex)
             {
-                await Context.Interaction.FollowupAsync(
-                        text: $"**Error**! {ex.Message}",
-                        ephemeral: true
-                    );
+                throw new DiscordUserInteractionException($"**Error*: {ex.Message}", ex);
             }
             transactionScope.Complete();
         }
@@ -224,16 +217,13 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                 ApiFactory.CreateApi(Context.Guild).RemoveGoals(minorFactionName, starSystemName);
                 auditLogger.Audit($"Removed goal for *{minorFactionName}* in {starSystemName}");
                 await Context.Interaction.FollowupAsync(
-                    text: $"**Success**! Goal for *{minorFactionName}* in {starSystemName} removed",
+                    text: $"**Success**: Goal for *{minorFactionName}* in {starSystemName} removed",
                     ephemeral: true
                 );
             }
             catch (ArgumentException ex)
             {
-                await Context.Interaction.FollowupAsync(
-                    text: $"**Error**! {ex.Message}",
-                    ephemeral: true
-                );
+                throw new DiscordUserInteractionException($"**Error**: {ex.Message}", ex);
             }
             transactionScope.Complete();
         }
@@ -329,7 +319,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
                 auditLogger.Audit($"Imported goals:\n{string.Join("\n", goals.Select(g => $"{g.Goal} {g.MinorFaction} in {g.StarSystem}"))}");
                 await Context.Interaction.FollowupAsync(
-                        text: $"**Success**! {goalsAttachement.Filename} added to goals",
+                        text: $"**Success**: {goalsAttachement.Filename} added to goals",
                         ephemeral: true
                 );
                 transactionScope.Complete();
@@ -343,10 +333,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
             }
             catch (ArgumentException ex)
             {
-                await Context.Interaction.FollowupAsync(
-                        text: $"**Error**! {ex.Message}",
-                        ephemeral: true
-                    );
+                throw new DiscordUserInteractionException($"**Error**: {ex.Message}", ex);
             }
         }
     }

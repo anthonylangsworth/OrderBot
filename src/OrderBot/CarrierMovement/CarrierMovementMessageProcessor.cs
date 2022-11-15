@@ -44,8 +44,8 @@ internal class CarrierMovementMessageProcessor : EddnMessageProcessor
             Signal[]? signals = signalsElement.Deserialize<Signal[]>();
             if (signals != null)
             {
-                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                 string starSystemName = starSystemProperty.GetString() ?? "";
+                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
                 StarSystem? starSystem = dbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
                 if (starSystem != null)
                 {
