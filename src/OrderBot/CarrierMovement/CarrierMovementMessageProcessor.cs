@@ -54,7 +54,8 @@ internal class CarrierMovementMessageProcessor : EddnMessageProcessor
                     IReadOnlyList<DiscordGuild> discordGuilds = dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
                                                                                        .Where(dg => dg.CarrierMovementChannel != null)
                                                                                        .ToList();
-                    Carrier[] observedCarriers = UpdateNewCarrierLocationsAsync(dbContext, starSystem, discordGuilds, timestamp, signals).GetAwaiter().GetResult();
+                    IReadOnlyList<Carrier> observedCarriers = UpdateNewCarrierLocationsAsync(dbContext, starSystem, discordGuilds, timestamp, signals).GetAwaiter().GetResult();
+                    NotifyCarrierJumps(starSystem, observedCarriers, discordGuilds).GetAwaiter().GetResult();
                     // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
                     // if we do not receive a signal for it.
                     // RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, observedCarriers);
@@ -64,7 +65,7 @@ internal class CarrierMovementMessageProcessor : EddnMessageProcessor
         }
     }
 
-    internal async Task<Carrier[]> UpdateNewCarrierLocationsAsync(OrderBotDbContext dbContext, StarSystem starSystem,
+    internal async Task<IReadOnlyList<Carrier>> UpdateNewCarrierLocationsAsync(OrderBotDbContext dbContext, StarSystem starSystem,
         IReadOnlyList<DiscordGuild> discordGuilds, DateTime timestamp, Signal[] signals)
     {
         List<Carrier> observedCarriers = new();
@@ -87,16 +88,26 @@ internal class CarrierMovementMessageProcessor : EddnMessageProcessor
                 // TODO: Separate the messages from processing, e.g. pass in a Func or object
                 // TODO: Only notify each guild if the system has a presence or a goal
                 // TODO: Batch messages, e.g. using GuildNotifier
+            }
+        }
+        dbContext.SaveChanges();
+        return observedCarriers.ToArray();
+    }
 
-                foreach (DiscordGuild discordGuild in
-                    discordGuilds.Where(dg => !dg.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber)))
+    internal async Task NotifyCarrierJumps(StarSystem starSystem, IReadOnlyList<Carrier> observedCarriers, IReadOnlyList<DiscordGuild> discordGuilds)
+    {
+        foreach (DiscordGuild discordGuild in discordGuilds)
+        {
+            if (await DiscordClient.GetChannelAsync(discordGuild.CarrierMovementChannel ?? 0) is ISocketMessageChannel channel)
+            {
+                foreach (Carrier carrier in observedCarriers)
                 {
-                    if (await DiscordClient.GetChannelAsync(discordGuild.CarrierMovementChannel ?? 0) is ISocketMessageChannel channel)
+                    if (!discordGuild.IgnoredCarriers.Any(c => c.SerialNumber == carrier.SerialNumber))
                     {
                         try
                         {
                             await channel.SendMessageAsync(
-                                    text: $"New fleet carrier '{signal.Name}'(<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(serialNumber)}>) seen in '{starSystem.Name}'(<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(starSystem.Name)}>)."
+                                    text: $"New fleet carrier '{carrier.Name}'(<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(carrier.SerialNumber)}>) seen in '{starSystem.Name}'(<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(starSystem.Name)}>)."
                                 );
                         }
                         catch (Exception ex)
@@ -112,8 +123,6 @@ internal class CarrierMovementMessageProcessor : EddnMessageProcessor
                 }
             }
         }
-        dbContext.SaveChanges();
-        return observedCarriers.ToArray();
     }
 
     // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
