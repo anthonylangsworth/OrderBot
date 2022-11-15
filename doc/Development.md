@@ -40,7 +40,7 @@ Best practice for writing slash (application) commands:
 6. For success and error messages:
     1. Include `**Success**` or `**Error**` at the start to clearly indicate whether the command worked or did not, respectively.
     2. For errors, describe (1) why the error occured, (2) the resulting state and (3) how to fix or remedy.
-7. Use `TransactionScope` around any database work, remembering to call `Complete()` at the end. Pass `TransactionScopeAsyncFlowOption.Enabled` to ensure it is async-friendly.
+7. Use `TransactionScope` around any database work, passing `TransactionScopeAsyncFlowOption.Enabled` to ensure it is async-friendly. Call `Complete()` as the last statement.
 8. Audit any modifications using an `IAuditLogger`, ideally via a `TextChannelAuditLoggerFactory`.
 
 ## References
