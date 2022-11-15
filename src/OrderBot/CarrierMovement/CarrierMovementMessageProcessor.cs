@@ -25,6 +25,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     public ILogger<CarrierMovementMessageProcessor> Logger { get; }
     public IDiscordClient DiscordClient { get; }
 
+    /// <inheritdoc/>
     public override void Process(JsonDocument message)
     {
         DateTime timestamp = message.RootElement
@@ -65,6 +66,24 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
         }
     }
 
+    /// <summary>
+    /// Update carrier locations in the database.
+    /// </summary>
+    /// <param name="dbContext">
+    /// The database.
+    /// </param>
+    /// <param name="starSystem">
+    /// The star system.
+    /// </param>
+    /// <param name="timestamp">
+    /// The date time from the message.
+    /// </param>
+    /// <param name="signals">
+    /// The signals from the signal source.
+    /// </param>
+    /// <returns>
+    /// The new <see cref="Carrier"/>s.
+    /// </returns>
     internal IReadOnlyList<Carrier> UpdateNewCarrierLocations(OrderBotDbContext dbContext,
         StarSystem starSystem, DateTime timestamp, Signal[] signals)
     {
@@ -90,6 +109,18 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
         return observedCarriers.ToArray();
     }
 
+    /// <summary>
+    /// Notify discord guilds about carrier movement.
+    /// </summary>
+    /// <param name="starSystem">
+    /// The <see cref="StarSystem"/> the carriers have jumped in.
+    /// </param>
+    /// <param name="observedCarriers">
+    /// The carriers that jumped in.
+    /// </param>
+    /// <param name="discordGuilds">
+    /// The discord guilds to notify.
+    /// </param>
     internal async Task NotifyCarrierJumps(StarSystem starSystem, IReadOnlyList<Carrier> observedCarriers, IReadOnlyList<DiscordGuild> discordGuilds)
     {
         foreach (DiscordGuild discordGuild in discordGuilds)
@@ -104,7 +135,6 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                     foreach (Carrier carrier in observedCarriers.Except(discordGuild.IgnoredCarriers).OrderBy(c => c.Name))
                     {
                         textChannelWriter.WriteLine(GetCarrierMovementMessage(carrier, starSystem));
-                        // await channel.SendMessageAsync(GetCarrierMovementMessage(carrier, starSystem));
                     }
                 }
                 catch (Exception ex)
