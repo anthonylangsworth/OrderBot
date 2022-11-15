@@ -158,7 +158,7 @@ public class ToDoListApi
                 throw new ArgumentException($"{starSystemName} is not a known star system");
             }
 
-            if (!ToDo.Goals.Map.TryGetValue(goalName, out Goal? goal))
+            if (!Goals.Map.TryGetValue(goalName, out Goal? goal))
             {
                 throw new ArgumentException($"{goalName} is not a known goal");
             }

@@ -29,7 +29,7 @@ public class ToDoListGenerator
     /// An unknown <see cref="Goal"/> is used for a star system and minor faction.
     /// </exception>
     /// <exception cref="NoSupportedMinorFactionException">
-    /// 
+    /// The guild <paramref name="guildId"/> does not support a minor faction.
     /// </exception>
     public ToDoList Generate(ulong guildId)
     {
