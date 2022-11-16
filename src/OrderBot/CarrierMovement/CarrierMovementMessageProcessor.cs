@@ -42,42 +42,34 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
         // See https://github.com/EDCD/EDDN/blob/master/schemas/fsssignaldiscovered-v1.0.json for the schema
         // "signals": [{"IsStation": true, "SignalName": "THE PEAKY BLINDERS KNF-83G", "timestamp": "2022-10-13T12:13:09Z"}]
 
-        IList<DiscordGuildPresenceGoal> discordGuildPresenceGoals = MemoryCache.GetOrCreate(
-            $"{nameof(CarrierMovementMessageProcessor)}_DiscordGuildPresenceGoals",
-            ce =>
-            {
-                ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
-                return DbContext.DiscordGuildPresenceGoals.Include(dgpg => dgpg.DiscordGuild)
-                                                          .Include(dgpg => dgpg.DiscordGuild.IgnoredCarriers)
-                                                          .Include(dgpg => dgpg.Presence)
-                                                          .Include(dgpg => dgpg.Presence.StarSystem)
-                                                          .ToList();
-            });
-        IList<Presence> presences = MemoryCache.GetOrCreate(
-            $"{nameof(CarrierMovementMessageProcessor)}_Presences",
-            ce =>
-            {
-                ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
-                return DbContext.Presences.Include(p => p.MinorFaction)
-                                          .Include(p => p.MinorFaction.SupportedBy)
-                                          .Include(p => p.StarSystem)
-                                          .ToList();
-            });
-        IList<StarSystem> starSystems =
-            Enumerable.Concat(
-                discordGuildPresenceGoals.Select(dgpg => dgpg.Presence.StarSystem),
-                presences.Select(p => p.StarSystem)
-             ).Distinct()
-              .ToList();
-        IList<DiscordGuild> discordGuilds =
-            Enumerable.Concat(
-                discordGuildPresenceGoals.Select(dgpg => dgpg.DiscordGuild),
-                presences.SelectMany(p => p.MinorFaction.SupportedBy)
-            ).Distinct()
-             .Where(dg => dg.CarrierMovementChannel != null)
-             .ToList();
+        // Maps the star system name to a list of discord guild IDs and the carrier movement channel IDs
+        IDictionary<string, IDictionary<int, ulong?>> starSystemToDiscordGuildToCarrierMovementChannel =
+            GetStarSystemToDiscordGuildToCarrierMovementChannel();
+        IDictionary<int, List<string>> discordGuildToIgnoredCarrierSerialNumber = GetIgnoredCarriers();
+
+        //IList<DiscordGuildPresenceGoal> discordGuildPresenceGoals = MemoryCache.GetOrCreate(
+        //    $"{nameof(CarrierMovementMessageProcessor)}_DiscordGuildPresenceGoals",
+        //    ce =>
+        //    {
+        //        ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
+        //        // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
+        //        return DbContext.DiscordGuildPresenceGoals.Include(dgpg => dgpg.DiscordGuild)
+        //                                                  .Include(dgpg => dgpg.DiscordGuild.IgnoredCarriers)
+        //                                                  .Include(dgpg => dgpg.Presence)
+        //                                                  .Include(dgpg => dgpg.Presence.StarSystem)
+        //                                                  .ToList();
+        //    });
+        //IList<Presence> presences = MemoryCache.GetOrCreate(
+        //    $"{nameof(CarrierMovementMessageProcessor)}_Presences",
+        //    ce =>
+        //    {
+        //        ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
+        //        // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
+        //        return DbContext.Presences.Include(p => p.MinorFaction)
+        //                                  .Include(p => p.MinorFaction.SupportedBy)
+        //                                  .Include(p => p.StarSystem)
+        //                                  .ToList();
+        //    });
 
         JsonElement messageElement = message.RootElement.GetProperty("message");
         if (messageElement.TryGetProperty("event", out JsonElement eventProperty)
@@ -89,20 +81,82 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
             if (signals != null)
             {
                 string starSystemName = starSystemProperty.GetString() ?? "";
-                StarSystem? starSystem = starSystems.FirstOrDefault(ss => ss.Name == starSystemName);
-                if (starSystem != null)
+                if (starSystemToDiscordGuildToCarrierMovementChannel.ContainsKey(starSystemName))
                 {
-                    using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-                    IReadOnlyList<Carrier> observedCarriers = UpdateNewCarrierLocations(starSystem, timestamp, signals);
-                    // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
-                    // if we do not receive a signal for it.
-                    // RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, observedCarriers);
-                    transactionScope.Complete();
+                    StarSystem? starSystem = DbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
+                    if (starSystem != null)
+                    {
+                        using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+                        IReadOnlyList<Carrier> observedCarriers = UpdateNewCarrierLocations(starSystem, timestamp, signals);
 
-                    await NotifyCarrierJumps(starSystem, observedCarriers, discordGuildPresenceGoals, presences);
+                        // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
+                        // if we do not receive a signal for it.
+                        // RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, observedCarriers);
+
+                        transactionScope.Complete();
+
+                        await NotifyCarrierJumps(starSystem, observedCarriers,
+                            starSystemToDiscordGuildToCarrierMovementChannel[starSystemName],
+                            discordGuildToIgnoredCarrierSerialNumber);
+                    }
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Get a mapping of discord guilds to the serial numbers of ignored carriers.
+    /// </summary>
+    /// <returns>
+    /// The mapping.
+    /// </returns>
+    private IDictionary<int, List<string>> GetIgnoredCarriers()
+    {
+        return DbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
+                                   .ToDictionary(dg => dg.Id, dg => dg.IgnoredCarriers.Select(ic => ic.SerialNumber).ToList());
+    }
+
+    /// <summary>
+    /// Get a mapping of star systems to Discord guilds to carrier movement channels.
+    /// </summary>
+    /// <remarks>
+    /// Intentionally return <see cref="DiscordGuild"/>s that do not have the carrier movement channel set.
+    /// We still want to save carrier locations if future use requires it.
+    /// </remarks>
+    /// <returns>
+    /// The mapping.
+    /// </returns>
+    private IDictionary<string, IDictionary<int, ulong?>> GetStarSystemToDiscordGuildToCarrierMovementChannel()
+    {
+        Dictionary<string, IDictionary<int, ulong?>> result = new();
+        IEnumerable<(string Name, int Id, ulong? CarrierMovementChannel)> fromGoals =
+            DbContext.DiscordGuildPresenceGoals.Include(dgpg => dgpg.DiscordGuild)
+                                               // .Include(dgpg => dgpg.DiscordGuild.IgnoredCarriers)
+                                               .Include(dgpg => dgpg.Presence)
+                                               .Include(dgpg => dgpg.Presence.StarSystem)
+                                               .ToList()
+                                               .Select(dgpg => (dgpg.Presence.StarSystem.Name, dgpg.DiscordGuild.Id, dgpg.DiscordGuild.CarrierMovementChannel));
+        IEnumerable<(string, int, ulong?)> fromPresences =
+            DbContext.Presences.Include(p => p.MinorFaction)
+                               .Include(p => p.MinorFaction.SupportedBy)
+                               .Include(p => p.StarSystem)
+                               .ToList()
+                               .SelectMany(p => p.MinorFaction.SupportedBy.Select(dg => (p.StarSystem.Name, dg.Id, dg.CarrierMovementChannel)));
+        foreach ((string systemName, int discordGuidId, ulong? carrierMovementChannel) in Enumerable.Concat(fromGoals, fromPresences))
+        {
+            if (result.TryGetValue(systemName, out IDictionary<int, ulong?>? discordGuildToCarrierMovementChannel))
+            {
+                if (!discordGuildToCarrierMovementChannel.ContainsKey(discordGuidId))
+                {
+                    discordGuildToCarrierMovementChannel.Add(discordGuidId, carrierMovementChannel);
+                }
+            }
+            else
+            {
+                result.Add(systemName, new Dictionary<int, ulong?>() { { discordGuidId, carrierMovementChannel } });
+            }
+        }
+        return result;
     }
 
     /// <summary>
@@ -154,26 +208,30 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// <param name="observedCarriers">
     /// The carriers that jumped in.
     /// </param>
-    /// <param name="discordGuildPresenceGoals">
-    /// Notify the server has one or more goals for this system.
+    /// <param name="discordGuildToCarrierMovementChannel">
+    /// Map Discord guilds to the configured carrier movement channel. Used to 
+    /// determine the channel to write to.
     /// </param>
-    /// <param name="presences">
-    /// Notify the server supports a minor faction present in this system.
+    /// <param name="discordGuildToIgnoredCarrierSerialNumbers">
+    /// Map Discord guilds to the serial numbers of ignored carriers. Used to 
+    /// avoid notifying about ignored carriers.
     /// </param>
     internal async Task NotifyCarrierJumps(StarSystem starSystem, IReadOnlyList<Carrier> observedCarriers,
-        IList<DiscordGuildPresenceGoal> discordGuildPresenceGoals, IList<Presence> presences)
+        IDictionary<int, ulong?> discordGuildToCarrierMovementChannel,
+        IDictionary<int, List<string>> discordGuildToIgnoredCarrierSerialNumbers)
     {
-        foreach (DiscordGuild discordGuild in discordGuildPresenceGoals.Select(dgpg => dgpg.DiscordGuild).Distinct())
+        foreach (int discordGuildId in discordGuildToCarrierMovementChannel.Keys)
         {
-            // Compare IDs or names just in case cached objects are different references
-            if (await DiscordClient.GetChannelAsync(discordGuild.CarrierMovementChannel ?? 0) is ITextChannel channel
-                && (discordGuildPresenceGoals.Any(dgpg => dgpg.DiscordGuild.Id == discordGuild.Id && dgpg.Presence.StarSystem.Name == starSystem.Name)
-                    || presences.Any(p => p.MinorFaction.SupportedBy.Any(dg => dg.Id == discordGuild.Id) && p.StarSystem.Name == starSystem.Name)))
+            discordGuildToIgnoredCarrierSerialNumbers.TryGetValue(discordGuildId, out List<string>? ignoredCarriers);
+            ignoredCarriers ??= new List<string>();
+            if (discordGuildToCarrierMovementChannel.TryGetValue(discordGuildId, out ulong? carrierMovementChannel)
+               && await DiscordClient.GetChannelAsync(carrierMovementChannel ?? 0) is ITextChannel channel)
             {
                 try
                 {
                     using TextChannelWriter textChannelWriter = new(channel);
-                    foreach (Carrier carrier in observedCarriers.Except(discordGuild.IgnoredCarriers).OrderBy(c => c.Name))
+                    foreach (Carrier carrier in observedCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber))
+                                                                .OrderBy(c => c.Name))
                     {
                         textChannelWriter.WriteLine(GetCarrierMovementMessage(carrier, starSystem));
                     }
@@ -182,7 +240,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 {
                     Logger.LogError(
                         ex, "Sending carrier notification to channel '{ChannelId}' for discord Guid '{GuildId}' failed",
-                        channel.Id, discordGuild.Id
+                        channel.Id, discordGuildId
                     );
                 }
             }
