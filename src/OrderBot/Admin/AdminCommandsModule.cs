@@ -48,7 +48,7 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
         )
         {
             string errorMessage = null!;
-            using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(Context).Build());
+            using IDisposable loggerScope = Logger.BeginScope(new InteractionScopeBuilder(Context).Build());
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
 
@@ -183,7 +183,7 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
          )
         {
             string errorMessage = null!;
-            using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(Context).Build());
+            using IDisposable loggerScope = Logger.BeginScope(new InteractionScopeBuilder(Context).Build());
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
 
@@ -249,7 +249,7 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
          )
         {
             string errorMessage = null!;
-            using IDisposable loggerScope = Logger.BeginScope(new ScopeBuilder(Context).Build());
+            using IDisposable loggerScope = Logger.BeginScope(new InteractionScopeBuilder(Context).Build());
             using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
             DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
 

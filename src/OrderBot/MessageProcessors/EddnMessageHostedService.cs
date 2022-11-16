@@ -1,4 +1,5 @@
 ﻿using Ionic.Zlib;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NetMQ;
@@ -10,14 +11,14 @@ namespace OrderBot.MessageProcessors;
 
 internal class EddnMessageHostedService : BackgroundService
 {
-    public EddnMessageHostedService(ILogger<EddnMessageHostedService> logger, IEnumerable<EddnMessageProcessor> messageProcessors)
+    public EddnMessageHostedService(ILogger<EddnMessageHostedService> logger, IServiceProvider serviceProvider)
     {
-        MessageProcessors = messageProcessors.ToArray();
         Logger = logger;
+        ServiceProvider = serviceProvider;
     }
 
-    public IReadOnlyList<EddnMessageProcessor> MessageProcessors { get; }
     public ILogger<EddnMessageHostedService> Logger { get; }
+    public IServiceProvider ServiceProvider { get; }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -30,14 +31,20 @@ internal class EddnMessageHostedService : BackgroundService
             if (client.TryReceiveFrameBytes(TimeSpan.FromMilliseconds(1000), out byte[]? compressed, out bool _)
                 && compressed != null)
             {
-                await ProcessMessage(Logger, compressed, MessageProcessors);
+                await ProcessMessage(compressed);
             }
         }
     }
 
-    internal static async Task ProcessMessage(ILogger logger, byte[] compressed, IReadOnlyList<EddnMessageProcessor> messageProcessors)
+    internal async Task ProcessMessage(byte[] compressed)
     {
-        using (logger.BeginScope("Process message received at {UtcTime}", DateTime.UtcNow))
+        using IServiceScope serviceScope = ServiceProvider.CreateScope();
+        ILogger<EddnMessageHostedService> scopedLogger = ServiceProvider.GetRequiredService<ILogger<EddnMessageHostedService>>();
+        IEnumerable<EddnMessageProcessor> messageProcessors = ServiceProvider.GetRequiredService<IEnumerable<EddnMessageProcessor>>();
+
+        ScopeBuilder scopeBuilder = new ScopeBuilder();
+        scopeBuilder.Add("UtcTime", DateTime.UtcNow);
+        using (scopedLogger.BeginScope(scopeBuilder.Build()))
         {
             try
             {
@@ -51,25 +58,25 @@ internal class EddnMessageHostedService : BackgroundService
                     }
                     catch (JsonException)
                     {
-                        logger.LogError("Invalid JSON", message);
+                        scopedLogger.LogError("Invalid JSON", message);
                     }
                     catch (KeyNotFoundException)
                     {
-                        logger.LogError("Required field(s) missing", message);
+                        scopedLogger.LogError("Required field(s) missing", message);
                     }
                     catch (FormatException)
                     {
-                        logger.LogError("Incorrect field format", message);
+                        scopedLogger.LogError("Incorrect field format", message);
                     }
                     catch (Exception ex)
                     {
-                        logger.LogError(ex, "Process message failed");
+                        scopedLogger.LogError(ex, "Process message failed");
                     }
                 }
             }
             catch (ZlibException)
             {
-                logger.LogError("Decompress message failed");
+                scopedLogger.LogError("Decompress message failed");
             }
         }
     }

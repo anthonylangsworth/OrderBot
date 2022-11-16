@@ -3,12 +3,11 @@ using OrderBot.MessageProcessors;
 
 namespace OrderBot.ToDo;
 
-internal static class ToDoExtensions
+internal static class ToDoListExtensions
 {
     internal static void AddTodoList(this IServiceCollection services)
     {
-        services.AddMemoryCache();
         services.AddSingleton<ToDoListApiFactory>();
-        services.AddSingleton<EddnMessageProcessor, ToDoListMessageProcessor>();
+        services.AddScoped<EddnMessageProcessor, ToDoListMessageProcessor>();
     }
 }

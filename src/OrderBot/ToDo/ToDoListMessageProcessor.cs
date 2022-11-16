@@ -77,7 +77,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     }
 
     /// <summary>
-    /// Get the star systems used with goals. Details from these star systems should be processed.
+    /// Get the star systems used with goals across all Discord Guilds. Details from these star systems should be processed.
     /// </summary>
     /// <param name="dbContext">
     /// The <see cref="OrderBotDbContext"/> to use.
@@ -91,7 +91,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     }
 
     /// <summary>
-    /// Get the su
+    /// Get the supported minor factions across all Discord guilds. Details from these star systems should be processed.
     /// </summary>
     /// <param name="dbContext"></param>
     /// <returns>

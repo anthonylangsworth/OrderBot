@@ -7,6 +7,6 @@ internal static class CarrierMovementExtensions
 {
     internal static void AddCarrierMovement(this IServiceCollection services)
     {
-        services.AddSingleton<EddnMessageProcessor, CarrierMovementMessageProcessor>();
+        services.AddScoped<EddnMessageProcessor, CarrierMovementMessageProcessor>();
     }
 }

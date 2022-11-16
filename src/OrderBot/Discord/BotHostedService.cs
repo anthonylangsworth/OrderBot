@@ -139,7 +139,7 @@ internal class BotHostedService : IHostedService
 
         // Get an ILogger from the scope.
         ILogger<BotHostedService> logger = ServiceProvider.GetRequiredService<ILogger<BotHostedService>>();
-        using IDisposable loggerScope = logger.BeginScope(new ScopeBuilder(context).Build());
+        using IDisposable loggerScope = logger.BeginScope(new InteractionScopeBuilder(context).Build());
 
         // Only tested with slash commands and autocomplete. May need excluding from other
         // interaction types.
