@@ -7,8 +7,6 @@ namespace OrderBot.Discord;
 
 internal static class BotExtensions
 {
-    // const string DiscordApiKeyEnvironmentVariable = "Discord__ApiKey";
-
     /// <summary>
     /// Add the Discord Bot service(s).
     /// </summary>
@@ -23,12 +21,11 @@ internal static class BotExtensions
     /// </exception>
     public static void AddDiscordBot(this IServiceCollection services)
     {
-        DiscordSocketClient discordSocketClient = new DiscordSocketClient(new DiscordSocketConfig()
+        services.AddSingleton(sp => new DiscordSocketClient(new DiscordSocketConfig()
         {
             GatewayIntents = BotHostedService.Intents
-        });
-        services.AddSingleton(sp => discordSocketClient);
-        services.AddSingleton<IDiscordClient, DiscordSocketClient>(sp => discordSocketClient);
+        }));
+        services.AddSingleton<IDiscordClient, DiscordSocketClient>();
         services.AddSingleton(sp => new InteractionService(
             sp.GetRequiredService<DiscordSocketClient>(),
             new InteractionServiceConfig()
