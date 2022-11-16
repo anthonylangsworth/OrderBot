@@ -34,6 +34,24 @@ internal class CarrierMovementMessageProcessorTests
         Assert.That(messageProcessor.DbContext, Is.EqualTo(dbContext));
     }
 
+    //[SetUp]
+    //public void SetUp()
+    //{
+    //    using OrderBotDbContextFactory contextFactory = new();
+    //    using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
+    //    using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+    //    using IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
+    //}
+
+    //[TearDown]
+    //public void TearDown()
+    //{
+    //}
+
+    //OrderBotDbContextFactory ContextFactory;
+    //OrderBotDbContext DbContext;
+    //TransactionScope TransactionScope;
+
     [Test]
     public void Process()
     {
@@ -70,7 +88,11 @@ internal class CarrierMovementMessageProcessorTests
             };
 
             MockRepository mockRepository = new(MockBehavior.Strict);
-            ILogger<CarrierMovementMessageProcessor> logger = mockRepository.Create<ILogger<CarrierMovementMessageProcessor>>().Object;
+            Mock<ILogger<CarrierMovementMessageProcessor>> mockLogger =
+                mockRepository.Create<ILogger<CarrierMovementMessageProcessor>>(MockBehavior.Loose);
+            //mockLogger.Setup(l => l.Log(LogLevel.Information, 0,
+            //    "Carrier(s) Cowboy B X9Z-B0B, T.N.V.A COSMOS HNV-L7X, E.D.A. WALKABOUT KHF-79Z, ODIN W6B-94Z in LTT 2684 updated"));
+            ILogger<CarrierMovementMessageProcessor> logger = mockLogger.Object;
 
             IUserMessage userMessage = mockRepository.Create<IUserMessage>().Object;
 

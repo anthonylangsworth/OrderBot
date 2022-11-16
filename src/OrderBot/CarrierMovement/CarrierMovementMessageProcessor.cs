@@ -196,6 +196,11 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
             }
         }
         DbContext.SaveChanges();
+        if (observedCarriers.Any())
+        {
+            Logger.LogInformation("Carrier(s) {Carriers} in {StarSystem} updated",
+                string.Join(", ", observedCarriers.Select(c => c.Name)), starSystem.Name);
+        }
         return observedCarriers.ToArray();
     }
 
