@@ -1,7 +1,9 @@
 ﻿using Discord;
+using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OrderBot.Core;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
@@ -15,17 +17,54 @@ namespace OrderBot.CarrierMovement;
 /// <summary>
 /// Update non-ignored carrier locations and notify Discord Guilds. Called by <see cref="EddnMessageHostedService"/>.
 /// </summary>
-public class CarrierMovementMessageProcessor : EddnMessageProcessor
+public class CarrierMovementMessageProcessor : EddnMessageProcessor, IDisposable
 {
     public CarrierMovementMessageProcessor(OrderBotDbContext dbContext,
         ILogger<CarrierMovementMessageProcessor> logger, IDiscordClient discordClient,
-        IMemoryCache memoryCache)
+        IMemoryCache memoryCache, IOptions<DiscordClientConfig> config)
     {
         DbContext = dbContext;
         Logger = logger;
         DiscordClient = discordClient;
         MemoryCache = memoryCache;
+
+        if (DiscordClient.ConnectionState != ConnectionState.Connected
+            && DiscordClient is DiscordSocketClient discordSocketClient)
+        {
+            _stopDiscordClient = true;
+            discordSocketClient.LoginAsync(TokenType.Bot, config.Value.ApiKey).GetAwaiter().GetResult();
+            discordSocketClient.StartAsync().GetAwaiter().GetResult();
+        }
+        else
+        {
+            _stopDiscordClient = false;
+        }
     }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                if (_stopDiscordClient
+                    && DiscordClient is DiscordSocketClient discordSocketClient)
+                {
+                    discordSocketClient.StopAsync().GetAwaiter().GetResult();
+                    _stopDiscordClient = false;
+                }
+            }
+
+            disposedValue = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
 
     public OrderBotDbContext DbContext { get; }
     public ILogger<CarrierMovementMessageProcessor> Logger { get; }
@@ -33,6 +72,8 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     public IMemoryCache MemoryCache { get; }
 
     public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+    private bool _stopDiscordClient;
+    private bool disposedValue;
 
     /// <inheritdoc/>
     public override async Task ProcessAsync(JsonDocument message)

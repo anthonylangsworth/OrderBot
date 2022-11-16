@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OrderBot.EntityFramework;
 using System.Reflection;
 
@@ -31,17 +32,19 @@ internal class BotHostedService : IHostedService
     /// The <see cref="IServiceProvider"/> to instantiate other classes.
     /// </param>
     /// <param name="contextFactory"></param>
-    /// <param name="apiKey"></param>
+    /// <param name="config">
+    /// Configuration.
+    /// </param>
     public BotHostedService(ILogger<BotHostedService> logger, DiscordSocketClient discordClient,
         InteractionService interactionService, IServiceProvider serviceProvider,
-        IDbContextFactory<OrderBotDbContext> contextFactory, string apiKey)
+        IDbContextFactory<OrderBotDbContext> contextFactory, IOptions<DiscordClientConfig> config)
     {
         Logger = logger;
         Client = discordClient;
         InteractionService = interactionService;
         ServiceProvider = serviceProvider;
         ContextFactory = contextFactory;
-        ApiKey = apiKey;
+        ApiKey = config.Value.ApiKey;
 
         Client.Log += LogAsync;
         InteractionService.Log += LogAsync;

@@ -1,18 +1,13 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using OrderBot.EntityFramework;
 
 namespace OrderBot.Discord;
 
 internal static class BotExtensions
 {
-
-    const string DiscordApiKeyEnvironmentVariable = "DiscordApiKey";
+    // const string DiscordApiKeyEnvironmentVariable = "Discord__ApiKey";
 
     /// <summary>
     /// Add the Discord Bot service(s).
@@ -26,14 +21,14 @@ internal static class BotExtensions
     /// <exception cref="InvalidOperationException">
     /// Configuration is missing or invalid.
     /// </exception>
-    public static void AddDiscordBot(this IServiceCollection services, IConfiguration configuration)
+    public static void AddDiscordBot(this IServiceCollection services)
     {
-        string discordApiKey = configuration.GetRequiredSection(DiscordApiKeyEnvironmentVariable).Value;
-        if (string.IsNullOrEmpty(discordApiKey))
-        {
-            throw new InvalidOperationException(
-                $"Missing Discord API Key in environment variable `{DiscordApiKeyEnvironmentVariable}`.");
-        }
+        //string discordApiKey = configuration.GetRequiredSection(DiscordApiKeyEnvironmentVariable).Value;
+        //if (string.IsNullOrEmpty(discordApiKey))
+        //{
+        //    throw new InvalidOperationException(
+        //        $"Missing Discord API Key in environment variable `{DiscordApiKeyEnvironmentVariable}`.");
+        //}
         services.AddSingleton(sp => new DiscordSocketClient(new DiscordSocketConfig()
         {
             GatewayIntents = BotHostedService.Intents
@@ -45,12 +40,6 @@ internal static class BotExtensions
             {
                 DefaultRunMode = RunMode.Sync // Default is Async. Sync provides better error reporting.
             }));
-        services.AddHostedService<BotHostedService>(
-            sp => new(sp.GetRequiredService<ILogger<BotHostedService>>(),
-                sp.GetRequiredService<DiscordSocketClient>(),
-                sp.GetRequiredService<InteractionService>(),
-                sp,
-                sp.GetRequiredService<IDbContextFactory<OrderBotDbContext>>(),
-                discordApiKey));
+        services.AddHostedService<BotHostedService>();
     }
 }

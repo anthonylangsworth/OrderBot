@@ -24,7 +24,7 @@ internal class Program
                              services.AddEddnMessageProcessor();
                              services.AddTodoList();
                              services.AddCarrierMovement();
-                             services.AddDiscordBot(hostContext.Configuration);
+                             services.AddDiscordBot();
                              services.AddDiscordChannelAuditLogFactory();
                          })
                          .Build();

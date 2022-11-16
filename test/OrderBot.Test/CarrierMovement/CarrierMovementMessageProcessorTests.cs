@@ -2,10 +2,12 @@
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
 using OrderBot.CarrierMovement;
 using OrderBot.Core;
+using OrderBot.Discord;
 using OrderBot.EntityFramework;
 using OrderBot.Test.ToDo;
 using System.Reflection;
@@ -25,9 +27,10 @@ internal class CarrierMovementMessageProcessorTests
         ILogger<CarrierMovementMessageProcessor> logger = NullLogger<CarrierMovementMessageProcessor>.Instance;
         IDiscordClient discordClient = Mock.Of<IDiscordClient>();
         using IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
+        IOptions<DiscordClientConfig> options = Options.Create(new DiscordClientConfig { ApiKey = "" });
 
         CarrierMovementMessageProcessor messageProcessor = new(dbContext,
-            logger, discordClient, memoryCache);
+            logger, discordClient, memoryCache, options);
 
         Assert.That(messageProcessor.Logger, Is.EqualTo(logger));
         Assert.That(messageProcessor.DiscordClient, Is.EqualTo(discordClient));
@@ -63,6 +66,7 @@ internal class CarrierMovementMessageProcessorTests
             using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
             using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
             using IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
+            IOptions<DiscordClientConfig> options = Options.Create(new DiscordClientConfig { ApiKey = "" });
 
             const ulong carrierMovementChannelId = 1234567890;
             Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B" };
@@ -115,10 +119,11 @@ internal class CarrierMovementMessageProcessorTests
             Mock<IDiscordClient> mockDiscordClient = mockRepository.Create<IDiscordClient>();
             mockDiscordClient.Setup(dc => dc.GetChannelAsync(carrierMovementChannelId, CacheMode.AllowDownload, null))
                              .ReturnsAsync(socketMessageChannel);
+            mockDiscordClient.SetupGet(dc => dc.ConnectionState).Returns(ConnectionState.Connected);
             IDiscordClient discordClient = mockDiscordClient.Object;
 
             CarrierMovementMessageProcessor messageProcessor = new(dbContext,
-                logger, discordClient, memoryCache);
+                logger, discordClient, memoryCache, options);
             messageProcessor.ProcessAsync(JsonDocument.Parse(stream)).GetAwaiter().GetResult();
 
             Assert.That(
