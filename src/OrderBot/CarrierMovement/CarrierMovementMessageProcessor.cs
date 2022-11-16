@@ -33,8 +33,6 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     public IMemoryCache MemoryCache { get; }
 
     public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
-    private bool stopDiscordClient;
-    private bool disposedValue;
 
     /// <inheritdoc/>
     public override async Task ProcessAsync(JsonDocument message)
