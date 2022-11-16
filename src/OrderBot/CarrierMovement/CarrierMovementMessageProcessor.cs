@@ -47,6 +47,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
             ce =>
             {
                 ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
+                // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
                 return DbContext.DiscordGuildPresenceGoals.Include(dgpg => dgpg.DiscordGuild)
                                                           .Include(dgpg => dgpg.DiscordGuild.IgnoredCarriers)
                                                           .Include(dgpg => dgpg.Presence)
@@ -58,6 +59,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
             ce =>
             {
                 ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
+                // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
                 return DbContext.Presences.Include(p => p.MinorFaction)
                                           .Include(p => p.MinorFaction.SupportedBy)
                                           .Include(p => p.StarSystem)
@@ -92,11 +94,12 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 {
                     using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
                     IReadOnlyList<Carrier> observedCarriers = UpdateNewCarrierLocations(starSystem, timestamp, signals);
-                    await NotifyCarrierJumps(starSystem, observedCarriers, discordGuildPresenceGoals, presences);
                     // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
                     // if we do not receive a signal for it.
                     // RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, observedCarriers);
                     transactionScope.Complete();
+
+                    await NotifyCarrierJumps(starSystem, observedCarriers, discordGuildPresenceGoals, presences);
                 }
             }
         }
@@ -105,9 +108,6 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// <summary>
     /// Update carrier locations in the database.
     /// </summary>
-    /// <param name="dbContext">
-    /// The database.
-    /// </param>
     /// <param name="starSystem">
     /// The star system.
     /// </param>
@@ -165,9 +165,10 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     {
         foreach (DiscordGuild discordGuild in discordGuildPresenceGoals.Select(dgpg => dgpg.DiscordGuild).Distinct())
         {
+            // Compare IDs or names just in case cached objects are different references
             if (await DiscordClient.GetChannelAsync(discordGuild.CarrierMovementChannel ?? 0) is ITextChannel channel
-                && (discordGuildPresenceGoals.Any(dgpg => dgpg.DiscordGuild == discordGuild && dgpg.Presence.StarSystem == starSystem)
-                    || presences.Any(p => p.MinorFaction.SupportedBy.Contains(discordGuild) && p.StarSystem == starSystem)))
+                && (discordGuildPresenceGoals.Any(dgpg => dgpg.DiscordGuild.Id == discordGuild.Id && dgpg.Presence.StarSystem.Name == starSystem.Name)
+                    || presences.Any(p => p.MinorFaction.SupportedBy.Any(dg => dg.Id == discordGuild.Id) && p.StarSystem.Name == starSystem.Name)))
             {
                 try
                 {

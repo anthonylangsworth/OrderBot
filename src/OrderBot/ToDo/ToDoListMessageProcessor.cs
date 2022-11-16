@@ -50,6 +50,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
             ce =>
             {
                 ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
+                // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
                 return GetSupportedMinorFactions(DbContext);
             });
         IReadOnlySet<string> goalStarSystems = MemoryCache.GetOrCreate(
@@ -57,6 +58,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
             ce =>
             {
                 ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
+                // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
                 return GetGoalSystems(DbContext);
             });
 
