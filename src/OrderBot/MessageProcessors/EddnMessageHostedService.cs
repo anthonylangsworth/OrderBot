@@ -40,10 +40,9 @@ internal class EddnMessageHostedService : BackgroundService
     {
         using IServiceScope serviceScope = ServiceProvider.CreateScope();
         ILogger<EddnMessageHostedService> scopedLogger = ServiceProvider.GetRequiredService<ILogger<EddnMessageHostedService>>();
-        IEnumerable<EddnMessageProcessor> messageProcessors = ServiceProvider.GetRequiredService<IEnumerable<EddnMessageProcessor>>();
+        IEnumerable<EddnMessageProcessor> messageProcessors = ServiceProvider.GetServices<EddnMessageProcessor>();
 
-        ScopeBuilder scopeBuilder = new ScopeBuilder();
-        scopeBuilder.Add("UtcTime", DateTime.UtcNow);
+        ScopeBuilder scopeBuilder = new ScopeBuilder().Add("UtcTime", DateTime.UtcNow);
         using (scopedLogger.BeginScope(scopeBuilder.Build()))
         {
             try

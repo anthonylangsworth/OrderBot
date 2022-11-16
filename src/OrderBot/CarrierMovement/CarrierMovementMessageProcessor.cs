@@ -1,9 +1,7 @@
 ﻿using Discord;
-using Discord.WebSocket;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using OrderBot.Core;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
@@ -17,54 +15,17 @@ namespace OrderBot.CarrierMovement;
 /// <summary>
 /// Update non-ignored carrier locations and notify Discord Guilds. Called by <see cref="EddnMessageHostedService"/>.
 /// </summary>
-public class CarrierMovementMessageProcessor : EddnMessageProcessor, IDisposable
+public class CarrierMovementMessageProcessor : EddnMessageProcessor
 {
     public CarrierMovementMessageProcessor(OrderBotDbContext dbContext,
         ILogger<CarrierMovementMessageProcessor> logger, IDiscordClient discordClient,
-        IMemoryCache memoryCache, IOptions<DiscordClientConfig> config)
+        IMemoryCache memoryCache)
     {
         DbContext = dbContext;
         Logger = logger;
         DiscordClient = discordClient;
         MemoryCache = memoryCache;
-
-        if (DiscordClient.ConnectionState != ConnectionState.Connected
-            && DiscordClient is DiscordSocketClient discordSocketClient)
-        {
-            _stopDiscordClient = true;
-            discordSocketClient.LoginAsync(TokenType.Bot, config.Value.ApiKey).GetAwaiter().GetResult();
-            discordSocketClient.StartAsync().GetAwaiter().GetResult();
-        }
-        else
-        {
-            _stopDiscordClient = false;
-        }
     }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposedValue)
-        {
-            if (disposing)
-            {
-                if (_stopDiscordClient
-                    && DiscordClient is DiscordSocketClient discordSocketClient)
-                {
-                    discordSocketClient.StopAsync().GetAwaiter().GetResult();
-                    _stopDiscordClient = false;
-                }
-            }
-
-            disposedValue = true;
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
 
     public OrderBotDbContext DbContext { get; }
     public ILogger<CarrierMovementMessageProcessor> Logger { get; }
@@ -72,7 +33,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor, IDisposable
     public IMemoryCache MemoryCache { get; }
 
     public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
-    private bool _stopDiscordClient;
+    private bool stopDiscordClient;
     private bool disposedValue;
 
     /// <inheritdoc/>
@@ -85,32 +46,25 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor, IDisposable
 
         // Maps the star system name to a list of discord guild IDs and the carrier movement channel IDs
         IDictionary<string, IDictionary<int, ulong?>> starSystemToDiscordGuildToCarrierMovementChannel =
-            GetStarSystemToDiscordGuildToCarrierMovementChannel();
-        IDictionary<int, List<string>> discordGuildToIgnoredCarrierSerialNumber = GetIgnoredCarriers();
+            MemoryCache.GetOrCreate(
+                $"{nameof(CarrierMovementMessageProcessor)}_StarSystemToDiscordGuildToCarrierMovementChannel",
+                ce =>
+                {
+                    ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
+                    // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
+                    return GetStarSystemToDiscordGuildToCarrierMovementChannel();
+                });
 
-        //IList<DiscordGuildPresenceGoal> discordGuildPresenceGoals = MemoryCache.GetOrCreate(
-        //    $"{nameof(CarrierMovementMessageProcessor)}_DiscordGuildPresenceGoals",
-        //    ce =>
-        //    {
-        //        ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-        //        // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
-        //        return DbContext.DiscordGuildPresenceGoals.Include(dgpg => dgpg.DiscordGuild)
-        //                                                  .Include(dgpg => dgpg.DiscordGuild.IgnoredCarriers)
-        //                                                  .Include(dgpg => dgpg.Presence)
-        //                                                  .Include(dgpg => dgpg.Presence.StarSystem)
-        //                                                  .ToList();
-        //    });
-        //IList<Presence> presences = MemoryCache.GetOrCreate(
-        //    $"{nameof(CarrierMovementMessageProcessor)}_Presences",
-        //    ce =>
-        //    {
-        //        ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-        //        // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
-        //        return DbContext.Presences.Include(p => p.MinorFaction)
-        //                                  .Include(p => p.MinorFaction.SupportedBy)
-        //                                  .Include(p => p.StarSystem)
-        //                                  .ToList();
-        //    });
+        // Maps each discord guild to the serial numbers of its ignored carriers
+        IDictionary<int, List<string>> discordGuildToIgnoredCarrierSerialNumber =
+            MemoryCache.GetOrCreate(
+                $"{nameof(CarrierMovementMessageProcessor)}_DiscordGuildToIgnoredCarrierSerialNumber",
+                ce =>
+                {
+                    ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
+                    // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
+                    return GetIgnoredCarriers();
+                });
 
         JsonElement messageElement = message.RootElement.GetProperty("message");
         if (messageElement.TryGetProperty("event", out JsonElement eventProperty)
@@ -271,7 +225,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor, IDisposable
             discordGuildToIgnoredCarrierSerialNumbers.TryGetValue(discordGuildId, out List<string>? ignoredCarriers);
             ignoredCarriers ??= new List<string>();
             if (discordGuildToCarrierMovementChannel.TryGetValue(discordGuildId, out ulong? carrierMovementChannel)
-               && await DiscordClient.GetChannelAsync(carrierMovementChannel ?? 0) is ITextChannel channel)
+               && (await DiscordClient.GetChannelAsync(carrierMovementChannel ?? 0)) is ITextChannel channel)
             {
                 try
                 {

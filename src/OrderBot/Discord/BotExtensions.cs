@@ -23,17 +23,12 @@ internal static class BotExtensions
     /// </exception>
     public static void AddDiscordBot(this IServiceCollection services)
     {
-        //string discordApiKey = configuration.GetRequiredSection(DiscordApiKeyEnvironmentVariable).Value;
-        //if (string.IsNullOrEmpty(discordApiKey))
-        //{
-        //    throw new InvalidOperationException(
-        //        $"Missing Discord API Key in environment variable `{DiscordApiKeyEnvironmentVariable}`.");
-        //}
-        services.AddSingleton(sp => new DiscordSocketClient(new DiscordSocketConfig()
+        DiscordSocketClient discordSocketClient = new DiscordSocketClient(new DiscordSocketConfig()
         {
             GatewayIntents = BotHostedService.Intents
-        }));
-        services.AddSingleton<IDiscordClient, DiscordSocketClient>();
+        });
+        services.AddSingleton(sp => discordSocketClient);
+        services.AddSingleton<IDiscordClient, DiscordSocketClient>(sp => discordSocketClient);
         services.AddSingleton(sp => new InteractionService(
             sp.GetRequiredService<DiscordSocketClient>(),
             new InteractionServiceConfig()
