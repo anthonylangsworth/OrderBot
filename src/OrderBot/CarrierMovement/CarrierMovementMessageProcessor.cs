@@ -17,17 +17,17 @@ namespace OrderBot.CarrierMovement;
 /// </summary>
 public class CarrierMovementMessageProcessor : EddnMessageProcessor
 {
-    public CarrierMovementMessageProcessor(IDbContextFactory<OrderBotDbContext> contextFactory,
+    public CarrierMovementMessageProcessor(OrderBotDbContext dbContext,
         ILogger<CarrierMovementMessageProcessor> logger, IDiscordClient discordClient,
         IMemoryCache memoryCache)
     {
-        ContextFactory = contextFactory;
+        DbContext = dbContext;
         Logger = logger;
         DiscordClient = discordClient;
         MemoryCache = memoryCache;
     }
 
-    public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
+    public OrderBotDbContext DbContext { get; }
     public ILogger<CarrierMovementMessageProcessor> Logger { get; }
     public IDiscordClient DiscordClient { get; }
     public IMemoryCache MemoryCache { get; }
@@ -37,22 +37,17 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// <inheritdoc/>
     public override async Task ProcessAsync(JsonDocument message)
     {
-        DateTime timestamp = message.RootElement
-                .GetProperty("header")
-                .GetProperty("gatewayTimestamp")
-                .GetDateTime()
-                .ToUniversalTime();
+        DateTime timestamp = GetMessageTimestamp(message);
 
         // See https://github.com/EDCD/EDDN/blob/master/schemas/fsssignaldiscovered-v1.0.json for the schema
         // "signals": [{"IsStation": true, "SignalName": "THE PEAKY BLINDERS KNF-83G", "timestamp": "2022-10-13T12:13:09Z"}]
 
-        using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
         IList<DiscordGuildPresenceGoal> discordGuildPresenceGoals = MemoryCache.GetOrCreate(
             $"{nameof(CarrierMovementMessageProcessor)}_DiscordGuildPresenceGoals",
             ce =>
             {
                 ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                return dbContext.DiscordGuildPresenceGoals.Include(dgpg => dgpg.DiscordGuild)
+                return DbContext.DiscordGuildPresenceGoals.Include(dgpg => dgpg.DiscordGuild)
                                                           .Include(dgpg => dgpg.DiscordGuild.IgnoredCarriers)
                                                           .Include(dgpg => dgpg.Presence)
                                                           .Include(dgpg => dgpg.Presence.StarSystem)
@@ -63,7 +58,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
             ce =>
             {
                 ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                return dbContext.Presences.Include(p => p.MinorFaction)
+                return DbContext.Presences.Include(p => p.MinorFaction)
                                           .Include(p => p.MinorFaction.SupportedBy)
                                           .Include(p => p.StarSystem)
                                           .ToList();
@@ -96,7 +91,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 if (starSystem != null)
                 {
                     using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-                    IReadOnlyList<Carrier> observedCarriers = UpdateNewCarrierLocations(dbContext, starSystem, timestamp, signals);
+                    IReadOnlyList<Carrier> observedCarriers = UpdateNewCarrierLocations(starSystem, timestamp, signals);
                     await NotifyCarrierJumps(starSystem, observedCarriers, discordGuildPresenceGoals, presences);
                     // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
                     // if we do not receive a signal for it.
@@ -125,19 +120,19 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// <returns>
     /// The new <see cref="Carrier"/>s.
     /// </returns>
-    internal IReadOnlyList<Carrier> UpdateNewCarrierLocations(OrderBotDbContext dbContext,
+    internal IReadOnlyList<Carrier> UpdateNewCarrierLocations(
         StarSystem starSystem, DateTime timestamp, Signal[] signals)
     {
         List<Carrier> observedCarriers = new();
         foreach (Signal signal in signals.Where(s => s.IsStation && Carrier.IsCarrier(s.Name)))
         {
             string serialNumber = Carrier.GetSerialNumber(signal.Name);
-            Carrier? carrier = dbContext.Carriers.Include(c => c.StarSystem)
+            Carrier? carrier = DbContext.Carriers.Include(c => c.StarSystem)
                                                  .FirstOrDefault(c => c.SerialNumber == serialNumber);
             if (carrier == null)
             {
                 carrier = new Carrier() { Name = signal.Name };
-                dbContext.Carriers.Add(carrier);
+                DbContext.Carriers.Add(carrier);
             }
             observedCarriers.Add(carrier);
             if (carrier.StarSystem != starSystem)
@@ -146,7 +141,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 carrier.FirstSeen = timestamp;
             }
         }
-        dbContext.SaveChanges();
+        DbContext.SaveChanges();
         return observedCarriers.ToArray();
     }
 

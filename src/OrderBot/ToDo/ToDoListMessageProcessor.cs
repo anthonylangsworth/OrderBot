@@ -20,23 +20,22 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     /// <param name="logger">
     /// Used for logging.
     /// </param>
-    /// <param name="dbContextFactory">
+    /// <param name="dbContext">
     /// Database access.
     /// </param>
     /// <param name="memoryCache">
     /// Cache.
     /// </param>
-    public ToDoListMessageProcessor(ILogger<ToDoListMessageProcessor> logger,
-        IDbContextFactory<OrderBotDbContext> dbContextFactory,
-        IMemoryCache memoryCache)
+    public ToDoListMessageProcessor(OrderBotDbContext dbContext,
+        ILogger<ToDoListMessageProcessor> logger, IMemoryCache memoryCache)
     {
         Logger = logger;
-        DbContextFactory = dbContextFactory;
+        DbContext = dbContext;
         MemoryCache = memoryCache;
     }
 
     public ILogger<ToDoListMessageProcessor> Logger { get; }
-    public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
+    public OrderBotDbContext DbContext { get; }
     public IMemoryCache MemoryCache { get; }
 
     public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
@@ -44,7 +43,6 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     /// <inheritDoc/>
     public override Task ProcessAsync(JsonDocument message)
     {
-        using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
         using TransactionScope transactionScope = new();
 
         IReadOnlySet<string> supportedMinorFactions = MemoryCache.GetOrCreate(
@@ -52,14 +50,14 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
             ce =>
             {
                 ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                return GetSupportedMinorFactions(dbContext);
+                return GetSupportedMinorFactions(DbContext);
             });
         IReadOnlySet<string> goalStarSystems = MemoryCache.GetOrCreate(
             $"{nameof(ToDoListMessageProcessor)}_GoalStarSystems",
             ce =>
             {
                 ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                return GetGoalSystems(dbContext);
+                return GetGoalSystems(DbContext);
             });
 
         EddnStarSystemData? bgsSystemData = GetBgsData(message, supportedMinorFactions, goalStarSystems);
@@ -67,7 +65,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
         {
             //IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();
             //executionStrategy.Execute(() => InnerSink(timestamp, starSystemName, minorFactionDetails, dbContext));
-            Update(dbContext, bgsSystemData);
+            Update(DbContext, bgsSystemData);
 
             Logger.LogInformation("System {System} updated", bgsSystemData.StarSystemName);
         }
@@ -129,11 +127,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
         IReadOnlySet<string> supportedMinorFactions,
         IReadOnlySet<string> goalStarSystems)
     {
-        DateTime timestamp = message.RootElement
-                .GetProperty("header")
-                .GetProperty("gatewayTimestamp")
-                .GetDateTime()
-                .ToUniversalTime();
+        DateTime timestamp = GetMessageTimestamp(message);
 
         // See https://github.com/EDCD/EDDN/blob/master/schemas/journal-v1.0.json for schema
 

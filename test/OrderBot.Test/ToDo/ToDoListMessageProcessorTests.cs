@@ -18,13 +18,14 @@ internal class ToDoListMessageProcessorTests
     [Test]
     public void Ctor()
     {
-        ILogger<ToDoListMessageProcessor> logger = new NullLogger<ToDoListMessageProcessor>();
-        OrderBotDbContextFactory dbContextFactory = new();
-        MemoryCache memoryCache = new(new MemoryCacheOptions());
+        ILogger<ToDoListMessageProcessor> logger = NullLogger<ToDoListMessageProcessor>.Instance;
+        using OrderBotDbContextFactory dbContextFactory = new();
+        using OrderBotDbContext dbContext = dbContextFactory.CreateDbContext();
+        using MemoryCache memoryCache = new(new MemoryCacheOptions());
 
-        ToDoListMessageProcessor systemMinorFactionMessageProcessor = new(logger, dbContextFactory, memoryCache);
+        ToDoListMessageProcessor systemMinorFactionMessageProcessor = new(dbContext, logger, memoryCache);
         Assert.That(systemMinorFactionMessageProcessor.Logger, Is.EqualTo(logger));
-        Assert.That(systemMinorFactionMessageProcessor.DbContextFactory, Is.EqualTo(dbContextFactory));
+        Assert.That(systemMinorFactionMessageProcessor.DbContext, Is.EqualTo(dbContext));
     }
 
     [Test]

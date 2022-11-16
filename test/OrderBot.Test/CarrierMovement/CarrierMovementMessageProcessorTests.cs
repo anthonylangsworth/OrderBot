@@ -21,16 +21,17 @@ internal class CarrierMovementMessageProcessorTests
     public void Ctor()
     {
         using OrderBotDbContextFactory contextFactory = new();
+        using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
         ILogger<CarrierMovementMessageProcessor> logger = NullLogger<CarrierMovementMessageProcessor>.Instance;
         IDiscordClient discordClient = Mock.Of<IDiscordClient>();
         using IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
 
-        CarrierMovementMessageProcessor messageProcessor = new(contextFactory,
+        CarrierMovementMessageProcessor messageProcessor = new(dbContext,
             logger, discordClient, memoryCache);
 
         Assert.That(messageProcessor.Logger, Is.EqualTo(logger));
         Assert.That(messageProcessor.DiscordClient, Is.EqualTo(discordClient));
-        Assert.That(messageProcessor.ContextFactory, Is.EqualTo(contextFactory));
+        Assert.That(messageProcessor.DbContext, Is.EqualTo(dbContext));
     }
 
     [Test]
@@ -94,7 +95,7 @@ internal class CarrierMovementMessageProcessorTests
                              .ReturnsAsync(socketMessageChannel);
             IDiscordClient discordClient = mockDiscordClient.Object;
 
-            CarrierMovementMessageProcessor messageProcessor = new(contextFactory,
+            CarrierMovementMessageProcessor messageProcessor = new(dbContext,
                 logger, discordClient, memoryCache);
             messageProcessor.ProcessAsync(JsonDocument.Parse(stream)).GetAwaiter().GetResult();
 
