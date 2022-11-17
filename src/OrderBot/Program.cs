@@ -16,9 +16,8 @@ internal class Program
         IHost host = Host.CreateDefaultBuilder(args)
                          .ConfigureServices((hostContext, services) =>
                          {
-                             services.AddLogging(builder => builder.AddLogAnalytics(
-                                 hostContext.Configuration.GetRequiredSection("LogAnalytics_WorkspaceId").Value ?? "",
-                                 hostContext.Configuration.GetRequiredSection("LogAnalytics_WorkspaceKey").Value ?? ""));
+                             services.AddLogging(builder =>
+                                builder.AddLogAnalytics(hostContext.Configuration.GetRequiredSection("LogAnalytics")));
                              services.AddDatabase(hostContext.Configuration);
                              services.AddTodoList();
                              services.AddDiscordBot(hostContext.Configuration);
@@ -26,7 +25,8 @@ internal class Program
                              services.AddCarrierMovement();
 
                              // This must follow AddDiscordBot. Otherwise, the BotHostedServce.StartAsync does
-                             // not fire.
+                             // not fire. This maybe something to do with the use of BackgroundServce instead
+                             // if IHostedSerice.
                              // TODO: Fix this
                              services.AddEddnMessageProcessor();
                          })
