@@ -13,7 +13,7 @@ using System.Transactions;
 
 namespace OrderBot.ToDo;
 
-// TODO: Ideally,  would pass in ToDoListApi and and AuditLogger. However,
+// TODO: Ideally, we would not pass in ToDoListApi and and AuditLogger. However,
 // the lack of DI support for SocketInteractionContext curtails this.
 
 [Group("todo-list", "Work supporting minor faction(s)")]
