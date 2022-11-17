@@ -223,25 +223,28 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     {
         foreach (int discordGuildId in discordGuildToCarrierMovementChannel.Keys)
         {
-            discordGuildToIgnoredCarrierSerialNumbers.TryGetValue(discordGuildId, out List<string>? ignoredCarriers);
-            ignoredCarriers ??= new List<string>();
-            if (discordGuildToCarrierMovementChannel.TryGetValue(discordGuildId, out ulong? carrierMovementChannel)
-               && (await DiscordClient.GetChannelAsync(carrierMovementChannel ?? 0)) is ITextChannel channel)
+            if (discordGuildToCarrierMovementChannel.TryGetValue(discordGuildId, out ulong? carrierMovementChannel))
             {
+                discordGuildToIgnoredCarrierSerialNumbers.TryGetValue(discordGuildId, out List<string>? ignoredCarriers);
+                ignoredCarriers ??= new List<string>();
                 try
                 {
-                    using TextChannelWriter textChannelWriter = new(channel);
-                    foreach (Carrier carrier in observedCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber))
-                                                                .OrderBy(c => c.Name))
+                    if (await DiscordClient.GetChannelAsync(carrierMovementChannel ?? 0) is ITextChannel channel)
                     {
-                        textChannelWriter.WriteLine(GetCarrierMovementMessage(carrier, starSystem));
+                        using TextChannelWriter textChannelWriter = new(channel);
+                        foreach (Carrier carrier in observedCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber))
+                                                                    .OrderBy(c => c.Name))
+                        {
+                            textChannelWriter.WriteLine(GetCarrierMovementMessage(carrier, starSystem));
+                        }
                     }
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError(
-                        ex, "Sending carrier notification to channel '{ChannelId}' for discord Guid '{GuildId}' failed",
-                        channel.Id, discordGuildId
+                        ex,
+                        "Sending carrier notification to channel '{ChannelId}' for discord Guid '{GuildId}' failed",
+                        carrierMovementChannel, discordGuildId
                     );
                 }
             }
