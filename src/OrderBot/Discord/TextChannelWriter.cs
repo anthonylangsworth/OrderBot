@@ -5,7 +5,7 @@ namespace OrderBot.Discord;
 /// <summary>
 /// Buffer and split potentially large messages written to Discord text channels. Nothing is 
 /// written until either <see cref="Flush"/> is called or written messages exceed
-/// <see cref="DiscordConfig.MaxMessageSize"/> characters.
+/// <see cref="global::Discord.DiscordConfig.MaxMessageSize"/> characters.
 /// </summary>
 public class TextChannelWriter : IDisposable
 {
@@ -21,7 +21,7 @@ public class TextChannelWriter : IDisposable
     public TextChannelWriter(ITextChannel textChannel)
     {
         _discordChannelStream = new TextChannelStream(textChannel);
-        _bufferedStream = new BufferedStream(_discordChannelStream, DiscordConfig.MaxMessageSize);
+        _bufferedStream = new BufferedStream(_discordChannelStream, global::Discord.DiscordConfig.MaxMessageSize);
         _streamWriter = new StreamWriter(_bufferedStream);
     }
 

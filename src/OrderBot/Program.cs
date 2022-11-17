@@ -14,18 +14,21 @@ internal class Program
     private static async Task Main(string[] args)
     {
         IHost host = Host.CreateDefaultBuilder(args)
-                         .ConfigureHostConfiguration(configurationBuilder => configurationBuilder.AddEnvironmentVariables())
                          .ConfigureServices((hostContext, services) =>
                          {
                              services.AddLogging(builder => builder.AddLogAnalytics(
                                  hostContext.Configuration.GetRequiredSection("LogAnalytics_WorkspaceId").Value ?? "",
                                  hostContext.Configuration.GetRequiredSection("LogAnalytics_WorkspaceKey").Value ?? ""));
                              services.AddDatabase(hostContext.Configuration);
-                             services.AddEddnMessageProcessor();
                              services.AddTodoList();
-                             services.AddCarrierMovement();
-                             services.AddDiscordBot();
+                             services.AddDiscordBot(hostContext.Configuration);
                              services.AddDiscordChannelAuditLogFactory();
+                             services.AddCarrierMovement();
+
+                             // This must follow AddDiscordBot. Otherwise, the BotHostedServce.StartAsync does
+                             // not fire.
+                             // TODO: Fix this
+                             services.AddEddnMessageProcessor();
                          })
                          .Build();
 

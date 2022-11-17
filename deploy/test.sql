@@ -51,3 +51,10 @@ select ss.Name as [Star System], mf1.Name as [Minor Faction 1], c.MinorFaction1W
 from Conflict c left join StarSystem ss on c.StarSystemId = ss.Id
 left join MinorFaction mf1 on c.MinorFaction1Id = mf1.Id
 left join MinorFaction mf2 on c.MinorFaction2Id = mf2.Id
+
+-- All Systems tracked for a minor faction
+select mf.Name, ss.Name
+from MinorFaction mf
+left join Presence p on p.MinorFactionId = mf.Id
+left join StarSystem ss on p.StarSystemId = ss.Id
+where mf.Name = 'Canonn'

@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Interactions;
 using Discord.WebSocket;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace OrderBot.Discord;
@@ -19,20 +20,26 @@ internal static class BotExtensions
     /// <exception cref="InvalidOperationException">
     /// Configuration is missing or invalid.
     /// </exception>
-    public static void AddDiscordBot(this IServiceCollection services)
+    public static void AddDiscordBot(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton(sp => new DiscordSocketClient(new DiscordSocketConfig()
+        DiscordSocketClient discordSocketClient = new DiscordSocketClient(new DiscordSocketConfig()
         {
             GatewayIntents = BotHostedService.Intents
-        }));
-        services.AddSingleton<IDiscordClient, DiscordSocketClient>();
+        });
+
+        services.AddSingleton(discordSocketClient);
+        services.AddSingleton<IDiscordClient>(discordSocketClient);
         services.AddSingleton(sp => new InteractionService(
-            sp.GetRequiredService<DiscordSocketClient>(),
+            discordSocketClient,
             new InteractionServiceConfig()
             {
-                DefaultRunMode = RunMode.Sync // Default is Async. Sync provides better error reporting.
+                DefaultRunMode = RunMode.Async // Default is Async. Sync provides better error reporting.
             }));
+
+        services.AddSingleton<ITextChannelWriterFactory, TextChannelWriterFactory>();
+
+        services.AddOptions<DiscordClientOptions>()
+                .Bind(configuration.GetRequiredSection("Discord"));
         services.AddHostedService<BotHostedService>();
-        services.AddSingleton<ITextChannelWriterFactory, BotHostedService>();
     }
 }

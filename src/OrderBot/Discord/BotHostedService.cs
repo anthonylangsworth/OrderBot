@@ -37,7 +37,7 @@ internal class BotHostedService : IHostedService, ITextChannelWriterFactory
     /// </param>
     public BotHostedService(ILogger<BotHostedService> logger, DiscordSocketClient discordClient,
         InteractionService interactionService, IServiceProvider serviceProvider,
-        IDbContextFactory<OrderBotDbContext> contextFactory, IOptions<DiscordClientConfig> config)
+        IDbContextFactory<OrderBotDbContext> contextFactory, IOptions<DiscordClientOptions> config)
     {
         if (string.IsNullOrWhiteSpace(config.Value.ApiKey))
         {
@@ -91,11 +91,6 @@ internal class BotHostedService : IHostedService, ITextChannelWriterFactory
     /// </exception>
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        if (Client.ConnectionState != ConnectionState.Disconnected)
-        {
-            throw new InvalidOperationException("Not disconnected");
-        }
-
         await InteractionService.AddModulesAsync(Assembly.GetExecutingAssembly(), ServiceProvider);
 
         await Client.LoginAsync(TokenType.Bot, ApiKey);
