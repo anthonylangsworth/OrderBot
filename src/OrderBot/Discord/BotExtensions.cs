@@ -30,11 +30,7 @@ internal static class BotExtensions
         services.AddSingleton(discordSocketClient);
         services.AddSingleton<IDiscordClient>(discordSocketClient);
         services.AddSingleton(sp => new InteractionService(
-            discordSocketClient,
-            new InteractionServiceConfig()
-            {
-                DefaultRunMode = RunMode.Async // Default is Async. Sync provides better error reporting.
-            }));
+            discordSocketClient, new InteractionServiceConfig()));
 
         services.AddSingleton<TextChannelWriterFactory>();
 
