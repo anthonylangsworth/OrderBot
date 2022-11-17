@@ -39,6 +39,11 @@ internal class BotHostedService : IHostedService, ITextChannelWriterFactory
         InteractionService interactionService, IServiceProvider serviceProvider,
         IDbContextFactory<OrderBotDbContext> contextFactory, IOptions<DiscordClientConfig> config)
     {
+        if (string.IsNullOrWhiteSpace(config.Value.ApiKey))
+        {
+            throw new ArgumentException("Discord API Key cannot be null, empty or whitespace", nameof(config));
+        }
+
         Logger = logger;
         Client = discordClient;
         InteractionService = interactionService;
