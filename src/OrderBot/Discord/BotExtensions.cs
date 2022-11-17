@@ -32,6 +32,7 @@ internal static class BotExtensions
             {
                 DefaultRunMode = RunMode.Sync // Default is Async. Sync provides better error reporting.
             }));
+        services.AddSingleton<TextChannelWriterFactory>();
         services.AddHostedService<BotHostedService>();
     }
 }

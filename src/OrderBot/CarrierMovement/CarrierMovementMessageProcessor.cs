@@ -1,5 +1,4 @@
-﻿using Discord;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
@@ -18,18 +17,18 @@ namespace OrderBot.CarrierMovement;
 public class CarrierMovementMessageProcessor : EddnMessageProcessor
 {
     public CarrierMovementMessageProcessor(OrderBotDbContext dbContext,
-        ILogger<CarrierMovementMessageProcessor> logger, IDiscordClient discordClient,
-        IMemoryCache memoryCache)
+        ILogger<CarrierMovementMessageProcessor> logger,
+        TextChannelWriterFactory textChannelWriterFactory, IMemoryCache memoryCache)
     {
         DbContext = dbContext;
         Logger = logger;
-        DiscordClient = discordClient;
+        TextChannelWriterFactory = textChannelWriterFactory;
         MemoryCache = memoryCache;
     }
 
     public OrderBotDbContext DbContext { get; }
     public ILogger<CarrierMovementMessageProcessor> Logger { get; }
-    public IDiscordClient DiscordClient { get; }
+    public TextChannelWriterFactory TextChannelWriterFactory { get; }
     public IMemoryCache MemoryCache { get; }
 
     public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
@@ -229,21 +228,18 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 ignoredCarriers ??= new List<string>();
                 try
                 {
-                    if (await DiscordClient.GetChannelAsync(carrierMovementChannel ?? 0) is ITextChannel channel)
+                    using TextChannelWriter textChannelWriter = await TextChannelWriterFactory.GetWriterAsync(carrierMovementChannel);
+                    foreach (Carrier carrier in observedCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber))
+                                                                .OrderBy(c => c.Name))
                     {
-                        using TextChannelWriter textChannelWriter = new(channel);
-                        foreach (Carrier carrier in observedCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber))
-                                                                    .OrderBy(c => c.Name))
-                        {
-                            textChannelWriter.WriteLine(GetCarrierMovementMessage(carrier, starSystem));
-                        }
+                        textChannelWriter.WriteLine(GetCarrierMovementMessage(carrier, starSystem));
                     }
                 }
                 catch (Exception ex)
                 {
                     Logger.LogError(
                         ex,
-                        "Sending carrier notification to channel '{ChannelId}' for discord Guid '{GuildId}' failed",
+                        "Sending carrier jump notification(s) to channel '{ChannelId}' for discord Guid '{GuildId}' failed",
                         carrierMovementChannel, discordGuildId
                     );
                 }

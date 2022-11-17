@@ -6,6 +6,7 @@ using Moq;
 using NUnit.Framework;
 using OrderBot.CarrierMovement;
 using OrderBot.Core;
+using OrderBot.Discord;
 using OrderBot.EntityFramework;
 using OrderBot.Test.ToDo;
 using System.Reflection;
@@ -24,13 +25,14 @@ internal class CarrierMovementMessageProcessorTests
         using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
         ILogger<CarrierMovementMessageProcessor> logger = NullLogger<CarrierMovementMessageProcessor>.Instance;
         IDiscordClient discordClient = Mock.Of<IDiscordClient>();
+        TextChannelWriterFactory factory = new(discordClient);
         using IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
 
         CarrierMovementMessageProcessor messageProcessor = new(dbContext,
-            logger, discordClient, memoryCache);
+            logger, factory, memoryCache);
 
         Assert.That(messageProcessor.Logger, Is.EqualTo(logger));
-        Assert.That(messageProcessor.DiscordClient, Is.EqualTo(discordClient));
+        Assert.That(messageProcessor.TextChannelWriterFactory, Is.EqualTo(factory));
         Assert.That(messageProcessor.DbContext, Is.EqualTo(dbContext));
     }
 
@@ -99,9 +101,10 @@ internal class CarrierMovementMessageProcessorTests
                              .ReturnsAsync(socketMessageChannel);
             mockDiscordClient.SetupGet(dc => dc.ConnectionState).Returns(ConnectionState.Connected);
             IDiscordClient discordClient = mockDiscordClient.Object;
+            TextChannelWriterFactory factory = new(discordClient);
 
             CarrierMovementMessageProcessor messageProcessor = new(dbContext,
-                logger, discordClient, memoryCache);
+                logger, factory, memoryCache);
             messageProcessor.ProcessAsync(JsonDocument.Parse(stream)).GetAwaiter().GetResult();
 
             Assert.That(
