@@ -16,7 +16,7 @@ public class ToDoListFormatter
     /// The max rows of each category returned. This prevents
     /// the suggestions from getting too long.
     /// </summary>
-    internal readonly static int maxRows = 5;
+    internal readonly static int maxRows = 8;
 
     /// <summary>
     /// Format the <paramref name="toDoList"/> to a human-readable form.
