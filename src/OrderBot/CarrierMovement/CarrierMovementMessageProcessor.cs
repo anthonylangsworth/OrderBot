@@ -79,14 +79,17 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                     StarSystem? starSystem = DbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
                     if (starSystem != null)
                     {
-                        using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-                        IReadOnlyList<Carrier> observedCarriers = UpdateNewCarrierLocations(starSystem, timestamp, signals);
+                        IReadOnlyList<Carrier> observedCarriers;
+                        using (TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled))
+                        {
+                            observedCarriers = UpdateNewCarrierLocations(starSystem, timestamp, signals);
 
-                        // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
-                        // if we do not receive a signal for it.
-                        // RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, observedCarriers);
+                            // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
+                            // if we do not receive a signal for it.
+                            // RemoveAbsentCarrierLocations(dbContext, starSystem, discordGuilds, observedCarriers);
 
-                        transactionScope.Complete();
+                            transactionScope.Complete();
+                        }
 
                         await NotifyCarrierJumps(starSystem, observedCarriers,
                             starSystemToDiscordGuildToCarrierMovementChannel[starSystemName],
