@@ -22,7 +22,7 @@ internal static class BotExtensions
     /// </exception>
     public static void AddDiscordBot(this IServiceCollection services, IConfiguration configuration)
     {
-        DiscordSocketClient discordSocketClient = new DiscordSocketClient(new DiscordSocketConfig()
+        DiscordSocketClient discordSocketClient = new(new DiscordSocketConfig()
         {
             GatewayIntents = BotHostedService.Intents
         });
@@ -36,7 +36,7 @@ internal static class BotExtensions
                 DefaultRunMode = RunMode.Async // Default is Async. Sync provides better error reporting.
             }));
 
-        services.AddSingleton<ITextChannelWriterFactory, TextChannelWriterFactory>();
+        services.AddSingleton<TextChannelWriterFactory>();
 
         services.AddOptions<DiscordClientOptions>()
                 .Bind(configuration.GetRequiredSection("Discord"));

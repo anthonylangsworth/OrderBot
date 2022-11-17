@@ -18,7 +18,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
 {
     public CarrierMovementMessageProcessor(OrderBotDbContext dbContext,
         ILogger<CarrierMovementMessageProcessor> logger,
-        ITextChannelWriterFactory textChannelWriterFactory, IMemoryCache memoryCache)
+        TextChannelWriterFactory textChannelWriterFactory, IMemoryCache memoryCache)
     {
         DbContext = dbContext;
         Logger = logger;
@@ -28,7 +28,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
 
     public OrderBotDbContext DbContext { get; }
     public ILogger<CarrierMovementMessageProcessor> Logger { get; }
-    public ITextChannelWriterFactory TextChannelWriterFactory { get; }
+    public TextChannelWriterFactory TextChannelWriterFactory { get; }
     public IMemoryCache MemoryCache { get; }
 
     public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);

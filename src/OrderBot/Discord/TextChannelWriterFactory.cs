@@ -2,7 +2,7 @@
 
 namespace OrderBot.Discord;
 
-public class TextChannelWriterFactory : ITextChannelWriterFactory
+public class TextChannelWriterFactory
 {
     public TextChannelWriterFactory(IDiscordClient discordClient)
     {
@@ -11,7 +11,17 @@ public class TextChannelWriterFactory : ITextChannelWriterFactory
 
     public IDiscordClient DiscordClient { get; }
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Get a <see cref="TextChannelWriter"/> for the given channel.
+    /// </summary>
+    /// <param name="channelId"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException">
+    /// Either <see cref="DiscordClient"/> is not connected.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// <paramref name="channelId"/> is not a valid Discord text channel.
+    /// </exception>
     public async Task<TextChannelWriter> GetWriterAsync(ulong? channelId)
     {
         if (await DiscordClient.GetChannelAsync(channelId ?? 0) is ITextChannel textChannel)
