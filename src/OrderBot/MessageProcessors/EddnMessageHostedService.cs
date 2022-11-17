@@ -26,13 +26,20 @@ internal class EddnMessageHostedService : BackgroundService
         client.SubscribeToAnyTopic();
         Logger.LogInformation("Started");
 
-        while (!stoppingToken.IsCancellationRequested)
+        try
         {
-            if (client.TryReceiveFrameBytes(TimeSpan.FromMilliseconds(1000), out byte[]? compressed, out bool _)
-                && compressed != null)
+            while (!stoppingToken.IsCancellationRequested)
             {
-                await ProcessMessage(compressed);
+                if (client.TryReceiveFrameBytes(TimeSpan.FromMilliseconds(1000), out byte[]? compressed, out bool _)
+                    && compressed != null)
+                {
+                    await ProcessMessage(compressed);
+                }
             }
+        }
+        finally
+        {
+            Logger.LogInformation("Stopping");
         }
     }
 
