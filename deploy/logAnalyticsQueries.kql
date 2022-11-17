@@ -9,3 +9,10 @@ Event_CL
 | where CategoryName_s startswith_cs "OrderBot"
 | where LogLevel_s == "Error"
 | order by TimeGenerated desc
+
+//  OrderBot status
+Event_CL
+// | where LogLevel_s != "Information"
+| order by TimeGenerated
+| where CategoryName_s startswith "OrderBot."
+| project TimeGenerated, CategoryName_s, Message, Command_s, Exception_Message_s
