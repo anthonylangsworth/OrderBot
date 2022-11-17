@@ -12,11 +12,8 @@ internal class ToDoListFormatterTests
         ToDoList toDoList = new("The Dark Wheel");
         Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------
-***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
+***Pro-The Dark Wheel** support required* - Work for *The Dark Wheel* in these systems.
 E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dark Wheel* controlled stations.
-(None)
-
-Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls.
 (None)
 
 ***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to avoid an unwanted expansion.
@@ -34,6 +31,11 @@ Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls
 "));
     }
 
+    /*
+    Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls.
+    (None)
+    */
+
     [Test]
     public void Format_ProAndAnti()
     {
@@ -41,21 +43,18 @@ Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls
         toDoList.Suggestions.UnionWith(
             new Suggestion[]
             {
-                new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Shinrarta Dezhra" }, Influence = 0.1, Pro = true },
-                new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Tau Ceti" }, Influence = 0.2, Pro = true },
-                new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Wolf 359" }, Influence = 0.7, Pro = false },
-                new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Alpha Centauri" }, Influence = 0.65, Pro = false },
-                new SecuritySuggestion() { StarSystem = new StarSystem() { Name = "Maia" }, SecurityLevel = SecurityLevel.Low }
+                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Shinrarta Dezhra" }, Influence = 0.1, Pro = true },
+                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Tau Ceti" }, Influence = 0.2, Pro = true },
+                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Wolf 359" }, Influence = 0.7, Pro = false },
+                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Alpha Centauri" }, Influence = 0.65, Pro = false },
+                    new SecuritySuggestion() { StarSystem = new StarSystem() { Name = "Maia" }, SecurityLevel = SecurityLevel.Low }
             });
         Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------
-***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
+***Pro-The Dark Wheel** support required* - Work for *The Dark Wheel* in these systems.
 E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dark Wheel* controlled stations.
 - Shinrarta Dezhra - 10%
 - Tau Ceti - 20%
-
-Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls.
-- Maia - Low
 
 ***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to avoid an unwanted expansion.
 - Wolf 359 - 70%
@@ -81,6 +80,11 @@ Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls
         ***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to avoid an unwanted expansion.
         - [Wolf 359](<https://inara.cz/elite/search/?search=Wolf+359>) - 70%
         - [Alpha Centauri](<https://inara.cz/elite/search/?search=Alpha+Centauri>) - 65%
+        */
+
+        /*
+        Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls.
+        - Maia - Low
         */
     }
 }

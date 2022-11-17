@@ -54,9 +54,9 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         {
             ToDoListApi api = ApiFactory.CreateApi(Context.Guild);
             await Context.Interaction.FollowupAsync(
-                text: raw
+                text: (raw
                     ? $"```\n{api.GetTodoList()}\n```"
-                    : api.GetTodoList(),
+                    : api.GetTodoList())[..DiscordConfig.MaxMessageSize],
                 ephemeral: true
             );
         }
