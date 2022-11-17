@@ -14,7 +14,7 @@ namespace OrderBot.Discord;
 /// <summary>
 /// A Discord bot.
 /// </summary>
-internal class BotHostedService : IHostedService
+internal class BotHostedService : IHostedService, ITextChannelWriterFactory
 {
     /// <summary>
     /// Construct a <see cref="Bot"/>.
@@ -107,6 +107,19 @@ internal class BotHostedService : IHostedService
     {
         Logger.LogInformation("Stopped");
         await Client.StopAsync();
+    }
+
+    /// </inheritdoc/>>
+    public async Task<TextChannelWriter> GetWriterAsync(ulong? channelId)
+    {
+        if (await Client.GetChannelAsync(channelId ?? 0) is ITextChannel textChannel)
+        {
+            return new TextChannelWriter(textChannel);
+        }
+        else
+        {
+            throw new ArgumentException($"{channelId} is not a Discord text channel");
+        }
     }
 
     private async Task Client_ReadyAsync()
