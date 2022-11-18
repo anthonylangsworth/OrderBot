@@ -26,12 +26,12 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
         MemoryCache = memoryCache;
     }
 
-    public OrderBotDbContext DbContext { get; }
-    public ILogger<CarrierMovementMessageProcessor> Logger { get; }
-    public TextChannelWriterFactory TextChannelWriterFactory { get; }
-    public IMemoryCache MemoryCache { get; }
+    internal OrderBotDbContext DbContext { get; }
+    internal ILogger<CarrierMovementMessageProcessor> Logger { get; }
+    internal TextChannelWriterFactory TextChannelWriterFactory { get; }
+    internal IMemoryCache MemoryCache { get; }
 
-    public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+    internal static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
 
     /// <inheritdoc/>
     public override async Task ProcessAsync(JsonDocument message)
