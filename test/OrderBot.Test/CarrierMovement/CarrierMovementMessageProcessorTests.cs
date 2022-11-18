@@ -56,7 +56,7 @@ internal class CarrierMovementMessageProcessorTests
         using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
         using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-        (DiscordGuild testGuild, StarSystem starSystem, Carrier[] expectedCarriers)
+        (DiscordGuild discordGuild, StarSystem starSystem, Carrier[] expectedCarriers)
             = populateTestData(dbContext, fileTimeStamp);
 
         MockRepository mockRepository = new(MockBehavior.Strict);
@@ -68,9 +68,9 @@ internal class CarrierMovementMessageProcessorTests
 
         Mock<ITextChannel> mockTextChannel = mockRepository.Create<ITextChannel>();
         StringBuilder carrierMovementMessage = new();
-        if (testGuild.CarrierMovementChannel != null)
+        if (discordGuild.CarrierMovementChannel != null)
         {
-            foreach (Carrier carrier in expectedCarriers.Except(testGuild.IgnoredCarriers).OrderBy(c => c.Name))
+            foreach (Carrier carrier in expectedCarriers.Except(discordGuild.IgnoredCarriers).OrderBy(c => c.Name))
             {
                 carrierMovementMessage.AppendLine(
                     CarrierMovementMessageProcessor.GetCarrierMovementMessage(carrier, starSystem));
@@ -81,14 +81,14 @@ internal class CarrierMovementMessageProcessorTests
                                     carrierMovementMessage.ToString(), false, null, null, null, null, null, null, null, MessageFlags.None))
                                .Returns(Task.FromResult(userMessage));
             }
-            mockTextChannel.SetupGet(smc => smc.Id).Returns(testGuild.CarrierMovementChannel ?? 0);
+            mockTextChannel.SetupGet(smc => smc.Id).Returns(discordGuild.CarrierMovementChannel ?? 0);
         }
         ITextChannel socketMessageChannel = mockTextChannel.Object;
 
         Mock<IDiscordClient> mockDiscordClient = mockRepository.Create<IDiscordClient>();
-        if (testGuild.CarrierMovementChannel != null)
+        if (discordGuild.CarrierMovementChannel != null)
         {
-            mockDiscordClient.Setup(dc => dc.GetChannelAsync(testGuild.CarrierMovementChannel ?? 0, CacheMode.AllowDownload, null))
+            mockDiscordClient.Setup(dc => dc.GetChannelAsync(discordGuild.CarrierMovementChannel ?? 0, CacheMode.AllowDownload, null))
                              .ReturnsAsync(socketMessageChannel);
         }
         mockDiscordClient.SetupGet(dc => dc.ConnectionState).Returns(ConnectionState.Connected);
