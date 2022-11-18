@@ -90,7 +90,8 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                             transactionScope.Complete();
                         }
 
-                        await NotifyCarrierJumps(starSystem, observedCarriers,
+                        await NotifyCarrierJumps(starSystem,
+                            observedCarriers.Where(c => c.FirstSeen == timestamp),
                             starSystemToDiscordGuildToCarrierMovementChannel[starSystemName],
                             discordGuildToIgnoredCarrierSerialNumber);
                     }
@@ -126,7 +127,6 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
         Dictionary<string, IDictionary<int, ulong?>> result = new();
         IEnumerable<(string Name, int Id, ulong? CarrierMovementChannel)> fromGoals =
             DbContext.DiscordGuildPresenceGoals.Include(dgpg => dgpg.DiscordGuild)
-                                               // .Include(dgpg => dgpg.DiscordGuild.IgnoredCarriers)
                                                .Include(dgpg => dgpg.Presence)
                                                .Include(dgpg => dgpg.Presence.StarSystem)
                                                .ToList()
@@ -155,19 +155,20 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     }
 
     /// <summary>
-    /// Update carrier locations in the database.
+    /// Extract <see cref="Carrier"/s from <paramref name="signals"/> then add or update 
+    /// carriers in the database.
     /// </summary>
     /// <param name="starSystem">
     /// The star system.
     /// </param>
     /// <param name="timestamp">
-    /// The date time from the message.
+    /// The UTC date and time from the message.
     /// </param>
     /// <param name="signals">
-    /// The signals from the signal source.
+    /// The signals from the message.
     /// </param>
     /// <returns>
-    /// The new <see cref="Carrier"/>s.
+    /// All <see cref="Carrier"/>s seen in that system.
     /// </returns>
     internal IReadOnlyList<Carrier> UpdateNewCarrierLocations(
         StarSystem starSystem, DateTime timestamp, Signal[] signals)
@@ -205,8 +206,8 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// <param name="starSystem">
     /// The <see cref="StarSystem"/> the carriers have jumped in.
     /// </param>
-    /// <param name="observedCarriers">
-    /// The carriers that jumped in.
+    /// <param name="newCarriers">
+    /// New carriers that just jumped in.
     /// </param>
     /// <param name="discordGuildToCarrierMovementChannel">
     /// Map Discord guilds to the configured carrier movement channel. Used to 
@@ -216,7 +217,8 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// Map Discord guilds to the serial numbers of ignored carriers. Used to 
     /// avoid notifying about ignored carriers.
     /// </param>
-    internal async Task NotifyCarrierJumps(StarSystem starSystem, IReadOnlyList<Carrier> observedCarriers,
+    internal async Task NotifyCarrierJumps(StarSystem starSystem,
+        IEnumerable<Carrier> newCarriers,
         IDictionary<int, ulong?> discordGuildToCarrierMovementChannel,
         IDictionary<int, List<string>> discordGuildToIgnoredCarrierSerialNumbers)
     {
@@ -229,7 +231,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 try
                 {
                     using TextChannelWriter textChannelWriter = await TextChannelWriterFactory.GetWriterAsync(carrierMovementChannel);
-                    foreach (Carrier carrier in observedCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber))
+                    foreach (Carrier carrier in newCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber))
                                                                 .OrderBy(c => c.Name))
                     {
                         textChannelWriter.WriteLine(GetCarrierMovementMessage(carrier, starSystem));
