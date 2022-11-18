@@ -9,6 +9,7 @@ using OrderBot.Core;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
 using OrderBot.Test.ToDo;
+using OrderBot.ToDo;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -37,84 +38,162 @@ internal class CarrierMovementMessageProcessorTests
     }
 
     [Test]
-    public void Process()
+    public void CacheDuration()
+    {
+        Assert.That(CarrierMovementMessageProcessor.CacheDuration,
+            Is.EqualTo(TimeSpan.FromMinutes(5)));
+    }
+
+    [Test]
+    [TestCaseSource(nameof(Process_NoPresence_Source))]
+    public void Process(Func<OrderBotDbContext, ulong, DateTime, (DiscordGuild, StarSystem, Carrier[])> populateTestData)
     {
         DateTime fileTimeStamp = DateTime.Parse("2022-10-30T13:56:57Z").ToUniversalTime();
+        using OrderBotDbContextFactory contextFactory = new();
+        using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
+        using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+        const ulong carrierMovementChannelId = 1234567890;
+        (DiscordGuild testGuild, StarSystem ltt2684, Carrier[] expectedCarriers)
+            = populateTestData(dbContext, carrierMovementChannelId, fileTimeStamp);
+
+        MockRepository mockRepository = new(MockBehavior.Strict);
+        Mock<ILogger<CarrierMovementMessageProcessor>> mockLogger =
+            mockRepository.Create<ILogger<CarrierMovementMessageProcessor>>(MockBehavior.Loose);
+        //mockLogger.Setup(l => l.Log(LogLevel.Information, 0,
+        //    "Carrier(s) Cowboy B X9Z-B0B, T.N.V.A COSMOS HNV-L7X, E.D.A. WALKABOUT KHF-79Z, ODIN W6B-94Z in LTT 2684 updated"));
+        ILogger<CarrierMovementMessageProcessor> logger = mockLogger.Object; IUserMessage userMessage = mockRepository.Create<IUserMessage>().Object;
+
+        Mock<ITextChannel> mockTextChannel = mockRepository.Create<ITextChannel>();
+        StringBuilder carrierMovementMessage = new();
+        foreach (Carrier carrier in expectedCarriers.Except(testGuild.IgnoredCarriers).OrderBy(c => c.Name))
+        {
+            carrierMovementMessage.AppendLine(
+                CarrierMovementMessageProcessor.GetCarrierMovementMessage(carrier, ltt2684));
+        }
+        if (carrierMovementMessage.Length > 0)
+        {
+            mockTextChannel.Setup(tc => tc.SendMessageAsync(
+                                carrierMovementMessage.ToString(), false, null, null, null, null, null, null, null, MessageFlags.None))
+                            .Returns(Task.FromResult(userMessage));
+        }
+        mockTextChannel.SetupGet(smc => smc.Id).Returns(carrierMovementChannelId);
+        ITextChannel socketMessageChannel = mockTextChannel.Object;
+
+        Mock<IDiscordClient> mockDiscordClient = mockRepository.Create<IDiscordClient>();
+        mockDiscordClient.Setup(dc => dc.GetChannelAsync(carrierMovementChannelId, CacheMode.AllowDownload, null))
+                         .ReturnsAsync(socketMessageChannel);
+        mockDiscordClient.SetupGet(dc => dc.ConnectionState).Returns(ConnectionState.Connected);
+        IDiscordClient discordClient = mockDiscordClient.Object;
+        TextChannelWriterFactory factory = new(discordClient);
+
+        using IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
+        CarrierMovementMessageProcessor messageProcessor = new(dbContext,
+            logger, factory, memoryCache);
         using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream("OrderBot.Test.samples.LTT 2684 FSS.json");
         if (stream != null)
         {
-            using OrderBotDbContextFactory contextFactory = new();
-            using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
-            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-            using IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
-
-            const ulong carrierMovementChannelId = 1234567890;
-            Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B" };
-            MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
-            DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = carrierMovementChannelId };
-            testGuild.IgnoredCarriers.Add(cowboyB);
-            testGuild.SupportedMinorFactions.Add(minorFaction);
-            StarSystem ltt2684 = new() { Name = "LTT 2684" };
-            dbContext.Carriers.Add(cowboyB);
-            dbContext.DiscordGuilds.Add(testGuild);
-            dbContext.MinorFactions.Add(minorFaction);
-            dbContext.StarSystems.Add(ltt2684);
-            Presence presence = new() { MinorFaction = minorFaction, StarSystem = ltt2684, Influence = 0.1 };
-            dbContext.Presences.Add(presence);
-            dbContext.SaveChanges();
-
-            Carrier[] expectedCarriers = new Carrier[]
-            {
-                cowboyB, // Ignored, so should not update
-                new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
-                new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
-                new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp }
-            };
-
-            MockRepository mockRepository = new(MockBehavior.Strict);
-            Mock<ILogger<CarrierMovementMessageProcessor>> mockLogger =
-                mockRepository.Create<ILogger<CarrierMovementMessageProcessor>>(MockBehavior.Loose);
-            //mockLogger.Setup(l => l.Log(LogLevel.Information, 0,
-            //    "Carrier(s) Cowboy B X9Z-B0B, T.N.V.A COSMOS HNV-L7X, E.D.A. WALKABOUT KHF-79Z, ODIN W6B-94Z in LTT 2684 updated"));
-            ILogger<CarrierMovementMessageProcessor> logger = mockLogger.Object;
-
-            IUserMessage userMessage = mockRepository.Create<IUserMessage>().Object;
-
-            Mock<ITextChannel> mockTextChannel = mockRepository.Create<ITextChannel>();
-            StringBuilder carrierMovementMessage = new();
-            foreach (Carrier carrier in expectedCarriers.Except(testGuild.IgnoredCarriers).OrderBy(c => c.Name))
-            {
-                carrierMovementMessage.AppendLine(
-                    CarrierMovementMessageProcessor.GetCarrierMovementMessage(carrier, ltt2684));
-            }
-            if (carrierMovementMessage.Length > 0)
-            {
-                mockTextChannel.Setup(tc => tc.SendMessageAsync(
-                                    carrierMovementMessage.ToString(), false, null, null, null, null, null, null, null, MessageFlags.None))
-                               .Returns(Task.FromResult(userMessage));
-            }
-            mockTextChannel.SetupGet(smc => smc.Id).Returns(carrierMovementChannelId);
-            ITextChannel socketMessageChannel = mockTextChannel.Object;
-
-            Mock<IDiscordClient> mockDiscordClient = mockRepository.Create<IDiscordClient>();
-            mockDiscordClient.Setup(dc => dc.GetChannelAsync(carrierMovementChannelId, CacheMode.AllowDownload, null))
-                             .ReturnsAsync(socketMessageChannel);
-            mockDiscordClient.SetupGet(dc => dc.ConnectionState).Returns(ConnectionState.Connected);
-            IDiscordClient discordClient = mockDiscordClient.Object;
-            TextChannelWriterFactory factory = new(discordClient);
-
-            CarrierMovementMessageProcessor messageProcessor = new(dbContext,
-                logger, factory, memoryCache);
             messageProcessor.ProcessAsync(JsonDocument.Parse(stream)).GetAwaiter().GetResult();
-
-            Assert.That(
-                dbContext.Carriers,
-                Is.EquivalentTo(expectedCarriers).Using(CarrierEqualityComparer.Instance));
-            mockRepository.Verify();
         }
         else
         {
             Assert.Fail("Test resource failed to load");
         }
+
+        Assert.That(
+                dbContext.Carriers,
+                Is.EquivalentTo(expectedCarriers).Using(CarrierEqualityComparer.Instance));
+        mockRepository.Verify();
+    }
+
+    public static IEnumerable<TestCaseData> Process_NoPresence_Source()
+    {
+#pragma warning disable CS8974 // Converting method group to non-delegate type
+        return new TestCaseData[]
+        {
+            new TestCaseData(NoPresence).SetName("No Presence or Goal"),
+            new TestCaseData(Presence).SetName("Presence"),
+            new TestCaseData(Goal).SetName("Unrelated Goal")
+        };
+#pragma warning restore CS8974 // Converting method group to non-delegate type
+    }
+
+    private static (DiscordGuild, StarSystem, Carrier[]) NoPresence(OrderBotDbContext dbContext,
+        ulong carrierMovementChannelId, DateTime fileTimeStamp)
+    {
+        MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
+        DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = carrierMovementChannelId };
+        testGuild.SupportedMinorFactions.Add(minorFaction);
+        StarSystem starSystem = new() { Name = "LTT 2684" };
+        dbContext.DiscordGuilds.Add(testGuild);
+        dbContext.MinorFactions.Add(minorFaction);
+        dbContext.StarSystems.Add(starSystem);
+
+        Carrier[] expectedCarriers = Array.Empty<Carrier>();
+
+        return (testGuild, starSystem, expectedCarriers);
+    }
+
+    private static (DiscordGuild, StarSystem, Carrier[]) Presence(OrderBotDbContext dbContext,
+        ulong carrierMovementChannelId, DateTime fileTimeStamp)
+    {
+        Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B", FirstSeen = fileTimeStamp.AddDays(-1) };
+        MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
+        DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = carrierMovementChannelId };
+        testGuild.IgnoredCarriers.Add(cowboyB);
+        testGuild.SupportedMinorFactions.Add(minorFaction);
+        StarSystem ltt2684 = new() { Name = "LTT 2684" };
+        dbContext.Carriers.Add(cowboyB);
+        dbContext.DiscordGuilds.Add(testGuild);
+        dbContext.MinorFactions.Add(minorFaction);
+        dbContext.StarSystems.Add(ltt2684);
+        Presence presence = new() { MinorFaction = minorFaction, StarSystem = ltt2684, Influence = 0.1 };
+        dbContext.Presences.Add(presence);
+        dbContext.SaveChanges();
+
+        Carrier[] expectedCarriers = new Carrier[]
+        {
+            cowboyB, // Ignored, so should not update
+            new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
+            new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
+            new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp }
+        };
+
+        return (testGuild, ltt2684, expectedCarriers);
+    }
+
+    private static (DiscordGuild, StarSystem, Carrier[]) Goal(OrderBotDbContext dbContext,
+        ulong carrierMovementChannelId, DateTime fileTimeStamp)
+    {
+        Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B", FirstSeen = fileTimeStamp.AddDays(-1) };
+        MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
+        DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = carrierMovementChannelId };
+        testGuild.IgnoredCarriers.Add(cowboyB);
+        testGuild.SupportedMinorFactions.Add(minorFaction);
+        StarSystem ltt2684 = new() { Name = "LTT 2684" };
+        dbContext.Carriers.Add(cowboyB);
+        dbContext.DiscordGuilds.Add(testGuild);
+        dbContext.MinorFactions.Add(minorFaction);
+        dbContext.StarSystems.Add(ltt2684);
+
+        MinorFaction otherMinorFaction = new() { Name = "Other Minor Faction" };
+        DiscordGuildPresenceGoal discordGuildPresenceGoal = new()
+        {
+            DiscordGuild = testGuild,
+            Presence = new() { MinorFaction = otherMinorFaction, StarSystem = ltt2684, Influence = 0.1 },
+            Goal = MaintainGoal.Instance.Name
+        };
+        dbContext.DiscordGuildPresenceGoals.Add(discordGuildPresenceGoal);
+        dbContext.SaveChanges();
+
+        Carrier[] expectedCarriers = new Carrier[]
+        {
+            cowboyB, // Ignored, so should not update
+            new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
+            new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
+            new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp }
+        };
+
+        return (testGuild, ltt2684, expectedCarriers);
     }
 }
