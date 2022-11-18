@@ -231,12 +231,13 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 ignoredCarriers ??= new List<string>();
                 try
                 {
-                    using TextChannelWriter textChannelWriter = await TextChannelWriterFactory.GetWriterAsync(carrierMovementChannel);
-                    textChannelWriter.WriteLine(
-                        GetCarrierMovementMessage(
-                            starSystem,
-                            newCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber))
-                                                                    .OrderBy(c => c.Name)));
+                    IEnumerable<Carrier> carriersToNotify = newCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber));
+                    if (carriersToNotify.Any())
+                    {
+                        using TextChannelWriter textChannelWriter =
+                            await TextChannelWriterFactory.GetWriterAsync(carrierMovementChannel);
+                        textChannelWriter.WriteLine(GetCarrierMovementMessage(starSystem, carriersToNotify));
+                    }
                 }
                 catch (Exception ex)
                 {
