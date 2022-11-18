@@ -44,28 +44,37 @@ internal class CarrierMovementMessageProcessorTests
             Is.EqualTo(TimeSpan.FromMinutes(5)));
     }
 
-    public delegate (DiscordGuild, StarSystem, Carrier[]) PopulateTestData(OrderBotDbContext dbContext,
-        DateTime fileTimeStamp);
+    /// <summary>
+    /// Test delegate used for <see cref="Process"/>.
+    /// </summary>
+    /// <param name="dbContext">
+    /// The <see cref="OrderBotDbContext"/> to populate with test data.
+    /// </param>
+    /// <returns>
+    /// Test data used for checking results.
+    /// </returns>
+    public delegate (string resourceName, DiscordGuild discordGuild, StarSystem starSystem, Carrier[] expectedCarriers)
+        PopulateTestData(OrderBotDbContext dbContext);
 
     [Test]
     [TestCaseSource(nameof(Process_Source))]
     public void Process(PopulateTestData populateTestData)
     {
-        DateTime fileTimeStamp = DateTime.Parse("2022-10-30T13:56:57Z").ToUniversalTime();
         using OrderBotDbContextFactory contextFactory = new();
         using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
         using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-        (DiscordGuild discordGuild, StarSystem starSystem, Carrier[] expectedCarriers)
-            = populateTestData(dbContext, fileTimeStamp);
+        (string resourceName, DiscordGuild discordGuild, StarSystem starSystem, Carrier[] expectedCarriers)
+            = populateTestData(dbContext);
 
         MockRepository mockRepository = new(MockBehavior.Strict);
         Mock<ILogger<CarrierMovementMessageProcessor>> mockLogger =
             mockRepository.Create<ILogger<CarrierMovementMessageProcessor>>(MockBehavior.Loose);
         //mockLogger.Setup(l => l.Log(LogLevel.Information, 0,
         //    "Carrier(s) Cowboy B X9Z-B0B, T.N.V.A COSMOS HNV-L7X, E.D.A. WALKABOUT KHF-79Z, ODIN W6B-94Z in LTT 2684 updated"));
-        ILogger<CarrierMovementMessageProcessor> logger = mockLogger.Object; IUserMessage userMessage = mockRepository.Create<IUserMessage>().Object;
+        ILogger<CarrierMovementMessageProcessor> logger = mockLogger.Object;
 
+        IUserMessage userMessage = mockRepository.Create<IUserMessage>().Object;
         Mock<ITextChannel> mockTextChannel = mockRepository.Create<ITextChannel>();
         StringBuilder carrierMovementMessage = new();
         if (discordGuild.CarrierMovementChannel != null)
@@ -98,14 +107,14 @@ internal class CarrierMovementMessageProcessorTests
         using IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
         CarrierMovementMessageProcessor messageProcessor = new(dbContext,
             logger, factory, memoryCache);
-        using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream("OrderBot.Test.samples.LTT 2684 FSS.json");
+        using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream(resourceName);
         if (stream != null)
         {
             messageProcessor.ProcessAsync(JsonDocument.Parse(stream)).GetAwaiter().GetResult();
         }
         else
         {
-            Assert.Fail("Test resource failed to load");
+            Assert.Fail("Test resource {resourceName} failed to load");
         }
 
         Assert.That(
@@ -126,8 +135,10 @@ internal class CarrierMovementMessageProcessorTests
         }.Select(f => new TestCaseData(f).SetName(f.Method.Name));
     }
 
-    private static (DiscordGuild, StarSystem, Carrier[]) NoPresence(OrderBotDbContext dbContext,
-        DateTime fileTimeStamp)
+    public static readonly string Ltt2684Message = "OrderBot.Test.samples.LTT 2684 FSS.json";
+    public static readonly DateTime Ltt2684MessageTimeStamp = DateTime.Parse("2022-10-30T13:56:57Z").ToUniversalTime();
+
+    private static (string, DiscordGuild, StarSystem, Carrier[]) NoPresence(OrderBotDbContext dbContext)
     {
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
         DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = 1234567890 };
@@ -139,13 +150,12 @@ internal class CarrierMovementMessageProcessorTests
 
         Carrier[] expectedCarriers = Array.Empty<Carrier>();
 
-        return (testGuild, starSystem, expectedCarriers);
+        return (Ltt2684Message, testGuild, starSystem, expectedCarriers);
     }
 
-    private static (DiscordGuild, StarSystem, Carrier[]) Presence(OrderBotDbContext dbContext,
-        DateTime fileTimeStamp)
+    private static (string, DiscordGuild, StarSystem, Carrier[]) Presence(OrderBotDbContext dbContext)
     {
-        Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B", FirstSeen = fileTimeStamp.AddDays(-1) };
+        Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B", FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1) };
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
         DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = 1234567890 };
         testGuild.IgnoredCarriers.Add(cowboyB);
@@ -163,18 +173,17 @@ internal class CarrierMovementMessageProcessorTests
         Carrier[] expectedCarriers = new Carrier[]
         {
             cowboyB, // Ignored, so should not update
-            new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
-            new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
-            new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp }
+            new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
+            new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
+            new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp }
         };
 
-        return (testGuild, ltt2684, expectedCarriers);
+        return (Ltt2684Message, testGuild, ltt2684, expectedCarriers);
     }
 
-    private static (DiscordGuild, StarSystem, Carrier[]) Goal(OrderBotDbContext dbContext,
-        DateTime fileTimeStamp)
+    private static (string, DiscordGuild, StarSystem, Carrier[]) Goal(OrderBotDbContext dbContext)
     {
-        Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B", FirstSeen = fileTimeStamp.AddDays(-1) };
+        Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B", FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1) };
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
         DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = 1234567890 };
         testGuild.IgnoredCarriers.Add(cowboyB);
@@ -198,25 +207,24 @@ internal class CarrierMovementMessageProcessorTests
         Carrier[] expectedCarriers = new Carrier[]
         {
             cowboyB, // Ignored, so should not update
-            new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
-            new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
-            new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp }
+            new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
+            new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
+            new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp }
         };
 
-        return (testGuild, ltt2684, expectedCarriers);
+        return (Ltt2684Message, testGuild, ltt2684, expectedCarriers);
     }
 
-    private static (DiscordGuild, StarSystem, Carrier[]) AllIgnored(OrderBotDbContext dbContext,
-        DateTime fileTimeStamp)
+    private static (string, DiscordGuild, StarSystem, Carrier[]) AllIgnored(OrderBotDbContext dbContext)
     {
         StarSystem ltt2684 = new() { Name = "LTT 2684" };
 
         Carrier[] expectedCarriers = new Carrier[]
         {
-            new Carrier() { Name = "Cowboy B X9Z-B0B", FirstSeen = fileTimeStamp },
-            new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
-            new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
-            new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp }
+            new Carrier() { Name = "Cowboy B X9Z-B0B", FirstSeen = Ltt2684MessageTimeStamp },
+            new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
+            new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
+            new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp }
         };
 
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
@@ -234,19 +242,18 @@ internal class CarrierMovementMessageProcessorTests
         dbContext.Presences.Add(presence);
         dbContext.SaveChanges();
 
-        return (testGuild, ltt2684, expectedCarriers);
+        return (Ltt2684Message, testGuild, ltt2684, expectedCarriers);
     }
 
-    private static (DiscordGuild, StarSystem, Carrier[]) NoChannel(OrderBotDbContext dbContext,
-        DateTime fileTimeStamp)
+    private static (string, DiscordGuild, StarSystem, Carrier[]) NoChannel(OrderBotDbContext dbContext)
     {
         StarSystem ltt2684 = new() { Name = "LTT 2684" };
         Carrier[] expectedCarriers = new Carrier[]
         {
-            new Carrier() { Name = "Cowboy B X9Z-B0B", StarSystem = ltt2684, FirstSeen = fileTimeStamp.AddDays(-1) },
-            new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
-            new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
-            new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp }
+            new Carrier() { Name = "Cowboy B X9Z-B0B", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1) },
+            new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
+            new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
+            new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp }
         };
 
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
@@ -260,6 +267,6 @@ internal class CarrierMovementMessageProcessorTests
         dbContext.Presences.Add(presence);
         dbContext.SaveChanges();
 
-        return (testGuild, ltt2684, expectedCarriers);
+        return (Ltt2684Message, testGuild, ltt2684, expectedCarriers);
     }
 }
