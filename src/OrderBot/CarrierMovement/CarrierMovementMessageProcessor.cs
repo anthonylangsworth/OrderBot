@@ -6,6 +6,7 @@ using OrderBot.Discord;
 using OrderBot.EntityFramework;
 using OrderBot.MessageProcessors;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using System.Transactions;
 
@@ -231,11 +232,11 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 try
                 {
                     using TextChannelWriter textChannelWriter = await TextChannelWriterFactory.GetWriterAsync(carrierMovementChannel);
-                    foreach (Carrier carrier in newCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber))
-                                                                .OrderBy(c => c.Name))
-                    {
-                        textChannelWriter.WriteLine(GetCarrierMovementMessage(carrier, starSystem));
-                    }
+                    textChannelWriter.WriteLine(
+                        GetCarrierMovementMessage(
+                            starSystem,
+                            newCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber))
+                                                                    .OrderBy(c => c.Name)));
                 }
                 catch (Exception ex)
                 {
@@ -250,20 +251,26 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     }
 
     /// <summary>
-    /// Construct the message written to <see cref="DiscordGuild.CarrierMovementChannel"/> on a carrier jump.
+    /// Construct the detail line for each carrier written to <see cref="DiscordGuild.CarrierMovementChannel"/> on a carrier jump.
     /// </summary>
     /// <param name="carrier">
     /// The carrier to write details for.
     /// </param>
-    /// <param name="starSystem">
-    /// The star system to write details for.
-    /// </param>
     /// <returns>
     /// The message.
     /// </returns>
-    internal static string GetCarrierMovementMessage(Carrier carrier, StarSystem starSystem)
+    internal static string GetCarrierMovementMessage(StarSystem starSystem, IEnumerable<Carrier> carriers)
     {
-        return $"New fleet carrier '{carrier.Name}' (<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(carrier.SerialNumber)}>) seen in '{starSystem.Name}' (<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(starSystem.Name)}>).";
+        StringBuilder stringBuilder = new();
+        if (carriers.Any())
+        {
+            stringBuilder.AppendLine($"New fleet carriers in '{starSystem.Name}' (<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(starSystem.Name)}>):");
+            foreach (Carrier carrier in carriers.OrderBy(c => c.Name))
+            {
+                stringBuilder.AppendLine($"- '{carrier.Name}' (<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(carrier.SerialNumber)}>)");
+            }
+        }
+        return stringBuilder.ToString().Trim();
     }
 
     // Not all messages are complete. Therefore, we cannot say a carrier has jumped out
