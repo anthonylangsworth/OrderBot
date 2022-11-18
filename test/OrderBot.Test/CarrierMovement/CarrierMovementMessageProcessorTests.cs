@@ -44,18 +44,20 @@ internal class CarrierMovementMessageProcessorTests
             Is.EqualTo(TimeSpan.FromMinutes(5)));
     }
 
+    public delegate (DiscordGuild, StarSystem, Carrier[]) PopulateTestData(OrderBotDbContext dbContext,
+        DateTime fileTimeStamp);
+
     [Test]
-    [TestCaseSource(nameof(Process_NoPresence_Source))]
-    public void Process(Func<OrderBotDbContext, ulong, DateTime, (DiscordGuild, StarSystem, Carrier[])> populateTestData)
+    [TestCaseSource(nameof(Process_Source))]
+    public void Process(PopulateTestData populateTestData)
     {
         DateTime fileTimeStamp = DateTime.Parse("2022-10-30T13:56:57Z").ToUniversalTime();
         using OrderBotDbContextFactory contextFactory = new();
         using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
         using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
 
-        const ulong carrierMovementChannelId = 1234567890;
-        (DiscordGuild testGuild, StarSystem ltt2684, Carrier[] expectedCarriers)
-            = populateTestData(dbContext, carrierMovementChannelId, fileTimeStamp);
+        (DiscordGuild testGuild, StarSystem starSystem, Carrier[] expectedCarriers)
+            = populateTestData(dbContext, fileTimeStamp);
 
         MockRepository mockRepository = new(MockBehavior.Strict);
         Mock<ILogger<CarrierMovementMessageProcessor>> mockLogger =
@@ -66,23 +68,29 @@ internal class CarrierMovementMessageProcessorTests
 
         Mock<ITextChannel> mockTextChannel = mockRepository.Create<ITextChannel>();
         StringBuilder carrierMovementMessage = new();
-        foreach (Carrier carrier in expectedCarriers.Except(testGuild.IgnoredCarriers).OrderBy(c => c.Name))
+        if (testGuild.CarrierMovementChannel != null)
         {
-            carrierMovementMessage.AppendLine(
-                CarrierMovementMessageProcessor.GetCarrierMovementMessage(carrier, ltt2684));
+            foreach (Carrier carrier in expectedCarriers.Except(testGuild.IgnoredCarriers).OrderBy(c => c.Name))
+            {
+                carrierMovementMessage.AppendLine(
+                    CarrierMovementMessageProcessor.GetCarrierMovementMessage(carrier, starSystem));
+            }
+            if (carrierMovementMessage.Length > 0)
+            {
+                mockTextChannel.Setup(tc => tc.SendMessageAsync(
+                                    carrierMovementMessage.ToString(), false, null, null, null, null, null, null, null, MessageFlags.None))
+                               .Returns(Task.FromResult(userMessage));
+            }
+            mockTextChannel.SetupGet(smc => smc.Id).Returns(testGuild.CarrierMovementChannel ?? 0);
         }
-        if (carrierMovementMessage.Length > 0)
-        {
-            mockTextChannel.Setup(tc => tc.SendMessageAsync(
-                                carrierMovementMessage.ToString(), false, null, null, null, null, null, null, null, MessageFlags.None))
-                            .Returns(Task.FromResult(userMessage));
-        }
-        mockTextChannel.SetupGet(smc => smc.Id).Returns(carrierMovementChannelId);
         ITextChannel socketMessageChannel = mockTextChannel.Object;
 
         Mock<IDiscordClient> mockDiscordClient = mockRepository.Create<IDiscordClient>();
-        mockDiscordClient.Setup(dc => dc.GetChannelAsync(carrierMovementChannelId, CacheMode.AllowDownload, null))
-                         .ReturnsAsync(socketMessageChannel);
+        if (testGuild.CarrierMovementChannel != null)
+        {
+            mockDiscordClient.Setup(dc => dc.GetChannelAsync(testGuild.CarrierMovementChannel ?? 0, CacheMode.AllowDownload, null))
+                             .ReturnsAsync(socketMessageChannel);
+        }
         mockDiscordClient.SetupGet(dc => dc.ConnectionState).Returns(ConnectionState.Connected);
         IDiscordClient discordClient = mockDiscordClient.Object;
         TextChannelWriterFactory factory = new(discordClient);
@@ -106,23 +114,23 @@ internal class CarrierMovementMessageProcessorTests
         mockRepository.Verify();
     }
 
-    public static IEnumerable<TestCaseData> Process_NoPresence_Source()
+    public static IEnumerable<TestCaseData> Process_Source()
     {
-#pragma warning disable CS8974 // Converting method group to non-delegate type
-        return new TestCaseData[]
+        return new PopulateTestData[]
         {
-            new TestCaseData(NoPresence).SetName("No Presence or Goal"),
-            new TestCaseData(Presence).SetName("Presence"),
-            new TestCaseData(Goal).SetName("Unrelated Goal")
-        };
-#pragma warning restore CS8974 // Converting method group to non-delegate type
+            NoPresence,
+            Presence,
+            Goal,
+            AllIgnored,
+            NoChannel
+        }.Select(f => new TestCaseData(f).SetName(f.Method.Name));
     }
 
     private static (DiscordGuild, StarSystem, Carrier[]) NoPresence(OrderBotDbContext dbContext,
-        ulong carrierMovementChannelId, DateTime fileTimeStamp)
+        DateTime fileTimeStamp)
     {
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
-        DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = carrierMovementChannelId };
+        DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = 1234567890 };
         testGuild.SupportedMinorFactions.Add(minorFaction);
         StarSystem starSystem = new() { Name = "LTT 2684" };
         dbContext.DiscordGuilds.Add(testGuild);
@@ -135,11 +143,11 @@ internal class CarrierMovementMessageProcessorTests
     }
 
     private static (DiscordGuild, StarSystem, Carrier[]) Presence(OrderBotDbContext dbContext,
-        ulong carrierMovementChannelId, DateTime fileTimeStamp)
+        DateTime fileTimeStamp)
     {
         Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B", FirstSeen = fileTimeStamp.AddDays(-1) };
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
-        DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = carrierMovementChannelId };
+        DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = 1234567890 };
         testGuild.IgnoredCarriers.Add(cowboyB);
         testGuild.SupportedMinorFactions.Add(minorFaction);
         StarSystem ltt2684 = new() { Name = "LTT 2684" };
@@ -147,6 +155,7 @@ internal class CarrierMovementMessageProcessorTests
         dbContext.DiscordGuilds.Add(testGuild);
         dbContext.MinorFactions.Add(minorFaction);
         dbContext.StarSystems.Add(ltt2684);
+
         Presence presence = new() { MinorFaction = minorFaction, StarSystem = ltt2684, Influence = 0.1 };
         dbContext.Presences.Add(presence);
         dbContext.SaveChanges();
@@ -163,11 +172,11 @@ internal class CarrierMovementMessageProcessorTests
     }
 
     private static (DiscordGuild, StarSystem, Carrier[]) Goal(OrderBotDbContext dbContext,
-        ulong carrierMovementChannelId, DateTime fileTimeStamp)
+        DateTime fileTimeStamp)
     {
         Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B", FirstSeen = fileTimeStamp.AddDays(-1) };
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
-        DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = carrierMovementChannelId };
+        DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = 1234567890 };
         testGuild.IgnoredCarriers.Add(cowboyB);
         testGuild.SupportedMinorFactions.Add(minorFaction);
         StarSystem ltt2684 = new() { Name = "LTT 2684" };
@@ -193,6 +202,63 @@ internal class CarrierMovementMessageProcessorTests
             new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
             new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp }
         };
+
+        return (testGuild, ltt2684, expectedCarriers);
+    }
+
+    private static (DiscordGuild, StarSystem, Carrier[]) AllIgnored(OrderBotDbContext dbContext,
+        DateTime fileTimeStamp)
+    {
+        StarSystem ltt2684 = new() { Name = "LTT 2684" };
+
+        Carrier[] expectedCarriers = new Carrier[]
+        {
+            new Carrier() { Name = "Cowboy B X9Z-B0B", FirstSeen = fileTimeStamp },
+            new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
+            new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
+            new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp }
+        };
+
+        MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
+        DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = 1234567890 };
+        foreach (Carrier carrier in expectedCarriers)
+        {
+            testGuild.IgnoredCarriers.Add(carrier);
+        }
+        testGuild.SupportedMinorFactions.Add(minorFaction);
+        dbContext.Carriers.AddRange(expectedCarriers);
+        dbContext.DiscordGuilds.Add(testGuild);
+        dbContext.MinorFactions.Add(minorFaction);
+        dbContext.StarSystems.Add(ltt2684);
+        Presence presence = new() { MinorFaction = minorFaction, StarSystem = ltt2684, Influence = 0.1 };
+        dbContext.Presences.Add(presence);
+        dbContext.SaveChanges();
+
+        return (testGuild, ltt2684, expectedCarriers);
+    }
+
+    private static (DiscordGuild, StarSystem, Carrier[]) NoChannel(OrderBotDbContext dbContext,
+        DateTime fileTimeStamp)
+    {
+        StarSystem ltt2684 = new() { Name = "LTT 2684" };
+        Carrier[] expectedCarriers = new Carrier[]
+        {
+            new Carrier() { Name = "Cowboy B X9Z-B0B", StarSystem = ltt2684, FirstSeen = fileTimeStamp.AddDays(-1) },
+            new Carrier() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
+            new Carrier() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = fileTimeStamp },
+            new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = fileTimeStamp }
+        };
+
+        MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
+        DiscordGuild testGuild = new() { Name = "Test Guild" };
+        testGuild.SupportedMinorFactions.Add(minorFaction);
+        dbContext.DiscordGuilds.Add(testGuild);
+        dbContext.MinorFactions.Add(minorFaction);
+        dbContext.StarSystems.Add(ltt2684);
+
+        Presence presence = new() { MinorFaction = minorFaction, StarSystem = ltt2684, Influence = 0.1 };
+        dbContext.Presences.Add(presence);
+        dbContext.SaveChanges();
 
         return (testGuild, ltt2684, expectedCarriers);
     }
