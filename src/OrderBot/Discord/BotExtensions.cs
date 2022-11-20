@@ -39,7 +39,8 @@ internal static class BotExtensions
         services.AddSingleton<TextChannelWriterFactory>();
 
         services.AddOptions<DiscordClientOptions>()
-                .Bind(configuration.GetRequiredSection("Discord"));
+                .Bind(configuration.GetRequiredSection("Discord"))
+                .Validate(dco => !string.IsNullOrWhiteSpace(dco.ApiKey), "Discord API Key missing");
         services.AddHostedService<BotHostedService>();
     }
 }
