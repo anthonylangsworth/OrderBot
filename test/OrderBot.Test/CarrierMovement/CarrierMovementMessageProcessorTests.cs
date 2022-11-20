@@ -79,28 +79,19 @@ internal class CarrierMovementMessageProcessorTests
         //    "Carrier(s) Cowboy B X9Z-B0B, T.N.V.A COSMOS HNV-L7X, E.D.A. WALKABOUT KHF-79Z, ODIN W6B-94Z in LTT 2684 updated"));
         ILogger<CarrierMovementMessageProcessor> logger = mockLogger.Object;
 
-        IUserMessage userMessage = mockRepository.Create<IUserMessage>().Object;
-        Mock<ITextChannel> mockTextChannel = mockRepository.Create<ITextChannel>();
+        Mock<TextChannelWriterFactory> mockFactory = mockRepository.Create<TextChannelWriterFactory>(null);
         if (expectNotifications)
         {
-            mockTextChannel.Setup(
-                tc => tc.SendMessageAsync(
-                            CarrierMovementMessageProcessor.GetCarrierMovementMessage(
-                                starSystem,
-                                expectedCarriers.Except(discordGuild.IgnoredCarriers)),
-                            false, null, null, null, null, null, null, null, MessageFlags.None))
-                        .Returns(Task.FromResult(userMessage));
+            Mock<TextChannelWriter> mockTextChannelWriter = mockRepository.Create<TextChannelWriter>(null);
+            mockTextChannelWriter.Setup(
+                tcw => tcw.WriteLine(
+                    CarrierMovementMessageProcessor.GetCarrierMovementMessage(
+                        starSystem,
+                        expectedCarriers.Except(discordGuild.IgnoredCarriers))));
+            mockFactory.Setup(tcwf => tcwf.GetWriterAsync(discordGuild.CarrierMovementChannel))
+                       .Returns(Task.FromResult(mockTextChannelWriter.Object));
         }
-        ITextChannel socketMessageChannel = mockTextChannel.Object;
-
-        Mock<IDiscordClient> mockDiscordClient = mockRepository.Create<IDiscordClient>();
-        if (expectNotifications)
-        {
-            mockDiscordClient.Setup(dc => dc.GetChannelAsync(discordGuild.CarrierMovementChannel ?? 0, CacheMode.AllowDownload, null))
-                             .ReturnsAsync(socketMessageChannel);
-        }
-        IDiscordClient discordClient = mockDiscordClient.Object;
-        TextChannelWriterFactory factory = new(discordClient);
+        TextChannelWriterFactory factory = mockFactory.Object;
 
         using IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
         CarrierMovementMessageProcessor messageProcessor = new(dbContext, logger, factory, memoryCache);
@@ -119,7 +110,7 @@ internal class CarrierMovementMessageProcessorTests
                 Is.EquivalentTo(expectedCarriers).Using(CarrierEqualityComparer.Instance));
 
         // TODO: Get this to work
-        // mockRepository.VerifyAll();
+        mockRepository.VerifyAll();
         // mockRepository.VerifyNoOtherCalls(); // Only if we can mock ILogger
     }
 
