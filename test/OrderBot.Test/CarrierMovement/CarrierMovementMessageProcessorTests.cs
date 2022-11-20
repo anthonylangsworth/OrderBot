@@ -93,7 +93,7 @@ internal class CarrierMovementMessageProcessorTests
                 Is.EquivalentTo(expectedCarriers).Using(CarrierEqualityComparer.Instance));
         Assert.That(factory.StringBuilder.ToString(),
             Is.EqualTo(CarrierMovementMessageProcessor.GetCarrierMovementMessage(
-                starSystem, expectedCarriers.Except(discordGuild.IgnoredCarriers))));
+                starSystem, expectedNewlyArrivedCarriers)));
         if (expectedCarriers.Any())
         {
             Assert.That(fakeLoger.LogEntries, Is.EquivalentTo(new LogEntry[]

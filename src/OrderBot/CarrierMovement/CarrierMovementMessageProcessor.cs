@@ -49,7 +49,6 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 ce =>
                 {
                     ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                    // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
                     return GetStarSystemToDiscordGuildToCarrierMovementChannel();
                 });
 
@@ -60,7 +59,6 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 ce =>
                 {
                     ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                    // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
                     return GetIgnoredCarriers();
                 });
 
@@ -225,7 +223,8 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     {
         foreach (int discordGuildId in discordGuildToCarrierMovementChannel.Keys)
         {
-            if (discordGuildToCarrierMovementChannel.TryGetValue(discordGuildId, out ulong? carrierMovementChannel))
+            if (discordGuildToCarrierMovementChannel.TryGetValue(discordGuildId, out ulong? carrierMovementChannel)
+                && carrierMovementChannel != null)
             {
                 discordGuildToIgnoredCarrierSerialNumbers.TryGetValue(discordGuildId, out List<string>? ignoredCarriers);
                 ignoredCarriers ??= new List<string>();
