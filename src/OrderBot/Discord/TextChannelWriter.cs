@@ -1,18 +1,20 @@
 ﻿using Discord;
+using System.Text;
 
 namespace OrderBot.Discord;
 
 /// <summary>
 /// Buffer and split potentially large messages written to Discord text channels. Nothing is 
 /// written until either <see cref="Flush"/> is called or written messages exceed
-/// <see cref="global::Discord.DiscordConfig.MaxMessageSize"/> characters.
+/// <see cref="DiscordConfig.MaxMessageSize"/> characters.
 /// </summary>
-public class TextChannelWriter : IDisposable
+public class TextChannelWriter : TextWriter, IDisposable
 {
     private bool _disposedValue;
     private readonly TextChannelStream _discordChannelStream;
     private readonly BufferedStream _bufferedStream;
     private readonly StreamWriter _streamWriter;
+    public override Encoding Encoding => Encoding.UTF8;
 
     /// <summary>
     /// Create a <see cref="TextChannelWriter"/>.
@@ -26,8 +28,9 @@ public class TextChannelWriter : IDisposable
     }
 
     /// <inheritdoc/>
-    protected virtual void Dispose(bool disposing)
+    protected override void Dispose(bool disposing)
     {
+        base.Dispose(disposing);
         if (!_disposedValue)
         {
             _streamWriter.Flush();
@@ -38,31 +41,23 @@ public class TextChannelWriter : IDisposable
         }
     }
 
-    /// <inheritdoc/>
-    public void Dispose()
-    {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
     /// <summary>
     /// Write any unwritten
     /// </summary>
-    public void Flush()
+    public override void Flush()
     {
         _streamWriter.Flush();
     }
 
     /// <summary>
-    /// Write a message to the text channel.
+    /// Write a character to the text channel..
     /// </summary>
     /// <param name="message">
     /// The message to write.
     /// </param>
-    public virtual void WriteLine(string message)
+    public override void Write(char character)
     {
-        _streamWriter.WriteLine(message);
+        _streamWriter.Write(character);
     }
 
     // Add other members, similar to StreamWriter, as needed

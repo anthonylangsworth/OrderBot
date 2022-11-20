@@ -22,7 +22,7 @@ public class TextChannelWriterFactory
     /// <exception cref="ArgumentException">
     /// <paramref name="channelId"/> is not a valid Discord text channel.
     /// </exception>
-    public virtual async Task<TextChannelWriter> GetWriterAsync(ulong? channelId)
+    public virtual async Task<TextWriter> GetWriterAsync(ulong? channelId)
     {
         if (await DiscordClient.GetChannelAsync(channelId ?? 0) is ITextChannel textChannel)
         {

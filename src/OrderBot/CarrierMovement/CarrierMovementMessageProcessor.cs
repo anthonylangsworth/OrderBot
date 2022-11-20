@@ -196,7 +196,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
         if (observedCarriers.Any())
         {
             Logger.LogInformation("Carrier(s) {Carriers} in {StarSystem} updated",
-                string.Join(", ", observedCarriers.Select(c => c.Name)), starSystem.Name);
+                string.Join(", ", observedCarriers.Select(c => c.Name).OrderBy(n => n)), starSystem.Name);
         }
         return observedCarriers.ToArray();
     }
@@ -234,9 +234,9 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                     IEnumerable<Carrier> carriersToNotify = newCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber));
                     if (carriersToNotify.Any())
                     {
-                        using TextChannelWriter textChannelWriter =
+                        using TextWriter textChannelWriter =
                             await TextChannelWriterFactory.GetWriterAsync(carrierMovementChannel);
-                        textChannelWriter.WriteLine(GetCarrierMovementMessage(starSystem, carriersToNotify));
+                        textChannelWriter.Write(GetCarrierMovementMessage(starSystem, carriersToNotify));
                     }
                 }
                 catch (Exception ex)

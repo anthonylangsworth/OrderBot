@@ -52,7 +52,8 @@ internal class CarrierMovementMessageProcessorTests
     /// <returns>
     /// Test data used for checking results.
     /// </returns>
-    public delegate (string resourceName, DiscordGuild discordGuild, StarSystem starSystem, Carrier[] expectedCarriers, bool expectNotification)
+    public delegate (string resourceName, DiscordGuild discordGuild, StarSystem starSystem,
+            IEnumerable<Carrier> expectedCarriers, IEnumerable<Carrier> expectedNewlyArrivedCarriers)
         PopulateTestData(OrderBotDbContext dbContext);
 
     [Test]
@@ -67,34 +68,16 @@ internal class CarrierMovementMessageProcessorTests
             string resourceName,
             DiscordGuild discordGuild,
             StarSystem starSystem,
-            Carrier[] expectedCarriers,
-            bool expectNotifications
+            IEnumerable<Carrier> expectedCarriers,
+            IEnumerable<Carrier> expectedNewlyArrivedCarriers
         )
             = populateTestData(dbContext);
 
-        MockRepository mockRepository = new(MockBehavior.Strict);
-        Mock<ILogger<CarrierMovementMessageProcessor>> mockLogger =
-            mockRepository.Create<ILogger<CarrierMovementMessageProcessor>>(MockBehavior.Loose);
-        //mockLogger.Setup(l => l.Log(LogLevel.Information, 0,
-        //    "Carrier(s) Cowboy B X9Z-B0B, T.N.V.A COSMOS HNV-L7X, E.D.A. WALKABOUT KHF-79Z, ODIN W6B-94Z in LTT 2684 updated"));
-        ILogger<CarrierMovementMessageProcessor> logger = mockLogger.Object;
-
-        Mock<TextChannelWriterFactory> mockFactory = mockRepository.Create<TextChannelWriterFactory>(null);
-        if (expectNotifications)
-        {
-            Mock<TextChannelWriter> mockTextChannelWriter = mockRepository.Create<TextChannelWriter>(null);
-            mockTextChannelWriter.Setup(
-                tcw => tcw.WriteLine(
-                    CarrierMovementMessageProcessor.GetCarrierMovementMessage(
-                        starSystem,
-                        expectedCarriers.Except(discordGuild.IgnoredCarriers))));
-            mockFactory.Setup(tcwf => tcwf.GetWriterAsync(discordGuild.CarrierMovementChannel))
-                       .Returns(Task.FromResult(mockTextChannelWriter.Object));
-        }
-        TextChannelWriterFactory factory = mockFactory.Object;
+        FakeLogger<CarrierMovementMessageProcessor> fakeLoger = new();
+        FakeTextChannelWriterFactory factory = new();
 
         using IMemoryCache memoryCache = new MemoryCache(new MemoryCacheOptions());
-        CarrierMovementMessageProcessor messageProcessor = new(dbContext, logger, factory, memoryCache);
+        CarrierMovementMessageProcessor messageProcessor = new(dbContext, fakeLoger, factory, memoryCache);
         using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream(resourceName);
         if (stream != null)
         {
@@ -108,10 +91,18 @@ internal class CarrierMovementMessageProcessorTests
         Assert.That(
                 dbContext.Carriers,
                 Is.EquivalentTo(expectedCarriers).Using(CarrierEqualityComparer.Instance));
-
-        // TODO: Get this to work
-        mockRepository.VerifyAll();
-        // mockRepository.VerifyNoOtherCalls(); // Only if we can mock ILogger
+        Assert.That(factory.StringBuilder.ToString(),
+            Is.EqualTo(CarrierMovementMessageProcessor.GetCarrierMovementMessage(
+                starSystem, expectedCarriers.Except(discordGuild.IgnoredCarriers))));
+        if (expectedCarriers.Any())
+        {
+            Assert.That(fakeLoger.LogEntries, Is.EquivalentTo(new LogEntry[]
+            {
+                new LogEntry(LogLevel.Information, new EventId(),
+                    $"Carrier(s) {string.Join(", ", expectedCarriers.Select(c => c.Name).OrderBy(n => n))} in {starSystem.Name} updated",
+                    null)
+            }).Using(new LogEntryEqualityComparer()));
+        }
     }
 
     public static IEnumerable<TestCaseData> Process_Source()
@@ -129,7 +120,7 @@ internal class CarrierMovementMessageProcessorTests
     public static readonly string Ltt2684Message = "OrderBot.Test.samples.LTT 2684 FSS.json";
     public static readonly DateTime Ltt2684MessageTimeStamp = DateTime.Parse("2022-10-30T13:56:57Z").ToUniversalTime();
 
-    private static (string, DiscordGuild, StarSystem, Carrier[], bool) NoPresence(OrderBotDbContext dbContext)
+    private static (string, DiscordGuild, StarSystem, IEnumerable<Carrier>, IEnumerable<Carrier>) NoPresence(OrderBotDbContext dbContext)
     {
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
         DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = 1234567890 };
@@ -141,10 +132,10 @@ internal class CarrierMovementMessageProcessorTests
 
         Carrier[] expectedCarriers = Array.Empty<Carrier>();
 
-        return (Ltt2684Message, testGuild, starSystem, expectedCarriers, false);
+        return (Ltt2684Message, testGuild, starSystem, expectedCarriers, Array.Empty<Carrier>());
     }
 
-    private static (string, DiscordGuild, StarSystem, Carrier[], bool) Presence(OrderBotDbContext dbContext)
+    private static (string, DiscordGuild, StarSystem, IEnumerable<Carrier>, IEnumerable<Carrier>) Presence(OrderBotDbContext dbContext)
     {
         Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B", FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1) };
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
@@ -169,10 +160,11 @@ internal class CarrierMovementMessageProcessorTests
             new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp }
         };
 
-        return (Ltt2684Message, testGuild, ltt2684, expectedCarriers, true);
+        return (Ltt2684Message, testGuild, ltt2684, expectedCarriers,
+            expectedCarriers.Where(c => c.FirstSeen == Ltt2684MessageTimeStamp));
     }
 
-    private static (string, DiscordGuild, StarSystem, Carrier[], bool) Goal(OrderBotDbContext dbContext)
+    private static (string, DiscordGuild, StarSystem, IEnumerable<Carrier>, IEnumerable<Carrier>) Goal(OrderBotDbContext dbContext)
     {
         Carrier cowboyB = new() { Name = "Cowboy B X9Z-B0B", FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1) };
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
@@ -203,10 +195,11 @@ internal class CarrierMovementMessageProcessorTests
             new Carrier() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp }
         };
 
-        return (Ltt2684Message, testGuild, ltt2684, expectedCarriers, true);
+        return (Ltt2684Message, testGuild, ltt2684, expectedCarriers,
+            expectedCarriers.Where(c => c.FirstSeen == Ltt2684MessageTimeStamp));
     }
 
-    private static (string, DiscordGuild, StarSystem, Carrier[], bool) AllIgnored(OrderBotDbContext dbContext)
+    private static (string, DiscordGuild, StarSystem, IEnumerable<Carrier>, IEnumerable<Carrier>) AllIgnored(OrderBotDbContext dbContext)
     {
         StarSystem ltt2684 = new() { Name = "LTT 2684" };
 
@@ -233,10 +226,10 @@ internal class CarrierMovementMessageProcessorTests
         dbContext.Presences.Add(presence);
         dbContext.SaveChanges();
 
-        return (Ltt2684Message, testGuild, ltt2684, expectedCarriers, false);
+        return (Ltt2684Message, testGuild, ltt2684, expectedCarriers, Array.Empty<Carrier>());
     }
 
-    private static (string, DiscordGuild, StarSystem, Carrier[], bool) NoChannel(OrderBotDbContext dbContext)
+    private static (string, DiscordGuild, StarSystem, IEnumerable<Carrier>, IEnumerable<Carrier>) NoChannel(OrderBotDbContext dbContext)
     {
         StarSystem ltt2684 = new() { Name = "LTT 2684" };
         Carrier[] expectedCarriers = new Carrier[]
@@ -258,6 +251,6 @@ internal class CarrierMovementMessageProcessorTests
         dbContext.Presences.Add(presence);
         dbContext.SaveChanges();
 
-        return (Ltt2684Message, testGuild, ltt2684, expectedCarriers, false);
+        return (Ltt2684Message, testGuild, ltt2684, expectedCarriers, Array.Empty<Carrier>());
     }
 }
