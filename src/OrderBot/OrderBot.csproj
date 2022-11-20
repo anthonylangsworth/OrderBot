@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
-	<DockerfileRunEnvironmentFiles>ApiKeys.env</DockerfileRunEnvironmentFiles>
+	<DockerfileRunEnvironmentFiles>.env</DockerfileRunEnvironmentFiles>
   </PropertyGroup>
 
   <ItemGroup>
