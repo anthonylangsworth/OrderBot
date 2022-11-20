@@ -103,6 +103,10 @@ internal class CarrierMovementMessageProcessorTests
                     null)
             }).Using(new LogEntryEqualityComparer()));
         }
+        else
+        {
+            Assert.That(fakeLoger.LogEntries, Is.Empty);
+        }
     }
 
     public static IEnumerable<TestCaseData> Process_Source()
