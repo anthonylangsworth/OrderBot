@@ -49,7 +49,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 ce =>
                 {
                     ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                    return GetStarSystemToDiscordGuildToCarrierMovementChannel();
+                    return GetStarSystemToDiscordGuildToCarrierMovementChannel(DbContext);
                 });
 
         // Maps each discord guild to the serial numbers of its ignored carriers
@@ -59,7 +59,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 ce =>
                 {
                     ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                    return GetIgnoredCarriers();
+                    return GetIgnoredCarriers(DbContext);
                 });
 
         JsonElement messageElement = message.RootElement.GetProperty("message");
@@ -105,10 +105,10 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// <returns>
     /// The mapping.
     /// </returns>
-    private IDictionary<int, List<string>> GetIgnoredCarriers()
+    internal static IDictionary<int, List<string>> GetIgnoredCarriers(OrderBotDbContext dbContext)
     {
-        return DbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
-                                   .ToDictionary(dg => dg.Id, dg => dg.IgnoredCarriers.Select(ic => ic.SerialNumber).ToList());
+        return dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
+                                      .ToDictionary(dg => dg.Id, dg => dg.IgnoredCarriers.Select(ic => ic.SerialNumber).ToList());
     }
 
     /// <summary>
@@ -121,17 +121,17 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// <returns>
     /// The mapping.
     /// </returns>
-    private IDictionary<string, IDictionary<int, ulong?>> GetStarSystemToDiscordGuildToCarrierMovementChannel()
+    internal static IDictionary<string, IDictionary<int, ulong?>> GetStarSystemToDiscordGuildToCarrierMovementChannel(OrderBotDbContext dbContext)
     {
         Dictionary<string, IDictionary<int, ulong?>> result = new();
         IEnumerable<(string Name, int Id, ulong? CarrierMovementChannel)> fromGoals =
-            DbContext.DiscordGuildPresenceGoals.Include(dgpg => dgpg.DiscordGuild)
+            dbContext.DiscordGuildPresenceGoals.Include(dgpg => dgpg.DiscordGuild)
                                                .Include(dgpg => dgpg.Presence)
                                                .Include(dgpg => dgpg.Presence.StarSystem)
                                                .ToList()
                                                .Select(dgpg => (dgpg.Presence.StarSystem.Name, dgpg.DiscordGuild.Id, dgpg.DiscordGuild.CarrierMovementChannel));
         IEnumerable<(string, int, ulong?)> fromPresences =
-            DbContext.Presences.Include(p => p.MinorFaction)
+            dbContext.Presences.Include(p => p.MinorFaction)
                                .Include(p => p.MinorFaction.SupportedBy)
                                .Include(p => p.StarSystem)
                                .ToList()

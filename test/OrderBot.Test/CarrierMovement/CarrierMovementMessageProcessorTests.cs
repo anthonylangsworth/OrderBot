@@ -44,7 +44,7 @@ internal class CarrierMovementMessageProcessorTests
     }
 
     /// <summary>
-    /// Test delegate used for <see cref="Process"/>.
+    /// Test delegate used for <see cref="ProcessAsync"/>.
     /// </summary>
     /// <param name="dbContext">
     /// The <see cref="OrderBotDbContext"/> to populate with test data.
@@ -54,11 +54,11 @@ internal class CarrierMovementMessageProcessorTests
     /// </returns>
     public delegate (string resourceName, DiscordGuild discordGuild, StarSystem starSystem,
             IEnumerable<Carrier> expectedCarriers, IEnumerable<Carrier> expectedNewlyArrivedCarriers)
-        PopulateTestData(OrderBotDbContext dbContext);
+        PopulateProcessAsyncTestData(OrderBotDbContext dbContext);
 
     [Test]
-    [TestCaseSource(nameof(Process_Source))]
-    public void Process(PopulateTestData populateTestData)
+    [TestCaseSource(nameof(ProcessAsync_Source))]
+    public void ProcessAsync(PopulateProcessAsyncTestData populateTestData)
     {
         using OrderBotDbContextFactory contextFactory = new();
         using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
@@ -113,9 +113,9 @@ internal class CarrierMovementMessageProcessorTests
             Assert.That(logger.LogEntries, Is.Empty);
         }
     }
-    public static IEnumerable<TestCaseData> Process_Source()
+    public static IEnumerable<TestCaseData> ProcessAsync_Source()
     {
-        return new PopulateTestData[]
+        return new PopulateProcessAsyncTestData[]
         {
             NoPresenceOrGoal,
             Presence,
@@ -123,7 +123,7 @@ internal class CarrierMovementMessageProcessorTests
             AllIgnored,
             NoChannel,
             TwoSystems
-        }.Select(f => new TestCaseData(f).SetName(f.Method.Name));
+        }.Select(f => new TestCaseData(f).SetName($"{nameof(ProcessAsync)} {f.Method.Name}"));
     }
 
     public static readonly string Ltt2684Message = "OrderBot.Test.samples.LTT 2684 FSS.json";
@@ -306,5 +306,46 @@ internal class CarrierMovementMessageProcessorTests
         };
 
         return (Ltt2684Message, testGuild, ltt2684, expectedCarriers, Array.Empty<Carrier>());
+    }
+
+    /// <summary>
+    /// Test delegate used for <see cref="ProcessAsync"/>.
+    /// </summary>
+    /// <param name="dbContext">
+    /// The <see cref="OrderBotDbContext"/> to populate with test data.
+    /// </param>
+    /// <returns>
+    /// Test data used for checking results.
+    /// </returns>
+    public delegate IDictionary<string, IDictionary<int, ulong?>>
+        PopulateMappingTestData(OrderBotDbContext dbContext);
+
+    [Test]
+    [TestCaseSource(nameof(ProcessMapping_Source))]
+    public void GetStarSystemToDiscordGuildToCarrierMovementChannel(PopulateMappingTestData populateTestData)
+    {
+        using OrderBotDbContextFactory contextFactory = new();
+        using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
+        using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
+
+        IDictionary<string, IDictionary<int, ulong?>> expectedResult = populateTestData(dbContext);
+
+        IDictionary<string, IDictionary<int, ulong?>> actualResult =
+            CarrierMovementMessageProcessor.GetStarSystemToDiscordGuildToCarrierMovementChannel(dbContext);
+
+        Assert.That(expectedResult, Is.EqualTo(actualResult));
+    }
+
+    public static IEnumerable<TestCaseData> ProcessMapping_Source()
+    {
+        return new PopulateMappingTestData[]
+        {
+            Empty
+        }.Select(f => new TestCaseData(f).SetName($"{nameof(GetStarSystemToDiscordGuildToCarrierMovementChannel)} {f.Method.Name}"));
+    }
+
+    public static IDictionary<string, IDictionary<int, ulong?>> Empty(OrderBotDbContext dbContext)
+    {
+        return new Dictionary<string, IDictionary<int, ulong?>>();
     }
 }
