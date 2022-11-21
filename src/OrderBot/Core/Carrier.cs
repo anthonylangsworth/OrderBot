@@ -2,7 +2,7 @@
 
 namespace OrderBot.Core;
 
-public record Carrier
+public class Carrier
 {
     private string _name = null!;
 
@@ -54,5 +54,10 @@ public record Carrier
         {
             throw new ArgumentException($"{signalName} is not a valid carrier name");
         }
+    }
+
+    public override string ToString()
+    {
+        return $"{Name} in {StarSystem?.Name ?? "(None)"} at {FirstSeen}";
     }
 }

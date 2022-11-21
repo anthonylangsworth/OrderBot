@@ -9,13 +9,18 @@ internal class FakeTextChannelWriterFactory : TextChannelWriterFactory
     public FakeTextChannelWriterFactory()
         : base(new Mock<IDiscordClient>().Object)
     {
-        StringBuilder = new StringBuilder();
+        ChannelToStringBuilder = new();
     }
 
-    public StringBuilder StringBuilder;
+    public Dictionary<ulong, StringBuilder> ChannelToStringBuilder;
 
     public override Task<TextWriter> GetWriterAsync(ulong? channelId)
     {
-        return Task.FromResult<TextWriter>(new StringWriter(StringBuilder));
+        if (!ChannelToStringBuilder.TryGetValue(channelId ?? 0, out StringBuilder? stringBuilder))
+        {
+            stringBuilder = new StringBuilder();
+            ChannelToStringBuilder.Add(channelId ?? 0, stringBuilder);
+        }
+        return Task.FromResult<TextWriter>(new StringWriter(stringBuilder));
     }
 }

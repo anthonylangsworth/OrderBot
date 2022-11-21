@@ -49,3 +49,4 @@ Best practice for writing slash (application) commands:
 3. Discord.Net documentation: https://discordnet.dev/
 4. Using Log Analytics with Container Instances: https://learn.microsoft.com/en-us/azure/container-instances/container-instances-log-analytics
 5. CsvHelper quickstart: https://joshclose.github.io/CsvHelper/getting-started/
+6. Avoid record types with Entity Framework: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/record
