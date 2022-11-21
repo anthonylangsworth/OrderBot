@@ -1,6 +1,6 @@
 ﻿namespace OrderBot.Core;
 
-public record DiscordGuild
+public class DiscordGuild
 {
     public int Id { init; get; }
     public ulong GuildId { init; get; }
@@ -9,4 +9,9 @@ public record DiscordGuild
     public ulong? AuditChannel { set; get; }
     public ICollection<Carrier> IgnoredCarriers { init; get; } = new List<Carrier>();
     public ICollection<MinorFaction> SupportedMinorFactions { init; get; } = new List<MinorFaction>();
+
+    public override string ToString()
+    {
+        return $"{Name} ({GuildId})";
+    }
 }
