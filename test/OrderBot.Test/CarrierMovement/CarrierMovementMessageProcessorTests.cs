@@ -322,7 +322,7 @@ internal class CarrierMovementMessageProcessorTests
 
     [Test]
     [TestCaseSource(nameof(ProcessMapping_Source))]
-    public void GetStarSystemToDiscordGuildToCarrierMovementChannel(PopulateMappingTestData populateTestData)
+    public void GetSystemToGuildToChannel(PopulateMappingTestData populateTestData)
     {
         using OrderBotDbContextFactory contextFactory = new();
         using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
@@ -331,21 +331,152 @@ internal class CarrierMovementMessageProcessorTests
         IDictionary<string, IDictionary<int, ulong?>> expectedResult = populateTestData(dbContext);
 
         IDictionary<string, IDictionary<int, ulong?>> actualResult =
-            CarrierMovementMessageProcessor.GetStarSystemToDiscordGuildToCarrierMovementChannel(dbContext);
+            CarrierMovementMessageProcessor.GetSystemToGuildToChannel(dbContext);
 
-        Assert.That(expectedResult, Is.EqualTo(actualResult));
+        Assert.That(actualResult, Is.EqualTo(expectedResult));
     }
 
     public static IEnumerable<TestCaseData> ProcessMapping_Source()
     {
         return new PopulateMappingTestData[]
         {
-            Empty
-        }.Select(f => new TestCaseData(f).SetName($"{nameof(GetStarSystemToDiscordGuildToCarrierMovementChannel)} {f.Method.Name}"));
+            Empty,
+            PresenceInOneSystem,
+            PresenceAndGoal,
+            Overlap
+        }.Select(f => new TestCaseData(f).SetName($"{nameof(GetSystemToGuildToChannel)} {f.Method.Name}"));
     }
 
     public static IDictionary<string, IDictionary<int, ulong?>> Empty(OrderBotDbContext dbContext)
     {
         return new Dictionary<string, IDictionary<int, ulong?>>();
+    }
+
+    public static IDictionary<string, IDictionary<int, ulong?>> PresenceInOneSystem(OrderBotDbContext dbContext)
+    {
+        StarSystem sol = new() { Name = "Sol" };
+        MinorFaction darkWheel = new() { Name = "Dark Wheel" };
+        Presence presence = new() { MinorFaction = darkWheel, StarSystem = sol, Influence = 0.1 };
+        dbContext.Presences.Add(presence);
+        Carrier carrier = new() { Name = "HEART OF GOLD 6HY-OQ4" };
+        DiscordGuild testGuid = new() { Name = "Test", CarrierMovementChannel = 9875264291 };
+        testGuid.SupportedMinorFactions.Add(darkWheel);
+        testGuid.IgnoredCarriers.Add(carrier);
+        dbContext.DiscordGuilds.Add(testGuid);
+        dbContext.SaveChanges();
+
+        return new Dictionary<string, IDictionary<int, ulong?>>()
+        {
+            {
+                sol.Name,
+                new Dictionary<int, ulong?>()
+                {
+                    {
+                        testGuid .Id,
+                        testGuid.CarrierMovementChannel
+                    }
+                }
+            }
+        };
+    }
+
+    public static IDictionary<string, IDictionary<int, ulong?>> PresenceAndGoal(OrderBotDbContext dbContext)
+    {
+        Presence darkWheelInSol = new()
+        {
+            MinorFaction = new() { Name = "Dark Wheel" },
+            StarSystem = new() { Name = "Sol" },
+            Influence = 0.1
+        };
+        dbContext.Presences.Add(darkWheelInSol);
+        DiscordGuild firstGuild = new() { Name = "First", GuildId = 20982408923432, CarrierMovementChannel = 9875264291 };
+        firstGuild.SupportedMinorFactions.Add(darkWheelInSol.MinorFaction);
+        dbContext.DiscordGuilds.Add(firstGuild);
+
+        DiscordGuildPresenceGoal maintainDarkWheelInAlphaCentauri = new()
+        {
+            DiscordGuild = new() { Name = "Second", GuildId = 982340923874 },
+            Presence = new()
+            {
+                MinorFaction = new() { Name = "Hutton Truckers" },
+                StarSystem = new() { Name = "Alpha Centauri" },
+                Influence = 0.2
+            },
+            Goal = MaintainGoal.Instance.Name
+        };
+        dbContext.DiscordGuildPresenceGoals.Add(maintainDarkWheelInAlphaCentauri);
+
+        dbContext.SaveChanges();
+
+        return new Dictionary<string, IDictionary<int, ulong?>>()
+        {
+            {
+                darkWheelInSol.StarSystem.Name,
+                new Dictionary<int, ulong?>()
+                {
+                    {
+                        firstGuild.Id,
+                        firstGuild.CarrierMovementChannel
+                    }
+                }
+            },
+            {
+                maintainDarkWheelInAlphaCentauri.Presence.StarSystem.Name,
+                new Dictionary<int, ulong?>()
+                {
+                    {
+                        maintainDarkWheelInAlphaCentauri.DiscordGuild.Id,
+                        maintainDarkWheelInAlphaCentauri.DiscordGuild.CarrierMovementChannel
+                    }
+                }
+            }
+        };
+    }
+
+    public static IDictionary<string, IDictionary<int, ulong?>> Overlap(OrderBotDbContext dbContext)
+    {
+        Presence darkWheelInSol = new()
+        {
+            MinorFaction = new() { Name = "Dark Wheel" },
+            StarSystem = new() { Name = "Sol" },
+            Influence = 0.1
+        };
+        dbContext.Presences.Add(darkWheelInSol);
+        DiscordGuild firstGuild = new() { Name = "First", GuildId = 20982408923432, CarrierMovementChannel = 9875264291 };
+        firstGuild.SupportedMinorFactions.Add(darkWheelInSol.MinorFaction);
+        dbContext.DiscordGuilds.Add(firstGuild);
+
+        DiscordGuildPresenceGoal maintainDarkWheelInAlphaCentauri = new()
+        {
+            DiscordGuild = new() { Name = "Second", GuildId = 982340923874 },
+            Presence = new()
+            {
+                MinorFaction = new() { Name = "Hutton Truckers" },
+                StarSystem = darkWheelInSol.StarSystem,
+                Influence = 0.2
+            },
+            Goal = MaintainGoal.Instance.Name
+        };
+        dbContext.DiscordGuildPresenceGoals.Add(maintainDarkWheelInAlphaCentauri);
+
+        dbContext.SaveChanges();
+
+        return new Dictionary<string, IDictionary<int, ulong?>>()
+        {
+            {
+                darkWheelInSol.StarSystem.Name,
+                new Dictionary<int, ulong?>()
+                {
+                    {
+                        firstGuild.Id,
+                        firstGuild.CarrierMovementChannel
+                    },
+                    {
+                        maintainDarkWheelInAlphaCentauri.DiscordGuild.Id,
+                        maintainDarkWheelInAlphaCentauri.DiscordGuild.CarrierMovementChannel
+                    }
+                }
+            }
+        };
     }
 }

@@ -49,7 +49,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 ce =>
                 {
                     ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                    return GetStarSystemToDiscordGuildToCarrierMovementChannel(DbContext);
+                    return GetSystemToGuildToChannel(DbContext);
                 });
 
         // Maps each discord guild to the serial numbers of its ignored carriers
@@ -121,7 +121,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// <returns>
     /// The mapping.
     /// </returns>
-    internal static IDictionary<string, IDictionary<int, ulong?>> GetStarSystemToDiscordGuildToCarrierMovementChannel(OrderBotDbContext dbContext)
+    internal static IDictionary<string, IDictionary<int, ulong?>> GetSystemToGuildToChannel(OrderBotDbContext dbContext)
     {
         Dictionary<string, IDictionary<int, ulong?>> result = new();
         IEnumerable<(string Name, int Id, ulong? CarrierMovementChannel)> fromGoals =
