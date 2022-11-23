@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using OrderBot.Audit;
 using OrderBot.CarrierMovement;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
@@ -21,7 +20,6 @@ internal class Program
                              services.AddDatabase(hostContext.Configuration);
                              services.AddTodoList();
                              services.AddDiscordBot(hostContext.Configuration);
-                             services.AddDiscordChannelAuditLogFactory();
                              services.AddCarrierMovement();
 
                              // This must follow AddDiscordBot. Otherwise, the BotHostedServce.StartAsync does

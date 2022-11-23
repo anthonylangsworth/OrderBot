@@ -1,7 +1,8 @@
 ﻿using Discord.Interactions;
+using OrderBot.Audit;
 using OrderBot.EntityFramework;
 
-namespace OrderBot.Audit;
+namespace OrderBot.Discord;
 
 /// <summary>
 /// A factory class to produce <see cref="TextChannelAuditLogger"/> objects.
