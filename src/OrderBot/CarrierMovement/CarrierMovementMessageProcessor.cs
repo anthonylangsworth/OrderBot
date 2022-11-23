@@ -169,7 +169,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// <returns>
     /// All <see cref="Carrier"/>s seen in that system.
     /// </returns>
-    internal IReadOnlyList<Carrier> UpdateNewCarrierLocations(
+    private IReadOnlyList<Carrier> UpdateNewCarrierLocations(
         StarSystem starSystem, DateTime timestamp, Signal[] signals)
     {
         List<Carrier> observedCarriers = new();
@@ -216,7 +216,7 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// Map Discord guilds to the serial numbers of ignored carriers. Used to 
     /// avoid notifying about ignored carriers.
     /// </param>
-    internal async Task NotifyCarrierJumps(StarSystem starSystem,
+    private async Task NotifyCarrierJumps(StarSystem starSystem,
         IEnumerable<Carrier> newCarriers,
         IDictionary<int, ulong?> discordGuildToCarrierMovementChannel,
         IDictionary<int, List<string>> discordGuildToIgnoredCarrierSerialNumbers)
@@ -264,10 +264,10 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
         StringBuilder stringBuilder = new();
         if (carriers.Any())
         {
-            stringBuilder.AppendLine($"New fleet carriers in '{starSystem.Name}' (<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(starSystem.Name)}>):");
+            stringBuilder.AppendLine($"New fleet carriers in {starSystem.Name} (<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(starSystem.Name)}>):");
             foreach (Carrier carrier in carriers.OrderBy(c => c.Name))
             {
-                stringBuilder.AppendLine($"- '{carrier.Name}' (<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(carrier.SerialNumber)}>)");
+                stringBuilder.AppendLine($"- {carrier.Name} (<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(carrier.SerialNumber)}>)");
             }
         }
         return stringBuilder.ToString().Trim();
