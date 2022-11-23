@@ -13,10 +13,6 @@ internal class IgnoredCarriersCache : MessageProcessingCache
     /// <summary>
     /// Create a new <see cref="IgnoredCarriersCache"/>.
     /// </summary>
-    /// <param name="dbContextFactory">
-    /// The <see cref="IDbContextFactory{OrderBotDbContext}"/> used to create contexts
-    /// to access the database.
-    /// </param>
     /// <param name="memoryCache">
     /// Used for caching.
     /// </param>
