@@ -8,7 +8,7 @@ namespace OrderBot.CarrierMovement;
 /// <summary>
 /// Cache the mapping of which discord guilds are monitoring which star systems.
 /// </summary>
-internal class StarSystemToDiscordGuildCache : MessageProcessingCache
+internal class StarSystemToDiscordGuildCache : MessageProcessorCache
 {
     /// <summary>
     /// Create a new <see cref="StarSystemToDiscordGuildCache"/>.

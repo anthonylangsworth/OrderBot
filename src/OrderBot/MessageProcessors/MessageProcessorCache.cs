@@ -18,10 +18,10 @@ namespace OrderBot.MessageProcessors;
 /// </p>
 /// </remarks>
 /// <seealso cref="EddnMessageProcessor"/>
-internal abstract class MessageProcessingCache
+internal abstract class MessageProcessorCache
 {
     /// <summary>
-    /// Create a new <see cref="MessageProcessingCache"/>.
+    /// Create a new <see cref="MessageProcessorCache"/>.
     /// </summary>
     /// <param name="memoryCache">
     /// Used for caching.
@@ -29,7 +29,7 @@ internal abstract class MessageProcessingCache
     /// <param name="cacheEntryName">
     /// The unique name for the cache entry. Usually the cache's class name.
     /// </param>
-    protected MessageProcessingCache(IMemoryCache memoryCache, string cacheEntryName)
+    protected MessageProcessorCache(IMemoryCache memoryCache, string cacheEntryName)
     {
         MemoryCache = memoryCache;
         CacheEntryName = cacheEntryName;
