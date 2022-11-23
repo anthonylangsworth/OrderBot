@@ -1,50 +1,57 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using OrderBot.EntityFramework;
+﻿using Microsoft.Extensions.Caching.Memory;
 
-namespace OrderBot.CarrierMovement;
+namespace OrderBot.MessageProcessors;
 
 /// <summary>
-/// A cache of information used for message processing. The goal is to reduce database load and network traffic
+/// A cache of data used for message processing. The goal is to reduce database load and network traffic
 /// for a small increase in memory and possible incorrect results for <see cref="CacheDuration"/>.
 /// </summary>
 /// <remarks>
+/// <p>
 /// Override this for any new cache classes, then provide one or more members to access cached data.
 /// Use <see cref="MemoryCache.GetOrCreate"/> to cache data for <see cref="CacheDuration"/> using
 /// the key <see cref="CacheEntryName"/>.
+/// </p>
+/// <p>
+/// As an option, provide specific versions of <see cref="Invalidate"/> to invalidate part of
+/// the cache, such as for a specific Discord server.
+/// </p>
 /// </remarks>
+/// <seealso cref="EddnMessageProcessor"/>
 internal abstract class MessageProcessingCache
 {
     /// <summary>
     /// Create a new <see cref="MessageProcessingCache"/>.
     /// </summary>
-    /// <param name="dbContextFactory">
-    /// The <see cref="IDbContextFactory{OrderBotDbContext}"/> used to create contexts
-    /// to access the database.
-    /// </param>
     /// <param name="memoryCache">
     /// Used for caching.
     /// </param>
     /// <param name="cacheEntryName">
     /// The unique name for the cache entry. Usually the cache's class name.
     /// </param>
-    protected MessageProcessingCache(IDbContextFactory<OrderBotDbContext> dbContextFactory,
-        IMemoryCache memoryCache, string cacheEntryName)
+    protected MessageProcessingCache(IMemoryCache memoryCache, string cacheEntryName)
     {
-        DbContextFactory = dbContextFactory;
         MemoryCache = memoryCache;
         CacheEntryName = cacheEntryName;
     }
 
+    /// <summary>
+    /// The default duration of cached entries.
+    /// </summary>
     public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+    /// <summary>
+    /// The ID of the cache entry in <see cref="MemoryCache"/>.
+    /// </summary>
     protected string CacheEntryName { get; }
-    protected IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
+    /// <summary>
+    /// Used to cache results.
+    /// </summary>
     protected IMemoryCache MemoryCache { get; }
 
     /// <summary>
     /// Invalidate any cached data.
     /// </summary>
-    public void Invalidate()
+    public virtual void Invalidate()
     {
         MemoryCache.Remove(CacheEntryName);
     }

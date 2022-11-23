@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using OrderBot.EntityFramework;
+using OrderBot.MessageProcessors;
 
 namespace OrderBot.CarrierMovement;
 
@@ -19,37 +20,44 @@ internal class IgnoredCarriersCache : MessageProcessingCache
     /// <param name="memoryCache">
     /// Used for caching.
     /// </param>
-    public IgnoredCarriersCache(IDbContextFactory<OrderBotDbContext> dbContextFactory, IMemoryCache memoryCache)
-        : base(dbContextFactory, memoryCache, nameof(IgnoredCarriersCache))
+    public IgnoredCarriersCache(IMemoryCache memoryCache)
+        : base(memoryCache, nameof(IgnoredCarriersCache))
     {
         // Do nothing
     }
 
     /// <summary>
-    /// 
+    /// Is the carrier with <paramref name="carrierSerialNumber"/> ignored 
+    /// by guild <paramref name="discordId"/>?
     /// </summary>
-    /// <param name="discordGuildId"></param>
-    /// <param name="carrierSerialNumber"></param>
-    /// <returns></returns>
-    public bool IsIgnored(ulong discordGuildId, string carrierSerialNumber)
+    /// <param name="discordGuildId">
+    /// The ID of a <see cref="DiscordGuild"/>.
+    /// </param>
+    /// <param name="carrierSerialNumber">
+    /// The serial number of the fleet carrier to check.
+    /// </param>
+    /// <returns>
+    /// <c>true</c> if the carrier is ignored or <c>false</c> if not ignored or
+    /// <paramref name="discordGuildId"/> is not known
+    /// </returns>
+    public bool IsIgnored(OrderBotDbContext dbContext, ulong discordId, string carrierSerialNumber)
     {
-        IDictionary<ulong, List<string>> discordGuildToIgnoredCarrierSerialNumber =
+        IDictionary<ulong, HashSet<string>> discordGuildToIgnoredCarrierSerialNumber =
             MemoryCache.GetOrCreate(
                 CacheEntryName,
                 ce =>
                 {
                     ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                    return GetIgnoredCarriers();
+                    return GetIgnoredCarriers(dbContext);
                 });
-        discordGuildToIgnoredCarrierSerialNumber.TryGetValue(discordGuildId, out List<string>? ignoredCarriers);
+        discordGuildToIgnoredCarrierSerialNumber.TryGetValue(discordId, out HashSet<string>? ignoredCarriers);
         return ignoredCarriers != null && ignoredCarriers.Contains(carrierSerialNumber);
     }
 
-    private IDictionary<ulong, List<string>> GetIgnoredCarriers()
+    private IDictionary<ulong, HashSet<string>> GetIgnoredCarriers(OrderBotDbContext dbContext)
     {
-        using OrderBotDbContext dbContext = DbContextFactory.CreateDbContext();
         return dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
-                                      .ToDictionary(dg => dg.GuildId, dg => dg.IgnoredCarriers.Select(ic => ic.SerialNumber).ToList());
+                                      .ToDictionary(dg => dg.GuildId, dg => dg.IgnoredCarriers.Select(ic => ic.SerialNumber).ToHashSet());
     }
 }
 

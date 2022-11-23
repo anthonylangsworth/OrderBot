@@ -16,7 +16,7 @@ internal class CarriersAutocompleteHandlersTests
     {
         CarrierNames.HighGradeEmissions,
         CarrierNames.Indivisible,
-        CarrierNames.Invicible,
+        CarrierNames.Invincible,
         CarrierNames.Invisible,
         CarrierNames.MyOtherShipIsAThargoid,
         CarrierNames.PizzaDeliveryVan,
