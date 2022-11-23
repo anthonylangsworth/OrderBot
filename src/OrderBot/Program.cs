@@ -17,6 +17,8 @@ internal class Program
                          {
                              services.AddLogging(builder =>
                                 builder.AddLogAnalytics(hostContext.Configuration.GetRequiredSection("LogAnalytics")));
+                             services.AddMemoryCache();
+
                              services.AddDatabase(hostContext.Configuration);
                              services.AddTodoList();
                              services.AddDiscordBot(hostContext.Configuration);
