@@ -13,27 +13,36 @@ using System.Transactions;
 namespace OrderBot.CarrierMovement;
 
 /// <summary>
-/// Update non-ignored carrier locations and notify Discord Guilds. Called by <see cref="EddnMessageHostedService"/>.
+/// Update non-ignored carrier locations and notify Discord Guilds. 
+/// Called by <see cref="EddnMessageHostedService"/>.
 /// </summary>
 public class CarrierMovementMessageProcessor : EddnMessageProcessor
 {
     public CarrierMovementMessageProcessor(OrderBotDbContext dbContext,
         ILogger<CarrierMovementMessageProcessor> logger,
         TextChannelWriterFactory textChannelWriterFactory,
-        IMemoryCache memoryCache)
+        IMemoryCache memoryCache,
+        StarSystemToDiscordGuildCache starSystemToDiscordGuildCache,
+        IgnoredCarriersCache ignoredCarriersCache,
+        CarrierMovementChannelCache carrierMovementChannelCache
+    )
     {
         DbContext = dbContext;
         Logger = logger;
         TextChannelWriterFactory = textChannelWriterFactory;
         MemoryCache = memoryCache;
+        StarSystemToDiscordGuildCache = starSystemToDiscordGuildCache;
+        IgnoredCarriersCache = ignoredCarriersCache;
+        CarrierMovementChannelCache = carrierMovementChannelCache;
     }
 
     internal OrderBotDbContext DbContext { get; }
     internal ILogger<CarrierMovementMessageProcessor> Logger { get; }
     internal TextChannelWriterFactory TextChannelWriterFactory { get; }
     internal IMemoryCache MemoryCache { get; }
-
-    internal static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+    internal StarSystemToDiscordGuildCache StarSystemToDiscordGuildCache { get; }
+    internal IgnoredCarriersCache IgnoredCarriersCache { get; }
+    internal CarrierMovementChannelCache CarrierMovementChannelCache { get; }
 
     /// <inheritdoc/>
     public override async Task ProcessAsync(JsonDocument message)
@@ -42,26 +51,6 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
 
         // See https://github.com/EDCD/EDDN/blob/master/schemas/fsssignaldiscovered-v1.0.json for the schema
         // "signals": [{"IsStation": true, "SignalName": "THE PEAKY BLINDERS KNF-83G", "timestamp": "2022-10-13T12:13:09Z"}]
-
-        // Maps the star system name to a list of discord guild IDs and the carrier movement channel IDs
-        IDictionary<string, IDictionary<int, ulong?>> starSystemToDiscordGuildToCarrierMovementChannel =
-            MemoryCache.GetOrCreate(
-                $"{nameof(CarrierMovementMessageProcessor)}_StarSystemToDiscordGuildToCarrierMovementChannel",
-                ce =>
-                {
-                    ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                    return GetSystemToGuildToChannel(DbContext);
-                });
-
-        // Maps each discord guild to the serial numbers of its ignored carriers
-        IDictionary<int, List<string>> discordGuildToIgnoredCarrierSerialNumber =
-            MemoryCache.GetOrCreate(
-                $"{nameof(CarrierMovementMessageProcessor)}_DiscordGuildToIgnoredCarrierSerialNumber",
-                ce =>
-                {
-                    ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                    return GetIgnoredCarriers(DbContext);
-                });
 
         JsonElement messageElement = message.RootElement.GetProperty("message");
         if (messageElement.TryGetProperty("event", out JsonElement eventProperty)
@@ -72,8 +61,9 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
             Signal[]? signals = signalsElement.Deserialize<Signal[]>();
             if (signals != null)
             {
-                string starSystemName = starSystemProperty.GetString() ?? "";
-                if (starSystemToDiscordGuildToCarrierMovementChannel.ContainsKey(starSystemName))
+                string? starSystemName = starSystemProperty.GetString();
+                if (starSystemName != null
+                    && StarSystemToDiscordGuildCache.IsMonitoredStarSystem(DbContext, starSystemName))
                 {
                     StarSystem? starSystem = DbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
                     if (starSystem != null)
@@ -92,66 +82,11 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
 
                         await NotifyCarrierJumps(starSystem,
                             observedCarriers.Where(c => c.FirstSeen == timestamp),
-                            starSystemToDiscordGuildToCarrierMovementChannel[starSystemName],
-                            discordGuildToIgnoredCarrierSerialNumber);
+                            StarSystemToDiscordGuildCache.GetGuildsForStarSystem(DbContext, starSystem.Name));
                     }
                 }
             }
         }
-    }
-
-    /// <summary>
-    /// Get a mapping of discord guilds to the serial numbers of ignored carriers.
-    /// </summary>
-    /// <returns>
-    /// The mapping.
-    /// </returns>
-    internal static IDictionary<int, List<string>> GetIgnoredCarriers(OrderBotDbContext dbContext)
-    {
-        return dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
-                                      .ToDictionary(dg => dg.Id, dg => dg.IgnoredCarriers.Select(ic => ic.SerialNumber).ToList());
-    }
-
-    /// <summary>
-    /// Get a mapping of star systems to Discord guilds to carrier movement channels.
-    /// </summary>
-    /// <remarks>
-    /// Intentionally return <see cref="DiscordGuild"/>s that do not have the carrier movement channel set.
-    /// We still want to save carrier locations if future use requires it.
-    /// </remarks>
-    /// <returns>
-    /// The mapping.
-    /// </returns>
-    internal static IDictionary<string, IDictionary<int, ulong?>> GetSystemToGuildToChannel(OrderBotDbContext dbContext)
-    {
-        Dictionary<string, IDictionary<int, ulong?>> result = new();
-        IEnumerable<(string Name, int Id, ulong? CarrierMovementChannel)> fromGoals =
-            dbContext.DiscordGuildPresenceGoals.Include(dgpg => dgpg.DiscordGuild)
-                                               .Include(dgpg => dgpg.Presence)
-                                               .Include(dgpg => dgpg.Presence.StarSystem)
-                                               .ToList()
-                                               .Select(dgpg => (dgpg.Presence.StarSystem.Name, dgpg.DiscordGuild.Id, dgpg.DiscordGuild.CarrierMovementChannel));
-        IEnumerable<(string, int, ulong?)> fromPresences =
-            dbContext.Presences.Include(p => p.MinorFaction)
-                               .Include(p => p.MinorFaction.SupportedBy)
-                               .Include(p => p.StarSystem)
-                               .ToList()
-                               .SelectMany(p => p.MinorFaction.SupportedBy.Select(dg => (p.StarSystem.Name, dg.Id, dg.CarrierMovementChannel)));
-        foreach ((string systemName, int discordGuidId, ulong? carrierMovementChannel) in Enumerable.Concat(fromGoals, fromPresences))
-        {
-            if (result.TryGetValue(systemName, out IDictionary<int, ulong?>? discordGuildToCarrierMovementChannel))
-            {
-                if (!discordGuildToCarrierMovementChannel.ContainsKey(discordGuidId))
-                {
-                    discordGuildToCarrierMovementChannel.Add(discordGuidId, carrierMovementChannel);
-                }
-            }
-            else
-            {
-                result.Add(systemName, new Dictionary<int, ulong?>() { { discordGuidId, carrierMovementChannel } });
-            }
-        }
-        return result;
     }
 
     /// <summary>
@@ -219,19 +154,16 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     /// </param>
     private async Task NotifyCarrierJumps(StarSystem starSystem,
         IEnumerable<Carrier> newCarriers,
-        IDictionary<int, ulong?> discordGuildToCarrierMovementChannel,
-        IDictionary<int, List<string>> discordGuildToIgnoredCarrierSerialNumbers)
+        IReadOnlySet<ulong> discordGuilds)
     {
-        foreach (int discordGuildId in discordGuildToCarrierMovementChannel.Keys)
+        foreach (ulong discordGuildId in discordGuilds)
         {
-            if (discordGuildToCarrierMovementChannel.TryGetValue(discordGuildId, out ulong? carrierMovementChannel)
-                && carrierMovementChannel != null)
+            ulong? carrierMovementChannel = CarrierMovementChannelCache.GetCarrierMovementChannel(DbContext, discordGuildId);
+            if (carrierMovementChannel != null)
             {
-                discordGuildToIgnoredCarrierSerialNumbers.TryGetValue(discordGuildId, out List<string>? ignoredCarriers);
-                ignoredCarriers ??= new List<string>();
                 try
                 {
-                    IEnumerable<Carrier> carriersToNotify = newCarriers.Where(c => !ignoredCarriers.Contains(c.SerialNumber));
+                    IEnumerable<Carrier> carriersToNotify = newCarriers.Where(c => !IgnoredCarriersCache.IsIgnored(DbContext, discordGuildId, c.SerialNumber));
                     if (carriersToNotify.Any())
                     {
                         using TextWriter textChannelWriter =

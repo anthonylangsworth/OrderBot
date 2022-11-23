@@ -6,8 +6,9 @@ namespace OrderBot.CarrierMovement;
 
 /// <summary>
 /// Cache carrier movement channel IDs  for each Discord guild.
+/// Called by <see cref="EddnMessageHostedService"/>.
 /// </summary>
-internal class CarrierMovementChannelCache : MessageProcessorCache
+public class CarrierMovementChannelCache : MessageProcessorCache
 {
     /// <summary>
     /// Create a new <see cref="CarrierMovementChannelCache"/>.

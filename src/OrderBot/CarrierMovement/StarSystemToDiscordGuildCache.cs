@@ -7,8 +7,9 @@ namespace OrderBot.CarrierMovement;
 
 /// <summary>
 /// Cache the mapping of which discord guilds are monitoring which star systems.
+/// Called by <see cref="EddnMessageHostedService"/>.
 /// </summary>
-internal class StarSystemToDiscordGuildCache : MessageProcessorCache
+public class StarSystemToDiscordGuildCache : MessageProcessorCache
 {
     /// <summary>
     /// Create a new <see cref="StarSystemToDiscordGuildCache"/>.

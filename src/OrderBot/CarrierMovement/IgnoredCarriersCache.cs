@@ -8,7 +8,7 @@ namespace OrderBot.CarrierMovement;
 /// <summary>
 /// Cache ignored carriers for each Discord guild.
 /// </summary>
-internal class IgnoredCarriersCache : MessageProcessorCache
+public class IgnoredCarriersCache : MessageProcessorCache
 {
     /// <summary>
     /// Create a new <see cref="IgnoredCarriersCache"/>.

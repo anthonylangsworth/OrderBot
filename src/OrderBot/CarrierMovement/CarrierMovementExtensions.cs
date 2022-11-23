@@ -7,6 +7,9 @@ internal static class CarrierMovementExtensions
 {
     internal static void AddCarrierMovement(this IServiceCollection services)
     {
+        services.AddSingleton<StarSystemToDiscordGuildCache>();
+        services.AddSingleton<IgnoredCarriersCache>();
+        services.AddSingleton<CarrierMovementChannelCache>();
         services.AddScoped<EddnMessageProcessor, CarrierMovementMessageProcessor>();
     }
 }

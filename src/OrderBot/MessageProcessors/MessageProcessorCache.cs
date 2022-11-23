@@ -18,7 +18,7 @@ namespace OrderBot.MessageProcessors;
 /// </p>
 /// </remarks>
 /// <seealso cref="EddnMessageProcessor"/>
-internal abstract class MessageProcessorCache
+public abstract class MessageProcessorCache
 {
     /// <summary>
     /// Create a new <see cref="MessageProcessorCache"/>.
