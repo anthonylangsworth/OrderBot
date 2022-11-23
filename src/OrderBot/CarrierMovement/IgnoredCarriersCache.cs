@@ -26,6 +26,9 @@ internal class IgnoredCarriersCache : MessageProcessorCache
     /// Is the carrier with <paramref name="carrierSerialNumber"/> ignored 
     /// by guild <paramref name="discordId"/>?
     /// </summary>
+    /// <param name="dbContext">
+    /// The database to use.
+    /// </param>
     /// <param name="discordGuildId">
     /// The ID of a <see cref="DiscordGuild"/>.
     /// </param>

@@ -19,7 +19,8 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
 {
     public CarrierMovementMessageProcessor(OrderBotDbContext dbContext,
         ILogger<CarrierMovementMessageProcessor> logger,
-        TextChannelWriterFactory textChannelWriterFactory, IMemoryCache memoryCache)
+        TextChannelWriterFactory textChannelWriterFactory,
+        IMemoryCache memoryCache)
     {
         DbContext = dbContext;
         Logger = logger;
