@@ -1,4 +1,4 @@
-﻿namespace OrderBot.Audit;
+﻿namespace OrderBot;
 
 public interface IAuditLogger : IDisposable
 {

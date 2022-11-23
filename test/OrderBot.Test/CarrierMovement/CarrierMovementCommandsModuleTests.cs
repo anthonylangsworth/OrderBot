@@ -1,7 +1,6 @@
 ﻿using Discord;
 using Moq;
 using NUnit.Framework;
-using OrderBot.Audit;
 using OrderBot.CarrierMovement;
 using OrderBot.EntityFramework;
 using System.Transactions;

@@ -1,5 +1,4 @@
 ﻿using Discord.Interactions;
-using OrderBot.Audit;
 using OrderBot.EntityFramework;
 
 namespace OrderBot.Discord;

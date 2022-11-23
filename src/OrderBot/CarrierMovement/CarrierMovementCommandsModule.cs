@@ -3,7 +3,6 @@ using Discord;
 using Discord.Interactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using OrderBot.Audit;
 using OrderBot.Core;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
