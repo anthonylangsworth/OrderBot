@@ -13,27 +13,27 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Samples\hausersReach.json" />
-    <None Remove="Samples\heinleinStation.json" />
-    <None Remove="Samples\HR 1597.json" />
-    <None Remove="Samples\Kutjara.json" />
-    <None Remove="Samples\LTT 2412.json" />
-    <None Remove="Samples\LTT 2684 FSS.json" />
-    <None Remove="Samples\Ross 199.json" />
+    <None Remove="Samples2\hausersReach.json" />
+    <None Remove="Samples2\heinleinStation.json" />
+    <None Remove="Samples2\HR 1597.json" />
+    <None Remove="Samples2\Kutjara.json" />
+    <None Remove="Samples2\LTT 2412.json" />
+    <None Remove="Samples2\LTT 2684 FSS.json" />
+    <None Remove="Samples2\Ross 199.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Samples\hausersReach.json">
+    <EmbeddedResource Include="Samples2\hausersReach.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Samples\heinleinStation.json">
+    <EmbeddedResource Include="Samples2\heinleinStation.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="Samples\HR 1597.json" />
-    <EmbeddedResource Include="Samples\Kutjara.json" />
-    <EmbeddedResource Include="Samples\LTT 2412.json" />
-    <EmbeddedResource Include="Samples\LTT 2684 FSS.json" />
-    <EmbeddedResource Include="Samples\Ross 199.json" />
+    <EmbeddedResource Include="Samples2\HR 1597.json" />
+    <EmbeddedResource Include="Samples2\Kutjara.json" />
+    <EmbeddedResource Include="Samples2\LTT 2412.json" />
+    <EmbeddedResource Include="Samples2\LTT 2684 FSS.json" />
+    <EmbeddedResource Include="Samples2\Ross 199.json" />
   </ItemGroup>
 
   <ItemGroup>
