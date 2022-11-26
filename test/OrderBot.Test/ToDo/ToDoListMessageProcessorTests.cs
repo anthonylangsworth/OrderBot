@@ -1,42 +1,47 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
+using OrderBot.CarrierMovement;
 using OrderBot.Core;
-using OrderBot.EntityFramework;
 using OrderBot.Test.MessageProcessors;
 using OrderBot.ToDo;
 using System.Reflection;
 using System.Text.Json;
-using System.Transactions;
 
 namespace OrderBot.Test.ToDo;
 
-internal class ToDoListMessageProcessorTests
+internal class ToDoListMessageProcessorTests : DbTest
 {
     [Test]
     public void Ctor()
     {
         ILogger<ToDoListMessageProcessor> logger = NullLogger<ToDoListMessageProcessor>.Instance;
-        using OrderBotDbContextFactory dbContextFactory = new();
-        using OrderBotDbContext dbContext = dbContextFactory.CreateDbContext();
-        using MemoryCache memoryCache = new(new MemoryCacheOptions());
+        SupportedMinorFactionsCache supportedMinorFactionsCache = new(MemoryCache);
+        GoalSystemsCache goalSystemsCache = new(MemoryCache);
 
-        ToDoListMessageProcessor systemMinorFactionMessageProcessor = new(dbContext, logger, memoryCache);
+        ToDoListMessageProcessor systemMinorFactionMessageProcessor = new(DbContext, logger,
+            supportedMinorFactionsCache, goalSystemsCache);
         Assert.That(systemMinorFactionMessageProcessor.Logger, Is.EqualTo(logger));
-        Assert.That(systemMinorFactionMessageProcessor.DbContext, Is.EqualTo(dbContext));
+        Assert.That(systemMinorFactionMessageProcessor.DbContext, Is.EqualTo(DbContext));
     }
 
     [Test]
     public void GetBgsData_MatchingMinorFaction()
     {
-        HashSet<string> supportedMinorFactions = new(new[] { "Ross 199 Silver Raiders" });
-        using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream("OrderBot.Test.samples.Ross 199.json");
+        SupportedMinorFactionsCache supportedMinorFactionsCache = new(MemoryCache);
+        GoalSystemsCache goalSystemsCache = new(MemoryCache);
+
+        DiscordGuild discordGuild = new();
+        discordGuild.SupportedMinorFactions.Add(new() { Name = "Ross 199 Silver Raiders" });
+        DbContext.DiscordGuilds.Add(discordGuild);
+        DbContext.SaveChanges();
+
+        using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream("OrderBot.Test.Samples.Ross 199.json");
         if (stream != null)
         {
-            EddnStarSystemData? bgsStarSystemData = ToDoListMessageProcessor.GetBgsData(JsonDocument.Parse(stream),
-                supportedMinorFactions, new HashSet<string>());
+            EddnStarSystemData? bgsStarSystemData = ToDoListMessageProcessor.GetBgsData(DbContext, JsonDocument.Parse(stream),
+                supportedMinorFactionsCache, goalSystemsCache);
 
             if (bgsStarSystemData != null)
             {
@@ -128,12 +133,15 @@ internal class ToDoListMessageProcessorTests
     [Test]
     public void GetBgsData_NoMatchingMinorFactions()
     {
-        HashSet<string> supportedMinorFactions = new(new[] { "Foo" });
-        using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream("OrderBot.Test.samples.Ross 199.json");
+        SupportedMinorFactionsCache supportedMinorFactionsCache = new(MemoryCache);
+        GoalSystemsCache goalSystemsCache = new(MemoryCache);
+
+        // HashSet<string> supportedMinorFactions = new(new[] { "Foo" });
+        using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream("OrderBot.Test.Samples.Ross 199.json");
         if (stream != null)
         {
-            EddnStarSystemData? bgsStarSystemData = ToDoListMessageProcessor.GetBgsData(
-                JsonDocument.Parse(stream), supportedMinorFactions, new HashSet<string>());
+            EddnStarSystemData? bgsStarSystemData = ToDoListMessageProcessor.GetBgsData(DbContext,
+                JsonDocument.Parse(stream), supportedMinorFactionsCache, goalSystemsCache);
             Assert.That(bgsStarSystemData, Is.Null);
         }
     }
@@ -150,11 +158,7 @@ internal class ToDoListMessageProcessorTests
 
         ILogger<ToDoListMessageProcessor> logger = new NullLogger<ToDoListMessageProcessor>();
 
-        using OrderBotDbContextFactory orderBotDbContextFactory = new(useInMemory: false);
-        using TransactionScope transactionScope = new();
-        using OrderBotDbContext dbContext = orderBotDbContextFactory.CreateDbContext();
-
-        ToDoListMessageProcessor.Update(dbContext, new EddnStarSystemData()
+        ToDoListMessageProcessor.Update(DbContext, new EddnStarSystemData()
         {
             Timestamp = timestamp,
             StarSystemName = starSystem,
@@ -169,7 +173,7 @@ internal class ToDoListMessageProcessorTests
             },
             SystemSecurityLevel = systemSecurity
         });
-        IEnumerable<Presence> systemMinorFactions = dbContext.Presences.Include(smf => smf.States)
+        IEnumerable<Presence> systemMinorFactions = DbContext.Presences.Include(smf => smf.States)
                                                                        .Include(smf => smf.StarSystem)
                                                                        .Include(smf => smf.MinorFaction)
                                                                        .Where(smf => smf.StarSystem.Name == starSystem);
@@ -199,11 +203,7 @@ internal class ToDoListMessageProcessorTests
 
         ILogger<ToDoListMessageProcessor> logger = new NullLogger<ToDoListMessageProcessor>();
 
-        using OrderBotDbContextFactory orderBotDbContextFactory = new(useInMemory: false);
-        using TransactionScope transactionScope = new();
-        using OrderBotDbContext dbContext = orderBotDbContextFactory.CreateDbContext();
-
-        ToDoListMessageProcessor.Update(dbContext, new EddnStarSystemData()
+        ToDoListMessageProcessor.Update(DbContext, new EddnStarSystemData()
         {
             Timestamp = timestamp,
             StarSystemName = starSystem1,
@@ -213,7 +213,7 @@ internal class ToDoListMessageProcessorTests
             },
             SystemSecurityLevel = system1Security
         });
-        ToDoListMessageProcessor.Update(dbContext, new EddnStarSystemData()
+        ToDoListMessageProcessor.Update(DbContext, new EddnStarSystemData()
         {
             Timestamp = timestamp,
             StarSystemName = starSystem2,
@@ -223,7 +223,7 @@ internal class ToDoListMessageProcessorTests
             },
             SystemSecurityLevel = system2Security
         });
-        List<Presence> systemMinorFactions = dbContext.Presences.Include(smf => smf.States)
+        List<Presence> systemMinorFactions = DbContext.Presences.Include(smf => smf.States)
                                                                                             .Include(smf => smf.StarSystem)
                                                                                             .Include(smf => smf.MinorFaction)
                                                                                             .Where(smf => smf.StarSystem.Name == starSystem1 || smf.StarSystem.Name == starSystem2)
@@ -248,11 +248,7 @@ internal class ToDoListMessageProcessorTests
 
         ILogger<ToDoListMessageProcessor> logger = new NullLogger<ToDoListMessageProcessor>();
 
-        using OrderBotDbContextFactory orderBotDbContextFactory = new(useInMemory: false);
-        using TransactionScope transactionScope = new();
-        using OrderBotDbContext dbContext = orderBotDbContextFactory.CreateDbContext();
-
-        ToDoListMessageProcessor.Update(dbContext, new EddnStarSystemData()
+        ToDoListMessageProcessor.Update(DbContext, new EddnStarSystemData()
         {
             Timestamp = timestamp,
             StarSystemName = starSystem,
@@ -273,7 +269,7 @@ internal class ToDoListMessageProcessorTests
             },
             SystemSecurityLevel = systemSecurityLevel
         });
-        IList<Presence> systemMinorFactions = dbContext.Presences.Include(smf => smf.States)
+        IList<Presence> systemMinorFactions = DbContext.Presences.Include(smf => smf.States)
                                                                  .Include(smf => smf.StarSystem)
                                                                  .Include(smf => smf.MinorFaction)
                                                                  .Where(smf => smf.StarSystem.Name == starSystem)
@@ -300,65 +296,5 @@ internal class ToDoListMessageProcessorTests
         Assert.That(newSystemMinorFaction2.Influence, Is.EqualTo(minorFaction2Influence));
         Assert.That(newSystemMinorFaction2.States.Select(state => state.Name), Is.EquivalentTo(minorFaction2States));
         Assert.That(newSystemMinorFaction2.SecurityLevel, Is.Null);
-    }
-
-    [Test]
-    public void GetGoalSystems_None()
-    {
-        using OrderBotDbContextFactory orderBotDbContextFactory = new();
-        using OrderBotDbContext dbContext = orderBotDbContextFactory.CreateDbContext();
-        Assert.That(ToDoListMessageProcessor.GetGoalSystems(dbContext), Is.Empty);
-    }
-
-    [Test]
-    public void GetGoalSystems_Some()
-    {
-        using OrderBotDbContextFactory orderBotDbContextFactory = new();
-        using OrderBotDbContext dbContext = orderBotDbContextFactory.CreateDbContext();
-        using TransactionScope transactionScope = new();
-
-        const string starSystemName = "Sol";
-        DiscordGuildPresenceGoal discordGuildPresenceGoal = new()
-        {
-            DiscordGuild = new DiscordGuild { Name = "Test Guild " },
-            Presence = new Presence
-            {
-                StarSystem = new StarSystem { Name = starSystemName },
-                MinorFaction = new MinorFaction { Name = "Minor Faction" },
-                Influence = 0.5,
-                SecurityLevel = SecurityLevel.Medium
-            },
-            Goal = ControlGoal.Instance.Name
-        };
-        dbContext.DiscordGuildPresenceGoals.Add(discordGuildPresenceGoal);
-        dbContext.SaveChanges();
-        Assert.That(ToDoListMessageProcessor.GetGoalSystems(dbContext), Is.EquivalentTo(new[] { starSystemName }));
-    }
-
-
-    [Test]
-    public void GetSupportedMinorFactions_None()
-    {
-        using OrderBotDbContextFactory orderBotDbContextFactory = new();
-        using OrderBotDbContext dbContext = orderBotDbContextFactory.CreateDbContext();
-        Assert.That(ToDoListMessageProcessor.GetSupportedMinorFactions(dbContext), Is.Empty);
-    }
-
-    [Test]
-    public void GetSupportedMinorFactions_Some()
-    {
-        using OrderBotDbContextFactory orderBotDbContextFactory = new();
-        using OrderBotDbContext dbContext = orderBotDbContextFactory.CreateDbContext();
-        using TransactionScope transactionScope = new();
-
-        const string minorFactionName = "The Dark Wheel";
-        DiscordGuildMinorFaction discordGuildMinorFaction = new()
-        {
-            DiscordGuild = new DiscordGuild { Name = "Test Guild " },
-            MinorFaction = new MinorFaction { Name = minorFactionName }
-        };
-        dbContext.DiscordGuildMinorFactions.Add(discordGuildMinorFaction);
-        dbContext.SaveChanges();
-        Assert.That(ToDoListMessageProcessor.GetSupportedMinorFactions(dbContext), Is.EquivalentTo(new[] { minorFactionName }));
     }
 }

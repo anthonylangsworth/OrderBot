@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using OrderBot.CarrierMovement;
 using OrderBot.Core;
 using OrderBot.EntityFramework;
 using OrderBot.MessageProcessors;
@@ -23,50 +23,36 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     /// <param name="dbContext">
     /// Database access.
     /// </param>
-    /// <param name="memoryCache">
-    /// Cache.
+    /// <param name="supportedMinorFactionsCache">
+    /// A cache of supported minor factions.
+    /// </param>
+    /// <param name="goalSystemsCache">
+    /// A cache of systems that have at least one goal.
     /// </param>
     public ToDoListMessageProcessor(OrderBotDbContext dbContext,
-        ILogger<ToDoListMessageProcessor> logger, IMemoryCache memoryCache)
+        ILogger<ToDoListMessageProcessor> logger,
+        SupportedMinorFactionsCache supportedMinorFactionsCache,
+        GoalSystemsCache goalSystemsCache)
     {
         Logger = logger;
         DbContext = dbContext;
-        MemoryCache = memoryCache;
+        SupportedMinorFactionsCache = supportedMinorFactionsCache;
+        GoalSystemsCache = goalSystemsCache;
     }
 
     public ILogger<ToDoListMessageProcessor> Logger { get; }
     public OrderBotDbContext DbContext { get; }
-    public IMemoryCache MemoryCache { get; }
-
-    public static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
+    public SupportedMinorFactionsCache SupportedMinorFactionsCache { get; }
+    public GoalSystemsCache GoalSystemsCache { get; }
 
     /// <inheritDoc/>
     public override Task ProcessAsync(JsonDocument message)
     {
         using TransactionScope transactionScope = new();
 
-        IReadOnlySet<string> supportedMinorFactions = MemoryCache.GetOrCreate(
-            $"{nameof(ToDoListMessageProcessor)}_SupportedMinorFactions",
-            ce =>
-            {
-                ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
-                return GetSupportedMinorFactions(DbContext);
-            });
-        IReadOnlySet<string> goalStarSystems = MemoryCache.GetOrCreate(
-            $"{nameof(ToDoListMessageProcessor)}_GoalStarSystems",
-            ce =>
-            {
-                ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
-                // Logger.LogInformation("Cache entry {Key} refreshed after {CacheDuration}", ce.Key, CacheDuration);
-                return GetGoalSystems(DbContext);
-            });
-
-        EddnStarSystemData? bgsSystemData = GetBgsData(message, supportedMinorFactions, goalStarSystems);
+        EddnStarSystemData? bgsSystemData = GetBgsData(DbContext, message, SupportedMinorFactionsCache, GoalSystemsCache);
         if (bgsSystemData != null)
         {
-            //IExecutionStrategy executionStrategy = dbContext.Database.CreateExecutionStrategy();
-            //executionStrategy.Execute(() => InnerSink(timestamp, starSystemName, minorFactionDetails, dbContext));
             Update(DbContext, bgsSystemData);
 
             Logger.LogInformation("System {System} updated", bgsSystemData.StarSystemName);
@@ -74,32 +60,6 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
 
         transactionScope.Complete();
         return Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Get the star systems used with goals across all Discord Guilds. Details from these star systems should be processed.
-    /// </summary>
-    /// <param name="dbContext">
-    /// The <see cref="OrderBotDbContext"/> to use.
-    /// </param>
-    /// <returns>
-    /// The star systems associated with <see cref="Goal"/>s.
-    /// </returns>
-    internal static IReadOnlySet<string> GetGoalSystems(OrderBotDbContext dbContext)
-    {
-        return dbContext.DiscordGuildPresenceGoals.Select(dgpg => dgpg.Presence.StarSystem.Name).Distinct().ToHashSet();
-    }
-
-    /// <summary>
-    /// Get the supported minor factions across all Discord guilds. Details from these star systems should be processed.
-    /// </summary>
-    /// <param name="dbContext"></param>
-    /// <returns>
-    /// The supported minor factions.
-    /// </returns>
-    internal static IReadOnlySet<string> GetSupportedMinorFactions(OrderBotDbContext dbContext)
-    {
-        return dbContext.DiscordGuildMinorFactions.Select(dgmf => dgmf.MinorFaction.Name).Distinct().ToHashSet();
     }
 
     /// <summary>
@@ -125,9 +85,10 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     /// One or more fields are not of the expected format.
     /// </exception>
     internal static EddnStarSystemData? GetBgsData(
+        OrderBotDbContext dbContext,
         JsonDocument message,
-        IReadOnlySet<string> supportedMinorFactions,
-        IReadOnlySet<string> goalStarSystems)
+        SupportedMinorFactionsCache supportedMinorFactionsCache,
+        GoalSystemsCache goalSystemsCache)
     {
         DateTime timestamp = GetMessageTimestamp(message);
 
@@ -150,8 +111,8 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
                 }
                 if (starSystemName != null
                     && messageElement.TryGetProperty("Factions", out JsonElement factionsProperty)
-                    && (factionsProperty.EnumerateArray().Any(element => supportedMinorFactions.Contains(element.GetProperty("Name").GetString() ?? ""))
-                        || goalStarSystems.Contains(starSystemName)))
+                    && (factionsProperty.EnumerateArray().Any(element => supportedMinorFactionsCache.IsSupported(dbContext, element.GetProperty("Name").GetString() ?? ""))
+                        || goalSystemsCache.HasGoal(dbContext, starSystemName)))
                 {
                     minorFactionInfos = factionsProperty.EnumerateArray().Select(element =>
                         new EddnMinorFactionInfluence()

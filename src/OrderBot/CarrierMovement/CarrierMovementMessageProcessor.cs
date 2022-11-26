@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using OrderBot.Core;
 using OrderBot.Discord;
@@ -21,7 +20,6 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     public CarrierMovementMessageProcessor(OrderBotDbContext dbContext,
         ILogger<CarrierMovementMessageProcessor> logger,
         TextChannelWriterFactory textChannelWriterFactory,
-        IMemoryCache memoryCache,
         StarSystemToDiscordGuildCache starSystemToDiscordGuildCache,
         IgnoredCarriersCache ignoredCarriersCache,
         CarrierMovementChannelCache carrierMovementChannelCache
@@ -30,7 +28,6 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
         DbContext = dbContext;
         Logger = logger;
         TextChannelWriterFactory = textChannelWriterFactory;
-        MemoryCache = memoryCache;
         StarSystemToDiscordGuildCache = starSystemToDiscordGuildCache;
         IgnoredCarriersCache = ignoredCarriersCache;
         CarrierMovementChannelCache = carrierMovementChannelCache;
@@ -39,7 +36,6 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     internal OrderBotDbContext DbContext { get; }
     internal ILogger<CarrierMovementMessageProcessor> Logger { get; }
     internal TextChannelWriterFactory TextChannelWriterFactory { get; }
-    internal IMemoryCache MemoryCache { get; }
     internal StarSystemToDiscordGuildCache StarSystemToDiscordGuildCache { get; }
     internal IgnoredCarriersCache IgnoredCarriersCache { get; }
     internal CarrierMovementChannelCache CarrierMovementChannelCache { get; }

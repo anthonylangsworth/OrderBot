@@ -32,7 +32,7 @@ internal class CarrierMovementMessageProcessorTests
         StarSystemToDiscordGuildCache starSystemToDiscordGuildCache = new(memoryCache);
 
         CarrierMovementMessageProcessor messageProcessor = new(dbContext,
-            logger, factory, memoryCache, starSystemToDiscordGuildCache,
+            logger, factory, starSystemToDiscordGuildCache,
             ignoredCarriersCache, carrierMovementChannelCache);
 
         Assert.That(messageProcessor.Logger, Is.EqualTo(logger));
@@ -77,7 +77,7 @@ internal class CarrierMovementMessageProcessorTests
         CarrierMovementChannelCache carrierMovementChannelCache = new(memoryCache);
         IgnoredCarriersCache ignoredCarriersCache = new(memoryCache);
         StarSystemToDiscordGuildCache starSystemToDiscordGuildCache = new(memoryCache);
-        CarrierMovementMessageProcessor messageProcessor = new(dbContext, logger, factory, memoryCache,
+        CarrierMovementMessageProcessor messageProcessor = new(dbContext, logger, factory,
             starSystemToDiscordGuildCache, ignoredCarriersCache, carrierMovementChannelCache);
         using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream(resourceName);
         if (stream != null)
@@ -127,7 +127,7 @@ internal class CarrierMovementMessageProcessorTests
         }.Select(f => new TestCaseData(f).SetName($"{nameof(ProcessAsync)} {f.Method.Name}"));
     }
 
-    public static readonly string Ltt2684Message = "OrderBot.Test.samples.LTT 2684 FSS.json";
+    public static readonly string Ltt2684Message = "OrderBot.Test.Samples.LTT 2684 FSS.json";
     public static readonly DateTime Ltt2684MessageTimeStamp = DateTime.Parse("2022-10-30T13:56:57Z").ToUniversalTime();
 
     private static (string, DiscordGuild, StarSystem, IEnumerable<Carrier>, IEnumerable<Carrier>) NoPresenceOrGoal(OrderBotDbContext dbContext)

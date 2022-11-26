@@ -1,36 +1,15 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using OrderBot.CarrierMovement;
 using OrderBot.Core;
-using OrderBot.EntityFramework;
-using System.Transactions;
+using OrderBot.Test.samples;
 
 namespace OrderBot.Test.CarrierMovement;
-internal class IgnoredCarriersCachTests
+internal class IgnoredCarriersCachTests : CacheTest<IgnoredCarriersCache>
 {
-    public OrderBotDbContextFactory DbContextFactory { get; set; } = null!;
-    public OrderBotDbContext DbContext { get; set; } = null!;
-    public IMemoryCache MemoryCache { get; set; } = null!;
-    public IgnoredCarriersCache Cache { get; set; } = null!;
-    public TransactionScope TransactionScope { get; set; } = null!;
-
-    [SetUp]
-    public void SetUp()
+    public IgnoredCarriersCachTests()
+        : base(memoryCache => new IgnoredCarriersCache(memoryCache))
     {
-        DbContextFactory = new();
-        DbContext = DbContextFactory.CreateDbContext();
-        MemoryCache = new MemoryCache(new MemoryCacheOptions());
-        Cache = new(MemoryCache);
-        TransactionScope = new();
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        TransactionScope.Dispose();
-        DbContext.Dispose();
-        MemoryCache.Dispose();
-        DbContextFactory.Dispose();
+        // Do nothing
     }
 
     [Test]

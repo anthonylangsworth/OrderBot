@@ -2,6 +2,7 @@
 using OrderBot.CarrierMovement;
 using OrderBot.Core;
 using OrderBot.EntityFramework;
+using OrderBot.Test.samples;
 using System.Transactions;
 
 namespace OrderBot.Test.CarrierMovement;
