@@ -48,6 +48,7 @@ To provide data for the Discord bot, this system listens for [Elite Dangerous Da
 
 This structure provides separation of responsibilities. Classes for each message processor are in separate namespaces to further emphasize this.
 
+An overview:
 ```mermaid
 sequenceDiagram
   participant EddnMessageHostedService
@@ -76,11 +77,13 @@ sequenceDiagram
 
 Key points:
 1. `EddnMessageHostedService` is started from Program.cs and runs for the liftetime of the container.
-2. `Caches` includes various classes that inherit from `MessageProcessorCache`. Singleton objects instantiated from these cache classes minimize database access when processing and eliminating messages. There is currently no cache invalidation mechanism but the cache durations are short: five minutes.
-    1. `TodoListMessageProcessor` uses `SupportedMinorFactionsCache` and `GoalSystemsCache`. 
+2. `Caches` includes various classes that inherit from `MessageProcessorCache`. Singleton objects instantiated from these cache classes minimize database access when processing and eliminating messages. 
+    1. `TodoListMessageProcessor` uses `SupportedMinorFactionsCache` and `GoalStarSystemsCache`. 
     2. `CarrierMovementMessageProcessor` uses `StarSystemToDiscordGuildCache`, `IgnoredCarriersCache` and `CarrierMovementChannelCache`.
 4. Technically, the `TextChannelWriter` is a `TextWriter` created via a `TextChannelWritterFactory`. This is used to write to carrier movement channel(s).
 5. Database or ORM classes, such as `OrderbotDbContext` are omitted for clarity.
+
+Regarding `Caches`, there is currently no cache invalidation mechanism but the cache durations are short: five minutes. An unfinished invalidation pattern is in `MessageProcessorCacheInvalidator`.
 
 ## References
 1. Using Docker with .Net Core: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/visual-studio-tools-for-docker?view=aspnetcore-6.0
