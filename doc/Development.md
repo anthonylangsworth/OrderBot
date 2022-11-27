@@ -44,6 +44,8 @@ Best practice for writing slash (application) commands:
 8. Audit any modifications using an `IAuditLogger`, ideally via a `TextChannelAuditLoggerFactory`.
 
 ## Message Processing
+To provide data for the Discord bot, this system listens for EDDN messages via the `EddnMessageHostedService`, which are handled by children of `EddnMessageMessageProcessor`. There are currently two: `TodoListMessageProcessor`, which captures system BGS data, and `CarrierMovementMessageProcessor`, which looks for carrier movements and notifies Discord guilds which have registered a carrier movement channel. This provides separation of responsibilities.
+
 ```mermaid
 sequenceDiagram
   participant EddnMessageHostedService
@@ -71,9 +73,11 @@ sequenceDiagram
 ```
 
 Key points:
-1. `EddnMessageHostedService` is started from Program.cs and runs for the liftetime of the container
+1. `EddnMessageHostedService` is started from Program.cs and runs for the liftetime of the container.
 2. `Caches` includes various classes that inherit from `MessageProcessorCache`. Singleton objects instantiated from these cache classes minimize database access when processing and eliminating messages.
-3. Technically, the `TextChannelWriter` is a `TextWriter` created via a `TextChannelWritterFactory`. This is used to write to carrier movement channel(s).
+    1. `TodoListMessageProcessor` uses `SupportedMinorFactionsCache` and `GoalSystemsCache`. 
+    2. `CarrierMovementMessageProcessor` uses `StarSystemToDiscordGuildCache`, `IgnoredCarriersCache` and `CarrierMovementChannelCache`.
+4. Technically, the `TextChannelWriter` is a `TextWriter` created via a `TextChannelWritterFactory`. This is used to write to carrier movement channel(s).
 
 ## References
 1. Using Docker with .Net Core: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/visual-studio-tools-for-docker?view=aspnetcore-6.0
