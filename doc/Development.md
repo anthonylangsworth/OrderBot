@@ -76,7 +76,7 @@ sequenceDiagram
 
 Key points:
 1. `EddnMessageHostedService` is started from Program.cs and runs for the liftetime of the container.
-2. `Caches` includes various classes that inherit from `MessageProcessorCache`. Singleton objects instantiated from these cache classes minimize database access when processing and eliminating messages.
+2. `Caches` includes various classes that inherit from `MessageProcessorCache`. Singleton objects instantiated from these cache classes minimize database access when processing and eliminating messages. There is currently no cache invalidation mechanism but the cache durations are short: five minutes.
     1. `TodoListMessageProcessor` uses `SupportedMinorFactionsCache` and `GoalSystemsCache`. 
     2. `CarrierMovementMessageProcessor` uses `StarSystemToDiscordGuildCache`, `IgnoredCarriersCache` and `CarrierMovementChannelCache`.
 4. Technically, the `TextChannelWriter` is a `TextWriter` created via a `TextChannelWritterFactory`. This is used to write to carrier movement channel(s).
