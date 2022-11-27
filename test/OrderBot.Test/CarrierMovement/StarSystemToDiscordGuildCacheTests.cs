@@ -1,6 +1,8 @@
 ﻿using NUnit.Framework;
 using OrderBot.CarrierMovement;
 using OrderBot.Core;
+using OrderBot.Test.Samples;
+using OrderBot.ToDo;
 
 namespace OrderBot.Test.CarrierMovement;
 internal class StarSystemToDiscordGuildCacheTests : CacheTest<StarSystemToDiscordGuildCache>
@@ -12,88 +14,68 @@ internal class StarSystemToDiscordGuildCacheTests : CacheTest<StarSystemToDiscor
     }
 
     [Test]
-    [Ignore("Incomplete")]
-    [TestCase("Sol", ExpectedResult = true)]
-    [TestCase("Wolf 359", ExpectedResult = true)]
-    [TestCase("Proxima Centauri", ExpectedResult = false)]
+    [TestCase(StarSystemNames.Archernar, ExpectedResult = false, Description = "Unknown system")]
+    [TestCase(StarSystemNames.Caelano, ExpectedResult = false, Description = "Unknown system")]
+    public bool IsMonitoredStarSystem_None(string starSystemName)
+    {
+        return Cache.IsMonitoredStarSystem(DbContext, starSystemName);
+    }
+
+    [Test]
+    [TestCase(StarSystemNames.Sol, ExpectedResult = true, Description = "Supported minor faction")]
+    [TestCase(StarSystemNames.Wolf359, ExpectedResult = true, Description = "Two supported minor factions")]
+    [TestCase(StarSystemNames.AlphaCentauri, ExpectedResult = true, Description = "Minor faction and goal")]
+    [TestCase(StarSystemNames.BarnardsStar, ExpectedResult = true, Description = "One goal only")]
+    [TestCase(StarSystemNames.Archernar, ExpectedResult = false, Description = "Known system but no goals or presences")]
+    [TestCase(StarSystemNames.Caelano, ExpectedResult = false, Description = "Unknown system")]
     public bool IsMonitoredStarSystem(string starSystemName)
     {
-        DbContext.StarSystems.Add(new StarSystem() { Name = "Sol" });
-        DbContext.StarSystems.Add(new StarSystem() { Name = "Wolf 359" });
+        StarSystem sol = new() { Name = StarSystemNames.Sol };
+        StarSystem wolf359 = new() { Name = StarSystemNames.Wolf359 };
+        StarSystem alphaCentauri = new() { Name = StarSystemNames.AlphaCentauri };
+        StarSystem barnardsStar = new() { Name = StarSystemNames.BarnardsStar };
+        StarSystem archenar = new() { Name = StarSystemNames.Archernar };
+        DbContext.StarSystems.AddRange(sol, wolf359, alphaCentauri, barnardsStar, archenar);
+
+        MinorFaction darkWheel = new() { Name = MinorFactionNames.DarkWheel };
+        MinorFaction eurybiaBlueMafia = new() { Name = MinorFactionNames.EurybiaBlueMafia };
+        MinorFaction azimuthBiotech = new() { Name = MinorFactionNames.AzimuthBiotech };
+        DbContext.MinorFactions.AddRange(darkWheel, eurybiaBlueMafia, azimuthBiotech);
+
+        DiscordGuild discordGuid1 = new() { GuildId = 123455667 };
+        DiscordGuild discordGuid2 = new() { GuildId = 936593640 };
+        DbContext.DiscordGuilds.AddRange(discordGuid1, discordGuid2);
+
+        DbContext.SaveChanges();
+
+        discordGuid1.SupportedMinorFactions.Add(darkWheel);
+        DbContext.Presences.Add(new Presence() { MinorFaction = darkWheel, StarSystem = sol });
+        DbContext.Presences.Add(new Presence() { MinorFaction = eurybiaBlueMafia, StarSystem = wolf359 });
+        DbContext.Presences.Add(new Presence() { MinorFaction = darkWheel, StarSystem = wolf359 });
+        DbContext.SaveChanges();
+
+        DbContext.DiscordGuildPresenceGoals.Add(new()
+        {
+            DiscordGuild = discordGuid2,
+            Presence = new()
+            {
+                MinorFaction = azimuthBiotech,
+                StarSystem = alphaCentauri
+            },
+            Goal = ExpandGoal.Instance.Name
+        });
+        DbContext.DiscordGuildPresenceGoals.Add(new()
+        {
+            DiscordGuild = discordGuid2,
+            Presence = new()
+            {
+                MinorFaction = azimuthBiotech,
+                StarSystem = barnardsStar
+            },
+            Goal = RetreatGoal.Instance.Name
+        });
         DbContext.SaveChanges();
 
         return Cache.IsMonitoredStarSystem(DbContext, starSystemName);
     }
-
-    //[Test]
-    //[TestCaseSource(nameof(GetGuildsForStarSystem_Source))]
-    //public IReadOnlySet<string> GetGuildsForStarSystem(string starSystemName)
-    //{
-    //    Carrier priorityZero = new() { Name = CarrierNames.PriorityZero };
-    //    Carrier invincible = new() { Name = CarrierNames.Invincible };
-    //    Carrier myOtherShipIsAThargoid = new() { Name = CarrierNames.MyOtherShipIsAThargoid };
-    //    DbContext.Carriers.AddRange(priorityZero, invincible, myOtherShipIsAThargoid);
-    //    DbContext.SaveChanges();
-
-    //    DiscordGuild discordGuild1 = new() { GuildId = 1 };
-    //    DiscordGuild discordGuild2 = new() { GuildId = 2 };
-    //    DiscordGuild discordGuild3 = new() { GuildId = 3 };
-    //    DbContext.DiscordGuilds.AddRange(discordGuild1, discordGuild2, discordGuild3);
-    //    DbContext.SaveChanges();
-
-    //    discordGuild1.IgnoredCarriers.Add(priorityZero);
-    //    discordGuild1.IgnoredCarriers.Add(invincible);
-    //    discordGuild2.IgnoredCarriers.Add(myOtherShipIsAThargoid);
-    //    discordGuild2.IgnoredCarriers.Add(invincible);
-    //    DbContext.SaveChanges();
-
-    //    return Cache.GetGuildsForStarSystem(DbContext, starSystemName);
-    //}
-
-    //public static IEnumerable<TestCaseData> GetGuildsForStarSystem_Source()
-    //{
-    //    Presence darkWheelInSol = new()
-    //    {
-    //        MinorFaction = new() { Name = "Dark Wheel" },
-    //        StarSystem = new() { Name = "Sol" },
-    //        Influence = 0.1
-    //    };
-    //    dbContext.Presences.Add(darkWheelInSol);
-    //    DiscordGuild firstGuild = new() { Name = "First", GuildId = 20982408923432, CarrierMovementChannel = 9875264291 };
-    //    firstGuild.SupportedMinorFactions.Add(darkWheelInSol.MinorFaction);
-    //    dbContext.DiscordGuilds.Add(firstGuild);
-
-    //    DiscordGuildPresenceGoal maintainDarkWheelInAlphaCentauri = new()
-    //    {
-    //        DiscordGuild = new() { Name = "Second", GuildId = 982340923874 },
-    //        Presence = new()
-    //        {
-    //            MinorFaction = new() { Name = "Hutton Truckers" },
-    //            StarSystem = darkWheelInSol.StarSystem,
-    //            Influence = 0.2
-    //        },
-    //        Goal = MaintainGoal.Instance.Name
-    //    };
-    //    dbContext.DiscordGuildPresenceGoals.Add(maintainDarkWheelInAlphaCentauri);
-
-    //    dbContext.SaveChanges();
-
-    //    return new Dictionary<string, IDictionary<int, ulong?>>()
-    //    {
-    //        {
-    //            darkWheelInSol.StarSystem.Name,
-    //            new Dictionary<int, ulong?>()
-    //            {
-    //                {
-    //                    firstGuild.Id,
-    //                    firstGuild.CarrierMovementChannel
-    //                },
-    //                {
-    //                    maintainDarkWheelInAlphaCentauri.DiscordGuild.Id,
-    //                    maintainDarkWheelInAlphaCentauri.DiscordGuild.CarrierMovementChannel
-    //                }
-    //            }
-    //        }
-    //    };
-    //}
 }

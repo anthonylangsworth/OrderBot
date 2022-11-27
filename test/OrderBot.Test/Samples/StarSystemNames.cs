@@ -1,12 +1,15 @@
-﻿namespace OrderBot.Test.samples;
+﻿namespace OrderBot.Test.Samples;
 internal static class StarSystemNames
 {
+    public const string Sol = "Sol";
     public const string Sirius = "Sirius";
     public const string BarnardsStar = "Barnard's Star";
-    public const string ProximaCentauri = "Proxima Centauri";
+    public const string AlphaCentauri = "Alpha Centauri";
     public const string Maia = "Maia";
     public const string Asterope = "Asterope";
     public const string Caelano = "Caelano";
     public const string Canopus = "Canopus";
     public const string Betelgeuse = "Betelgeuse";
+    public const string Wolf359 = "Wolf 359";
+    public const string Archernar = "Archernar";
 }

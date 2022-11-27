@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using OrderBot.CarrierMovement;
 using OrderBot.Core;
-using OrderBot.Test.samples;
+using OrderBot.Test.Samples;
 
 namespace OrderBot.Test.ToDo;
 internal class SupportedMinorFactionsCacheTests : CacheTest<SupportedMinorFactionsCache>

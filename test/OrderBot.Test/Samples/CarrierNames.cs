@@ -1,4 +1,4 @@
-﻿namespace OrderBot.Test.samples;
+﻿namespace OrderBot.Test.Samples;
 
 /// <summary>
 /// Test serial numbers. Must keep this in sync with <see cref="CarrierSerialNumbers"/>.

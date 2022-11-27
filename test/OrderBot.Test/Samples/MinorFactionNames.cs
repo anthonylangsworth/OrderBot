@@ -1,4 +1,4 @@
-﻿namespace OrderBot.Test.samples;
+﻿namespace OrderBot.Test.Samples;
 internal static class MinorFactionNames
 {
     public const string HuttonTruckers = "Hutton Orbital Truckers Co-operative";

@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using OrderBot.CarrierMovement;
 using OrderBot.Core;
-using OrderBot.Test.samples;
+using OrderBot.Test.Samples;
 
 namespace OrderBot.Test.CarrierMovement;
 internal class IgnoredCarriersCachTests : CacheTest<IgnoredCarriersCache>
