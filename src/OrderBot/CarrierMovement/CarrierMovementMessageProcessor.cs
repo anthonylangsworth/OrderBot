@@ -45,9 +45,6 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
     {
         DateTime timestamp = GetMessageTimestamp(message);
 
-        // See https://github.com/EDCD/EDDN/blob/master/schemas/fsssignaldiscovered-v1.0.json for the schema
-        // "signals": [{"IsStation": true, "SignalName": "THE PEAKY BLINDERS KNF-83G", "timestamp": "2022-10-13T12:13:09Z"}]
-
         JsonElement messageElement = message.RootElement.GetProperty("message");
         if (messageElement.TryGetProperty("event", out JsonElement eventProperty)
             && eventProperty.GetString() == "FSSSignalDiscovered"
