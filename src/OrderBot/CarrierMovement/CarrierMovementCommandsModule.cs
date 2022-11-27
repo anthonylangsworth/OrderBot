@@ -20,21 +20,22 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
     public class Channel : InteractionModuleBase<SocketInteractionContext>
     {
         /// <summary>
-        /// Create a new <see cref="IgnoredCarriers"/>.
+        /// Create a new <see cref="Channel"/>.
         /// </summary>
-        /// <param name="contextFactory"></param>
+        /// <param name="dbContext"></param>
         /// <param name="logger"></param>
         /// <param name="auditLogFactory">
         /// </param>
-        public Channel(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<Channel> logger,
+        public Channel(OrderBotDbContext dbContext,
+            ILogger<Channel> logger,
             TextChannelAuditLoggerFactory auditLogFactory)
         {
-            ContextFactory = contextFactory;
+            DbContext = dbContext;
             Logger = logger;
             AuditLogFactory = auditLogFactory;
         }
 
-        public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
+        public OrderBotDbContext DbContext { get; }
         public ILogger<Channel> Logger { get; }
         public TextChannelAuditLoggerFactory AuditLogFactory { get; }
 
@@ -46,10 +47,9 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         )
         {
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
+            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
             discordGuild.CarrierMovementChannel = channel.Id;
-            await dbContext.SaveChangesAsync();
+            await DbContext.SaveChangesAsync();
             auditLogger.Audit($"Set the carrier movement channel to {channel.Name}");
             await Context.Interaction.FollowupAsync(
                 text: $"**Success**! Carrier movements will be mentioned in {MentionUtils.MentionChannel(channel.Id)}. Ensure this bot has 'Send Messages' permission to that channel. This change takes a few minutes to occur.",
@@ -61,8 +61,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         public async Task Get()
         {
-            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
+            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
             string message;
             if (discordGuild.CarrierMovementChannel == null)
             {
@@ -84,12 +83,11 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         public async Task Clear()
         {
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
+            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
             if (discordGuild.CarrierMovementChannel != null)
             {
                 discordGuild.CarrierMovementChannel = null;
-                await dbContext.SaveChangesAsync();
+                await DbContext.SaveChangesAsync();
             }
             auditLogger.Audit("Cleared carrier alert channel");
             await Context.Interaction.FollowupAsync(
@@ -105,17 +103,18 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         /// <summary>
         /// Create a new <see cref="IgnoredCarriers"/>.
         /// </summary>
-        /// <param name="contextFactory"></param>
+        /// <param name="dbContext"></param>
         /// <param name="logger"></param>
-        public IgnoredCarriers(IDbContextFactory<OrderBotDbContext> contextFactory,
-            ILogger<IgnoredCarriers> logger, TextChannelAuditLoggerFactory auditLogFactory)
+        public IgnoredCarriers(OrderBotDbContext dbContext,
+            ILogger<IgnoredCarriers> logger,
+            TextChannelAuditLoggerFactory auditLogFactory)
         {
-            ContextFactory = contextFactory;
+            DbContext = dbContext;
             Logger = logger;
             AuditLogFactory = auditLogFactory;
         }
 
-        public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
+        public OrderBotDbContext DbContext { get; }
         public ILogger<IgnoredCarriers> Logger { get; }
         public TextChannelAuditLoggerFactory AuditLogFactory { get; }
 
@@ -130,10 +129,9 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             string name)
         {
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-            using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
             try
             {
-                AddImplementation(dbContext, Context.Guild, new[] { name });
+                AddImplementation(DbContext, Context.Guild, new[] { name });
                 auditLogger.Audit($"Ignored carrier '{name}'");
                 await Context.Interaction.FollowupAsync(
                     text: $"**Success**! Fleet carrier '{name}' will be ignored and its jumps **NOT** reported",
@@ -184,8 +182,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             string name
         )
         {
-            using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-            RemoveImplementation(dbContext, Context.Guild, name);
+            RemoveImplementation(DbContext, Context.Guild, name);
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             auditLogger.Audit($"Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.");
             await Context.Interaction.FollowupAsync(
@@ -212,8 +209,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         [RequireBotRole(OfficersRole.RoleName, MembersRole.RoleName, Group = "Permission")]
         public async Task List()
         {
-            using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-            string result = string.Join("\n", ListImplementation(dbContext, Context.Guild).Select(c => c.Name));
+            string result = string.Join("\n", ListImplementation(DbContext, Context.Guild).Select(c => c.Name));
             if (!result.Any())
             {
                 await Context.Interaction.FollowupAsync(
@@ -244,9 +240,8 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Export()
         {
-            using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
             IList<CarrierCsvRow> result =
-                ListImplementation(dbContext, Context.Guild)
+                ListImplementation(DbContext, Context.Guild)
                     .Select(c => new CarrierCsvRow() { Name = c.Name })
                     .ToList();
             if (result.Count == 0)
@@ -291,8 +286,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
                     goals = await csvReader.GetRecordsAsync<CarrierCsvRow>().ToListAsync();
                 }
 
-                using OrderBotDbContext dbContext = ContextFactory.CreateDbContext();
-                AddImplementation(dbContext, Context.Guild, goals.Select(g => g.Name));
+                AddImplementation(DbContext, Context.Guild, goals.Select(g => g.Name));
 
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 auditLogger.Audit($"Ignored carriers:\n{string.Join("\n", goals.Select(g => g.Name))}");
