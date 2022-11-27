@@ -25,12 +25,12 @@ To setup locally:
 Overview:
 ```mermaid
 sequenceDiagram
-  DiscordClient->>+BotHostedService : Client_InteractionCreated()
-  BotHostedService-->>+InteractionService: ExecuteCommandAsync()
+  DiscordClient->>BotHostedService : Client_InteractionCreated()
+  BotHostedService->>InteractionService: ExecuteCommandAsync()
   InteractionService->>+CommandsModule: Call method with [SlashCommand()]
   CommandsModule--)-InteractionService: void or thrown Exception 
-  InteractionService--)-BotHostedService: void
-  BotHostedService--)-DiscordClient: void
+  InteractionService--)BotHostedService: void
+  BotHostedService--)DiscordClient: void
 ```
 
 Key points:
