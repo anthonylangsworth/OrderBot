@@ -33,7 +33,7 @@ internal class EddnMessageHostedService : BackgroundService
                 if (client.TryReceiveFrameBytes(TimeSpan.FromMilliseconds(1000), out byte[]? compressed, out bool _)
                     && compressed != null)
                 {
-                    await ProcessMessage(compressed);
+                    await ProcessMessageAsync(compressed);
                 }
             }
         }
@@ -43,7 +43,7 @@ internal class EddnMessageHostedService : BackgroundService
         }
     }
 
-    internal async Task ProcessMessage(byte[] compressed)
+    internal async Task ProcessMessageAsync(byte[] compressed)
     {
         using IServiceScope serviceScope = ServiceProvider.CreateScope();
         ILogger<EddnMessageHostedService> scopedLogger = ServiceProvider.GetRequiredService<ILogger<EddnMessageHostedService>>();
