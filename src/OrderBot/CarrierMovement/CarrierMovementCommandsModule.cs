@@ -70,7 +70,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             else
             {
                 IChannel channel = Context.Guild.GetChannel(discordGuild.CarrierMovementChannel ?? 0);
-                message = $"**Success**! Carrier movements will be mentioned in #{channel.Name}";
+                message = $"**Success**! Carrier movements will be mentioned in {MentionUtils.MentionChannel(channel.Id)}";
             }
             await Context.Interaction.FollowupAsync(
                 text: message,
