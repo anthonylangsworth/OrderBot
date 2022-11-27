@@ -52,7 +52,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             await dbContext.SaveChangesAsync();
             auditLogger.Audit($"Set the carrier movement channel to {channel.Name}");
             await Context.Interaction.FollowupAsync(
-                text: $"**Success**! Carrier movements will be mentioned in #{channel.Name}. Ensure this bot has 'Send Messages' permission to that channel.",
+                text: $"**Success**! Carrier movements will be mentioned in #{channel.Name}. Ensure this bot has 'Send Messages' permission to that channel. This change takes a few minutes to take effect.",
                 ephemeral: true
             );
         }
