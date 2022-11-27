@@ -22,6 +22,24 @@ To setup locally:
 
 ## Writing Discord Commands
 
+Overview:
+```mermaid
+sequenceDiagram
+  DiscordClient->>+BotHostedService : Client_InteractionCreated()
+  BotHostedService-->>+InteractionService: ExecuteCommandAsync()
+  InteractionService->>+CommandsModule: Call method with [SlashCommand()]
+  CommandsModule--)-InteractionService: void or thrown Exception 
+  InteractionService--)-BotHostedService: void
+  BotHostedService--)-DiscordClient: void
+```
+
+Key points:
+1. `CommandsModule` refers to a class that derives from `InteractionModuleBase<SocketInteractionContext>`. There are currently three:
+    1. `AdminCommandsModule`, which handles administrative commands like audit and role management.
+    2. `CarrierMovementCommandsModule`, which handles commands to ignore or track carrier movements. 
+    3. `ToDoListCommandsModule`, which handlings viewing the To-Do list, supporting minor factions and adding goals. 
+2. The `InteractionService` provided by Discord.Net provides a nice wrapper over manually parsing and handling commands.
+
 `Client_InteractionCreated` in [BotHostedService](../../../tree/main/src/OrderBot/Discord/BotHostedService.cs) provides the following:
 1. Creates a `IServiceScope` so scoped DI services can be returned and cleaned up.
 2. Adds a logging scope with common details such as the user, guild and command details.
