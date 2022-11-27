@@ -126,10 +126,26 @@ internal class BotHostedService : IHostedService
 
     private Task LogAsync(LogMessage message)
     {
-#pragma warning disable CA2254
-        // TODO: Convert message.Severity
-        Logger.LogInformation(message.ToString());
-#pragma warning restore CA2254
+        LogLevel logLevel = message.Severity switch
+        {
+            LogSeverity.Critical => LogLevel.Critical,
+            LogSeverity.Error => LogLevel.Error,
+            LogSeverity.Warning => LogLevel.Warning,
+            LogSeverity.Info => LogLevel.Information,
+            LogSeverity.Debug => LogLevel.Debug,
+            LogSeverity.Verbose => LogLevel.Trace,
+            _ => LogLevel.Critical // Be pessimistic
+        };
+
+        if (message.Exception != null)
+        {
+            Logger.Log(logLevel, message.Exception, message.ToString());
+        }
+        else
+        {
+            Logger.Log(logLevel, message.ToString());
+        }
+
         return Task.CompletedTask;
     }
 
