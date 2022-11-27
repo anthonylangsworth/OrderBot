@@ -43,6 +43,38 @@ Best practice for writing slash (application) commands:
 7. Use `TransactionScope` around any database work, passing `TransactionScopeAsyncFlowOption.Enabled` to ensure it is async-friendly. Call `Complete()` as the last statement.
 8. Audit any modifications using an `IAuditLogger`, ideally via a `TextChannelAuditLoggerFactory`.
 
+## Message Processing
+```mermaid
+sequenceDiagram
+  participant EddnMessageHostedService
+  participant ToDoListMessageProcessor
+  participant CarrierMovementMessageProcessor
+  participant Caches
+  participant TextChannelWriter
+  activate EddnMessageHostedService
+  activate Caches
+  par
+    EddnMessageHostedService-)+ToDoListMessageProcessor: ProcessAsync()
+    ToDoListMessageProcessor->>Caches: Get Value
+    Caches-->>ToDoListMessageProcessor: Result
+    ToDoListMessageProcessor--)-EddnMessageHostedService: void
+  and 
+    EddnMessageHostedService-)+CarrierMovementMessageProcessor: ProcessAsync()
+    CarrierMovementMessageProcessor->>Caches: Get Value
+    Caches-->>CarrierMovementMessageProcessor: Result
+    CarrierMovementMessageProcessor->>+TextChannelWriter: WriteLine()
+    TextChannelWriter-->>-CarrierMovementMessageProcessor: void
+    CarrierMovementMessageProcessor--)-EddnMessageHostedService: void
+  end
+  deactivate EddnMessageHostedService
+  deactivate Caches
+```
+
+Key points:
+1. `EddnMessageHostedService` is started from Program.cs and runs for the liftetime of the container
+2. `Caches` includes various classes that inherit from `MessageProcessorCache`. Singleton objects instantiated from these cache classes minimize database access when processing and eliminating messages.
+3. Technically, the `TextChannelWriter` is a `TextWriter` created via a `TextChannelWritterFactory`. This is used to write to carrier movement channel(s).
+
 ## References
 1. Using Docker with .Net Core: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/visual-studio-tools-for-docker?view=aspnetcore-6.0
 2. Github action to build SQL server database: https://github.com/ankane/setup-sqlserver
@@ -50,3 +82,4 @@ Best practice for writing slash (application) commands:
 4. Using Log Analytics with Container Instances: https://learn.microsoft.com/en-us/azure/container-instances/container-instances-log-analytics
 5. CsvHelper quickstart: https://joshclose.github.io/CsvHelper/getting-started/
 6. Avoid record types with Entity Framework: https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/record
+7. Mermaid Sequence diagrams: https://mermaid-js.github.io/mermaid/#/sequenceDiagram
