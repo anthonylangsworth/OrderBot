@@ -5,10 +5,10 @@ using OrderBot.Test.Samples;
 using OrderBot.ToDo;
 
 namespace OrderBot.Test.ToDo;
-internal class GoalSystemsCacheTests : CacheTest<GoalSystemsCache>
+internal class GoalStarSystemsCacheTests : CacheTest<GoalStarSystemsCache>
 {
-    public GoalSystemsCacheTests()
-        : base(memoryCache => new GoalSystemsCache(memoryCache))
+    public GoalStarSystemsCacheTests()
+        : base(memoryCache => new GoalStarSystemsCache(memoryCache))
     {
         // Do nothing
     }

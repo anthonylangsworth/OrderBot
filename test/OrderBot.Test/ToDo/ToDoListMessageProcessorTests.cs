@@ -18,7 +18,7 @@ internal class ToDoListMessageProcessorTests : DbTest
     {
         ILogger<ToDoListMessageProcessor> logger = NullLogger<ToDoListMessageProcessor>.Instance;
         SupportedMinorFactionsCache supportedMinorFactionsCache = new(MemoryCache);
-        GoalSystemsCache goalSystemsCache = new(MemoryCache);
+        GoalStarSystemsCache goalSystemsCache = new(MemoryCache);
 
         ToDoListMessageProcessor systemMinorFactionMessageProcessor = new(DbContext, logger,
             supportedMinorFactionsCache, goalSystemsCache);
@@ -32,7 +32,7 @@ internal class ToDoListMessageProcessorTests : DbTest
     public void GetBgsData_MatchingMinorFaction()
     {
         SupportedMinorFactionsCache supportedMinorFactionsCache = new(MemoryCache);
-        GoalSystemsCache goalSystemsCache = new(MemoryCache);
+        GoalStarSystemsCache goalSystemsCache = new(MemoryCache);
 
         DiscordGuild discordGuild = new();
         discordGuild.SupportedMinorFactions.Add(new() { Name = "Ross 199 Silver Raiders" });
@@ -136,7 +136,7 @@ internal class ToDoListMessageProcessorTests : DbTest
     public void GetBgsData_NoMatchingMinorFactions()
     {
         SupportedMinorFactionsCache supportedMinorFactionsCache = new(MemoryCache);
-        GoalSystemsCache goalSystemsCache = new(MemoryCache);
+        GoalStarSystemsCache goalSystemsCache = new(MemoryCache);
 
         // HashSet<string> supportedMinorFactions = new(new[] { "Foo" });
         using Stream? stream = Assembly.GetExecutingAssembly()?.GetManifestResourceStream("OrderBot.Test.Samples.Ross 199.json");

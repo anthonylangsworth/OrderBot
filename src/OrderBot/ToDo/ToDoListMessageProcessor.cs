@@ -32,7 +32,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     public ToDoListMessageProcessor(OrderBotDbContext dbContext,
         ILogger<ToDoListMessageProcessor> logger,
         SupportedMinorFactionsCache supportedMinorFactionsCache,
-        GoalSystemsCache goalSystemsCache)
+        GoalStarSystemsCache goalSystemsCache)
     {
         Logger = logger;
         DbContext = dbContext;
@@ -43,7 +43,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
     public ILogger<ToDoListMessageProcessor> Logger { get; }
     public OrderBotDbContext DbContext { get; }
     public SupportedMinorFactionsCache SupportedMinorFactionsCache { get; }
-    public GoalSystemsCache GoalSystemsCache { get; }
+    public GoalStarSystemsCache GoalSystemsCache { get; }
 
     /// <inheritDoc/>
     public override Task ProcessAsync(JsonDocument message)
@@ -88,7 +88,7 @@ internal class ToDoListMessageProcessor : EddnMessageProcessor
         OrderBotDbContext dbContext,
         JsonDocument message,
         SupportedMinorFactionsCache supportedMinorFactionsCache,
-        GoalSystemsCache goalSystemsCache)
+        GoalStarSystemsCache goalSystemsCache)
     {
         DateTime timestamp = GetMessageTimestamp(message);
 

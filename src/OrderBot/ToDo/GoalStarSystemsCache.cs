@@ -7,16 +7,16 @@ namespace OrderBot.CarrierMovement;
 /// <summary>
 /// Cache systems with at least one goal.
 /// </summary>
-public class GoalSystemsCache : MessageProcessorCache
+public class GoalStarSystemsCache : MessageProcessorCache
 {
     /// <summary>
-    /// Create a new <see cref="GoalSystemsCache"/>.
+    /// Create a new <see cref="GoalStarSystemsCache"/>.
     /// </summary>
     /// <param name="memoryCache">
     /// Used for caching.
     /// </param>
-    public GoalSystemsCache(IMemoryCache memoryCache)
-        : base(memoryCache, nameof(GoalSystemsCache))
+    public GoalStarSystemsCache(IMemoryCache memoryCache)
+        : base(memoryCache, nameof(GoalStarSystemsCache))
     {
         // Do nothing
     }
