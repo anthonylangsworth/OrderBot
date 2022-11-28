@@ -213,7 +213,10 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                 Autocomplete(typeof(KnownMinorFactionsAutocompleteHandler))
             ]
             string minorFactionName,
-            [Summary("star-system", "The star system")]
+            [
+                Summary("star-system", "The star system"),
+                Autocomplete(typeof(KnownStarSystemsAutocompleteHandler))
+            ]
             string starSystemName
         )
         {
