@@ -62,7 +62,7 @@ E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dar
                 new InfluenceSuggestion(asterope, axi, true, 0.05),
                 new ConflictSuggestion(pleione, axi, 2, antHillMob, 1, ConflictState.CloseVictory, WarType.War),
                 new ConflictSuggestion(electra, axi, 1, antHillMob, 3, ConflictState.Defeat, WarType.War),
-                new InfluenceSuggestion(merope, operationIda, true, 0.10)
+                new InfluenceSuggestion(merope, operationIda, true, 0.04)
             });
         Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *Anti Xe
 - Atlas - 65%
 
 ***Urgent Pro-Non-Native/Coalition Faction** support required* - Work for ONLY the listed factions in the listed systems to avoid a retreat or to disrupt system interference.
-- *Operation Ida* in Merope - 10%
+- *Operation Ida* in Merope - 4%
 
 ---------------------------------------------------------------------------------------------------------------------------------
 **War Systems**
