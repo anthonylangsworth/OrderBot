@@ -10,13 +10,13 @@ public class ToDoListFormatter
     /// <summary>
     /// Shown when there are no rows in each category.
     /// </summary>
-    internal readonly static string None = "(None)";
+    internal static string None => "(None)";
 
     /// <summary>
     /// The max rows of each category returned. This prevents
     /// the suggestions from getting too long.
     /// </summary>
-    internal readonly static int maxRows = 8;
+    internal static int MaxRows => 8;
 
     /// <summary>
     /// Format the <paramref name="toDoList"/> to a human-readable form.
@@ -66,21 +66,21 @@ public class ToDoListFormatter
         return
 $@"***Pro-{toDoList.MinorFaction}** support required* - Work for *{toDoList.MinorFaction}* in these systems.
 E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *{toDoList.MinorFaction}* controlled stations.
-{GetInfluenceList(toDoList, i => i.Pro, ascending: true)}";
+{GetInfluenceList(toDoList, i => i.MinorFaction.Name == toDoList.MinorFaction && i.Pro, ascending: true)}";
     }
 
     internal static string AntiInfluence(ToDoList toDoList)
     {
         return
 $@"***Anti-{toDoList.MinorFaction}** support required* - Work ONLY for the other factions in the listed systems to bring *{toDoList.MinorFaction}*'s INF back to manageable levels and to avoid an unwanted expansion.
-{GetInfluenceList(toDoList, i => !i.Pro, ascending: false)}";
+{GetInfluenceList(toDoList, i => i.MinorFaction.Name == toDoList.MinorFaction && !i.Pro, ascending: false)}";
     }
 
     internal static string OtherInfluence(ToDoList toDoList)
     {
         return
 $@"***Urgent Pro-Non-Native/Coalition Faction** support required* - Work for ONLY the listed factions in the listed systems to avoid a retreat or to disrupt system interference.
-{GetInfluenceList(toDoList, i => false, ascending: true)}";
+{GetInfluenceList(toDoList, i => i.MinorFaction.Name != toDoList.MinorFaction, ascending: true)}";
     }
 
     internal static string Security(ToDoList toDoList)
@@ -88,7 +88,7 @@ $@"***Urgent Pro-Non-Native/Coalition Faction** support required* - Work for ONL
         IEnumerable<SecuritySuggestion> suggestions =
             toDoList.Suggestions.Where(s => s is SecuritySuggestion)
                                 .Cast<SecuritySuggestion>()
-                                .Take(maxRows);
+                                .Take(MaxRows);
         string proSecurityList;
         if (suggestions.Any())
         {
@@ -124,7 +124,7 @@ $@"**Election Systems**
         IEnumerable<InfluenceSuggestion> suggestions =
             toDoList.Suggestions.Where(s => s is InfluenceSuggestion infSuggestion && include(infSuggestion))
                                 .Cast<InfluenceSuggestion>()
-                                .Take(maxRows);
+                                .Take(MaxRows);
         string result;
         if (suggestions.Any())
         {
@@ -146,7 +146,7 @@ $@"**Election Systems**
         IEnumerable<ConflictSuggestion> suggestions =
             toDoList.Suggestions.Where(s => s is ConflictSuggestion cs && include(cs))
                                 .Cast<ConflictSuggestion>()
-                                .Take(maxRows);
+                                .Take(MaxRows);
         string result;
         if (suggestions.Any())
         {
