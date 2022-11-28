@@ -14,15 +14,23 @@ public class ToDoListApiFactory
     /// <param name="dbContext">
     /// The <see cref="OrderBotDbContext"/> to use.
     /// </param>
-    public ToDoListApiFactory(OrderBotDbContext dbContext)
+    /// <param name="validator">
+    /// Used to validate minor factions and star systems.
+    /// </param>
+    public ToDoListApiFactory(OrderBotDbContext dbContext, Validator validator)
     {
         DbContext = dbContext;
+        Validator = validator;
     }
 
     /// <summary>
     /// The <see cref="OrderBotDbContext"/> to use.
     /// </summary>
     internal OrderBotDbContext DbContext { get; }
+    /// <summary>
+    /// Used to validate minor factions and star systems.
+    /// </summary>
+    public Validator Validator { get; }
 
     /// <summary>
     /// Create a <see cref="ToDoListApi"/>
@@ -35,6 +43,6 @@ public class ToDoListApiFactory
     /// </returns>
     public ToDoListApi CreateApi(IGuild guild)
     {
-        return new(DbContext, guild);
+        return new(DbContext, guild, Validator);
     }
 }

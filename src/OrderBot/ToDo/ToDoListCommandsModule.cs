@@ -198,7 +198,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
             using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                ApiFactory.CreateApi(Context.Guild).AddGoals(
+                await ApiFactory.CreateApi(Context.Guild).AddGoals(
                     new[] { (minorFactionName, starSystemName, goalName) });
                 auditLogger.Audit($"Added goal to {goalName} *{minorFactionName}* in {starSystemName}");
                 await Context.Interaction.FollowupAsync(
@@ -334,7 +334,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                 }
 
                 using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-                ApiFactory.CreateApi(Context.Guild).AddGoals(goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
+                await ApiFactory.CreateApi(Context.Guild).AddGoals(goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
 
                 auditLogger.Audit($"Imported goals:\n{string.Join("\n", goals.Select(g => $"{g.Goal} {g.MinorFaction} in {g.StarSystem}"))}");
                 await Context.Interaction.FollowupAsync(

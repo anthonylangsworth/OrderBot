@@ -22,7 +22,7 @@ internal abstract class DbTest
         DbContextFactory = new();
         DbContext = DbContextFactory.CreateDbContext();
         MemoryCache = new MemoryCache(new MemoryCacheOptions());
-        TransactionScope = new();
+        TransactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
     }
 
     [TearDown]

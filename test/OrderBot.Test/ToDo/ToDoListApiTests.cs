@@ -3,31 +3,25 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using OrderBot.Core;
-using OrderBot.EntityFramework;
 using OrderBot.ToDo;
-using System.Transactions;
 using Goal = OrderBot.ToDo.Goal;
 
 namespace OrderBot.Test.ToDo;
 
-internal class ToDoListApiTests
+internal class ToDoListApiTests : DbTest
 {
     [Test]
     public async Task SupportedFaction()
     {
-        using OrderBotDbContextFactory contextFactory = new();
-        using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
-        using TransactionScope transactionScope = new();
-
         MinorFaction minorFaction = new() { Name = "Hutton Orbital Truckers Co-operative" };
-        dbContext.MinorFactions.Add(minorFaction);
-        dbContext.SaveChanges();
+        DbContext.MinorFactions.Add(minorFaction);
+        DbContext.SaveChanges();
 
         const ulong testGuildId = 1234567890;
         const string testGuildName = "My Discord Server";
         IGuild guild = Mock.Of<IGuild>(g => g.Id == testGuildId && g.Name == testGuildName);
 
-        ToDoListApi api = new(dbContext, guild);
+        ToDoListApi api = new(DbContext, guild, new FakeValidator());
 
         Assert.That(() => api.GetTodoList(), Throws.TypeOf<NoSupportedMinorFactionException>());
         Assert.That(api.GetSupportedMinorFaction(), Is.Null);
@@ -40,19 +34,15 @@ internal class ToDoListApiTests
     }
 
     [Test]
-    public void AddGoals_Empty()
+    public async Task AddGoals_Empty()
     {
-        using OrderBotDbContextFactory contextFactory = new();
-        using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
-        using TransactionScope transactionScope = new();
-
         StarSystem starSystem = new() { Name = "Alpha Centauri" };
-        dbContext.StarSystems.Add(starSystem);
-        dbContext.SaveChanges();
+        DbContext.StarSystems.Add(starSystem);
+        DbContext.SaveChanges();
 
         MinorFaction minorFaction = new() { Name = "Hutton Truckers" };
-        dbContext.MinorFactions.Add(minorFaction);
-        dbContext.SaveChanges();
+        DbContext.MinorFactions.Add(minorFaction);
+        DbContext.SaveChanges();
 
         Goal goal = Goals.Default;
 
@@ -60,16 +50,15 @@ internal class ToDoListApiTests
         const string testGuildName = "My Discord Server";
         IGuild guild = Mock.Of<IGuild>(g => g.Id == testGuildId && g.Name == testGuildName);
 
-        ToDoListApi api = new(dbContext, guild);
+        ToDoListApi api = new(DbContext, guild, new FakeValidator());
 
         string minorFactionName = minorFaction.Name;
         string starSystemName = starSystem.Name;
         string goalName = goal.Name;
-        api.AddGoals(
-            new[] { (minorFactionName, starSystemName, goalName) });
+        await api.AddGoals(new[] { (minorFactionName, starSystemName, goalName) });
 
         DiscordGuildPresenceGoal? discordGuildStarSystemMinorFactionGoal =
-            dbContext.DiscordGuildPresenceGoals.Include(dgssmfg => dgssmfg.Presence)
+            DbContext.DiscordGuildPresenceGoals.Include(dgssmfg => dgssmfg.Presence)
                                                              .Include(dgssmfg => dgssmfg.DiscordGuild)
                                                              .FirstOrDefault(dgssmfg => dgssmfg.DiscordGuild.GuildId == testGuildId
                                                                                      && dgssmfg.Presence.StarSystem.Name == starSystemName
@@ -91,32 +80,29 @@ internal class ToDoListApiTests
     }
 
     [Test]
-    public void AddGoals_Existing()
+    public async Task AddGoals_Existing()
     {
-        using OrderBotDbContextFactory contextFactory = new();
-        using OrderBotDbContext dbContext = contextFactory.CreateDbContext();
-        using TransactionScope transactionScope = new();
         const ulong testGuildId = 1234567890;
         const string testGuildName = "My Discord Server";
         DiscordGuild discordGuild = new() { Name = testGuildName, GuildId = testGuildId };
 
         StarSystem starSystem = new() { Name = "Alpha Centauri" };
-        dbContext.StarSystems.Add(starSystem);
-        dbContext.SaveChanges();
+        DbContext.StarSystems.Add(starSystem);
+        DbContext.SaveChanges();
 
         MinorFaction minorFaction = new() { Name = "Hutton Truckers" };
-        dbContext.MinorFactions.Add(minorFaction);
-        dbContext.SaveChanges();
+        DbContext.MinorFactions.Add(minorFaction);
+        DbContext.SaveChanges();
 
         Goal goal = Goals.Default;
 
         IGuild guild = Mock.Of<IGuild>(g => g.Id == testGuildId && g.Name == testGuildName);
 
-        ToDoListApi api = new(dbContext, guild);
+        ToDoListApi api = new(DbContext, guild, new FakeValidator());
 
         Presence starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction };
-        dbContext.Presences.Add(starSystemMinorFaction);
-        dbContext.SaveChanges();
+        DbContext.Presences.Add(starSystemMinorFaction);
+        DbContext.SaveChanges();
 
         DiscordGuildPresenceGoal discordGuildStarSystemMinorFactionGoal = new()
         {
@@ -124,13 +110,12 @@ internal class ToDoListApiTests
             Presence = starSystemMinorFaction,
             Goal = goal.Name
         };
-        dbContext.DiscordGuildPresenceGoals.Add(discordGuildStarSystemMinorFactionGoal);
-        dbContext.SaveChanges();
-        api.AddGoals(
-            new[] { (minorFaction.Name, starSystem.Name, goal.Name) });
+        DbContext.DiscordGuildPresenceGoals.Add(discordGuildStarSystemMinorFactionGoal);
+        DbContext.SaveChanges();
+        await api.AddGoals(new[] { (minorFaction.Name, starSystem.Name, goal.Name) });
 
         DiscordGuildPresenceGoal? newDiscordGuildStarSystemMinorFactionGoal =
-            dbContext.DiscordGuildPresenceGoals.Include(dgssmfg => dgssmfg.Presence)
+            DbContext.DiscordGuildPresenceGoals.Include(dgssmfg => dgssmfg.Presence)
                                                              .Include(dgssmfg => dgssmfg.DiscordGuild)
                                                              .FirstOrDefault(dgssmfg => dgssmfg.DiscordGuild.GuildId == testGuildId
                                                                                      && dgssmfg.Presence.StarSystem.Name == starSystem.Name

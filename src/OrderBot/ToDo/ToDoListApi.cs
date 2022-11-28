@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using OrderBot.Core;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
-using System.Net;
-using System.Text.Json;
 using System.Transactions;
 
 namespace OrderBot.ToDo;
@@ -47,14 +45,19 @@ public class ToDoListApi
     /// <param name="guild">
     /// The <see cref="IGuild"/> to act on or for.
     /// </param>
-    public ToDoListApi(OrderBotDbContext dbContext, IGuild guild)
+    /// <param name="validator">
+    /// Used to validate minor factions and star systems via web services.
+    /// </param>
+    public ToDoListApi(OrderBotDbContext dbContext, IGuild guild, Validator validator)
     {
         DbContext = dbContext;
         Guild = guild;
+        Validator = validator;
     }
 
     internal OrderBotDbContext DbContext { get; }
     internal IGuild Guild { get; }
+    public Validator Validator { get; }
 
     /// <summary>
     /// Get the list of suggestions.
@@ -83,7 +86,7 @@ public class ToDoListApi
     public async Task SetSupportedMinorFactionAsync(string minorFactionName)
     {
         MinorFaction? minorFaction = DbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
-        if (minorFaction == null && await IsKnownMinorFaction(minorFactionName))
+        if (minorFaction == null && await Validator.IsKnownMinorFactionAsync(minorFactionName))
         {
             minorFaction = new() { Name = minorFactionName };
             DbContext.MinorFactions.Add(minorFaction);
@@ -139,7 +142,7 @@ public class ToDoListApi
     /// <exception cref="ArgumentException">
     /// Either the minor faction, system name or goal is invalid.
     /// </exception>
-    public void AddGoals(
+    public async Task AddGoals(
         IEnumerable<(string minorFactionName, string starSystemName, string goalName)> goals)
     {
         DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild);
@@ -147,20 +150,32 @@ public class ToDoListApi
         foreach ((string minorFactionName, string starSystemName, string goalName) in goals)
         {
             MinorFaction? minorFaction = DbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
+            if (minorFaction == null && await Validator.IsKnownMinorFactionAsync(minorFactionName))
+            {
+                minorFaction = new MinorFaction() { Name = minorFactionName };
+                DbContext.MinorFactions.Add(minorFaction);
+                DbContext.SaveChanges();
+            }
             if (minorFaction == null)
             {
-                throw new ArgumentException($"*{minorFactionName}* is not a known minor faction");
+                throw new ArgumentException($"*{minorFactionName}* is not a known minor faction", nameof(goals));
             }
 
             StarSystem? starSystem = DbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
+            if (starSystem == null && await Validator.IsKnownStarSystemAsync(starSystemName))
+            {
+                starSystem = new StarSystem() { Name = starSystemName };
+                DbContext.StarSystems.Add(starSystem);
+                DbContext.SaveChanges();
+            }
             if (starSystem == null)
             {
-                throw new ArgumentException($"{starSystemName} is not a known star system");
+                throw new ArgumentException($"{starSystemName} is not a known star system", nameof(goals));
             }
 
             if (!Goals.Map.TryGetValue(goalName, out Goal? goal))
             {
-                throw new ArgumentException($"{goalName} is not a known goal");
+                throw new ArgumentException($"{goalName} is not a known goal", nameof(goals));
             }
 
             Presence? starSystemMinorFaction =
@@ -251,15 +266,5 @@ public class ToDoListApi
             DbContext.DiscordGuildPresenceGoals.Remove(discordGuildStarSystemMinorFactionGoal);
         }
         DbContext.SaveChanges();
-    }
-
-    private async Task<bool> IsKnownMinorFaction(string minorFactionName)
-    {
-        using HttpClient client = new();
-        using Stream stream = await client.GetStreamAsync(
-            $"https://elitebgs.app/api/ebgs/v5/factions?name={WebUtility.UrlEncode(minorFactionName)}");
-        using StreamReader reader = new(stream);
-        JsonDocument jsonDocument = JsonDocument.Parse(stream);
-        return jsonDocument.RootElement.GetProperty("docs").GetArrayLength() > 0;
     }
 }
