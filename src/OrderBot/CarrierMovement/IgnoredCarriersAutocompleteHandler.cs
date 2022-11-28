@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Microsoft.EntityFrameworkCore;
 using OrderBot.Core;
 using OrderBot.EntityFramework;
 
@@ -16,8 +15,8 @@ public class IgnoredCarriersAutocompleteHandler : CarriersAutocompleteHandler
     /// <param name="dbContextFactory">
     /// The database to check.
     /// </param>
-    public IgnoredCarriersAutocompleteHandler(IDbContextFactory<OrderBotDbContext> dbContextFactory)
-        : base(dbContextFactory)
+    public IgnoredCarriersAutocompleteHandler(OrderBotDbContext dbContext)
+        : base(dbContext)
     {
         // Do nothing
     }

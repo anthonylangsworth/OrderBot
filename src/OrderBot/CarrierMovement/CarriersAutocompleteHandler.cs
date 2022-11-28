@@ -17,15 +17,15 @@ public abstract class CarriersAutocompleteHandler : AutocompleteHandler
     /// <param name="dbContextFactory">
     /// The database to check.
     /// </param>
-    protected CarriersAutocompleteHandler(IDbContextFactory<OrderBotDbContext> dbContextFactory)
+    protected CarriersAutocompleteHandler(OrderBotDbContext dbContext)
     {
-        DbContextFactory = dbContextFactory;
+        DbContext = dbContext;
     }
 
     /// <summary>
     /// The database to check.
     /// </summary>
-    public IDbContextFactory<OrderBotDbContext> DbContextFactory { get; }
+    public OrderBotDbContext DbContext { get; }
 
     /// <summary>
     /// Return up to <see cref="SlashCommandBuilder.MaxOptionsCount"/> carriers
@@ -45,19 +45,18 @@ public abstract class CarriersAutocompleteHandler : AutocompleteHandler
         DiscordGuild discordGuild, string startsWith);
 
     /// <inheritdoc/>
-    public override async Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context,
+    public override Task<AutocompletionResult> GenerateSuggestionsAsync(IInteractionContext context,
         IAutocompleteInteraction autocompleteInteraction, IParameterInfo parameter, IServiceProvider services)
     {
         // See https://discordnet.dev/guides/int_framework/autocompletion.html
         string enteredName = autocompleteInteraction.Data.Current.Value.ToString() ?? "";
 
-        using OrderBotDbContext dbContext = await DbContextFactory.CreateDbContextAsync();
         DiscordGuild discordGuild =
-            dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
+            DbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
                                    .First(dg => dg.GuildId == context.Guild.Id);
-        return AutocompletionResult.FromSuccess(
-            GetCarriers(dbContext, discordGuild, enteredName).Select(c => new AutocompleteResult(c, c))
-
-        );
+        return Task.FromResult(
+            AutocompletionResult.FromSuccess(
+                GetCarriers(DbContext, discordGuild, enteredName).Select(c => new AutocompleteResult(c, c))
+        ));
     }
 }

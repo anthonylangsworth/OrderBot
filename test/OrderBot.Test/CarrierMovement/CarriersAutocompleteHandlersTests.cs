@@ -1,17 +1,12 @@
 ﻿using NUnit.Framework;
 using OrderBot.CarrierMovement;
 using OrderBot.Core;
-using OrderBot.EntityFramework;
 using OrderBot.Test.Samples;
-using System.Transactions;
 
 namespace OrderBot.Test.CarrierMovement;
 
-internal class CarriersAutocompleteHandlersTests
+internal class CarriersAutocompleteHandlersTests : DbTest
 {
-    internal OrderBotDbContextFactory DbContextFactory { get; set; } = null!;
-    internal TransactionScope TransactionScope { get; set; } = null!;
-    internal OrderBotDbContext DbContext { get; set; } = null!;
     internal DiscordGuild Guild { get; set; } = null!;
     internal static IReadOnlyList<string> Carriers { get; set; } = new string[]
     {
@@ -26,12 +21,9 @@ internal class CarriersAutocompleteHandlersTests
      .ToList();
 
     [SetUp]
-    public void SetUp()
+    public override void SetUp()
     {
-        TearDown();
-        DbContextFactory = new(useInMemory: false);
-        TransactionScope = new();
-        DbContext = DbContextFactory.CreateDbContext();
+        base.SetUp();
 
         Guild = new DiscordGuild() { GuildId = 1234567890, Name = "Test Guild" };
         foreach (string carrierName in Carriers)
@@ -42,14 +34,6 @@ internal class CarriersAutocompleteHandlersTests
         }
         DbContext.DiscordGuilds.Add(Guild);
         DbContext.SaveChanges();
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        DbContext?.Dispose();
-        TransactionScope?.Dispose();
-        DbContextFactory?.Dispose();
     }
 
     [Test]
@@ -63,7 +47,7 @@ internal class CarriersAutocompleteHandlersTests
         }
         DbContext.SaveChanges();
 
-        return new NotIgnoredCarriersAutocompleteHandler(DbContextFactory).GetCarriers(DbContext, Guild, nameStartsWith);
+        return new NotIgnoredCarriersAutocompleteHandler(DbContext).GetCarriers(DbContext, Guild, nameStartsWith);
     }
 
     public static IEnumerable<TestCaseData> NotIgnored_GetCarriers_Source()
@@ -113,7 +97,7 @@ internal class CarriersAutocompleteHandlersTests
         }
         DbContext.SaveChanges();
 
-        return new IgnoredCarriersAutocompleteHandler(DbContextFactory).GetCarriers(DbContext, Guild, nameStartsWith);
+        return new IgnoredCarriersAutocompleteHandler(DbContext).GetCarriers(DbContext, Guild, nameStartsWith);
     }
 
     public static IEnumerable<TestCaseData> Ignored_GetCarriers_Source()
