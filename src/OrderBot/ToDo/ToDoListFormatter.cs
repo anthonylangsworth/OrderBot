@@ -131,7 +131,7 @@ $@"**Election Systems**
             IEnumerable<InfluenceSuggestion> sortedActions =
                 ascending ? suggestions.OrderBy(action => action.Influence) : suggestions.OrderByDescending(action => action.Influence);
             result = string.Join(Environment.NewLine,
-                sortedActions.Select(action => $"- {FormatSystemName(action.StarSystem.Name)} - {Math.Round(action.Influence * 100, 1)}%"));
+                sortedActions.Select(action => $"- {FormatSystemName(action.StarSystem.Name)} - {Math.Round(action.Influence * 100, 1)}%{ShowDescription(action)}"));
         }
         else
         {
@@ -153,7 +153,7 @@ $@"**Election Systems**
             result = string.Join(Environment.NewLine,
                 suggestions.OrderBy(cs => cs.FightFor.Name)
                            .OrderBy(cs => cs.StarSystem.Name)
-                           .Select(cs => $"- {FormatSystemName(cs.StarSystem.Name)} - Fight for *{cs.FightFor.Name}* against *{cs.FightAgainst.Name}* - {cs.FightForWonDays} vs {cs.FightAgainstWonDays} (*{cs.State}*)"));
+                           .Select(cs => $"- {FormatSystemName(cs.StarSystem.Name)} - Fight for *{cs.FightFor.Name}* against *{cs.FightAgainst.Name}* - {cs.FightForWonDays} vs {cs.FightAgainstWonDays} (*{cs.State}*){ShowDescription(cs)}"));
         }
         else
         {
@@ -168,5 +168,10 @@ $@"**Election Systems**
         // The < > prevent auto-embed creation for the links.
         // return $"[{systemName}](<https://inara.cz/elite/search/?search={WebUtility.UrlEncode(systemName)}>)";
         return $"{systemName}";
+    }
+
+    internal static string ShowDescription(Suggestion suggestion)
+    {
+        return string.IsNullOrWhiteSpace(suggestion.Description) ? string.Empty : $" ({suggestion.Description})";
     }
 }

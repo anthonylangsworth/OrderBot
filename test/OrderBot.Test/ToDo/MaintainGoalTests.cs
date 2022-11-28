@@ -134,7 +134,7 @@ internal class MaintainGoalTests
                 flyingFishControl,
                 new HashSet<Presence> { flyingFishControl, blackSwanInPolaris },
                 new HashSet<Conflict>()
-            ).Returns(new Suggestion[] { new InfluenceSuggestion(polaris, flyingFishControl.MinorFaction, false, flyingFishControl.Influence, "Avoid Control" ) })
+            ).Returns(new Suggestion[] { new InfluenceSuggestion(polaris, flyingFishControl.MinorFaction, false, flyingFishControl.Influence, SuggestionDescriptions.AvoidControl ) })
              .SetName("AddActions Controlling"),
             new TestCaseData(
                 flyingFishBelowLower,
@@ -144,7 +144,7 @@ internal class MaintainGoalTests
                 {
                     new ConflictSuggestion(
                         polaris, bloatedJellyFish, flyingVsJellyFishWar.MinorFaction2WonDays,
-                        flyingFish, flyingVsJellyFishWar.MinorFaction1WonDays, ConflictState.CloseDefeat, flyingVsJellyFishWar.WarType, "Avoid Control")
+                        flyingFish, flyingVsJellyFishWar.MinorFaction1WonDays, ConflictState.CloseDefeat, flyingVsJellyFishWar.WarType, SuggestionDescriptions.AvoidControl)
                 })
              .SetName("AddActions War Against Controlling Faction"),
             new TestCaseData(
@@ -155,7 +155,7 @@ internal class MaintainGoalTests
                 {
                     new ConflictSuggestion(
                         polaris, blackSwans, swanVsFlyingFishElection.MinorFaction2WonDays,
-                        flyingFish, swanVsFlyingFishElection.MinorFaction1WonDays, ConflictState.CloseDefeat, swanVsFlyingFishElection.WarType, "Avoid Control")
+                        flyingFish, swanVsFlyingFishElection.MinorFaction1WonDays, ConflictState.CloseDefeat, swanVsFlyingFishElection.WarType, SuggestionDescriptions.AvoidControl)
                 })
              .SetName("AddActions Election Against Faction when Controlling"),
             new TestCaseData(

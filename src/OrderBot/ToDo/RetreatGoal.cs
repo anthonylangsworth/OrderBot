@@ -43,7 +43,8 @@ internal class RetreatGoal : Goal
             if (presence.Influence >= InfluenceThreshold)
             {
                 yield return new InfluenceSuggestion(
-                    presence.StarSystem, presence.MinorFaction, false, presence.Influence);
+                    presence.StarSystem, presence.MinorFaction, false, presence.Influence,
+                    SuggestionDescriptions.Retreating);
             }
         }
     }

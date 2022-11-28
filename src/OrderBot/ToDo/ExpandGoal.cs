@@ -43,7 +43,8 @@ internal class ExpandGoal : Goal
             if (presence.Influence < InfluenceThreshold)
             {
                 yield return new InfluenceSuggestion(
-                    presence.StarSystem, presence.MinorFaction, true, presence.Influence);
+                    presence.StarSystem, presence.MinorFaction, true, presence.Influence,
+                    SuggestionDescriptions.Expanding);
             }
         }
     }

@@ -98,13 +98,13 @@ internal class RetreatGoalTests
                 at,
                 new HashSet<Presence> { at },
                 new HashSet<Conflict>()
-            ).Returns(new Suggestion[] { new InfluenceSuggestion(polaris, at.MinorFaction, false, at.Influence) })
+            ).Returns(new Suggestion[] { new InfluenceSuggestion(polaris, at.MinorFaction, false, at.Influence, SuggestionDescriptions.Retreating) })
              .SetName("AddActions At"),
             new TestCaseData(
                 above,
                 new HashSet<Presence> { above },
                 new HashSet<Conflict>()
-            ).Returns(new Suggestion[] { new InfluenceSuggestion(polaris, above.MinorFaction, false, above.Influence) })
+            ).Returns(new Suggestion[] { new InfluenceSuggestion(polaris, above.MinorFaction, false, above.Influence, SuggestionDescriptions.Retreating) })
              .SetName("AddActions Above"),
             new TestCaseData(
                 below,

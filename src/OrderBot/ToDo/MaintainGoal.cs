@@ -45,7 +45,7 @@ internal class MaintainGoal : Goal
             if (systemPresences.Count > 1)
             {
                 ConflictSuggestion? conflictSuggestion = GetConflict(systemConflicts,
-                    c => Fight.Against(presence.MinorFaction, c, "Avoid Control"));
+                    c => Fight.Against(presence.MinorFaction, c, SuggestionDescriptions.AvoidControl));
                 if (conflictSuggestion != null)
                 {
                     yield return conflictSuggestion;
@@ -53,14 +53,16 @@ internal class MaintainGoal : Goal
                 else
                 {
                     yield return new InfluenceSuggestion(
-                        presence.StarSystem, presence.MinorFaction, false, presence.Influence, "Avoid Control");
+                        presence.StarSystem, presence.MinorFaction, false, presence.Influence,
+                        SuggestionDescriptions.AvoidControl);
                 }
             }
         }
         else
         {
             ConflictSuggestion? conflictSuggestion = GetConflict(systemConflicts,
-                c => Fight.Between(controllingMinorFaction.MinorFaction, presence.MinorFaction, c, "Avoid Control"),
+                c => Fight.Between(controllingMinorFaction.MinorFaction, presence.MinorFaction, c,
+                SuggestionDescriptions.AvoidControl),
                 c => Fight.For(presence.MinorFaction, c));
             if (conflictSuggestion != null)
             {

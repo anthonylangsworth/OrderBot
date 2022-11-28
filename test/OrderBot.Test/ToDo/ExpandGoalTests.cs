@@ -92,7 +92,7 @@ internal class ExpandGoalTests
                 below,
                 new HashSet<Presence>() { below },
                 new HashSet<Conflict>()
-            ).Returns(new [] { new InfluenceSuggestion(polaris, flyingFish, true, below.Influence)})
+            ).Returns(new [] { new InfluenceSuggestion(polaris, flyingFish, true, below.Influence, SuggestionDescriptions.Expanding)})
              .SetName("AddActions Below"),
             new TestCaseData(
                 at,
