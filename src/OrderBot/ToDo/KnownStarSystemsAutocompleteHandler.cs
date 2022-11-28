@@ -7,6 +7,7 @@ namespace OrderBot.ToDo;
 /// <summary>
 /// Autocomplete handler for known star systems.
 /// </summary>
+/// <seealso cref="StarSystemsAutocompleteHandler"/>
 internal class KnownStarSystemsAutocompleteHandler : AutocompleteHandler
 {
     public KnownStarSystemsAutocompleteHandler(OrderBotDbContext dbContext)

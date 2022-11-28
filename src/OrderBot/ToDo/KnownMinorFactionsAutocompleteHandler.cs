@@ -7,6 +7,7 @@ namespace OrderBot.ToDo;
 /// <summary>
 /// Autocomplete handler for known minor factions.
 /// </summary>
+/// <seealso cref="MinorFactionsAutocompleteHandler"/>
 internal class KnownMinorFactionsAutocompleteHandler : AutocompleteHandler
 {
     public KnownMinorFactionsAutocompleteHandler(OrderBotDbContext dbContext)

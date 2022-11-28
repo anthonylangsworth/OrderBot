@@ -97,7 +97,10 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
         [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Set(
-            [Summary("minor-faction", "Start supporting this minor faction")]
+            [
+                Summary("minor-faction", "Start supporting this minor faction"),
+                Autocomplete(typeof(MinorFactionsAutocompleteHandler))
+            ]
             string name
         )
         {
@@ -174,9 +177,15 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
         [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Add(
-            [Summary("minor-faction", "The minor faction")]
+            [
+                Summary("minor-faction", "The minor faction"),
+                Autocomplete(typeof(MinorFactionsAutocompleteHandler))
+            ]
             string minorFactionName,
-            [Summary("star-system", "The star system")]
+            [
+                Summary("star-system", "The star system"),
+                Autocomplete(typeof(StarSystemsAutocompleteHandler))
+            ]
             string starSystemName,
             [
                 Summary("goal", "The intention or aim"),
