@@ -16,9 +16,9 @@ This Discord bot can send alerts to a Discord channel when unknown carriers jump
 
 Suggested BGS work includes explanations to help players understand relevant in-game actions. The example below is shown as markdown to prevent Github auto-formatting the output differently to Discord. 
 
-The format is a work in progress so this may be out of date. The format's goal is to clearly communicate what needs to be done to an average player based on the most recent data received from EDDN, the supported minor faction and any goals.
+The format is a work in progress so this may be out of date. The format aims to clearly communicate what needs to be done to an average player based on the most recent data received from EDDN, the supported minor faction and any goals.
 
-A (fictional) example of supporting the Anti Xeno Initiative, who is active in a few systems in the Pleiades, is given below. They are fighting in two wars and also have a goal to `Maintain` *Operation Ida* in Merope. 
+A (fictional) example of supporting the Anti Xeno Initiative, who is active in a few systems in the Pleiades, is given below. They are fighting in two wars and also have a [goal](doc/Goals.md) to `Maintain` *Operation Ida* in Merope. 
 
 ```markdown
 ---------------------------------------------------------------------------------------------------------------------------------
