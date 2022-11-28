@@ -18,6 +18,8 @@ Suggested BGS work includes explanations to help players understand relevant in-
 
 The format is a work in progress so this may be out of date. The format's goal is to clearly communicate what needs to be done to an average player based on the most recent data received from EDDN, the supported minor faction and any goals.
 
+A (fictional) example of supporting the Anti Xeno Initiative, who is active in a few systems in the Pleiades, is given below. They are fighting in two wars and also have a goal to `Maintain` *Operation Ida* in Merope. 
+
 ```markdown
 ---------------------------------------------------------------------------------------------------------------------------------
 ***Pro-Anti Xeno Initiative** support required* - Work for *Anti Xeno Initiative* in these systems.
