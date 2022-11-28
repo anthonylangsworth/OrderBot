@@ -38,36 +38,51 @@ E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dar
     */
 
     [Test]
-    public void Format_ProAndAnti()
+    public void Format_ProAntiAndConflicts()
     {
-        MinorFaction theDarkWheel = new() { Name = MinorFactionNames.DarkWheel };
-        ToDoList toDoList = new(theDarkWheel.Name);
+        MinorFaction axi = new() { Name = MinorFactionNames.AXI };
+        MinorFaction operationIda = new() { Name = MinorFactionNames.OperationIda };
+        MinorFaction antHillMob = new() { Name = "The Ant Hill Mob" };
+        StarSystem maia = new() { Name = StarSystemNames.Maia };
+        StarSystem celaeno = new() { Name = StarSystemNames.Celaeno };
+        StarSystem merope = new() { Name = StarSystemNames.Merope };
+        StarSystem atlas = new() { Name = StarSystemNames.Atlas };
+        StarSystem asterope = new() { Name = StarSystemNames.Asterope };
+        StarSystem pleione = new() { Name = StarSystemNames.Pleione };
+        StarSystem electra = new() { Name = StarSystemNames.Electra };
+
+        ToDoList toDoList = new(axi.Name);
         toDoList.Suggestions.UnionWith(
             new Suggestion[]
             {
-                    new InfluenceSuggestion(new StarSystem() { Name = "Shinrarta Dezhra" }, theDarkWheel, true, 0.1),
-                    new InfluenceSuggestion(new StarSystem() { Name = "Tau Ceti" }, theDarkWheel, true, 0.2),
-                    new InfluenceSuggestion(new StarSystem() { Name = "Wolf 359" }, theDarkWheel, false, 0.7),
-                    new InfluenceSuggestion(new StarSystem() { Name = "Alpha Centauri" }, theDarkWheel, false, 0.65),
-                    new SecuritySuggestion(new StarSystem() { Name = "Maia" }, SecurityLevel.Low )
+                new InfluenceSuggestion(maia, axi, true, 0.1),
+                new InfluenceSuggestion(celaeno, axi, true, 0.2),
+                new InfluenceSuggestion(merope, axi, false, 0.7),
+                new InfluenceSuggestion(atlas, axi, false, 0.65),
+                new InfluenceSuggestion(asterope, axi, true, 0.05),
+                new ConflictSuggestion(pleione, axi, 2, antHillMob, 1, ConflictState.CloseVictory, WarType.War),
+                new ConflictSuggestion(electra, axi, 1, antHillMob, 3, ConflictState.Defeat, WarType.War),
+                new InfluenceSuggestion(merope, operationIda, true, 0.10)
             });
         Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------
-***Pro-The Dark Wheel** support required* - Work for *The Dark Wheel* in these systems.
-E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dark Wheel* controlled stations.
-- Shinrarta Dezhra - 10%
-- Tau Ceti - 20%
+***Pro-Anti Xeno Initiative** support required* - Work for *Anti Xeno Initiative* in these systems.
+E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *Anti Xeno Initiative* controlled stations.
+- Asterope - 5%
+- Maia - 10%
+- Celaeno - 20%
 
-***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to avoid an unwanted expansion.
-- Wolf 359 - 70%
-- Alpha Centauri - 65%
+***Anti-Anti Xeno Initiative** support required* - Work ONLY for the other factions in the listed systems to bring *Anti Xeno Initiative*'s INF back to manageable levels and to avoid an unwanted expansion.
+- Merope - 70%
+- Atlas - 65%
 
 ***Urgent Pro-Non-Native/Coalition Faction** support required* - Work for ONLY the listed factions in the listed systems to avoid a retreat or to disrupt system interference.
-(None)
+- *Operation Ida* in Merope - 10%
 
 ---------------------------------------------------------------------------------------------------------------------------------
 **War Systems**
-(None)
+- Electra - Fight for *Anti Xeno Initiative* against *The Ant Hill Mob* - 1 vs 3 (*Defeat*)
+- Pleione - Fight for *Anti Xeno Initiative* against *The Ant Hill Mob* - 2 vs 1 (*Close Victory*)
 
 **Election Systems**
 (None)

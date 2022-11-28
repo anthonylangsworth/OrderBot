@@ -80,7 +80,7 @@ $@"***Anti-{toDoList.MinorFaction}** support required* - Work ONLY for the other
     {
         return
 $@"***Urgent Pro-Non-Native/Coalition Faction** support required* - Work for ONLY the listed factions in the listed systems to avoid a retreat or to disrupt system interference.
-{GetInfluenceList(toDoList, i => i.MinorFaction.Name != toDoList.MinorFaction, ascending: true)}";
+{GetInfluenceList(toDoList, i => i.MinorFaction.Name != toDoList.MinorFaction && i.Pro, ascending: true, showFaction: true)}";
     }
 
     internal static string Security(ToDoList toDoList)
@@ -119,7 +119,7 @@ $@"**Election Systems**
 {GetWarList(toDoList, cs => Conflict.IsElection(cs.WarType))}";
     }
 
-    internal static string GetInfluenceList(ToDoList toDoList, Predicate<InfluenceSuggestion> include, bool ascending)
+    internal static string GetInfluenceList(ToDoList toDoList, Predicate<InfluenceSuggestion> include, bool ascending, bool showFaction = false)
     {
         IEnumerable<InfluenceSuggestion> suggestions =
             toDoList.Suggestions.Where(s => s is InfluenceSuggestion infSuggestion && include(infSuggestion))
@@ -131,7 +131,7 @@ $@"**Election Systems**
             IEnumerable<InfluenceSuggestion> sortedActions =
                 ascending ? suggestions.OrderBy(action => action.Influence) : suggestions.OrderByDescending(action => action.Influence);
             result = string.Join(Environment.NewLine,
-                sortedActions.Select(action => $"- {FormatSystemName(action.StarSystem.Name)} - {Math.Round(action.Influence * 100, 1)}%{ShowDescription(action)}"));
+                sortedActions.Select(action => $"- {(showFaction ? $"*{action.MinorFaction.Name}* in " : "")}{FormatSystemName(action.StarSystem.Name)} - {Math.Round(action.Influence * 100, 1)}%{ShowDescription(action)}"));
         }
         else
         {

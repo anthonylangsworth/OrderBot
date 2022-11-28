@@ -16,28 +16,27 @@ This Discord bot can send alerts to a Discord channel when unknown carriers jump
 
 Suggested BGS work includes explanations to help players understand relevant in-game actions. The example below is shown as markdown to prevent Github auto-formatting the output differently to Discord. 
 
-The format is a work in progress so this may be out of date.
+The format is a work in progress so this may be out of date. The format's goal is to clearly communicate what needs to be done to an average player based on the most recent data received from EDDN, the supported minor faction and any goals.
 
-```
+```markdown
 ---------------------------------------------------------------------------------------------------------------------------------
-***Pro-The Dark Wheel** support required* - Work for EDA in these systems.
-E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dark Wheel* controlled stations.
-- Shinrarta Dezhra - 10%
-- Tau Ceti - 20%
- 
-Redeem bounty vouchers to increase security in systems *The Dark Wheel* controls.
-- Maia - Low
+***Pro-Anti Xeno Initiative** support required* - Work for *Anti Xeno Initiative* in these systems.
+E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *Anti Xeno Initiative* controlled stations.
+- Asterope - 5%
+- Maia - 10%
+- Celaeno - 20%
 
-***Anti-The Dark Wheel** support required* - Work ONLY for the other factions in the listed systems to bring *The Dark Wheel*'s INF back to manageable levels and to > avoid an unwanted expansion.
-- Wolf 359 - 70%
-- Alpha Centauri - 65%
+***Anti-Anti Xeno Initiative** support required* - Work ONLY for the other factions in the listed systems to bring *Anti Xeno Initiative*'s INF back to manageable levels and to avoid an unwanted expansion.
+- Merope - 70%
+- Atlas - 65%
 
 ***Urgent Pro-Non-Native/Coalition Faction** support required* - Work for ONLY the listed factions in the listed systems to avoid a retreat or to disrupt system interference.
-(None)
+- *Operation Ida* in Merope - 10%
 
 ---------------------------------------------------------------------------------------------------------------------------------
 **War Systems**
-(None)
+- Electra - Fight for *Anti Xeno Initiative* against *The Ant Hill Mob* - 1 vs 3 (*Defeat*)
+- Pleione - Fight for *Anti Xeno Initiative* against *The Ant Hill Mob* - 2 vs 1 (*Close Victory*)
 
 **Election Systems**
 (None)

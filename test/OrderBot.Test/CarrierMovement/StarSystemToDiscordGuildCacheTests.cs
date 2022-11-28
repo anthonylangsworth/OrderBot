@@ -15,7 +15,7 @@ internal class StarSystemToDiscordGuildCacheTests : CacheTest<StarSystemToDiscor
 
     [Test]
     [TestCase(StarSystemNames.Archernar, ExpectedResult = false, Description = "Unknown system")]
-    [TestCase(StarSystemNames.Caelano, ExpectedResult = false, Description = "Unknown system")]
+    [TestCase(StarSystemNames.Celaeno, ExpectedResult = false, Description = "Unknown system")]
     public bool IsMonitoredStarSystem_None(string starSystemName)
     {
         return Cache.IsMonitoredStarSystem(DbContext, starSystemName);
@@ -27,7 +27,7 @@ internal class StarSystemToDiscordGuildCacheTests : CacheTest<StarSystemToDiscor
     [TestCase(StarSystemNames.AlphaCentauri, ExpectedResult = true, Description = "Minor faction and goal")]
     [TestCase(StarSystemNames.BarnardsStar, ExpectedResult = true, Description = "One goal only")]
     [TestCase(StarSystemNames.Archernar, ExpectedResult = false, Description = "Known system but no goals or presences")]
-    [TestCase(StarSystemNames.Caelano, ExpectedResult = false, Description = "Unknown system")]
+    [TestCase(StarSystemNames.Celaeno, ExpectedResult = false, Description = "Unknown system")]
     public bool IsMonitoredStarSystem(string starSystemName)
     {
         StarSystem sol = new() { Name = StarSystemNames.Sol };

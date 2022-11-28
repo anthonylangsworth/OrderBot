@@ -24,13 +24,13 @@ internal class GoalStarSystemsCacheTests : CacheTest<GoalStarSystemsCache>
     [Test]
     [TestCase(StarSystemNames.Sirius, ExpectedResult = true)]
     [TestCase(StarSystemNames.Betelgeuse, ExpectedResult = true)]
-    [TestCase(StarSystemNames.Caelano, ExpectedResult = false)]
+    [TestCase(StarSystemNames.Celaeno, ExpectedResult = false)]
     [TestCase(StarSystemNames.Asterope, ExpectedResult = false)]
     public bool HasGoal(string starSystemName)
     {
         StarSystem sirius = new() { Name = StarSystemNames.Sirius };
         StarSystem betelgeuse = new() { Name = StarSystemNames.Betelgeuse };
-        StarSystem caelano = new() { Name = StarSystemNames.Caelano };
+        StarSystem caelano = new() { Name = StarSystemNames.Celaeno };
         DbContext.StarSystems.AddRange(sirius, betelgeuse, caelano);
 
         MinorFaction canonn = new() { Name = MinorFactionNames.Canonn };
