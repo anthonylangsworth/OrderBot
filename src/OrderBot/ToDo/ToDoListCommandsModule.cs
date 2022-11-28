@@ -208,7 +208,10 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
         [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Remove(
-            [Summary("minor-faction", "The minor faction")]
+            [
+                Summary("minor-faction", "The minor faction"),
+                Autocomplete(typeof(KnownMinorFactionsAutocompleteHandler))
+            ]
             string minorFactionName,
             [Summary("star-system", "The star system")]
             string starSystemName
