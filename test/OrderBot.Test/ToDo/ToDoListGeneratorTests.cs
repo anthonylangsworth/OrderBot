@@ -1,24 +1,15 @@
 ﻿using NUnit.Framework;
 using OrderBot.Core;
-using OrderBot.EntityFramework;
 using OrderBot.ToDo;
-using System.Transactions;
 
 namespace OrderBot.Test.ToDo;
 
-internal class ToDoListGeneratorTests
+internal class ToDoListGeneratorTests : DbTest
 {
-    public ToDoListGeneratorTests()
-    {
-        DbContextFactory = new(useInMemory: false);
-        DbContext = DbContextFactory.CreateDbContext();
-    }
-
     [SetUp]
-    public void SetUp()
+    public override void SetUp()
     {
-        TearDown();
-        TransactionScope = new();
+        base.SetUp();
         DiscordGuild = new DiscordGuild() { GuildId = 382284915670253569, Name = "Test Guild" };
         PurplePeopleEaters = new MinorFaction() { Name = "Purple People Eaters" };
         DbContext.MinorFactions.Add(PurplePeopleEaters);
@@ -28,18 +19,8 @@ internal class ToDoListGeneratorTests
         DbContext.SaveChanges();
     }
 
-    [TearDown]
-    public void TearDown()
-    {
-        // Intentionally do not Compelete(), ensuring changes are rolled back
-        TransactionScope?.Dispose();
-    }
-
     internal DiscordGuild DiscordGuild { get; set; } = null!;
     internal MinorFaction PurplePeopleEaters { get; set; } = null!;
-    internal OrderBotDbContextFactory DbContextFactory { get; }
-    internal TransactionScope TransactionScope { get; set; } = null!;
-    internal OrderBotDbContext DbContext { get; }
 
     [Test]
     public void Ctor()
@@ -101,7 +82,7 @@ internal class ToDoListGeneratorTests
         ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions,
-            Is.EquivalentTo(new[] { new InfluenceSuggestion() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence, Pro = true } })
+            Is.EquivalentTo(new[] { new InfluenceSuggestion(alphCentauri, PurplePeopleEaters, true, starSystemMinorFaction.Influence) })
               .Using(DbInfluenceSuggestionEqualityComparer.Instance));
     }
 
@@ -124,7 +105,7 @@ internal class ToDoListGeneratorTests
         ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions,
-            Is.EquivalentTo(new[] { new InfluenceSuggestion() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence, Pro = true } })
+            Is.EquivalentTo(new[] { new InfluenceSuggestion(alphCentauri, PurplePeopleEaters, true, starSystemMinorFaction.Influence) })
               .Using(DbInfluenceSuggestionEqualityComparer.Instance));
     }
 
@@ -149,7 +130,7 @@ internal class ToDoListGeneratorTests
         ToDoList toDoList = generator.Generate(DiscordGuild.GuildId);
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions,
-            Is.EquivalentTo(new[] { new InfluenceSuggestion() { StarSystem = alphCentauri, Influence = starSystemMinorFaction.Influence, Pro = true } })
+            Is.EquivalentTo(new[] { new InfluenceSuggestion(alphCentauri, PurplePeopleEaters, true, starSystemMinorFaction.Influence) })
               .Using(DbInfluenceSuggestionEqualityComparer.Instance));
     }
 
@@ -179,8 +160,8 @@ internal class ToDoListGeneratorTests
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions, Is.EquivalentTo(
            new Suggestion[] {
-               new InfluenceSuggestion() { StarSystem = alphCentauri, Influence = purplePeopleEastersAlphaCentauri.Presence.Influence, Pro = true },
-               new InfluenceSuggestion() { StarSystem = maia, Influence = purplePeopleEastersMaia.Presence.Influence, Pro = false }
+               new InfluenceSuggestion(alphCentauri, purplePeopleEastersAlphaCentauri.Presence.MinorFaction, true, purplePeopleEastersAlphaCentauri.Presence.Influence),
+               new InfluenceSuggestion(maia, purplePeopleEastersMaia.Presence.MinorFaction, false, purplePeopleEastersMaia.Presence.Influence)
            }).Using(DbInfluenceSuggestionEqualityComparer.Instance));
     }
 
@@ -220,16 +201,8 @@ internal class ToDoListGeneratorTests
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions, Is.EquivalentTo(
            new Suggestion[] {
-               new ConflictSuggestion()
-               {
-                   StarSystem = conflict.StarSystem,
-                   FightFor = conflict.MinorFaction1,
-                   FightForWonDays = conflict.MinorFaction1WonDays,
-                   FightAgainst = conflict.MinorFaction2,
-                   FightAgainstWonDays = conflict.MinorFaction2WonDays,
-                   State = ConflictState.CloseVictory,
-                   WarType = conflict.WarType
-               }
+               new ConflictSuggestion(conflict.StarSystem, conflict.MinorFaction1, conflict.MinorFaction1WonDays,
+                   conflict.MinorFaction2,conflict.MinorFaction2WonDays, ConflictState.CloseVictory, conflict.WarType)
            }).Using(DbConflictSuggestionEqualityComparer.Instance));
     }
 
@@ -276,16 +249,8 @@ internal class ToDoListGeneratorTests
         Assert.That(toDoList.MinorFaction, Is.EqualTo(PurplePeopleEaters.Name));
         Assert.That(toDoList.Suggestions, Is.EquivalentTo(
            new Suggestion[] {
-               new ConflictSuggestion()
-               {
-                   StarSystem = conflict.StarSystem,
-                   FightFor = conflict.MinorFaction2,
-                   FightForWonDays = conflict.MinorFaction2WonDays,
-                   FightAgainst = conflict.MinorFaction1,
-                   FightAgainstWonDays = conflict.MinorFaction1WonDays,
-                   State = ConflictState.CloseDefeat,
-                   WarType = conflict.WarType
-               }
+               new ConflictSuggestion(conflict.StarSystem, conflict.MinorFaction2, conflict.MinorFaction2WonDays,
+                   conflict.MinorFaction1,conflict.MinorFaction1WonDays, ConflictState.CloseDefeat, conflict.WarType)
            }).Using(DbConflictSuggestionEqualityComparer.Instance));
     }
 }

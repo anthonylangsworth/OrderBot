@@ -1,6 +1,8 @@
-﻿namespace OrderBot.ToDo;
+﻿using OrderBot.Core;
 
-public record SecuritySuggestion : Suggestion, IEquatable<SecuritySuggestion?>
+namespace OrderBot.ToDo;
+
+public record SecuritySuggestion(StarSystem StarSystem, string SecurityLevel, string? Description = null)
+    : Suggestion(StarSystem, Description), IEquatable<SecuritySuggestion?>
 {
-    public string SecurityLevel { get; set; } = null!;
 }

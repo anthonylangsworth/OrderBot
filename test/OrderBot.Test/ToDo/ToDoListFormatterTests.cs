@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using OrderBot.Core;
+using OrderBot.Test.Samples;
 using OrderBot.ToDo;
 
 namespace OrderBot.Test.ToDo;
@@ -39,15 +40,16 @@ E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *The Dar
     [Test]
     public void Format_ProAndAnti()
     {
-        ToDoList toDoList = new("The Dark Wheel");
+        MinorFaction theDarkWheel = new() { Name = MinorFactionNames.DarkWheel };
+        ToDoList toDoList = new(theDarkWheel.Name);
         toDoList.Suggestions.UnionWith(
             new Suggestion[]
             {
-                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Shinrarta Dezhra" }, Influence = 0.1, Pro = true },
-                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Tau Ceti" }, Influence = 0.2, Pro = true },
-                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Wolf 359" }, Influence = 0.7, Pro = false },
-                    new InfluenceSuggestion() { StarSystem = new StarSystem() { Name = "Alpha Centauri" }, Influence = 0.65, Pro = false },
-                    new SecuritySuggestion() { StarSystem = new StarSystem() { Name = "Maia" }, SecurityLevel = SecurityLevel.Low }
+                    new InfluenceSuggestion(new StarSystem() { Name = "Shinrarta Dezhra" }, theDarkWheel, true, 0.1),
+                    new InfluenceSuggestion(new StarSystem() { Name = "Tau Ceti" }, theDarkWheel, true, 0.2),
+                    new InfluenceSuggestion(new StarSystem() { Name = "Wolf 359" }, theDarkWheel, false, 0.7),
+                    new InfluenceSuggestion(new StarSystem() { Name = "Alpha Centauri" }, theDarkWheel, false, 0.65),
+                    new SecuritySuggestion(new StarSystem() { Name = "Maia" }, SecurityLevel.Low )
             });
         Assert.That(new ToDoListFormatter().Format(toDoList), Is.EqualTo(
 @"---------------------------------------------------------------------------------------------------------------------------------

@@ -34,39 +34,34 @@ internal class MaintainGoal : Goal
     public static double MaxInfuenceGap => 0.03;
 
     /// </inheritdoc>
-    public override IEnumerable<Suggestion> GetSuggestions(Presence starSystemMinorFaction,
+    public override IEnumerable<Suggestion> GetSuggestions(Presence presence,
         IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts)
     {
-        CheckAddActionsPreconditions(starSystemMinorFaction, systemPresences, systemConflicts);
+        CheckAddActionsPreconditions(presence, systemPresences, systemConflicts);
 
         Presence controllingMinorFaction = GetControllingPresence(systemPresences);
-        if (controllingMinorFaction.MinorFaction == starSystemMinorFaction.MinorFaction)
+        if (controllingMinorFaction.MinorFaction == presence.MinorFaction)
         {
             if (systemPresences.Count > 1)
             {
                 ConflictSuggestion? conflictSuggestion = GetConflict(systemConflicts,
-                    c => Fight.Against(starSystemMinorFaction.MinorFaction, c, "Avoid Control"));
+                    c => Fight.Against(presence.MinorFaction, c, "Avoid Control"));
                 if (conflictSuggestion != null)
                 {
                     yield return conflictSuggestion;
                 }
                 else
                 {
-                    yield return new InfluenceSuggestion
-                    {
-                        StarSystem = starSystemMinorFaction.StarSystem,
-                        Influence = starSystemMinorFaction.Influence,
-                        Description = "Avoid Control",
-                        Pro = false
-                    };
+                    yield return new InfluenceSuggestion(
+                        presence.StarSystem, presence.MinorFaction, false, presence.Influence, "Avoid Control");
                 }
             }
         }
         else
         {
             ConflictSuggestion? conflictSuggestion = GetConflict(systemConflicts,
-                c => Fight.Between(controllingMinorFaction.MinorFaction, starSystemMinorFaction.MinorFaction, c, "Avoid Control"),
-                c => Fight.For(starSystemMinorFaction.MinorFaction, c));
+                c => Fight.Between(controllingMinorFaction.MinorFaction, presence.MinorFaction, c, "Avoid Control"),
+                c => Fight.For(presence.MinorFaction, c));
             if (conflictSuggestion != null)
             {
                 yield return conflictSuggestion;
@@ -74,23 +69,15 @@ internal class MaintainGoal : Goal
             else
             {
                 double maxInfluence = controllingMinorFaction.Influence - MaxInfuenceGap;
-                if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
+                if (presence.Influence < LowerInfluenceThreshold)
                 {
-                    yield return new InfluenceSuggestion
-                    {
-                        StarSystem = starSystemMinorFaction.StarSystem,
-                        Influence = starSystemMinorFaction.Influence,
-                        Pro = true
-                    };
+                    yield return new InfluenceSuggestion(
+                        presence.StarSystem, presence.MinorFaction, true, presence.Influence);
                 }
-                else if (starSystemMinorFaction.Influence > maxInfluence)
+                else if (presence.Influence > maxInfluence)
                 {
-                    yield return new InfluenceSuggestion
-                    {
-                        StarSystem = starSystemMinorFaction.StarSystem,
-                        Influence = starSystemMinorFaction.Influence,
-                        Pro = true
-                    };
+                    yield return new InfluenceSuggestion(
+                        presence.StarSystem, presence.MinorFaction, false, presence.Influence);
                 }
             }
         }

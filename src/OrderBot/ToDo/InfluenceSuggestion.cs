@@ -1,7 +1,9 @@
-﻿namespace OrderBot.ToDo;
+﻿using OrderBot.Core;
 
-public record InfluenceSuggestion : Suggestion, IEquatable<InfluenceSuggestion?>
+namespace OrderBot.ToDo;
+
+public record InfluenceSuggestion(StarSystem StarSystem, MinorFaction MinorFaction,
+    bool Pro, double Influence = 0, string? Description = null)
+    : Suggestion(StarSystem, Description), IEquatable<InfluenceSuggestion?>
 {
-    public double Influence { get; set; }
-    public bool Pro { get; set; }
 }

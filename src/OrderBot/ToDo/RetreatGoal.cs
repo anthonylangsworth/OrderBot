@@ -27,27 +27,23 @@ internal class RetreatGoal : Goal
     public static double InfluenceThreshold => 0.05;
 
     /// <inheritdoc/>
-    public override IEnumerable<Suggestion> GetSuggestions(Presence starSystemMinorFaction,
+    public override IEnumerable<Suggestion> GetSuggestions(Presence presence,
         IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts)
     {
-        CheckAddActionsPreconditions(starSystemMinorFaction, systemPresences, systemConflicts);
+        CheckAddActionsPreconditions(presence, systemPresences, systemConflicts);
 
         ConflictSuggestion? conflictSuggestion = GetConflict(systemConflicts,
-            c => Fight.Against(starSystemMinorFaction.MinorFaction, c));
+            c => Fight.Against(presence.MinorFaction, c));
         if (conflictSuggestion != null)
         {
             yield return conflictSuggestion;
         }
         else
         {
-            if (starSystemMinorFaction.Influence >= InfluenceThreshold)
+            if (presence.Influence >= InfluenceThreshold)
             {
-                yield return new InfluenceSuggestion
-                {
-                    StarSystem = starSystemMinorFaction.StarSystem,
-                    Influence = starSystemMinorFaction.Influence,
-                    Pro = false
-                };
+                yield return new InfluenceSuggestion(
+                    presence.StarSystem, presence.MinorFaction, false, presence.Influence);
             }
         }
     }

@@ -55,17 +55,10 @@ internal static class Fight
             noConflict = true;
         }
 
-        return noConflict ? null : new()
-        {
-            StarSystem = conflict.StarSystem,
-            FightFor = fightForMinorFaction,
-            FightForWonDays = fightForWonDays,
-            FightAgainst = fightAgainstMinorFaction,
-            FightAgainstWonDays = fightAgainstWonDays,
-            State = Conflict.GetState(conflict.Status, fightForWonDays, fightAgainstWonDays),
-            WarType = conflict.WarType,
-            Description = description
-        };
+        return noConflict ? null : new(conflict.StarSystem, fightForMinorFaction, fightForWonDays,
+            fightAgainstMinorFaction, fightAgainstWonDays,
+            Conflict.GetState(conflict.Status, fightForWonDays, fightAgainstWonDays),
+            conflict.WarType, description);
     }
 
     /// <summary>
@@ -154,16 +147,9 @@ internal static class Fight
             noConflict = true;
         }
 
-        return noConflict ? null : new()
-        {
-            StarSystem = conflict.StarSystem,
-            FightFor = fightForMinorFaction,
-            FightForWonDays = fightForWonDays,
-            FightAgainst = fightAgainstMinorFaction,
-            FightAgainstWonDays = fightAgainstWonDays,
-            State = Conflict.GetState(conflict.Status, fightForWonDays, fightAgainstWonDays),
-            WarType = conflict.WarType,
-            Description = description
-        };
+        return noConflict ? null : new(conflict.StarSystem, fightForMinorFaction, fightForWonDays,
+            fightAgainstMinorFaction, fightAgainstWonDays,
+            Conflict.GetState(conflict.Status, fightForWonDays, fightAgainstWonDays),
+            conflict.WarType, description);
     }
 }

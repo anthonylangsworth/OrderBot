@@ -30,26 +30,12 @@ internal class FightTests
 
         return new TestCaseData[]
         {
-            new TestCaseData(blueSparrows, blueVsRed).Returns(new ConflictSuggestion
-            {
-                FightFor = blueSparrows,
-                FightForWonDays = blueVsRed.MinorFaction1WonDays,
-                FightAgainst = redEagles,
-                FightAgainstWonDays = blueVsRed.MinorFaction2WonDays,
-                StarSystem = starSystem,
-                State = ConflictState.CloseDefeat,
-                WarType = WarType.Election
-            }),
-            new TestCaseData(redEagles, blueVsRed).Returns(new ConflictSuggestion
-            {
-                FightFor = redEagles,
-                FightForWonDays = blueVsRed.MinorFaction2WonDays,
-                FightAgainst = blueSparrows,
-                FightAgainstWonDays = blueVsRed.MinorFaction1WonDays,
-                StarSystem = starSystem,
-                State = ConflictState.CloseVictory,
-                WarType = WarType.Election
-            }),
+            new TestCaseData(blueSparrows, blueVsRed).Returns(
+                new ConflictSuggestion(starSystem, blueSparrows, blueVsRed.MinorFaction1WonDays,
+                    redEagles, blueVsRed.MinorFaction2WonDays, ConflictState.CloseDefeat, WarType.Election)),
+            new TestCaseData(redEagles, blueVsRed).Returns(
+                new ConflictSuggestion(starSystem, redEagles, blueVsRed.MinorFaction2WonDays,
+                    blueSparrows, blueVsRed.MinorFaction1WonDays, ConflictState.CloseVictory, WarType.Election)),
             new TestCaseData(yellowParrots, blueVsRed).Returns(null)
         };
     }
@@ -78,26 +64,12 @@ internal class FightTests
 
         return new TestCaseData[]
         {
-            new TestCaseData(blueSparrows, blueVsRed).Returns(new ConflictSuggestion
-            {
-                FightFor = redEagles,
-                FightForWonDays = blueVsRed.MinorFaction2WonDays,
-                FightAgainst = blueSparrows,
-                FightAgainstWonDays = blueVsRed.MinorFaction1WonDays,
-                StarSystem = starSystem,
-                State = ConflictState.Victory,
-                WarType = WarType.War
-            }),
-            new TestCaseData(redEagles, blueVsRed).Returns(new ConflictSuggestion
-            {
-                FightFor = blueSparrows,
-                FightForWonDays = blueVsRed.MinorFaction1WonDays,
-                FightAgainst = redEagles,
-                FightAgainstWonDays = blueVsRed.MinorFaction2WonDays,
-                StarSystem = starSystem,
-                State = ConflictState.Defeat,
-                WarType = WarType.War
-            }),
+            new TestCaseData(blueSparrows, blueVsRed).Returns(
+                new ConflictSuggestion(starSystem, redEagles, blueVsRed.MinorFaction2WonDays,
+                    blueSparrows, blueVsRed.MinorFaction1WonDays, ConflictState.Victory, WarType.War)),
+            new TestCaseData(redEagles, blueVsRed).Returns(
+                new ConflictSuggestion(starSystem, blueSparrows, blueVsRed.MinorFaction1WonDays,
+                    redEagles, blueVsRed.MinorFaction2WonDays, ConflictState.Defeat, WarType.War)),
             new TestCaseData(yellowParrots, blueVsRed).Returns(null)
         };
     }
@@ -126,26 +98,12 @@ internal class FightTests
 
         return new TestCaseData[]
         {
-            new TestCaseData(blueSparrows, redEagles, blueVsRed).Returns(new ConflictSuggestion
-            {
-                FightFor = blueSparrows,
-                FightForWonDays = blueVsRed.MinorFaction1WonDays,
-                FightAgainst = redEagles,
-                FightAgainstWonDays = blueVsRed.MinorFaction2WonDays,
-                StarSystem = starSystem,
-                State = ConflictState.CloseDefeat,
-                WarType = WarType.CivilWar
-            }),
-            new TestCaseData(redEagles, blueSparrows, blueVsRed).Returns(new ConflictSuggestion
-            {
-                FightFor = redEagles,
-                FightForWonDays = blueVsRed.MinorFaction2WonDays,
-                FightAgainst = blueSparrows,
-                FightAgainstWonDays = blueVsRed.MinorFaction1WonDays,
-                StarSystem = starSystem,
-                State = ConflictState.CloseVictory,
-                WarType = WarType.CivilWar
-            }),
+            new TestCaseData(blueSparrows, redEagles, blueVsRed).Returns(
+                new ConflictSuggestion(starSystem, blueSparrows, blueVsRed.MinorFaction1WonDays,
+                    redEagles, blueVsRed.MinorFaction2WonDays, ConflictState.CloseDefeat, WarType.CivilWar)),
+            new TestCaseData(redEagles, blueSparrows, blueVsRed).Returns(
+                new ConflictSuggestion(starSystem, redEagles, blueVsRed.MinorFaction2WonDays,
+                    blueSparrows, blueVsRed.MinorFaction1WonDays, ConflictState.CloseVictory, WarType.CivilWar)),
             new TestCaseData(blueSparrows, yellowParrots, blueVsRed).Returns(null),
             new TestCaseData(yellowParrots, blueSparrows, blueVsRed).Returns(null),
             new TestCaseData(yellowParrots, redEagles, blueVsRed).Returns(null),

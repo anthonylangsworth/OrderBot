@@ -98,13 +98,13 @@ internal class RetreatGoalTests
                 at,
                 new HashSet<Presence> { at },
                 new HashSet<Conflict>()
-            ).Returns(new Suggestion[] { new InfluenceSuggestion() { StarSystem = polaris, Influence = at.Influence, Pro = false } })
+            ).Returns(new Suggestion[] { new InfluenceSuggestion(polaris, at.MinorFaction, false, at.Influence) })
              .SetName("AddActions At"),
             new TestCaseData(
                 above,
                 new HashSet<Presence> { above },
                 new HashSet<Conflict>()
-            ).Returns(new Suggestion[] { new InfluenceSuggestion() { StarSystem = polaris, Influence = above.Influence, Pro = false } })
+            ).Returns(new Suggestion[] { new InfluenceSuggestion(polaris, above.MinorFaction, false, above.Influence) })
              .SetName("AddActions Above"),
             new TestCaseData(
                 below,
@@ -112,16 +112,8 @@ internal class RetreatGoalTests
                 new HashSet<Conflict>() { war }
             ).Returns(new Suggestion[]
                 {
-                    new ConflictSuggestion()
-                    {
-                        StarSystem = polaris,
-                        FightFor = bloatedJellyFish,
-                        FightForWonDays = war.MinorFaction2WonDays,
-                        FightAgainst = flyingFish,
-                        FightAgainstWonDays = war.MinorFaction1WonDays,
-                        State = ConflictState.CloseDefeat,
-                        WarType = war.WarType
-                    }
+                    new ConflictSuggestion(polaris, bloatedJellyFish, war.MinorFaction2WonDays,
+                        flyingFish, war.MinorFaction1WonDays, ConflictState.CloseDefeat, war.WarType)
                 })
              .SetName("AddActions War"),
             new TestCaseData(
@@ -130,16 +122,8 @@ internal class RetreatGoalTests
                 new HashSet<Conflict>() { civilWar }
             ).Returns(new Suggestion[]
                 {
-                    new ConflictSuggestion()
-                    {
-                        StarSystem = polaris,
-                        FightFor = bloatedJellyFish,
-                        FightForWonDays = civilWar.MinorFaction1WonDays,
-                        FightAgainst = flyingFish,
-                        FightAgainstWonDays = civilWar.MinorFaction2WonDays,
-                        State = ConflictState.TotalDefeat,
-                        WarType = civilWar.WarType
-                    }
+                    new ConflictSuggestion(polaris, bloatedJellyFish, civilWar.MinorFaction1WonDays,
+                        flyingFish, civilWar.MinorFaction2WonDays, ConflictState.TotalDefeat, civilWar.WarType)
                 })
              .SetName("AddActions CivilWar"),
             new TestCaseData(
@@ -148,16 +132,8 @@ internal class RetreatGoalTests
                 new HashSet<Conflict>() { election }
             ).Returns(new Suggestion[]
                 {
-                    new ConflictSuggestion()
-                    {
-                        StarSystem = polaris,
-                        FightFor = bloatedJellyFish,
-                        FightForWonDays = election.MinorFaction1WonDays,
-                        FightAgainst = flyingFish,
-                        FightAgainstWonDays = election.MinorFaction2WonDays,
-                        State = ConflictState.Victory,
-                        WarType = election.WarType
-                    }
+                    new ConflictSuggestion(polaris, bloatedJellyFish, election.MinorFaction1WonDays,
+                    flyingFish, election.MinorFaction2WonDays, ConflictState.Victory, election.WarType)
                 })
              .SetName("AddActions Election"),
         };

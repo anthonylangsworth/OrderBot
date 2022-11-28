@@ -2,8 +2,6 @@
 
 namespace OrderBot.ToDo;
 
-public abstract record Suggestion
+public abstract record Suggestion(StarSystem StarSystem, string? Description = null)
 {
-    public StarSystem StarSystem { get; init; } = null!;
-    public string? Description { get; set; } = null;
 }

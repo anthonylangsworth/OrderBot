@@ -114,7 +114,7 @@ internal class ControlGoalTests
                 belowLower,
                 new HashSet<Presence>() { belowLower },
                 new HashSet<Conflict>()
-            ).Returns(new [] { new InfluenceSuggestion() { StarSystem = polaris, Influence = belowLower.Influence, Pro = true } })
+            ).Returns(new [] { new InfluenceSuggestion(polaris, belowLower.MinorFaction, true, belowLower.Influence) })
              .SetName("AddActions Below Lower"),
             new TestCaseData(
                 lower,
@@ -145,8 +145,8 @@ internal class ControlGoalTests
                 new HashSet<Presence> { aboveUpper },
                 new HashSet<Conflict>()
             ).Returns(new Suggestion[] {
-                    new InfluenceSuggestion() { StarSystem = polaris, Influence = aboveUpper.Influence, Pro = false },
-                    new SecuritySuggestion() { StarSystem = polaris, SecurityLevel = aboveUpper.SecurityLevel }
+                    new InfluenceSuggestion(polaris, flyingFish, false, aboveUpper.Influence),
+                    new SecuritySuggestion(polaris, aboveUpper.SecurityLevel)
                  })
              .SetName("AddActions Above Upper"),
             new TestCaseData(
@@ -155,16 +155,8 @@ internal class ControlGoalTests
                 new HashSet<Conflict>() { war }
             ).Returns(new Suggestion[]
                 {
-                    new ConflictSuggestion()
-                    {
-                        StarSystem = polaris,
-                        FightFor = flyingFish,
-                        FightForWonDays = war.MinorFaction1WonDays,
-                        FightAgainst = bloatedJellyFish,
-                        FightAgainstWonDays = war.MinorFaction2WonDays,
-                        State = ConflictState.CloseVictory,
-                        WarType = war.WarType
-                    }
+                    new ConflictSuggestion(polaris, flyingFish, war.MinorFaction1WonDays,
+                        bloatedJellyFish, war.MinorFaction2WonDays, ConflictState.CloseVictory, war.WarType)
                 })
              .SetName("AddActions War"),
             new TestCaseData(
@@ -173,16 +165,8 @@ internal class ControlGoalTests
                 new HashSet<Conflict>() { civilWar }
             ).Returns(new Suggestion[]
                 {
-                    new ConflictSuggestion()
-                    {
-                        StarSystem = polaris,
-                        FightFor = flyingFish,
-                        FightForWonDays = civilWar.MinorFaction2WonDays,
-                        FightAgainst = bloatedJellyFish,
-                        FightAgainstWonDays = civilWar.MinorFaction1WonDays,
-                        State = ConflictState.TotalVictory,
-                        WarType = civilWar.WarType
-                    }
+                    new ConflictSuggestion(polaris, flyingFish,civilWar.MinorFaction2WonDays,
+                        bloatedJellyFish, civilWar.MinorFaction1WonDays, ConflictState.TotalVictory, civilWar.WarType)
                 })
              .SetName("AddActions CivilWar"),
             new TestCaseData(
@@ -191,16 +175,8 @@ internal class ControlGoalTests
                 new HashSet<Conflict>() { election }
             ).Returns(new Suggestion[]
                 {
-                    new ConflictSuggestion()
-                    {
-                        StarSystem = polaris,
-                        FightFor = flyingFish,
-                        FightForWonDays = election.MinorFaction2WonDays,
-                        FightAgainst = bloatedJellyFish,
-                        FightAgainstWonDays = election.MinorFaction1WonDays,
-                        State = ConflictState.CloseDefeat,
-                        WarType = election.WarType
-                    }
+                    new ConflictSuggestion(polaris, flyingFish, election.MinorFaction2WonDays,
+                    bloatedJellyFish, election.MinorFaction1WonDays, ConflictState.CloseDefeat, election.WarType)
                 })
              .SetName("AddActions Election"),
         };

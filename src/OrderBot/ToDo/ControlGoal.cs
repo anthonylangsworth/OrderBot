@@ -32,48 +32,36 @@ internal class ControlGoal : Goal
     public static double UpperInfluenceThreshold => 0.65;
 
     /// <inheritdoc/>
-    public override IEnumerable<Suggestion> GetSuggestions(Presence starSystemMinorFaction,
+    public override IEnumerable<Suggestion> GetSuggestions(Presence presence,
         IReadOnlySet<Presence> systemPresences, IReadOnlySet<Conflict> systemConflicts)
     {
-        CheckAddActionsPreconditions(starSystemMinorFaction, systemPresences, systemConflicts);
+        CheckAddActionsPreconditions(presence, systemPresences, systemConflicts);
 
         ConflictSuggestion? conflictSuggestion =
-            GetConflict(systemConflicts, c => Fight.For(starSystemMinorFaction.MinorFaction, c));
+            GetConflict(systemConflicts, c => Fight.For(presence.MinorFaction, c));
         if (conflictSuggestion != null)
         {
             yield return conflictSuggestion;
         }
         else
         {
-            if (starSystemMinorFaction.Influence < LowerInfluenceThreshold)
+            if (presence.Influence < LowerInfluenceThreshold)
             {
-                yield return new InfluenceSuggestion
-                {
-                    StarSystem = starSystemMinorFaction.StarSystem,
-                    Influence = starSystemMinorFaction.Influence,
-                    Pro = true
-                };
+                yield return new InfluenceSuggestion(
+                    presence.StarSystem, presence.MinorFaction, true, presence.Influence);
             }
-            else if (starSystemMinorFaction.Influence > UpperInfluenceThreshold)
+            else if (presence.Influence > UpperInfluenceThreshold)
             {
-                yield return new InfluenceSuggestion
-                {
-                    StarSystem = starSystemMinorFaction.StarSystem,
-                    Influence = starSystemMinorFaction.Influence,
-                    Pro = false
-                };
+                yield return new InfluenceSuggestion(
+                    presence.StarSystem, presence.MinorFaction, false, presence.Influence);
             }
         }
 
         // Security only applies for the controlling minor faction
-        if (starSystemMinorFaction == GetControllingPresence(systemPresences)
-            && starSystemMinorFaction.SecurityLevel == SecurityLevel.Low)
+        if (presence == GetControllingPresence(systemPresences)
+            && presence.SecurityLevel == SecurityLevel.Low)
         {
-            yield return new SecuritySuggestion
-            {
-                StarSystem = starSystemMinorFaction.StarSystem,
-                SecurityLevel = starSystemMinorFaction.SecurityLevel
-            };
+            yield return new SecuritySuggestion(presence.StarSystem, presence.SecurityLevel);
         }
     }
 }
