@@ -4,7 +4,9 @@
 # BGS Order Bot
 
 ## Overview
-For any squadron in the game **Elite Dangerous** that supports a minor faction, keeping up to date with the background simulation (BGS) is an onerous task. For example, player activity and BGS randomness can reduce or increase influence, leading to conflicts, expansions or retreats. Trawling through each system on websites like [Inara](https://inara.cz/) or [Elite BGS](https://elitebgs.app/) is time-consuming and error prone.
+For any squadron in the game **Elite Dangerous** that supports a minor faction, keeping up to date with the background simulation (BGS) is an onerous task. For example, player activity and BGS randomness can reduce or increase influence, leading to conflicts, expansions or retreats.
+
+Trawling through each system on websites like [Inara](https://inara.cz/) or [Elite BGS](https://elitebgs.app/) is time-consuming and error prone. Not monitoring these websites means missing a retreating minor faction or an unintended expansion into an ally's star system.
 
 This Discord bot aims to fix that. It receives BGS data from the [Elite Dangerous Data Network (EDDN)](https://eddn.edcd.io/) and creates a list of suggestions based on an admin-specified minor faction(s) to support and star system-specific goals. This allows the bot to produce specific and useful suggestions, unlike the websites mentioned above.
 
