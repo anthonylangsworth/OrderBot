@@ -17,7 +17,7 @@ public class ToDoListApiFactory
     /// <param name="validator">
     /// Used to validate minor factions and star systems.
     /// </param>
-    public ToDoListApiFactory(OrderBotDbContext dbContext, Validator validator)
+    public ToDoListApiFactory(OrderBotDbContext dbContext, INameValidator validator)
     {
         DbContext = dbContext;
         Validator = validator;
@@ -30,7 +30,7 @@ public class ToDoListApiFactory
     /// <summary>
     /// Used to validate minor factions and star systems.
     /// </summary>
-    public Validator Validator { get; }
+    public INameValidator Validator { get; }
 
     /// <summary>
     /// Create a <see cref="ToDoListApi"/>

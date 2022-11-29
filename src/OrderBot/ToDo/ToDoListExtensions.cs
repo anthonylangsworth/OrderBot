@@ -8,7 +8,7 @@ internal static class ToDoListExtensions
 {
     internal static void AddTodoList(this IServiceCollection services)
     {
-        services.AddSingleton<Validator>();
+        services.AddSingleton<INameValidator, EliteBgsValidator>();
         services.AddSingleton<SupportedMinorFactionsCache>();
         services.AddSingleton<GoalStarSystemsCache>();
         services.AddSingleton<ToDoListApiFactory>();

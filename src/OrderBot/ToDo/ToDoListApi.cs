@@ -48,7 +48,7 @@ public class ToDoListApi
     /// <param name="validator">
     /// Used to validate minor factions and star systems via web services.
     /// </param>
-    public ToDoListApi(OrderBotDbContext dbContext, IGuild guild, Validator validator)
+    public ToDoListApi(OrderBotDbContext dbContext, IGuild guild, INameValidator validator)
     {
         DbContext = dbContext;
         Guild = guild;
@@ -57,7 +57,7 @@ public class ToDoListApi
 
     internal OrderBotDbContext DbContext { get; }
     internal IGuild Guild { get; }
-    public Validator Validator { get; }
+    public INameValidator Validator { get; }
 
     /// <summary>
     /// Get the list of suggestions.
@@ -86,7 +86,7 @@ public class ToDoListApi
     public async Task SetSupportedMinorFactionAsync(string minorFactionName)
     {
         MinorFaction? minorFaction = DbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
-        if (minorFaction == null && await Validator.IsKnownMinorFactionAsync(minorFactionName))
+        if (minorFaction == null && await Validator.IsKnownMinorFaction(minorFactionName))
         {
             minorFaction = new() { Name = minorFactionName };
             DbContext.MinorFactions.Add(minorFaction);
@@ -150,7 +150,7 @@ public class ToDoListApi
         foreach ((string minorFactionName, string starSystemName, string goalName) in goals)
         {
             MinorFaction? minorFaction = DbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
-            if (minorFaction == null && await Validator.IsKnownMinorFactionAsync(minorFactionName))
+            if (minorFaction == null && await Validator.IsKnownMinorFaction(minorFactionName))
             {
                 minorFaction = new MinorFaction() { Name = minorFactionName };
                 DbContext.MinorFactions.Add(minorFaction);
@@ -162,7 +162,7 @@ public class ToDoListApi
             }
 
             StarSystem? starSystem = DbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
-            if (starSystem == null && await Validator.IsKnownStarSystemAsync(starSystemName))
+            if (starSystem == null && await Validator.IsKnownStarSystem(starSystemName))
             {
                 starSystem = new StarSystem() { Name = starSystemName };
                 DbContext.StarSystems.Add(starSystem);
