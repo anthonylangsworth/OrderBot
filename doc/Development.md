@@ -20,6 +20,32 @@ To setup locally:
         4. `LogAnalytics__WorkspaceKey`, containing an Azure LogAnalytics primary key.
 4. Download, build and run the code.
 
+## Infrastructure
+
+An overview of the BGS Bot's deployed infrastucture is:
+```mermaid
+flowchart TB
+  edmc["Elite Dangerous<br/>Market Connector (EDMC)"] -->|Journal Entries| eddn["Elite Dangerous<br/>Data Network (EDDN)"]
+  edd["ED Discovery"] -->|Journal Entries| eddn
+  gameglass["Game Glass"] -->|Journal Entries| eddn
+  eddn -->|Journal Entries| Azure
+  eddn -->|Journal Entries| Inara
+  eddn -->|Journal Entries| EDSM
+  eddn -->|Journal Entries| EDDB
+  subgraph Azure
+    direction TB
+    ci[Azure Container Instance] <-->|Data| db[(Azure SQL Database)]
+    ci -->|Logs| logs[(Azure Log Analytics)]
+  end
+  Azure <-->|Commands and Messages| discord["Discord Server Infrastructure"]
+  discord <--> discordClient["Discord Clients"]
+```
+
+Key points:
+1. The BGS Order Bot receives data from Elite Dangerous Data Network (EDDN) via an [AMQP](https://www.amqp.org/about/what) queue. EDDN receives data from common ED companion applications and is used by many popular ED resources.
+2. The BGS Order Bot consists of a container, hosted in Azure Container Instance, an Azure SQL database for data and an Azure Log Analytics store for the logs. Deployment is automated via the Github repository `Deploy` action. The container is configured by environment variables and is deployed from an Azure Container Registry (not shown for clarity).
+3. The BGS Order Bot's primary user interface is via Discord. Individual Discord guilds (tenants) can invite the bot to their servers, configure it using commands then receive suggestions and carrier movement notifications.
+
 ## Writing Discord Commands
 
 Overview:
