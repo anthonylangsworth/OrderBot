@@ -8,7 +8,7 @@ namespace OrderBot.ToDo;
 /// <summary>
 /// Autocomplete handler for minor factions not in the database.
 /// </summary>
-/// <seealso cref="KnownMinorFactionsAutocompleteHandler"/>
+/// <seealso cref="GoalMinorFactionsAutocompleteHandler"/>
 internal class MinorFactionsAutocompleteHandler : AutocompleteHandler
 {
     public override async Task<AutocompletionResult> GenerateSuggestionsAsync(

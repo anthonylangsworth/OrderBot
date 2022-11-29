@@ -219,12 +219,12 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         public async Task Remove(
             [
                 Summary("minor-faction", "The minor faction"),
-                Autocomplete(typeof(KnownMinorFactionsAutocompleteHandler))
+                Autocomplete(typeof(GoalMinorFactionsAutocompleteHandler))
             ]
             string minorFactionName,
             [
                 Summary("star-system", "The star system"),
-                Autocomplete(typeof(KnownStarSystemsAutocompleteHandler))
+                Autocomplete(typeof(GoalStarSystemsAutocompleteHandler))
             ]
             string starSystemName
         )

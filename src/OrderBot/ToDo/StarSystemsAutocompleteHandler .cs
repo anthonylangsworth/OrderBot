@@ -8,7 +8,7 @@ namespace OrderBot.ToDo;
 /// <summary>
 /// Autocomplete handler for star systems not in the database.
 /// </summary>
-/// <seealso cref="KnownStarSystemsAutocompleteHandler'"/>
+/// <seealso cref="GoalStarSystemsAutocompleteHandler'"/>
 internal class StarSystemsAutocompleteHandler : AutocompleteHandler
 {
     public override async Task<AutocompletionResult> GenerateSuggestionsAsync(

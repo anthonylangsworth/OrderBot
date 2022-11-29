@@ -162,7 +162,7 @@ internal class BotHostedService : IHostedService
 
         // Only tested with slash commands and autocomplete. May need excluding from other
         // interaction types.
-        if (interaction is not IAutocompleteInteraction)
+        if (interaction is ISlashCommandInteraction)
         {
             await interaction.DeferAsync(ephemeral: true);
         }
