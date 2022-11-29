@@ -52,7 +52,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             await DbContext.SaveChangesAsync();
             auditLogger.Audit($"Set the carrier movement channel to {channel.Name}");
             await Context.Interaction.FollowupAsync(
-                text: $"**Success**! Carrier movements will be mentioned in {MentionUtils.MentionChannel(channel.Id)}. Ensure this bot has 'Send Messages' permission to that channel. This change takes a few minutes to occur.",
+                text: $"{MessagePrefix.Success}Carrier movements will be mentioned in {MentionUtils.MentionChannel(channel.Id)}. Ensure this bot has 'Send Messages' permission to that channel. This change takes a few minutes to occur.",
                 ephemeral: true
             );
         }
@@ -70,7 +70,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             else
             {
                 IChannel channel = Context.Guild.GetChannel(discordGuild.CarrierMovementChannel ?? 0);
-                message = $"**Success**! Carrier movements will be mentioned in {MentionUtils.MentionChannel(channel.Id)}";
+                message = $"Carrier movements will be mentioned in {MentionUtils.MentionChannel(channel.Id)}";
             }
             await Context.Interaction.FollowupAsync(
                 text: message,
@@ -91,7 +91,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             }
             auditLogger.Audit("Cleared carrier alert channel");
             await Context.Interaction.FollowupAsync(
-                text: "**Success**! No alerts sent for carrier movements",
+                text: "{MessagePrefix.Success}No alerts sent for carrier movements",
                 ephemeral: true
             );
         }
@@ -134,16 +134,13 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
                 AddImplementation(DbContext, Context.Guild, new[] { name });
                 auditLogger.Audit($"Ignored carrier '{name}'");
                 await Context.Interaction.FollowupAsync(
-                    text: $"**Success**! Fleet carrier '{name}' will be ignored and its jumps **NOT** reported",
+                    text: $"{MessagePrefix.Success}Fleet carrier '{name}' will be ignored and its jumps **NOT** reported",
                     ephemeral: true
                 );
             }
             catch (ArgumentException ex)
             {
-                await Context.Interaction.FollowupAsync(
-                    text: $"**Error**: {ex.Message}",
-                    ephemeral: true
-                );
+                throw new DiscordUserInteractionException(ex.Message, ex);
             }
         }
 
@@ -186,7 +183,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             auditLogger.Audit($"Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.");
             await Context.Interaction.FollowupAsync(
-                text: $"**Success**! Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.",
+                text: $"{MessagePrefix.Success}Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.",
                 ephemeral: true
             );
         }
@@ -291,23 +288,18 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 auditLogger.Audit($"Ignored carriers:\n{string.Join("\n", goals.Select(g => g.Name))}");
                 await Context.Interaction.FollowupAsync(
-                        text: $"**Success**! {ignoredCarriersAttachement.Filename} added to ignored carriers",
+                        text: $"{MessagePrefix.Success}{ignoredCarriersAttachement.Filename} added to ignored carriers",
                         ephemeral: true
                 );
             }
-            catch (CsvHelperException)
+            catch (CsvHelperException ex)
             {
-                await Context.Interaction.FollowupAsync(
-                        text: $"**Error**: {ignoredCarriersAttachement.Filename} is not a valid ignored carriers file",
-                        ephemeral: true
-                    );
+                throw new DiscordUserInteractionException(
+                    $"{ignoredCarriersAttachement.Filename} is not a valid ignored carriers file", ex);
             }
             catch (ArgumentException ex)
             {
-                await Context.Interaction.FollowupAsync(
-                        text: $"**Error**: {ex.Message}",
-                        ephemeral: true
-                    );
+                throw new DiscordUserInteractionException(ex.Message, ex);
             }
         }
     }

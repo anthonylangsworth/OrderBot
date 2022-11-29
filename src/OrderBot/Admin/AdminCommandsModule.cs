@@ -77,29 +77,26 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
                 }
                 catch (Exception ex)
                 {
-                    errorMessage = $"**Error**: Cannot write to new audit channel {newAuditChannel?.Mention}. Ensure the bot has 'Send Messages' permission.";
+                    errorMessage = $"{MessagePrefix.Error}Cannot write to new audit channel {newAuditChannel?.Mention}. Ensure the bot has 'Send Messages' permission.";
                     Logger.LogWarning(ex, "Cannot write to audit channel {ChannelId}.", newAuditChannel?.Id ?? 0);
                 }
             }
             else
             {
-                errorMessage = $"**Error**: {MentionUtils.MentionChannel(channel.Id)} must be a text channel";
+                errorMessage = $"{MessagePrefix.Error}{MentionUtils.MentionChannel(channel.Id)} must be a text channel";
                 Logger.LogWarning("{ChannelId} is not a text channel", channel?.Id);
             }
 
             if (errorMessage != null)
             {
-                await Context.Interaction.FollowupAsync(
-                    text: errorMessage,
-                    ephemeral: true
-                );
+                throw new DiscordUserInteractionException(errorMessage);
             }
             else
             {
                 discordGuild.AuditChannel = channel?.Id ?? 0;
                 await dbContext.SaveChangesAsync();
                 await Context.Interaction.FollowupAsync(
-                    text: $"**Success**: Audit messages will now be written to {MentionUtils.MentionChannel(channel?.Id ?? 0)}.",
+                    text: $"{MessagePrefix.Success}Audit messages will now be written to {MentionUtils.MentionChannel(channel?.Id ?? 0)}.",
                     ephemeral: true
                 );
             }
@@ -139,7 +136,7 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             auditLogger.Audit("Auditing disabled");
             await Context.Interaction.FollowupAsync(
-                text: "Auditing is turned off",
+                text: $"{MessagePrefix.Success}Auditing is turned off",
                 ephemeral: true
             );
         }
@@ -223,16 +220,13 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 auditLogger.Audit($"Added '{discordRole.Name}' to role '{roleName}'");
                 await Context.Interaction.FollowupAsync(
-                    text: $"**Success**: Added '{discordRole.Name}' to role '{roleName}'",
+                    text: $"{MessagePrefix.Success}Added {MentionUtils.MentionRole(discordRole.Id)} to role '{roleName}'",
                     ephemeral: true
                 );
             }
             else
             {
-                await Context.Interaction.FollowupAsync(
-                    text: $"**Error**: {errorMessage}",
-                    ephemeral: true
-                );
+                throw new DiscordUserInteractionException(errorMessage);
             }
         }
 
@@ -276,16 +270,13 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 auditLogger.Audit($"Removed '{discordRole.Name}' from role '{roleName}'");
                 await Context.Interaction.FollowupAsync(
-                    text: $"**Success**: Removed '{discordRole.Name}' from role '{roleName}'",
+                    text: $"{MessagePrefix.Success}Removed {MentionUtils.MentionRole(discordRole.Id)} from role '{roleName}'",
                     ephemeral: true
                 );
             }
             else
             {
-                await Context.Interaction.FollowupAsync(
-                    text: $"**Error**: {errorMessage}",
-                    ephemeral: true
-                );
+                throw new DiscordUserInteractionException(errorMessage);
             }
         }
 

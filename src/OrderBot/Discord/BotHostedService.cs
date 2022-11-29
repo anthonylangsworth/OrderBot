@@ -173,10 +173,10 @@ internal class BotHostedService : IHostedService
         }
         else
         {
-            const string internalErrorMessage = "**Error**: Command failed. It's not you, it's me. The error has been logged for review.";
+            const string internalErrorMessage = "Command failed. It's not you, it's me. The error has been logged for review.";
             if (result is PreconditionResult)
             {
-                errorMessage = $"**Error**: You lack the permission to run this command. Contact your Discord admins if you think this is incorrect.";
+                errorMessage = $"You lack the permission to run this command. Contact your Discord admins if you think this is incorrect.";
                 Logger.LogWarning("Unmet precondition (e.g. access denied)");
             }
             else if (result is ExecuteResult executeResult)
@@ -201,7 +201,7 @@ internal class BotHostedService : IHostedService
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            await interaction.FollowupAsync(text: errorMessage, ephemeral: true);
+            await interaction.FollowupAsync(text: MessagePrefix.Error + errorMessage, ephemeral: true);
         }
     }
 }
