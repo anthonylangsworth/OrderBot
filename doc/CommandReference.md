@@ -22,9 +22,9 @@ Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
-|minor-faction|The name of the minor faction to support|Must be a minor system already in the database.|None|
-|star-system|The name of the star system|Must be a star system already in the database.|None|
-|goal|The name of the goal|Must be a valid goal.|Known goals.|
+|minor-faction|The name of the minor faction to support.|Must be a minor faction known to http://elitebgs.app.|Minor factions known to http://elitebgs.app.|
+|star-system|The name of the star system.|Must be a star system known to http://elitebgs.app.|Star systems known to http://elitebgs.app.|
+|goal|The name of the goal.|Must be a valid goal.|Known goals.|
 
 ### /todo-list goal export
 
@@ -52,8 +52,8 @@ Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
-|minor-faction|The name of the minor faction to support|Must be a minor faction already used with a goal.|None|
-|star-system|The name of the star system|Must be a star system already used with a goal.|None|
+|minor-faction|The name of the minor faction to support.|Must be a minor faction already used with a goal.|Minor factions used for a goal.|
+|star-system|The name of the star system.|Must be a star system already used with a goal.|Star systems used for a goal.|
 
 ### /todo-list raw
 
@@ -65,13 +65,7 @@ Show a list of suggested in-game activites. This can be run by (1) squadron admi
 
 ### /todo-list support clear
 
-Stop supporting a minor faction previously supported using [/todo-list support set](#todo-list-support-set). This command is audited.
-
-Parameters:
-
-|name|Description|Validation|Autocomplete|
-|----|-----------|----------|------------|
-|minor-faction|The name of the minor faction to stop supporting.|Must be a supported minor faction.|None|
+Stop supporting the minor faction previously supported using [/todo-list support set](#todo-list-support-set). This command is audited.
 
 ### /todo-list support get
 
@@ -87,7 +81,7 @@ Parameters:
 
 |name|Description|Validation|Autocomplete|
 |----|-----------|----------|------------|
-|minor-faction|The name of the minor faction to support.|None|None|
+|minor-faction|The name of the minor faction to support.|Must be a minor faction known to https://elitebgs.app.|Minor factions known to https://elitebgs.app.|
 
 ## Carrier Movement
 
