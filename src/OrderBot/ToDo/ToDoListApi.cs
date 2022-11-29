@@ -158,7 +158,7 @@ public class ToDoListApi
             }
             if (minorFaction == null)
             {
-                throw new ArgumentException($"*{minorFactionName}* is not a known minor faction", nameof(goals));
+                throw new ArgumentException($"*{minorFactionName}* is not a known minor faction");
             }
 
             StarSystem? starSystem = DbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
@@ -170,12 +170,12 @@ public class ToDoListApi
             }
             if (starSystem == null)
             {
-                throw new ArgumentException($"{starSystemName} is not a known star system", nameof(goals));
+                throw new ArgumentException($"{starSystemName} is not a known star system");
             }
 
             if (!Goals.Map.TryGetValue(goalName, out Goal? goal))
             {
-                throw new ArgumentException($"{goalName} is not a known goal", nameof(goals));
+                throw new ArgumentException($"{goalName} is not a known goal");
             }
 
             Presence? starSystemMinorFaction =
