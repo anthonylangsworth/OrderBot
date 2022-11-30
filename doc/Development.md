@@ -82,8 +82,9 @@ Best practice for writing slash (application) commands:
 4. Throw a different, appropriate exception for other errors.
 5. Acknowledge success using an ephemeral message.
 6. For success and error messages:
-    1. Include `**Success**` or `**Error**` at the start to clearly indicate whether the change worked or did not, respectively. Use `MessagePrefix.Success` or `MessagePrefix.Success` as a shortcut. The error prefix is added automatically to `DiscordUserInteractionException` messages displayed to the user. Do not include these prefixes for informational messages.
-    2. For errors, describe (1) why the error occured, (2) the resulting state and (3) how to fix or remedy.
+    1. Include `**Success**` or `**Error**` at the start to clearly indicate whether the change worked or did not, respectively. Use `MessagePrefix.Success` or `MessagePrefix.Success` as a shortcut. The error prefix is added automatically to `DiscordUserInteractionException` messages displayed to the user. 
+    2. Do not include these prefixes for informational messages, unless retrieving the data failed when use the Error prefix.
+    3. For errors, describe (1) the error, (2) why the error occured, (3) the resulting state, such as whether the changes were saved, and (4) how to fix or remedy the error. This must be done in terms the user can understand, avoiding technical jargon.
 7. Use `TransactionScope` around any database work, passing `TransactionScopeAsyncFlowOption.Enabled` to ensure it is async-friendly. Call `Complete()` as the last statement.
 8. Audit any modifications using an `IAuditLogger`, ideally via a `TextChannelAuditLoggerFactory`.
 
