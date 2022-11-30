@@ -7,15 +7,60 @@ using System.Text.Json;
 using SubscriberSocket client = new("tcp://eddn.edcd.io:9500");
 client.SubscribeToAnyTopic();
 
-Console.Out.WriteLine($"Listening for carrier messages");
+Predicate<JsonDocument> messageFilter;
+Action<JsonDocument> processMessage; // What to do with a message matching captureMessage
+
+// messageFilter = MentionsFleetCarrierinSystemList;
+messageFilter = je => true;
+processMessage = SaveMessage;
+
+Console.Out.WriteLine($"Listening for messages");
 
 while (true)
 {
     if (client.TryReceiveFrameBytes(TimeSpan.FromMilliseconds(1000), out byte[]? compressed, out bool _)
         && compressed != null)
     {
-        string[] edaSystems = new string[]
+        string message = "(None)";
+        try
         {
+            message = Encoding.UTF8.GetString(ZlibStream.UncompressBuffer(compressed));
+            JsonDocument jsonDocument = JsonDocument.Parse(message);
+            if (messageFilter(jsonDocument))
+            {
+                processMessage(jsonDocument);
+            }
+        }
+        catch (JsonException)
+        {
+            Console.Error.WriteLine($"Invalid JSON: {message}");
+        }
+        catch (KeyNotFoundException)
+        {
+            Console.Error.WriteLine($"Required field(s) missing: {message}");
+        }
+        catch (FormatException)
+        {
+            Console.Error.WriteLine($"Incorrect field format: {message}");
+        }
+        catch (ZlibException)
+        {
+            Console.Error.WriteLine("Decompress message failed");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Process message failed {ex}");
+        }
+    }
+}
+
+bool MentionsFleetCarrierinSystemList(JsonDocument jsonDocument)
+{
+    // See https://github.com/EDCD/EDDN/blob/master/schemas/fsssignaldiscovered-v1.0.json for the schema
+    // "signals": [{"IsStation": true, "SignalName": "THE PEAKY BLINDERS KNF-83G", "timestamp": "2022-10-13T12:13:09Z"}]
+
+    string[] systems = new string[]
+    {
             "9 G. Carinae",
             "Aha Wa",
             "Anek Wango",
@@ -53,55 +98,25 @@ while (true)
             "Tabalban",
             "Trumuye",
             "Wuy jugun"
-        };
+    };
 
-        string message = "(None)";
-        try
-        {
-            message = Encoding.UTF8.GetString(ZlibStream.UncompressBuffer(compressed));
-            JsonDocument jsonDocument = JsonDocument.Parse(message);
+    JsonElement messageElement = jsonDocument.RootElement.GetProperty("message");
+    return messageElement.TryGetProperty("event", out JsonElement eventProperty)
+        && eventProperty.GetString() == "FSSSignalDiscovered"
+        && messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty)
+        && systems.Contains(starSystemProperty.GetString(), StringComparer.OrdinalIgnoreCase)
+        && messageElement.TryGetProperty("signals", out JsonElement signalsElement);
+}
 
-            // See https://github.com/EDCD/EDDN/blob/master/schemas/fsssignaldiscovered-v1.0.json for the schema
-            // "signals": [{"IsStation": true, "SignalName": "THE PEAKY BLINDERS KNF-83G", "timestamp": "2022-10-13T12:13:09Z"}]
-
-            DateTime timestamp = jsonDocument.RootElement
-                    .GetProperty("header")
-                    .GetProperty("gatewayTimestamp")
-                    .GetDateTime()
-                    .ToUniversalTime();
-            JsonElement messageElement = jsonDocument.RootElement.GetProperty("message");
-            if (messageElement.TryGetProperty("event", out JsonElement eventProperty)
-                && eventProperty.GetString() == "FSSSignalDiscovered"
-                && messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty)
-                && edaSystems.Contains(starSystemProperty.GetString(), StringComparer.OrdinalIgnoreCase)
-                && messageElement.TryGetProperty("signals", out JsonElement signalsElement))
-            {
-                string fileName = $"{timestamp:yyyyMMddTHHmmssFF}.json";
-                using FileStream fileStream = File.Create(fileName);
-                using Utf8JsonWriter streamWriter = new(fileStream, new JsonWriterOptions() { Indented = true });
-                jsonDocument.WriteTo(streamWriter);
-                Console.Out.WriteLine($"{fileName} written");
-            }
-        }
-        catch (JsonException)
-        {
-            Console.Error.WriteLine($"Invalid JSON: {message}");
-        }
-        catch (KeyNotFoundException)
-        {
-            Console.Error.WriteLine($"Required field(s) missing: {message}");
-        }
-        catch (FormatException)
-        {
-            Console.Error.WriteLine($"Incorrect field format: {message}");
-        }
-        catch (ZlibException)
-        {
-            Console.Error.WriteLine("Decompress message failed");
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine($"Process message failed {ex}");
-        }
-    }
+static void SaveMessage(JsonDocument jsonDocument)
+{
+    DateTime timestamp = jsonDocument.RootElement
+            .GetProperty("header")
+            .GetProperty("gatewayTimestamp")
+            .GetDateTime()
+            .ToUniversalTime(); string fileName = $"{timestamp:yyyyMMddTHHmmssFF}.json";
+    using FileStream fileStream = File.Create(fileName);
+    using Utf8JsonWriter streamWriter = new(fileStream, new JsonWriterOptions() { Indented = true });
+    jsonDocument.WriteTo(streamWriter);
+    Console.Out.WriteLine($"{fileName} written");
 }
