@@ -8,7 +8,6 @@ using OrderBot.Discord;
 using OrderBot.EntityFramework;
 using OrderBot.Rbac;
 using System.Globalization;
-using System.Text;
 using System.Transactions;
 
 namespace OrderBot.CarrierMovement;
@@ -17,7 +16,7 @@ namespace OrderBot.CarrierMovement;
 public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInteractionContext>
 {
     [Group("channel", "Send carrier movement alerts")]
-    public class Channel : InteractionModuleBase<SocketInteractionContext>
+    public class Channel : BaseCommandsModule<Channel>
     {
         /// <summary>
         /// Create a new <see cref="Channel"/>.
@@ -26,18 +25,16 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         /// <param name="logger"></param>
         /// <param name="auditLogFactory">
         /// </param>
+        /// <param name="resultFactory">
+        /// </param>
         public Channel(OrderBotDbContext dbContext,
             ILogger<Channel> logger,
-            TextChannelAuditLoggerFactory auditLogFactory)
+            TextChannelAuditLoggerFactory auditLogFactory,
+            ResultFactory resultFactory)
+            : base(dbContext, logger, auditLogFactory, resultFactory)
         {
-            DbContext = dbContext;
-            Logger = logger;
-            AuditLogFactory = auditLogFactory;
+            // Do nothing
         }
-
-        public OrderBotDbContext DbContext { get; }
-        public ILogger<Channel> Logger { get; }
-        public TextChannelAuditLoggerFactory AuditLogFactory { get; }
 
         [SlashCommand("set", "Set the channel to receive carrier jump alerts")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
@@ -46,77 +43,90 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             IChannel channel
         )
         {
-            using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
-            discordGuild.CarrierMovementChannel = channel.Id;
-            await DbContext.SaveChangesAsync();
-            auditLogger.Audit($"Set the carrier movement channel to {channel.Name}");
-            await Context.Interaction.FollowupAsync(
-                text: $"{EphemeralResult.SuccessPrefix}Carrier movements will be mentioned in {MentionUtils.MentionChannel(channel.Id)}. Ensure this bot has 'Send Messages' permission to that channel. This change takes a few minutes to occur.",
-                ephemeral: true
-            );
+            try
+            {
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
+                discordGuild.CarrierMovementChannel = channel.Id;
+                await DbContext.SaveChangesAsync();
+                await Result.Success(
+                    $"Carrier movements will be mentioned in {MentionUtils.MentionChannel(channel.Id)}. Ensure this bot has 'Send Messages' permission to that channel. This change takes a few minutes to occur.",
+                    true);
+                TransactionScope.Complete();
+            }
+            catch (Exception ex)
+            {
+                await Result.Exception(ex);
+            }
         }
 
         [SlashCommand("get", "Retrieve the channel that receives carrier jump alerts")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         public async Task Get()
         {
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
-            string message;
-            if (discordGuild.CarrierMovementChannel == null)
+            try
             {
-                message = $"No channel set for carrier movements";
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
+                string message;
+                if (discordGuild.CarrierMovementChannel == null)
+                {
+                    message = $"No channel set for carrier movements";
+                }
+                else
+                {
+                    IChannel channel = Context.Guild.GetChannel(discordGuild.CarrierMovementChannel ?? 0);
+                    message = $"Carrier movements will be mentioned in {MentionUtils.MentionChannel(channel.Id)}";
+                }
+                await Result.Information(message);
             }
-            else
+            catch (Exception ex)
             {
-                IChannel channel = Context.Guild.GetChannel(discordGuild.CarrierMovementChannel ?? 0);
-                message = $"Carrier movements will be mentioned in {MentionUtils.MentionChannel(channel.Id)}";
+                await Result.Exception(ex);
             }
-            await Context.Interaction.FollowupAsync(
-                text: message,
-                ephemeral: true
-            );
         }
 
         [SlashCommand("clear", "Turn off alerts for carrier jumps")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles)]
         public async Task Clear()
         {
-            using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
-            if (discordGuild.CarrierMovementChannel != null)
+            try
             {
-                discordGuild.CarrierMovementChannel = null;
-                await DbContext.SaveChangesAsync();
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
+                if (discordGuild.CarrierMovementChannel != null)
+                {
+                    discordGuild.CarrierMovementChannel = null;
+                    await DbContext.SaveChangesAsync();
+                }
+                await Result.Success(
+                    "No alerts sent for carrier movements",
+                    true
+                );
+                TransactionScope.Complete();
             }
-            auditLogger.Audit("Cleared carrier alert channel");
-            await Context.Interaction.FollowupAsync(
-                text: "{MessagePrefix.Success}No alerts sent for carrier movements",
-                ephemeral: true
-            );
+            catch (Exception ex)
+            {
+                await Result.Exception(ex);
+            }
         }
     }
 
     [Group("ignored-carriers", "Monitor carrier movements")]
-    public class IgnoredCarriers : InteractionModuleBase<SocketInteractionContext>
+    public class IgnoredCarriers : BaseCommandsModule<IgnoredCarriers>
     {
         /// <summary>
         /// Create a new <see cref="IgnoredCarriers"/>.
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="logger"></param>
+        /// <param name="auditLogFactory"></param>
+        /// <param name="resultFactory"></param>
         public IgnoredCarriers(OrderBotDbContext dbContext,
             ILogger<IgnoredCarriers> logger,
-            TextChannelAuditLoggerFactory auditLogFactory)
+            TextChannelAuditLoggerFactory auditLogFactory,
+            ResultFactory resultFactory)
+            : base(dbContext, logger, auditLogFactory, resultFactory)
         {
-            DbContext = dbContext;
-            Logger = logger;
-            AuditLogFactory = auditLogFactory;
+            // Do nothing
         }
-
-        public OrderBotDbContext DbContext { get; }
-        public ILogger<IgnoredCarriers> Logger { get; }
-        public TextChannelAuditLoggerFactory AuditLogFactory { get; }
 
         [SlashCommand("add", "Do not track this carrier or report its movements (case insensitive).")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
@@ -128,25 +138,28 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             ]
             string name)
         {
-            using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             try
             {
                 AddImplementation(DbContext, Context.Guild, new[] { name });
-                auditLogger.Audit($"Ignored carrier '{name}'");
-                await Context.Interaction.FollowupAsync(
-                    text: $"{EphemeralResult.SuccessPrefix}Fleet carrier '{name}' will be ignored and its jumps **NOT** reported",
-                    ephemeral: true
-                );
+                await Result.Success(
+                    $"Fleet carrier '{name}' will be ignored and its jumps **NOT** reported", true);
+                TransactionScope.Complete();
             }
-            catch (ArgumentException ex)
+            catch (CarrierNameException ex)
             {
-                throw new DiscordUserInteractionException(ex.Message, ex);
+                await Result.Error(
+                    $"Cannot ignore the carrier '{ex.CarrierName}'.",
+                    $"'{ex.CarrierName}' lacks or has an invalid serial number suffix in the form of XXX-XXX.",
+                    "Correct the carrier name and try again.");
+            }
+            catch (Exception ex)
+            {
+                await Result.Exception(ex);
             }
         }
 
         internal static void AddImplementation(OrderBotDbContext dbContext, IGuild guild, IEnumerable<string> names)
         {
-            using TransactionScope scope = new();
             DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
                 dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
             foreach (string name in names)
@@ -165,7 +178,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
                 }
                 dbContext.SaveChanges();
             }
-            scope.Complete();
         }
 
         [SlashCommand("remove", "Track this carrier and report its movements")]
@@ -179,13 +191,17 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             string name
         )
         {
-            RemoveImplementation(DbContext, Context.Guild, name);
-            using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-            auditLogger.Audit($"Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.");
-            await Context.Interaction.FollowupAsync(
-                text: $"{EphemeralResult.SuccessPrefix}Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.",
-                ephemeral: true
-            );
+            try
+            {
+                RemoveImplementation(DbContext, Context.Guild, name);
+                await Result.Success(
+                    $"Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.", true);
+                TransactionScope.Complete();
+            }
+            catch (Exception ex)
+            {
+                await Result.Exception(ex);
+            }
         }
 
         internal static void RemoveImplementation(OrderBotDbContext dbContext, IGuild guild, string name)
@@ -206,22 +222,21 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         [RequireBotRole(OfficersRole.RoleName, MembersRole.RoleName, Group = "Permission")]
         public async Task List()
         {
-            string result = string.Join("\n", ListImplementation(DbContext, Context.Guild).Select(c => c.Name));
-            if (!result.Any())
+            try
             {
-                await Context.Interaction.FollowupAsync(
-                    text: "No ignored fleet carriers",
-                    ephemeral: true
-                );
+                string result = string.Join("\n", ListImplementation(DbContext, Context.Guild).Select(c => c.Name));
+                if (!result.Any())
+                {
+                    await Result.Information("No ignored fleet carriers");
+                }
+                else
+                {
+                    await Result.File(result, $"{Context.Guild.Name} Ignored Carriers.txt");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                using MemoryStream memoryStream = new(Encoding.UTF8.GetBytes(result));
-                await Context.Interaction.FollowupWithFileAsync(
-                    fileStream: memoryStream,
-                    fileName: $"{Context.Guild.Name} Ignored Carriers.txt",
-                    ephemeral: true
-                );
+                await Result.Exception(ex);
             }
         }
 
@@ -237,30 +252,24 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Export()
         {
-            IList<CarrierCsvRow> result =
-                ListImplementation(DbContext, Context.Guild)
-                    .Select(c => new CarrierCsvRow() { Name = c.Name })
-                    .ToList();
-            if (result.Count == 0)
+            try
             {
-                await Context.Interaction.FollowupAsync(
-                    text: "No goals specified",
-                    ephemeral: true
-                );
+                IList<CarrierCsvRow> result =
+                    ListImplementation(DbContext, Context.Guild)
+                        .Select(c => new CarrierCsvRow() { Name = c.Name })
+                        .ToList();
+                if (result.Count == 0)
+                {
+                    await Result.Information("No goals specified");
+                }
+                else
+                {
+                    await Result.CsvFile(result, $"{Context.Guild.Name} Ignored Carriers.csv");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                using MemoryStream memoryStream = new();
-                using StreamWriter streamWriter = new(memoryStream);
-                using CsvWriter csvWriter = new(streamWriter, CultureInfo.InvariantCulture);
-                csvWriter.WriteRecords(result);
-                csvWriter.Flush();
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                await Context.Interaction.FollowupWithFileAsync(
-                    fileStream: memoryStream,
-                    fileName: $"{Context.Guild.Name} Ignored Carriers.csv",
-                    ephemeral: true
-                );
+                await Result.Exception(ex);
             }
         }
 
@@ -272,9 +281,9 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             IAttachment ignoredCarriersAttachement
         )
         {
-            IList<CarrierCsvRow> goals;
             try
             {
+                IList<CarrierCsvRow> goals;
                 using (HttpClient client = new())
                 {
                     using Stream stream = await client.GetStreamAsync(ignoredCarriersAttachement.Url);
@@ -285,21 +294,27 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
 
                 AddImplementation(DbContext, Context.Guild, goals.Select(g => g.Name));
 
-                using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-                auditLogger.Audit($"Ignored carriers:\n{string.Join("\n", goals.Select(g => g.Name))}");
-                await Context.Interaction.FollowupAsync(
-                        text: $"{EphemeralResult.SuccessPrefix}{ignoredCarriersAttachement.Filename} added to ignored carriers",
-                        ephemeral: true
-                );
+                await Result.Information($"{ignoredCarriersAttachement.Filename} added to ignored carriers");
+
+                TransactionScope.Complete();
             }
-            catch (CsvHelperException ex)
+            catch (CsvHelperException)
             {
-                throw new DiscordUserInteractionException(
-                    $"{ignoredCarriersAttachement.Filename} is not a valid ignored carriers file", ex);
+                await Result.Error(
+                    "Cannot import ignored carriers from the file.",
+                    $"{ignoredCarriersAttachement.Filename} is not a valid ignored carriers file.",
+                    "Correct the file then import it again.");
             }
-            catch (ArgumentException ex)
+            catch (CarrierNameException ex)
             {
-                throw new DiscordUserInteractionException(ex.Message, ex);
+                await Result.Error(
+                    "Cannot import ignored carriers from the file.",
+                    $"{ex.CarrierName} is not a valid carrier name.",
+                    "Correct the file then import it again.");
+            }
+            catch (Exception ex)
+            {
+                await Result.Exception(ex);
             }
         }
     }

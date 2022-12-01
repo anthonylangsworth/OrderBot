@@ -29,7 +29,7 @@ public class Carrier
             string newSerialNumber = GetSerialNumber(value);
             if (SerialNumber != null && newSerialNumber != SerialNumber)
             {
-                throw new ArgumentException($"{value} is a different carrier");
+                throw new CarrierNameException(value);
             }
             _name = value;
             SerialNumber = newSerialNumber;
@@ -52,7 +52,7 @@ public class Carrier
         }
         else
         {
-            throw new ArgumentException($"{signalName} is not a valid carrier name");
+            throw new CarrierNameException(signalName);
         }
     }
 

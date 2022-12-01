@@ -81,6 +81,9 @@ public class EphemeralResult
     /// <param name="fileName">
     /// The file name.
     /// </param>
+    /// <exception cref="CsvHelperException">
+    /// An error occured creating the CSV file.
+    /// </exception>
     public async Task CsvFile<T>(IEnumerable<T> records, string fileName)
     {
         using MemoryStream memoryStream = new();
