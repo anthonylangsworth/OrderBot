@@ -32,7 +32,7 @@ public class EphemeralResult
         AuditLogger = auditLogger;
         Logger = logger;
 
-        // Context.Interaction.DeferAsync(ephemeral: true).GetAwaiter().GetResult();
+        Context.Interaction.DeferAsync(ephemeral: true).GetAwaiter().GetResult();
     }
 
     /// <summary>

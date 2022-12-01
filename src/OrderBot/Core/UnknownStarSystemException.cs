@@ -1,4 +1,4 @@
-﻿namespace OrderBot.ToDo;
+﻿namespace OrderBot.Core;
 
 /// <summary>
 /// An unknown star system was specified.

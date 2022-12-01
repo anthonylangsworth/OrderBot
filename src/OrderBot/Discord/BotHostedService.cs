@@ -156,19 +156,8 @@ internal class BotHostedService : IHostedService
         ILogger<BotHostedService> logger = ServiceProvider.GetRequiredService<ILogger<BotHostedService>>();
         using IDisposable loggerScope = logger.BeginScope(new InteractionScopeBuilder(context).Build());
 
-        // Only tested with slash commands and autocomplete. May need excluding from other
-        // interaction types.
-        // TODO: Remove this
-        if (interaction is ISlashCommandInteraction)
-        {
-            await interaction.DeferAsync(ephemeral: true);
-        }
         IResult result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
-        if (result.IsSuccess)
-        {
-            Logger.LogInformation("Completed successfully");
-        }
-        else
+        if (!result.IsSuccess)
         {
             const string internalErrorMessage = "Command failed. It's not you, it's me. The error has been logged for review.";
             if (result is PreconditionResult)
@@ -178,28 +167,14 @@ internal class BotHostedService : IHostedService
             }
             else if (result is ExecuteResult executeResult)
             {
-                if (executeResult.Exception is DiscordUserInteractionException discordUserInteractionException)
-                {
-                    errorMessage = discordUserInteractionException.Message;
-                    Logger.LogInformation("User error: {ArgumentError}", discordUserInteractionException.Message);
-                }
-                else
-                {
-                    errorMessage = internalErrorMessage;
-                    Logger.LogError(executeResult.Exception, "Unhandled exception");
-                }
+                errorMessage = internalErrorMessage;
+                Logger.LogError(executeResult.Exception, "Unhandled exception");
             }
             else
             {
                 errorMessage = internalErrorMessage;
                 Logger.LogError("Error: {ErrorMessage}", result.ErrorReason);
             }
-        }
-
-        // TODO: Remove this
-        if (!string.IsNullOrEmpty(errorMessage))
-        {
-            await interaction.FollowupAsync(text: "**Error**: " + errorMessage, ephemeral: true);
         }
     }
 }

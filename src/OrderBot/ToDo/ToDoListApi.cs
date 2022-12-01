@@ -99,10 +99,8 @@ public class ToDoListApi
 
         DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild,
             DbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
-        if (!discordGuild.SupportedMinorFactions.Contains(minorFaction))
-        {
-            discordGuild.SupportedMinorFactions.Add(minorFaction);
-        }
+        discordGuild.SupportedMinorFactions.Clear();
+        discordGuild.SupportedMinorFactions.Add(minorFaction);
 
         DbContext.SaveChanges();
     }

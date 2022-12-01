@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace OrderBot.ToDo;
+namespace OrderBot.Core;
 
 /// <summary>
 /// A <see cref="ToDoList"/> is generated with an unknown goal.

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace OrderBot.ToDo;
+namespace OrderBot.Core;
 
 /// <summary>
 /// Cannot generate suggestions without a supported minor faction.
