@@ -158,6 +158,7 @@ internal class BotHostedService : IHostedService
 
         // Only tested with slash commands and autocomplete. May need excluding from other
         // interaction types.
+        // TODO: Remove this
         if (interaction is ISlashCommandInteraction)
         {
             await interaction.DeferAsync(ephemeral: true);
@@ -195,9 +196,10 @@ internal class BotHostedService : IHostedService
             }
         }
 
+        // TODO: Remove this
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            await interaction.FollowupAsync(text: EphemeralResponse.ErrorPrefix + errorMessage, ephemeral: true);
+            await interaction.FollowupAsync(text: "**Error**: " + errorMessage, ephemeral: true);
         }
     }
 }

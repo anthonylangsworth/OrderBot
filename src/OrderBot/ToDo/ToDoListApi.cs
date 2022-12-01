@@ -80,7 +80,7 @@ public class ToDoListApi
     /// <param name="minorFactionName">
     /// The minor faction to support.
     /// </param>
-    /// <exception cref="ArgumentException">
+    /// <exception cref="UnknownMinorFactionException">
     /// <paramref name="minorFactionName"/> is not a known or valid minor faction.
     /// </exception>
     public async Task SetSupportedMinorFactionAsync(string minorFactionName)
@@ -94,7 +94,7 @@ public class ToDoListApi
         }
         if (minorFaction == null)
         {
-            throw new ArgumentException($"Minor faction {minorFactionName} is not known");
+            throw new UnknownMinorFactionException(minorFactionName);
         }
 
         DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild,
@@ -139,8 +139,14 @@ public class ToDoListApi
     /// <param name="goals">
     /// The goal(s) to add.
     /// </param>
-    /// <exception cref="ArgumentException">
-    /// Either the minor faction, system name or goal is invalid.
+    /// <exception cref="UnknownMinorFactionException">
+    /// An unknown minor faction was specified in <paramref name="goals"/>..
+    /// </exception>
+    /// <exception cref="UnknownStarSystemException">
+    /// An unknown star system was specified in <paramref name="goals"/>..
+    /// </exception>
+    /// <exception cref="UnknownGoalException">
+    /// An unknown goal was specified in <paramref name="goals"/>..
     /// </exception>
     public async Task AddGoals(
         IEnumerable<(string minorFactionName, string starSystemName, string goalName)> goals)
@@ -158,7 +164,7 @@ public class ToDoListApi
             }
             if (minorFaction == null)
             {
-                throw new ArgumentException($"*{minorFactionName}* is not a known minor faction");
+                throw new UnknownMinorFactionException(minorFactionName);
             }
 
             StarSystem? starSystem = DbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
@@ -170,12 +176,12 @@ public class ToDoListApi
             }
             if (starSystem == null)
             {
-                throw new ArgumentException($"{starSystemName} is not a known star system");
+                throw new UnknownStarSystemException(starSystemName);
             }
 
             if (!Goals.Map.TryGetValue(goalName, out Goal? goal))
             {
-                throw new ArgumentException($"{goalName} is not a known goal");
+                throw new UnknownGoalException(goalName, starSystemName, minorFactionName);
             }
 
             Presence? starSystemMinorFaction =
@@ -231,11 +237,13 @@ public class ToDoListApi
     /// </param>
     /// <param name="starSystemName">
     /// </param>
-    /// <exception cref="ArgumentException">
-    /// Both <paramref name="minorFactionName"/> and <paramref name="starSystemName"/>
-    /// must be valid.
+    /// <exception cref="UnknownMinorFactionException">
+    /// <paramref name="minorFactionName"/> is not a valid minor faction.
     /// </exception>
-    public void RemoveGoals(string minorFactionName,
+    /// <exception cref="UnknownStarSystemException">
+    /// <paramref name="starSystemName"/> is not a valid star system.
+    /// </exception>
+    public void RemoveGoal(string minorFactionName,
         string starSystemName)
     {
         DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild);
@@ -243,13 +251,13 @@ public class ToDoListApi
         MinorFaction? minorFaction = DbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
         if (minorFaction == null)
         {
-            throw new ArgumentException($"*{minorFactionName}* is not a known minor faction");
+            throw new UnknownMinorFactionException(minorFactionName);
         }
 
         StarSystem? starSystem = DbContext.StarSystems.FirstOrDefault(ss => ss.Name == starSystemName);
         if (starSystem == null)
         {
-            throw new ArgumentException($"{starSystemName} is not a known star system");
+            throw new UnknownStarSystemException(starSystemName);
         }
 
         DiscordGuildPresenceGoal? discordGuildStarSystemMinorFactionGoal =

@@ -14,7 +14,7 @@ internal class UnknownGoalException : Exception
     /// <param name="goalName"></param>
     /// <param name="starSystemName"></param>
     /// <param name="minorFactionName"></param>
-    public UnknownGoalException(string goalName, string starSystemName, string minorFactionName)
+    public UnknownGoalException(string goalName, string? starSystemName, string? minorFactionName)
         : base($"Unknown goal '{goalName}' for star system '{starSystemName}' for minor faction '{minorFactionName}'")
     {
         Goal = goalName;
@@ -28,6 +28,6 @@ internal class UnknownGoalException : Exception
     }
 
     public string Goal { get; }
-    public string StarSystem { get; }
-    public string MinorFaction { get; }
+    public string? StarSystem { get; }
+    public string? MinorFaction { get; }
 }

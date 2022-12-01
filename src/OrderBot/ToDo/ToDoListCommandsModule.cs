@@ -7,7 +7,6 @@ using OrderBot.Discord;
 using OrderBot.EntityFramework;
 using OrderBot.Rbac;
 using System.Globalization;
-using System.Text;
 using System.Transactions;
 
 namespace OrderBot.ToDo;
@@ -16,19 +15,17 @@ namespace OrderBot.ToDo;
 // the lack of DI support for SocketInteractionContext curtails this.
 
 [Group("todo-list", "Work supporting minor faction(s)")]
-public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionContext>
+public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommandsModule>
 {
     public ToDoListCommandsModule(OrderBotDbContext dbContext,
-        ILogger<ToDoListCommandsModule> logger, ToDoListApiFactory toDoListApiFactory)
+        ILogger<ToDoListCommandsModule> logger,
+        ToDoListApiFactory toDoListApiFactory,
+        TextChannelAuditLoggerFactory auditLogFactory,
+        ResponseFactory responseFactory)
+            : base(dbContext, logger, toDoListApiFactory, auditLogFactory, responseFactory)
     {
-        DbContext = dbContext;
-        Logger = logger;
-        ApiFactory = toDoListApiFactory;
+        // DO nothing
     }
-
-    internal OrderBotDbContext DbContext { get; }
-    internal ILogger<ToDoListCommandsModule> Logger { get; }
-    internal ToDoListApiFactory ApiFactory { get; }
 
     [SlashCommand("show", "List the work required for supporting a minor faction")]
     [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
@@ -48,50 +45,46 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
     private async Task ShowTodoListInternal(bool raw)
     {
-        using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
         try
         {
-            ToDoListApi api = ApiFactory.CreateApi(Context.Guild);
             string text = raw
-                ? $"```\n{api.GetTodoList()}\n```"
-                : api.GetTodoList();
-            if (text.Length > DiscordConfig.MaxMessageSize)
-            {
-                text = text.Substring(0, DiscordConfig.MaxMessageSize);
-            }
-            await Context.Interaction.FollowupAsync(
-                text: text,
-                ephemeral: true
-            );
+                ? $"```\n{Api.GetTodoList()}\n```"
+                : Api.GetTodoList();
+            await Response.Information(text);
         }
         catch (UnknownGoalException ex)
         {
             Logger.LogError(ex, "Unknown goal");
-            throw;
+            await Response.Error(
+                "Cannot generate suggestions.",
+                $"There is an unknown goal '{ex.Goal}' for *{ex.MinorFaction}* in {ex.StarSystem}.",
+                "Remove that goal using `/todo-list goal remove` then re-run this command.");
         }
-        catch (NoSupportedMinorFactionException ex)
+        catch (NoSupportedMinorFactionException)
         {
-            throw new DiscordUserInteractionException(
-                "No minor faction supported. Support one using `/todo-list support set`.", ex);
+            await Response.Error(
+                "Cannot generate suggestions.",
+                "There is no supported minor faction.",
+                "Support a minor faction using `/todo-list support set` then re-run this command.");
+        }
+        catch (Exception ex)
+        {
+            await Response.Exception(ex);
         }
     }
 
     [Group("support", "Support a minor faction")]
-    public class Support : InteractionModuleBase<SocketInteractionContext>
+    public class Support : BaseTodoListCommandsModule<Support>
     {
-        public Support(OrderBotDbContext dbContext, ILogger<Support> logger,
-            TextChannelAuditLoggerFactory auditLogFactory, ToDoListApiFactory toDoListApiFactory)
+        public Support(OrderBotDbContext dbContext,
+            ILogger<Support> logger,
+            ToDoListApiFactory toDoListApiFactory,
+            TextChannelAuditLoggerFactory auditLogFactory,
+            ResponseFactory responseFactory)
+            : base(dbContext, logger, toDoListApiFactory, auditLogFactory, responseFactory)
         {
-            DbContext = dbContext;
-            Logger = logger;
-            AuditLogFactory = auditLogFactory;
-            ApiFactory = toDoListApiFactory;
+            // Do nothing
         }
-
-        public OrderBotDbContext DbContext { get; }
-        public ILogger<Support> Logger { get; }
-        public TextChannelAuditLoggerFactory AuditLogFactory { get; }
-        public ToDoListApiFactory ApiFactory { get; }
 
         [SlashCommand("set", "Set the minor faction this Discord server supports")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
@@ -104,22 +97,23 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
             string name
         )
         {
-            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                await ApiFactory.CreateApi(Context.Guild).SetSupportedMinorFactionAsync(name);
-                using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-                auditLogger.Audit($"Supporting minor faction *{name}*");
-                await Context.Interaction.FollowupAsync(
-                    text: $"{EphemeralResponse.SuccessPrefix}Now supporting *{name}*",
-                    ephemeral: true
-                );
+                await Api.SetSupportedMinorFactionAsync(name);
+                await Response.Success($"Now supporting minor faction *{name}*", true);
+                TransactionScope.Complete();
             }
-            catch (ArgumentException ex)
+            catch (UnknownMinorFactionException)
             {
-                throw new DiscordUserInteractionException($"*{name}* is not a known minor faction", ex);
+                await Response.Error(
+                    "Cannot support that minor faction.",
+                    $"The minor faction *{name}* not exist.",
+                    "Try again, checking the spelling and capitalization carefully.");
             }
-            transactionScope.Complete();
+            catch (Exception ex)
+            {
+                await Response.Exception(ex);
+            }
         }
 
         [SlashCommand("clear", "Stop supporting a minor faction")]
@@ -127,15 +121,16 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Clear()
         {
-            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-            ApiFactory.CreateApi(Context.Guild).ClearSupportedMinorFaction();
-            using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-            auditLogger.Audit($"Not supporting any minor faction");
-            await Context.Interaction.FollowupAsync(
-                text: $"{EphemeralResponse.SuccessPrefix}Not supporting any minor faction",
-                ephemeral: true
-            );
-            transactionScope.Complete();
+            try
+            {
+                Api.ClearSupportedMinorFaction();
+                await Response.Success("Not supporting any minor faction", true);
+                TransactionScope.Complete();
+            }
+            catch (Exception ex)
+            {
+                await Response.Exception(ex);
+            }
         }
 
         [SlashCommand("get", "Get the minor faction this Discord server supports")]
@@ -143,35 +138,33 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         [RequireBotRole(OfficersRole.RoleName, MembersRole.RoleName, Group = "Permission")]
         public async Task Get()
         {
-            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-            string? minorFactionName = ApiFactory.CreateApi(Context.Guild).GetSupportedMinorFaction()?.Name;
-            string message = string.IsNullOrEmpty(minorFactionName)
-                ? $"Not supporting any minor faction"
-                : $"Supporting *{minorFactionName}*";
-            await Context.Interaction.FollowupAsync(
-                text: message,
-                ephemeral: true
-            );
-            transactionScope.Complete();
+            try
+            {
+                string? minorFactionName = Api.GetSupportedMinorFaction()?.Name;
+                string message = string.IsNullOrEmpty(minorFactionName)
+                    ? $"Not supporting any minor faction"
+                    : $"Supporting *{minorFactionName}*";
+                await Response.Information(message);
+            }
+            catch (Exception ex)
+            {
+                await Response.Exception(ex);
+            }
         }
     }
 
     [Group("goal", "Provide specific intent for a minor faction in a system")]
-    public class Goals : InteractionModuleBase<SocketInteractionContext>
+    public class Goals : BaseTodoListCommandsModule<Goals>
     {
-        public Goals(OrderBotDbContext dbContext, ILogger<Goals> logger,
-            TextChannelAuditLoggerFactory auditLogFactory, ToDoListApiFactory toDoListApiFactory)
+        public Goals(OrderBotDbContext dbContext,
+            ILogger<Goals> logger,
+            ToDoListApiFactory toDoListApiFactory,
+            TextChannelAuditLoggerFactory auditLogFactory,
+            ResponseFactory responseFactory)
+            : base(dbContext, logger, toDoListApiFactory, auditLogFactory, responseFactory)
         {
-            DbContext = dbContext;
-            Logger = logger;
-            AuditLogFactory = auditLogFactory;
-            ApiFactory = toDoListApiFactory;
+            // Do nothing
         }
-
-        public OrderBotDbContext DbContext { get; }
-        public ILogger<Goals> Logger { get; }
-        public TextChannelAuditLoggerFactory AuditLogFactory { get; }
-        public ToDoListApiFactory ApiFactory { get; }
 
         [SlashCommand("add", "Set a specific goal for this minor faction in this system")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
@@ -194,23 +187,38 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
             string goalName
         )
         {
-            using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                await ApiFactory.CreateApi(Context.Guild).AddGoals(
+                await Api.AddGoals(
                     new[] { (minorFactionName, starSystemName, goalName) });
-                auditLogger.Audit($"Added goal to {goalName} *{minorFactionName}* in {starSystemName}");
-                await Context.Interaction.FollowupAsync(
-                    text: $"{EphemeralResponse.SuccessPrefix}Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
-                    ephemeral: true
-                );
+                await Response.Success($"Added goal to {goalName} *{minorFactionName}* in {starSystemName}", true);
+                TransactionScope.Complete();
             }
-            catch (ArgumentException ex)
+            catch (UnknownMinorFactionException)
             {
-                throw new DiscordUserInteractionException(ex.Message, ex);
+                await Response.Error(
+                    $"Cannot add the goal to {goalName} *{minorFactionName}* in {starSystemName}.",
+                    $"The minor faction *{minorFactionName}* does not exist.",
+                    "Try again, checking the spelling and capitalization carefully.");
             }
-            transactionScope.Complete();
+            catch (UnknownStarSystemException)
+            {
+                await Response.Error(
+                    $"Cannot add the goal to {goalName} *{minorFactionName}* in {starSystemName}.",
+                    $"The star system *{starSystemName}* does not exist.",
+                    "Try again, checking the spelling and capitalization carefully.");
+            }
+            catch (UnknownGoalException)
+            {
+                await Response.Error(
+                    $"Cannot add the goal to {goalName} *{minorFactionName}* in {starSystemName}.",
+                    $"The goal *{goalName}* does not exist.",
+                    "Try again, checking the spelling and capitalization carefully.");
+            }
+            catch (Exception ex)
+            {
+                await Response.Exception(ex);
+            }
         }
 
         [SlashCommand("remove", "Remove the specific goal for this minor faction in this system")]
@@ -229,22 +237,30 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
             string starSystemName
         )
         {
-            using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                ApiFactory.CreateApi(Context.Guild).RemoveGoals(minorFactionName, starSystemName);
-                auditLogger.Audit($"Removed goal for *{minorFactionName}* in {starSystemName}");
-                await Context.Interaction.FollowupAsync(
-                    text: $"{EphemeralResponse.SuccessPrefix}Goal for *{minorFactionName}* in {starSystemName} removed",
-                    ephemeral: true
-                );
+                Api.RemoveGoal(minorFactionName, starSystemName);
+                await Response.Success($"Remove goal for *{minorFactionName}* in {starSystemName}", true);
+                TransactionScope.Complete();
             }
-            catch (ArgumentException ex)
+            catch (UnknownMinorFactionException ex)
             {
-                throw new DiscordUserInteractionException(ex.Message, ex);
+                await Response.Error(
+                    $"Cannot remove the goal for *{minorFactionName}* in {starSystemName}.",
+                    $"The minor faction *{ex.MinorFactionName}* does not exist.",
+                    "Try again, checking the spelling and capitalization carefully.");
             }
-            transactionScope.Complete();
+            catch (UnknownStarSystemException ex)
+            {
+                await Response.Error(
+                    $"Cannot remove the goal for *{minorFactionName}* in {starSystemName}.",
+                    $"The star system *{ex.StarSystemName}* does not exist.",
+                    "Try again, checking the spelling and capitalization carefully.");
+            }
+            catch (Exception ex)
+            {
+                await Response.Exception(ex);
+            }
         }
 
         [SlashCommand("list", "List any specific goals per minor faction and per system")]
@@ -252,27 +268,25 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         [RequireBotRole(OfficersRole.RoleName, MembersRole.RoleName, Group = "Permission")]
         public async Task List()
         {
-            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-            string result = string.Join(Environment.NewLine,
-                ApiFactory.CreateApi(Context.Guild).ListGoals().Select(
-                    dgssmfg => $"{dgssmfg.Goal} {dgssmfg.Presence.MinorFaction.Name} in {dgssmfg.Presence.StarSystem.Name}"));
-            if (result.Length == 0)
+            try
             {
-                await Context.Interaction.FollowupAsync(
-                        text: "No goals specified",
-                        ephemeral: true
-                );
+                string result = string.Join(Environment.NewLine,
+                    Api.ListGoals().Select(
+                        dgssmfg => $"{dgssmfg.Goal} {dgssmfg.Presence.MinorFaction.Name} in {dgssmfg.Presence.StarSystem.Name}"));
+                if (result.Length == 0)
+                {
+                    await Response.Information("No goals specified");
+                }
+                else
+                {
+                    await Response.File(result, $"{Context.Guild.Name} Goals.txt");
+                }
+                TransactionScope.Complete();
             }
-            else
+            catch (Exception ex)
             {
-                using MemoryStream memoryStream = new(Encoding.UTF8.GetBytes(result));
-                await Context.Interaction.FollowupWithFileAsync(
-                    fileStream: memoryStream,
-                    fileName: "Goals.txt",
-                    ephemeral: true
-                );
+                await Response.Exception(ex);
             }
-            transactionScope.Complete();
         }
 
         [SlashCommand("export", "Export the current goals for backup")]
@@ -280,8 +294,9 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
         [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
         public async Task Export()
         {
-            using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-            IList<GoalCsvRow> result = ApiFactory.CreateApi(Context.Guild).ListGoals()
+            try
+            {
+                IList<GoalCsvRow> result = Api.ListGoals()
                     .Select(dgssmfg => new GoalCsvRow()
                     {
                         Goal = dgssmfg.Goal,
@@ -289,28 +304,19 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                         StarSystem = dgssmfg.Presence.StarSystem.Name
                     })
                     .ToList();
-            if (result.Count == 0)
-            {
-                await Context.Interaction.FollowupAsync(
-                    text: "No goals specified",
-                    ephemeral: true
-                );
+                if (result.Count == 0)
+                {
+                    await Response.Information("No goals specified");
+                }
+                else
+                {
+                    await Response.CsvFile(result, $"{Context.Guild.Name} Goals.txt");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                using MemoryStream memoryStream = new();
-                using StreamWriter streamWriter = new(memoryStream);
-                using CsvWriter csvWriter = new(streamWriter, CultureInfo.InvariantCulture);
-                csvWriter.WriteRecords(result);
-                csvWriter.Flush();
-                memoryStream.Seek(0, SeekOrigin.Begin);
-                await Context.Interaction.FollowupWithFileAsync(
-                    fileStream: memoryStream,
-                    fileName: $"{Context.Guild.Name} Goals.csv",
-                    ephemeral: true
-                );
+                await Response.Exception(ex);
             }
-            transactionScope.Complete();
         }
 
         [SlashCommand("import", "Import new goals")]
@@ -321,7 +327,6 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
             IAttachment goalsAttachement
         )
         {
-            using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             IList<GoalCsvRow> goals;
             try
             {
@@ -333,23 +338,42 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                     goals = await csvReader.GetRecordsAsync<GoalCsvRow>().ToListAsync();
                 }
 
-                using TransactionScope transactionScope = new(TransactionScopeAsyncFlowOption.Enabled);
-                await ApiFactory.CreateApi(Context.Guild).AddGoals(goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
-
-                auditLogger.Audit($"Imported goals:\n{string.Join("\n", goals.Select(g => $"{g.Goal} {g.MinorFaction} in {g.StarSystem}"))}");
-                await Context.Interaction.FollowupAsync(
-                        text: $"{EphemeralResponse.SuccessPrefix}{goalsAttachement.Filename} added to goals",
-                        ephemeral: true
-                );
-                transactionScope.Complete();
+                await Api.AddGoals(goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
+                AuditLogger.Audit($"Imported goals:\n{string.Join("\n", goals.Select(g => $"{g.Goal} {g.MinorFaction} in {g.StarSystem}"))}");
+                await Response.Success($"{goalsAttachement.Filename} added to goals", false);
+                TransactionScope.Complete();
             }
-            catch (CsvHelperException ex)
+            catch (CsvHelperException)
             {
-                throw new DiscordUserInteractionException($"{goalsAttachement.Filename} is not a valid goals file", ex);
+                await Response.Error(
+                    "Cannot import the goals from the file.",
+                    $"{goalsAttachement.Filename} is not a valid goals file.",
+                    "Correct the file then import it again.");
             }
-            catch (ArgumentException ex)
+            catch (UnknownMinorFactionException ex)
             {
-                throw new DiscordUserInteractionException(ex.Message, ex);
+                await Response.Error(
+                    "Cannot import the goals from the file.",
+                    $"The minor faction *{ex.MinorFactionName}* does not exist.",
+                    "Correct the file then import it again.");
+            }
+            catch (UnknownStarSystemException ex)
+            {
+                await Response.Error(
+                    "Cannot import the goals from the file.",
+                    $"The star system *{ex.StarSystemName}* does not exist.",
+                    "Correct the file then import it again.");
+            }
+            catch (UnknownGoalException ex)
+            {
+                await Response.Error(
+                    "Cannot import the goals from the file.",
+                    $"The goal *{ex.Goal}* does not exist.",
+                    "Correct the file the import it again.");
+            }
+            catch (Exception ex)
+            {
+                await Response.Exception(ex);
             }
         }
     }
