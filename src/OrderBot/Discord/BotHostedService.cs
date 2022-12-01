@@ -131,6 +131,8 @@ internal class BotHostedService : IHostedService
             _ => LogLevel.Critical // Be pessimistic
         };
 
+        // Log message conversion requires accessing variables
+#pragma warning disable CA2254
         if (message.Exception != null)
         {
             Logger.Log(logLevel, message.Exception, message.ToString());
@@ -139,7 +141,7 @@ internal class BotHostedService : IHostedService
         {
             Logger.Log(logLevel, message.ToString());
         }
-
+#pragma warning restore
         return Task.CompletedTask;
     }
 
