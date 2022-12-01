@@ -72,9 +72,6 @@ Key points:
 3. Shows an access denied-style error messages for unmet preconditions.
 4. Logs details of other thrown exceptions.
 
-3. Acknowledges non-autocomplete requests using `DeferAsync`. This ensures long running commands do not time out withing three seconds. 
-4. Logs a "Completed Successfully" message if the command does not throw any exceptions.
-
 Best practice for writing slash (application) commands:
 1. Derive command modules from `BaseCommandsModule`. This class handles common tasks like creating database connections, audit logs and a `Result` object.
 2. Wrap the code for each command in a `try ... catch` block with an `Exception` handler containing `Result.Exception`. This handles any unexpected exceptions.
@@ -83,6 +80,7 @@ Best practice for writing slash (application) commands:
     2.  `Success` for successful changes or actions. These are audited by default and logged as Information.
     3.  `Error` for unnecessful changes or actions. These are logged as Warnings. The error message is in three parts: what, why and a fix. This encourages better error messages and separates the loggable portion (why).
     4.  `Exception` for unhandled or unknown exceptions. These are logged as Errors.
+5. The `Result` objec also does some house keeping like calling `DeferAsync` early to ensure long-running commands do not time out.
 4. Auditing is usually handled through the `Result` object but you can still audit directly using `AuditLogger`.
 5. Logging is usually handled also through the `Result` object but you can still audit directly using `Logger`.
 6. Use `TransactionScope.Complete()` as the last statement to save any database work.
