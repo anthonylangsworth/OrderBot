@@ -39,8 +39,8 @@ public class BaseCommandsModule<T> : InteractionModuleBase<SocketInteractionCont
     {
         base.BeforeExecuteAsync(command);
 
-        IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-        Result = ResultFactory.GetResponse(Context, auditLogger, Logger);
+        AuditLogger = AuditLogFactory.CreateAuditLogger(Context);
+        Result = ResultFactory.GetResponse(Context, AuditLogger, Logger);
         TransactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
         return Task.CompletedTask;

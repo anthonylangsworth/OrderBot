@@ -157,21 +157,28 @@ public class EphemeralResult
             AuditLogger.Audit(why);
         }
 #pragma warning disable CA2254
-        Logger.LogError(why);
+        Logger.LogWarning(why);
 #pragma warning restore
     }
 
     /// <summary>
-    /// Respond to a request for information. <paramref name="message"/> is also logged.
+    /// Respond to a request for information. <paramref name="message"/> is also logged
+    /// if <paramref name="log"/> is true (default).
     /// </summary>
     /// <param name="message">
     /// The information to be sent to the user and logged.
     /// </param>
-    public async Task Information(string message)
+    /// <param name="log">
+    /// If <c>true</c>, message is logged (default). If <c>false</c>, message is not logged.
+    /// </param>
+    public async Task Information(string message, bool log = true)
     {
         await Write(string.Empty, message);
 #pragma warning disable CA2254
-        Logger.LogInformation(message);
+        if (log)
+        {
+            Logger.LogInformation(message);
+        }
 #pragma warning restore
     }
 

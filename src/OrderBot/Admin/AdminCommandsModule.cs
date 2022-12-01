@@ -7,7 +7,6 @@ using OrderBot.Core;
 using OrderBot.Discord;
 using OrderBot.EntityFramework;
 using OrderBot.Rbac;
-using System.Text;
 
 namespace OrderBot.Admin;
 
@@ -16,7 +15,7 @@ namespace OrderBot.Admin;
 public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContext>
 {
     [Group("audit-channel", "Audit events")]
-    public class AuditChannel : InteractionModuleBase<SocketInteractionContext>
+    public class AuditChannel : BaseCommandsModule<AuditChannel>
     {
         /// <summary>
         /// Create a new <see cref="Audit"/>.
@@ -28,17 +27,12 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
         /// </param>
         /// <param name="auditLogFactory">
         /// </param>
-        public AuditChannel(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<AuditChannel> logger,
-            TextChannelAuditLoggerFactory auditLogFactory)
+        public AuditChannel(OrderBotDbContext dbContext, ILogger<AuditChannel> logger,
+            TextChannelAuditLoggerFactory auditLogFactory, ResultFactory resultFactory)
+            : base(dbContext, logger, auditLogFactory, resultFactory)
         {
-            ContextFactory = contextFactory;
-            Logger = logger;
-            AuditLogFactory = auditLogFactory;
+            // Do nothing
         }
-
-        public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
-        public ILogger<AuditChannel> Logger { get; }
-        public TextChannelAuditLoggerFactory AuditLogFactory { get; }
 
         [SlashCommand("set", "Change the channel to which audit messages are written")]
         public async Task Set(
@@ -46,104 +40,116 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
             IChannel channel
         )
         {
-            string errorMessage = null!;
-            using IDisposable loggerScope = Logger.BeginScope(new InteractionScopeBuilder(Context).Build());
-            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
-
-            if (Context.Guild.GetChannel(channel.Id) is SocketTextChannel newAuditChannel)
+            try
             {
-                SocketTextChannel? oldAuditChannel = Context.Guild.GetChannel(discordGuild.AuditChannel ?? 0) as SocketTextChannel;
-                string auditMessage =
-                    $"{Context.User.Username} changed the BGS Order Bot audit channel from {oldAuditChannel?.Mention ?? "(None)"} to {newAuditChannel?.Mention}";
-                try
+                string errorMessage = null!;
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
+
+                if (Context.Guild.GetChannel(channel.Id) is SocketTextChannel newAuditChannel
+                    && newAuditChannel != null)
                 {
-                    if (oldAuditChannel != null)
+                    SocketTextChannel? oldAuditChannel = Context.Guild.GetChannel(discordGuild.AuditChannel ?? 0) as SocketTextChannel;
+                    string auditMessage =
+                        $"{Context.User.Username} changed the BGS Order Bot audit channel from {oldAuditChannel?.Mention ?? "(None)"} to {newAuditChannel?.Mention}";
+                    try
                     {
-                        await oldAuditChannel.SendMessageAsync(auditMessage);
+                        if (oldAuditChannel != null)
+                        {
+                            await oldAuditChannel.SendMessageAsync(auditMessage);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.LogWarning(ex, "Cannot write to old audit channel {channelName}. Ensure the bot has 'Send Messages' permission.",
+                            oldAuditChannel?.Name ?? oldAuditChannel?.Id.ToString());
+                    }
+
+                    try
+                    {
+#pragma warning disable CS8602
+                        await newAuditChannel.SendMessageAsync(auditMessage);
+#pragma warning restore CS8602
+                    }
+                    catch (Exception)
+                    {
+                        errorMessage = $"Cannot write to new audit channel {newAuditChannel?.Mention}. Ensure the bot has 'Send Messages' permission.";
                     }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Logger.LogError(ex, "Cannot write to old audit channel {channelName}. Ensure the bot has 'Send Messages' permission.",
-                        oldAuditChannel?.Name ?? oldAuditChannel?.Id.ToString());
+                    errorMessage = $"{MentionUtils.MentionChannel(channel.Id)} must be a text channel";
                 }
 
-                try
+                if (errorMessage != null)
                 {
-#pragma warning disable CS8602
-                    await newAuditChannel.SendMessageAsync(auditMessage);
-#pragma warning restore CS8602
+                    await Result.Error(
+                        $"Cannot set the audit channel to {MentionUtils.MentionChannel(channel?.Id ?? 0)}",
+                        errorMessage,
+                        "Select a text channel that the bot has 'Send Messages' permission to.");
                 }
-                catch (Exception ex)
+                else
                 {
-                    errorMessage = $"{EphemeralResult.ErrorPrefix}Cannot write to new audit channel {newAuditChannel?.Mention}. Ensure the bot has 'Send Messages' permission.";
-                    Logger.LogWarning(ex, "Cannot write to audit channel {ChannelId}.", newAuditChannel?.Id ?? 0);
+                    discordGuild.AuditChannel = channel?.Id ?? 0;
+                    await DbContext.SaveChangesAsync();
+                    await Result.Success($"Audit messages will now be written to {MentionUtils.MentionChannel(channel?.Id ?? 0)}.");
                 }
+                TransactionScope.Complete();
             }
-            else
+            catch (Exception ex)
             {
-                errorMessage = $"{EphemeralResult.ErrorPrefix}{MentionUtils.MentionChannel(channel.Id)} must be a text channel";
-                Logger.LogWarning("{ChannelId} is not a text channel", channel?.Id);
-            }
-
-            if (errorMessage != null)
-            {
-                throw new DiscordUserInteractionException(errorMessage);
-            }
-            else
-            {
-                discordGuild.AuditChannel = channel?.Id ?? 0;
-                await dbContext.SaveChangesAsync();
-                await Context.Interaction.FollowupAsync(
-                    text: $"{EphemeralResult.SuccessPrefix}Audit messages will now be written to {MentionUtils.MentionChannel(channel?.Id ?? 0)}.",
-                    ephemeral: true
-                );
+                await Result.Exception(ex);
             }
         }
 
         [SlashCommand("get", "Get the channel to which audit log messages are written")]
         public async Task Get()
         {
-            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
-            string message;
-            if (discordGuild.AuditChannel == null)
+            try
             {
-                message = $"No audit channel set";
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
+                string message;
+                if (discordGuild.AuditChannel == null)
+                {
+                    message = $"No audit channel set";
+                }
+                else
+                {
+                    IChannel channel = Context.Guild.GetChannel(discordGuild.AuditChannel ?? 0);
+                    message = $"Audit messages will be written to {MentionUtils.MentionChannel(channel.Id)}";
+                }
+                await Result.Information(message);
             }
-            else
+            catch (Exception ex)
             {
-                IChannel channel = Context.Guild.GetChannel(discordGuild.AuditChannel ?? 0);
-                message = $"Audit messages will be written to {MentionUtils.MentionChannel(channel.Id)}";
+                await Result.Exception(ex);
             }
-            await Context.Interaction.FollowupAsync(
-                text: message,
-                ephemeral: true
-            );
         }
 
         [SlashCommand("clear", "Turn off auditing")]
         public async Task Clear()
         {
-            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
-            if (discordGuild.AuditChannel != null)
+            try
             {
-                discordGuild.AuditChannel = null;
-                await dbContext.SaveChangesAsync();
+                // Audit here as the last entry to the audit log
+                AuditLogger.Audit("Auditing disabled");
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
+                if (discordGuild.AuditChannel != null)
+                {
+                    discordGuild.AuditChannel = null;
+                    await DbContext.SaveChangesAsync();
+                }
+                await Result.Success("Auditing disabled");
+                TransactionScope.Complete();
             }
-            using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-            auditLogger.Audit("Auditing disabled");
-            await Context.Interaction.FollowupAsync(
-                text: $"{EphemeralResult.SuccessPrefix}Auditing is turned off",
-                ephemeral: true
-            );
+            catch (Exception ex)
+            {
+                await Result.Exception(ex);
+            }
         }
     }
 
     [Group("rbac", "Role-based Access Control")]
-    public class Rbac : InteractionModuleBase<SocketInteractionContext>
+    public class Rbac : BaseCommandsModule<Rbac>
     {
         /// <summary>
         /// Create a new <see cref="Audit"/>.
@@ -155,17 +161,12 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
         /// </param>
         /// <param name="auditLogFactory">
         /// </param>
-        public Rbac(IDbContextFactory<OrderBotDbContext> contextFactory, ILogger<AuditChannel> logger,
-            TextChannelAuditLoggerFactory auditLogFactory)
+        public Rbac(OrderBotDbContext dbContext, ILogger<Rbac> logger,
+            TextChannelAuditLoggerFactory auditLogFactory, ResultFactory resultFactory)
+            : base(dbContext, logger, auditLogFactory, resultFactory)
         {
-            ContextFactory = contextFactory;
-            Logger = logger;
-            AuditLogFactory = auditLogFactory;
+            // Do nothing
         }
-
-        public IDbContextFactory<OrderBotDbContext> ContextFactory { get; }
-        public ILogger<AuditChannel> Logger { get; }
-        public TextChannelAuditLoggerFactory AuditLogFactory { get; }
 
         [SlashCommand("add-member", "Add a member to a role")]
         public async Task AddMember(
@@ -176,57 +177,63 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
             string roleName,
             [Summary("discord-role", "The role to add")]
             IRole discordRole
-         )
+        )
         {
-            string errorMessage = null!;
-            using IDisposable loggerScope = Logger.BeginScope(new InteractionScopeBuilder(Context).Build());
-            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
+            try
+            {
 
-            if (!Roles.Map.Keys.Contains(roleName))
-            {
-                errorMessage = $"Unknown role {roleName}";
-                Logger.LogWarning("Unknown role { RoleName }", roleName);
-            }
-            else
-            {
-                Core.Role? role = dbContext.Roles.FirstOrDefault(r => r.Name == roleName);
-                if (role == null)
+                string errorMessage = null!;
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
+
+                if (!Roles.Map.Keys.Contains(roleName))
                 {
-                    role = new Core.Role { Name = roleName };
-                    dbContext.Roles.Add(role);
+                    errorMessage = $"Unknown role {roleName}";
+                    Logger.LogWarning("Unknown role { RoleName }", roleName);
                 }
-
-                RoleMember? roleMamber =
-                    dbContext.RoleMembers.FirstOrDefault(rm => rm.DiscordGuild == discordGuild
-                                                            && rm.Role == role
-                                                            && rm.MentionableId == discordRole.Id);
-                if (roleMamber == null)
+                else
                 {
-                    roleMamber = new RoleMember
+                    Core.Role? role = DbContext.Roles.FirstOrDefault(r => r.Name == roleName);
+                    if (role == null)
                     {
-                        DiscordGuild = discordGuild,
-                        Role = role,
-                        MentionableId = discordRole.Id
-                    };
-                    dbContext.RoleMembers.Add(roleMamber);
+                        role = new Core.Role { Name = roleName };
+                        DbContext.Roles.Add(role);
+                    }
+
+                    RoleMember? roleMamber =
+                        DbContext.RoleMembers.FirstOrDefault(rm => rm.DiscordGuild == discordGuild
+                                                                && rm.Role == role
+                                                                && rm.MentionableId == discordRole.Id);
+                    if (roleMamber == null)
+                    {
+                        roleMamber = new RoleMember
+                        {
+                            DiscordGuild = discordGuild,
+                            Role = role,
+                            MentionableId = discordRole.Id
+                        };
+                        DbContext.RoleMembers.Add(roleMamber);
+                    }
+
+                    DbContext.SaveChanges();
                 }
 
-                dbContext.SaveChanges();
+                if (errorMessage == null)
+                {
+                    await Result.Success(
+                        $"Added {MentionUtils.MentionRole(discordRole.Id)} to role '{roleName}'.", true);
+                }
+                else
+                {
+                    await Result.Error(
+                        $"Cannot add {MentionUtils.MentionRole(discordRole.Id)} to role '{roleName}.",
+                        errorMessage,
+                        "");
+                }
+                TransactionScope.Complete();
             }
-
-            if (errorMessage == null)
+            catch (Exception ex)
             {
-                using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-                auditLogger.Audit($"Added '{discordRole.Name}' to role '{roleName}'");
-                await Context.Interaction.FollowupAsync(
-                    text: $"{EphemeralResult.SuccessPrefix}Added {MentionUtils.MentionRole(discordRole.Id)} to role '{roleName}'",
-                    ephemeral: true
-                );
-            }
-            else
-            {
-                throw new DiscordUserInteractionException(errorMessage);
+                await Result.Exception(ex);
             }
         }
 
@@ -241,75 +248,82 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
             IRole discordRole
          )
         {
-            string errorMessage = null!;
-            using IDisposable loggerScope = Logger.BeginScope(new InteractionScopeBuilder(Context).Build());
-            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
+            try
+            {
+                string errorMessage = null!;
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
 
-            Core.Role? role = dbContext.Roles.FirstOrDefault(r => r.Name == roleName);
-            if (role == null)
-            {
-                errorMessage = $"Unknown role {roleName}";
-                Logger.LogWarning("Unknown role { RoleName }", roleName);
-            }
-            else
-            {
-                RoleMember? roleMamber =
-                    dbContext.RoleMembers.FirstOrDefault(rm => rm.DiscordGuild == discordGuild
-                                                            && rm.Role == role
-                                                            && rm.MentionableId == discordRole.Id);
-                if (roleMamber != null)
+                Core.Role? role = DbContext.Roles.FirstOrDefault(r => r.Name == roleName);
+                if (role == null)
                 {
-                    dbContext.RoleMembers.Remove(roleMamber);
+                    errorMessage = $"Unknown role {roleName}";
+                    Logger.LogWarning("Unknown role { RoleName }", roleName);
                 }
-                dbContext.SaveChanges();
-            }
+                else
+                {
+                    RoleMember? roleMamber =
+                        DbContext.RoleMembers.FirstOrDefault(rm => rm.DiscordGuild == discordGuild
+                                                                && rm.Role == role
+                                                                && rm.MentionableId == discordRole.Id);
+                    if (roleMamber != null)
+                    {
+                        DbContext.RoleMembers.Remove(roleMamber);
+                    }
+                    else
+                    {
+                        errorMessage = $"{MentionUtils.MentionRole(discordRole.Id)} is not a member of the role '{roleName}'.";
+                    }
+                    DbContext.SaveChanges();
+                }
 
-            if (errorMessage == null)
-            {
-                using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
-                auditLogger.Audit($"Removed '{discordRole.Name}' from role '{roleName}'");
-                await Context.Interaction.FollowupAsync(
-                    text: $"{EphemeralResult.SuccessPrefix}Removed {MentionUtils.MentionRole(discordRole.Id)} from role '{roleName}'",
-                    ephemeral: true
-                );
+                if (errorMessage == null)
+                {
+                    await Result.Success(
+                        $"Removed {MentionUtils.MentionRole(discordRole.Id)} from role '{roleName}'.", true);
+                }
+                else
+                {
+                    await Result.Error(
+                        $"Cannot remove {MentionUtils.MentionRole(discordRole.Id)} from role '{roleName}'.",
+                        errorMessage,
+                        "");
+                }
+                TransactionScope.Complete();
             }
-            else
+            catch (Exception ex)
             {
-                throw new DiscordUserInteractionException(errorMessage);
+                await Result.Exception(ex);
             }
         }
 
         [SlashCommand("list", "List role members")]
         public async Task List()
         {
-            using OrderBotDbContext dbContext = await ContextFactory.CreateDbContextAsync();
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, Context.Guild);
-
-            IList<RoleMember> roleMembers = dbContext.RoleMembers.Include(rm => rm.Role)
-                                                     .Where(rm => rm.DiscordGuild == discordGuild)
-                                                     .ToList();
-            string result = string.Join(
-                Environment.NewLine,
-                roleMembers.OrderBy(rm => rm.Role.Name)
-                           .GroupBy(rm => rm.Role)
-                           .Select(grp => $"{grp.Key.Name}: {string.Join(", ", grp.ToList().Select(rm => Context.Guild.GetRole(rm.MentionableId).Name).OrderBy(s => s))}"));
-
-            if (!string.IsNullOrEmpty(result))
+            try
             {
-                using MemoryStream memoryStream = new(Encoding.UTF8.GetBytes(result));
-                await Context.Interaction.FollowupWithFileAsync(
-                    fileStream: memoryStream,
-                    fileName: $"{Context.Guild.Name} Role Members.txt",
-                    ephemeral: true
-                );
+                DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Context.Guild);
+
+                IList<RoleMember> roleMembers = DbContext.RoleMembers.Include(rm => rm.Role)
+                                                         .Where(rm => rm.DiscordGuild == discordGuild)
+                                                         .ToList();
+                string result = string.Join(
+                    Environment.NewLine,
+                    roleMembers.OrderBy(rm => rm.Role.Name)
+                               .GroupBy(rm => rm.Role)
+                               .Select(grp => $"{grp.Key.Name}: {string.Join(", ", grp.ToList().Select(rm => Context.Guild.GetRole(rm.MentionableId).Name).OrderBy(s => s))}"));
+
+                if (!string.IsNullOrEmpty(result))
+                {
+                    await Result.File(result, $"{Context.Guild.Name} Role Members.txt");
+                }
+                else
+                {
+                    await Result.Information("No role members");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                await Context.Interaction.FollowupAsync(
-                    text: $"No role members",
-                    ephemeral: true
-                );
+                await Result.Exception(ex);
             }
         }
     }

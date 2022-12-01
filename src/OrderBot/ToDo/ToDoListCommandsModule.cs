@@ -50,7 +50,8 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
             string text = raw
                 ? $"```\n{Api.GetTodoList()}\n```"
                 : Api.GetTodoList();
-            await Result.Information(text);
+            await Result.Information(text, false);
+            Logger.LogInformation("Completed successfully");
         }
         catch (UnknownGoalException ex)
         {
