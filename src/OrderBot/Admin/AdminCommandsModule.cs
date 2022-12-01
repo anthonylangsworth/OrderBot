@@ -18,14 +18,16 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
     public class AuditChannel : BaseCommandsModule<AuditChannel>
     {
         /// <summary>
-        /// Create a new <see cref="Audit"/>.
+        /// Create a new <see cref="AuditChannel"/>.
         /// </summary>
-        /// <param name="contextFactory">
+        /// <param name="dbContext">
         /// </param>
         /// <param name="logger">
         /// A <see cref="Logger{AuditChannel}"/> to log to.
         /// </param>
         /// <param name="auditLogFactory">
+        /// </param>
+        /// <param name="resultFactory">
         /// </param>
         public AuditChannel(OrderBotDbContext dbContext, ILogger<AuditChannel> logger,
             TextChannelAuditLoggerFactory auditLogFactory, ResultFactory resultFactory)
@@ -154,12 +156,14 @@ public class AdminCommandsModule : InteractionModuleBase<SocketInteractionContex
         /// <summary>
         /// Create a new <see cref="Audit"/>.
         /// </summary>
-        /// <param name="contextFactory">
+        /// <param name="dbContext">
         /// </param>
         /// <param name="logger">
-        /// A <see cref="Logger{AuditChannel}"/> to log to.
+        /// A <see cref="Logger{Rbac}"/> to log to.
         /// </param>
         /// <param name="auditLogFactory">
+        /// </param>
+        /// <param name="resultFactory">
         /// </param>
         public Rbac(OrderBotDbContext dbContext, ILogger<Rbac> logger,
             TextChannelAuditLoggerFactory auditLogFactory, ResultFactory resultFactory)
