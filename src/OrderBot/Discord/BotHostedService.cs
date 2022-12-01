@@ -67,12 +67,6 @@ internal class BotHostedService : IHostedService
     public static GatewayIntents Intents => GatewayIntents.GuildMembers | GatewayIntents.Guilds;
 
     /// <summary>
-    /// The current <see cref="SocketInteractionContext"/>, or <see cref="null"/> if there is none.
-    /// </summary>
-    public static AsyncLocal<SocketInteractionContext> CurrentContext { get; } =
-        new AsyncLocal<SocketInteractionContext>();
-
-    /// <summary>
     /// The Discord client.
     /// </summary>
     internal DiscordSocketClient Client { get; }
@@ -201,7 +195,7 @@ internal class BotHostedService : IHostedService
 
         if (!string.IsNullOrEmpty(errorMessage))
         {
-            await interaction.FollowupAsync(text: MessagePrefix.Error + errorMessage, ephemeral: true);
+            await interaction.FollowupAsync(text: EphemeralResponse.ErrorPrefix + errorMessage, ephemeral: true);
         }
     }
 }

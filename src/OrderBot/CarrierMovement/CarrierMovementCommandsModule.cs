@@ -52,7 +52,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             await DbContext.SaveChangesAsync();
             auditLogger.Audit($"Set the carrier movement channel to {channel.Name}");
             await Context.Interaction.FollowupAsync(
-                text: $"{MessagePrefix.Success}Carrier movements will be mentioned in {MentionUtils.MentionChannel(channel.Id)}. Ensure this bot has 'Send Messages' permission to that channel. This change takes a few minutes to occur.",
+                text: $"{EphemeralResponse.SuccessPrefix}Carrier movements will be mentioned in {MentionUtils.MentionChannel(channel.Id)}. Ensure this bot has 'Send Messages' permission to that channel. This change takes a few minutes to occur.",
                 ephemeral: true
             );
         }
@@ -134,7 +134,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
                 AddImplementation(DbContext, Context.Guild, new[] { name });
                 auditLogger.Audit($"Ignored carrier '{name}'");
                 await Context.Interaction.FollowupAsync(
-                    text: $"{MessagePrefix.Success}Fleet carrier '{name}' will be ignored and its jumps **NOT** reported",
+                    text: $"{EphemeralResponse.SuccessPrefix}Fleet carrier '{name}' will be ignored and its jumps **NOT** reported",
                     ephemeral: true
                 );
             }
@@ -183,7 +183,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             auditLogger.Audit($"Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.");
             await Context.Interaction.FollowupAsync(
-                text: $"{MessagePrefix.Success}Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.",
+                text: $"{EphemeralResponse.SuccessPrefix}Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.",
                 ephemeral: true
             );
         }
@@ -288,7 +288,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 auditLogger.Audit($"Ignored carriers:\n{string.Join("\n", goals.Select(g => g.Name))}");
                 await Context.Interaction.FollowupAsync(
-                        text: $"{MessagePrefix.Success}{ignoredCarriersAttachement.Filename} added to ignored carriers",
+                        text: $"{EphemeralResponse.SuccessPrefix}{ignoredCarriersAttachement.Filename} added to ignored carriers",
                         ephemeral: true
                 );
             }

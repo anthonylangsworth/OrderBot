@@ -111,7 +111,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                 using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
                 auditLogger.Audit($"Supporting minor faction *{name}*");
                 await Context.Interaction.FollowupAsync(
-                    text: $"{MessagePrefix.Success}Now supporting *{name}*",
+                    text: $"{EphemeralResponse.SuccessPrefix}Now supporting *{name}*",
                     ephemeral: true
                 );
             }
@@ -132,7 +132,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
             using IAuditLogger auditLogger = AuditLogFactory.CreateAuditLogger(Context);
             auditLogger.Audit($"Not supporting any minor faction");
             await Context.Interaction.FollowupAsync(
-                text: $"{MessagePrefix.Success}Not supporting any minor faction",
+                text: $"{EphemeralResponse.SuccessPrefix}Not supporting any minor faction",
                 ephemeral: true
             );
             transactionScope.Complete();
@@ -202,7 +202,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                     new[] { (minorFactionName, starSystemName, goalName) });
                 auditLogger.Audit($"Added goal to {goalName} *{minorFactionName}* in {starSystemName}");
                 await Context.Interaction.FollowupAsync(
-                    text: $"{MessagePrefix.Success}Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
+                    text: $"{EphemeralResponse.SuccessPrefix}Goal {goalName} for *{minorFactionName}* in {starSystemName} added",
                     ephemeral: true
                 );
             }
@@ -236,7 +236,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
                 ApiFactory.CreateApi(Context.Guild).RemoveGoals(minorFactionName, starSystemName);
                 auditLogger.Audit($"Removed goal for *{minorFactionName}* in {starSystemName}");
                 await Context.Interaction.FollowupAsync(
-                    text: $"{MessagePrefix.Success}Goal for *{minorFactionName}* in {starSystemName} removed",
+                    text: $"{EphemeralResponse.SuccessPrefix}Goal for *{minorFactionName}* in {starSystemName} removed",
                     ephemeral: true
                 );
             }
@@ -338,7 +338,7 @@ public class ToDoListCommandsModule : InteractionModuleBase<SocketInteractionCon
 
                 auditLogger.Audit($"Imported goals:\n{string.Join("\n", goals.Select(g => $"{g.Goal} {g.MinorFaction} in {g.StarSystem}"))}");
                 await Context.Interaction.FollowupAsync(
-                        text: $"{MessagePrefix.Success}{goalsAttachement.Filename} added to goals",
+                        text: $"{EphemeralResponse.SuccessPrefix}{goalsAttachement.Filename} added to goals",
                         ephemeral: true
                 );
                 transactionScope.Complete();

@@ -1,5 +1,7 @@
-﻿using Discord;
+﻿using CsvHelper;
+using Discord;
 using Discord.Interactions;
+using System.Globalization;
 
 namespace OrderBot.Discord;
 
@@ -15,26 +17,44 @@ internal class EphemeralResponse
     public EphemeralResponse(SocketInteractionContext context)
     {
         context.Interaction.DeferAsync(ephemeral: true).GetAwaiter().GetResult();
+        Context = context;
     }
 
-    public async Task Success(InteractionContext context, string message)
+    protected SocketInteractionContext Context { get; }
+
+    public async Task Success(string message)
     {
-        await Write(context, SuccessPrefix, message);
+        await Write(SuccessPrefix, message);
     }
 
-    public async Task Error(InteractionContext context, string message)
+    public async Task File(string file, string fileName)
     {
-        await Write(context, ErrorPrefix, message);
+        using MemoryStream memoryStream = new();
+        using StreamWriter streamWriter = new(memoryStream);
+        using CsvWriter csvWriter = new(streamWriter, CultureInfo.InvariantCulture);
+        csvWriter.WriteRecords(file);
+        csvWriter.Flush();
+        memoryStream.Seek(0, SeekOrigin.Begin);
+        await Context.Interaction.FollowupWithFileAsync(
+            fileStream: memoryStream,
+            fileName: fileName,
+            ephemeral: true
+        );
     }
 
-    public async Task Information(InteractionContext context, string message)
+    public async Task Error(string message)
     {
-        await Write(context, string.Empty, message);
+        await Write(ErrorPrefix, message);
     }
 
-    public async Task Write(InteractionContext context, string prefix, string message)
+    public async Task Information(string message)
     {
-        await context.Interaction.FollowupAsync(
+        await Write(string.Empty, message);
+    }
+
+    public async Task Write(string prefix, string message)
+    {
+        await Context.Interaction.FollowupAsync(
                 text: Limit($"{prefix}{message}"),
                 ephemeral: true
             );
