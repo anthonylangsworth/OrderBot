@@ -54,7 +54,7 @@ sequenceDiagram
   DiscordClient->>BotHostedService : Client_InteractionCreated()
   BotHostedService->>InteractionService: ExecuteCommandAsync()
   InteractionService->>+CommandsModule: Call method with [SlashCommand()]
-  CommandsModule--)-InteractionService: void or thrown Exception 
+  CommandsModule--)-InteractionService: void 
   InteractionService--)BotHostedService: void
   BotHostedService--)DiscordClient: void
 ```
@@ -73,19 +73,19 @@ Key points:
 4. Logs details of other thrown exceptions.
 
 Best practice for writing slash (application) commands:
-1. Derive command modules from `BaseCommandsModule`. This class handles common tasks like creating database connections, audit logs and a `Result` object.
-2. Wrap the code for each command in a `try ... catch` block with an `Exception` handler containing `Result.Exception`. This handles any unexpected exceptions.
-3. Use `Result` methods to communicate with the user. Specifically:
+1. Derive command modules classes from `BaseCommandsModule<T>`. This class handles common tasks like creating database connections, audit logs and a `Result` object.
+2. Wrap the code for each command in a `try ... catch` block with an `Exception` handler containing `Result.Exception`. This handles any unexpected exceptions. While Discord.Net will catch and log unthrown exceptions, it will not notify the user.
+3. Use `Result` methods to communicate with the user and wraps logging and auditing for most situations. Specifically:
     1.  `Information` for responses to queries or acknowledgements. THese are logged as Information by default but not audited.
     2.  `Success` for successful changes or actions. These are audited by default and logged as Information.
-    3.  `Error` for unnecessful changes or actions. These are logged as Warnings. The error message is in three parts: what, why and a fix. This encourages better error messages and separates the loggable portion (why).
+    3.  `Error` for unnecessful changes or actions, such as invalid command parameter values. These are logged as Warnings. The error message is in three parts: what, why and a fix. This encourages better error messages and separates the loggable portion (why).
     4.  `Exception` for unhandled or unknown exceptions. These are logged as Errors.
-5. The `Result` objec also does some house keeping like calling `DeferAsync` early to ensure long-running commands do not time out.
-4. Auditing is usually handled through the `Result` object but you can still audit directly using `AuditLogger`.
-5. Logging is usually handled also through the `Result` object but you can still audit directly using `Logger`.
-6. Use `TransactionScope.Complete()` as the last statement to save any database work.
-7. Remember that the class housing the command handler is instantiated for each call.
-8. Do not duplicate work in `BaseCommandsModule` or `BotHostedService.Client_InteractionCreated`. The general goal is to move as much work to there as possible. This standardizes behaviour and prevents code repetition.
+4. The `Result` object also does some house keeping like (1) calling `DeferAsync` early to ensure long-running commands do not time out and (2) capping the message length to the max ephemeral response length.
+5. Auditing is usually handled through the `Result` object but you can still audit directly using `AuditLogger`. Try to keep it to one audit message per command execution.
+6. Logging is usually handled also through the `Result` object but you can still log directly using `Logger`. Try to keep it to one non-verbose/diagnostic log message per command execution.
+7. Use `TransactionScope.Complete()` as the last statement to save any database work. Otherwise, results will not be saved.
+8. Remember that the class housing the command handler is instantiated for each interaction.
+9. Do not duplicate work in `BaseCommandsModule` or `BotHostedService.Client_InteractionCreated`. The general goal is to move as much work to there as possible. This standardizes behaviour and prevents code repetition.
 
 ## Message Processing
 To provide data for the Discord bot, this system listens for [Elite Dangerous Data Network (EDDN)](https://eddn.edcd.io/) messages via the `EddnMessageHostedService`, which are handled by `EddnMessageMessageProcessor` subclasses. There are currently two: `TodoListMessageProcessor`, which captures system BGS data, and `CarrierMovementMessageProcessor`, which looks for carrier movements and notifies Discord guilds which have registered a carrier movement channel. These classes are instiated for each message.
