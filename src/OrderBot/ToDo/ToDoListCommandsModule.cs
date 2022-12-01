@@ -21,7 +21,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
         ILogger<ToDoListCommandsModule> logger,
         ToDoListApiFactory toDoListApiFactory,
         TextChannelAuditLoggerFactory auditLogFactory,
-        ResponseFactory responseFactory)
+        ResultFactory responseFactory)
             : base(dbContext, logger, toDoListApiFactory, auditLogFactory, responseFactory)
     {
         // DO nothing
@@ -50,26 +50,26 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
             string text = raw
                 ? $"```\n{Api.GetTodoList()}\n```"
                 : Api.GetTodoList();
-            await Response.Information(text);
+            await Result.Information(text);
         }
         catch (UnknownGoalException ex)
         {
             Logger.LogError(ex, "Unknown goal");
-            await Response.Error(
+            await Result.Error(
                 "Cannot generate suggestions.",
                 $"There is an unknown goal '{ex.Goal}' for *{ex.MinorFaction}* in {ex.StarSystem}.",
                 "Remove that goal using `/todo-list goal remove` then re-run this command.");
         }
         catch (NoSupportedMinorFactionException)
         {
-            await Response.Error(
+            await Result.Error(
                 "Cannot generate suggestions.",
                 "There is no supported minor faction.",
                 "Support a minor faction using `/todo-list support set` then re-run this command.");
         }
         catch (Exception ex)
         {
-            await Response.Exception(ex);
+            await Result.Exception(ex);
         }
     }
 
@@ -80,7 +80,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
             ILogger<Support> logger,
             ToDoListApiFactory toDoListApiFactory,
             TextChannelAuditLoggerFactory auditLogFactory,
-            ResponseFactory responseFactory)
+            ResultFactory responseFactory)
             : base(dbContext, logger, toDoListApiFactory, auditLogFactory, responseFactory)
         {
             // Do nothing
@@ -100,19 +100,19 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
             try
             {
                 await Api.SetSupportedMinorFactionAsync(name);
-                await Response.Success($"Now supporting minor faction *{name}*", true);
+                await Result.Success($"Now supporting minor faction *{name}*", true);
                 TransactionScope.Complete();
             }
             catch (UnknownMinorFactionException)
             {
-                await Response.Error(
+                await Result.Error(
                     "Cannot support that minor faction.",
                     $"The minor faction *{name}* not exist.",
                     "Try again, checking the spelling and capitalization carefully.");
             }
             catch (Exception ex)
             {
-                await Response.Exception(ex);
+                await Result.Exception(ex);
             }
         }
 
@@ -124,12 +124,12 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
             try
             {
                 Api.ClearSupportedMinorFaction();
-                await Response.Success("Not supporting any minor faction", true);
+                await Result.Success("Not supporting any minor faction", true);
                 TransactionScope.Complete();
             }
             catch (Exception ex)
             {
-                await Response.Exception(ex);
+                await Result.Exception(ex);
             }
         }
 
@@ -144,11 +144,11 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
                 string message = string.IsNullOrEmpty(minorFactionName)
                     ? $"Not supporting any minor faction"
                     : $"Supporting *{minorFactionName}*";
-                await Response.Information(message);
+                await Result.Information(message);
             }
             catch (Exception ex)
             {
-                await Response.Exception(ex);
+                await Result.Exception(ex);
             }
         }
     }
@@ -160,7 +160,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
             ILogger<Goals> logger,
             ToDoListApiFactory toDoListApiFactory,
             TextChannelAuditLoggerFactory auditLogFactory,
-            ResponseFactory responseFactory)
+            ResultFactory responseFactory)
             : base(dbContext, logger, toDoListApiFactory, auditLogFactory, responseFactory)
         {
             // Do nothing
@@ -191,33 +191,33 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
             {
                 await Api.AddGoals(
                     new[] { (minorFactionName, starSystemName, goalName) });
-                await Response.Success($"Added goal to {goalName} *{minorFactionName}* in {starSystemName}", true);
+                await Result.Success($"Added goal to {goalName} *{minorFactionName}* in {starSystemName}", true);
                 TransactionScope.Complete();
             }
             catch (UnknownMinorFactionException)
             {
-                await Response.Error(
+                await Result.Error(
                     $"Cannot add the goal to {goalName} *{minorFactionName}* in {starSystemName}.",
                     $"The minor faction *{minorFactionName}* does not exist.",
                     "Try again, checking the spelling and capitalization carefully.");
             }
             catch (UnknownStarSystemException)
             {
-                await Response.Error(
+                await Result.Error(
                     $"Cannot add the goal to {goalName} *{minorFactionName}* in {starSystemName}.",
                     $"The star system *{starSystemName}* does not exist.",
                     "Try again, checking the spelling and capitalization carefully.");
             }
             catch (UnknownGoalException)
             {
-                await Response.Error(
+                await Result.Error(
                     $"Cannot add the goal to {goalName} *{minorFactionName}* in {starSystemName}.",
                     $"The goal *{goalName}* does not exist.",
                     "Try again, checking the spelling and capitalization carefully.");
             }
             catch (Exception ex)
             {
-                await Response.Exception(ex);
+                await Result.Exception(ex);
             }
         }
 
@@ -240,26 +240,26 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
             try
             {
                 Api.RemoveGoal(minorFactionName, starSystemName);
-                await Response.Success($"Remove goal for *{minorFactionName}* in {starSystemName}", true);
+                await Result.Success($"Remove goal for *{minorFactionName}* in {starSystemName}", true);
                 TransactionScope.Complete();
             }
             catch (UnknownMinorFactionException ex)
             {
-                await Response.Error(
+                await Result.Error(
                     $"Cannot remove the goal for *{minorFactionName}* in {starSystemName}.",
                     $"The minor faction *{ex.MinorFactionName}* does not exist.",
                     "Try again, checking the spelling and capitalization carefully.");
             }
             catch (UnknownStarSystemException ex)
             {
-                await Response.Error(
+                await Result.Error(
                     $"Cannot remove the goal for *{minorFactionName}* in {starSystemName}.",
                     $"The star system *{ex.StarSystemName}* does not exist.",
                     "Try again, checking the spelling and capitalization carefully.");
             }
             catch (Exception ex)
             {
-                await Response.Exception(ex);
+                await Result.Exception(ex);
             }
         }
 
@@ -275,17 +275,17 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
                         dgssmfg => $"{dgssmfg.Goal} {dgssmfg.Presence.MinorFaction.Name} in {dgssmfg.Presence.StarSystem.Name}"));
                 if (result.Length == 0)
                 {
-                    await Response.Information("No goals specified");
+                    await Result.Information("No goals specified");
                 }
                 else
                 {
-                    await Response.File(result, $"{Context.Guild.Name} Goals.txt");
+                    await Result.File(result, $"{Context.Guild.Name} Goals.txt");
                 }
                 TransactionScope.Complete();
             }
             catch (Exception ex)
             {
-                await Response.Exception(ex);
+                await Result.Exception(ex);
             }
         }
 
@@ -306,16 +306,16 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
                     .ToList();
                 if (result.Count == 0)
                 {
-                    await Response.Information("No goals specified");
+                    await Result.Information("No goals specified");
                 }
                 else
                 {
-                    await Response.CsvFile(result, $"{Context.Guild.Name} Goals.txt");
+                    await Result.CsvFile(result, $"{Context.Guild.Name} Goals.txt");
                 }
             }
             catch (Exception ex)
             {
-                await Response.Exception(ex);
+                await Result.Exception(ex);
             }
         }
 
@@ -340,40 +340,40 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
 
                 await Api.AddGoals(goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
                 AuditLogger.Audit($"Imported goals:\n{string.Join("\n", goals.Select(g => $"{g.Goal} {g.MinorFaction} in {g.StarSystem}"))}");
-                await Response.Success($"{goalsAttachement.Filename} added to goals", false);
+                await Result.Success($"{goalsAttachement.Filename} added to goals", false);
                 TransactionScope.Complete();
             }
             catch (CsvHelperException)
             {
-                await Response.Error(
+                await Result.Error(
                     "Cannot import the goals from the file.",
                     $"{goalsAttachement.Filename} is not a valid goals file.",
                     "Correct the file then import it again.");
             }
             catch (UnknownMinorFactionException ex)
             {
-                await Response.Error(
+                await Result.Error(
                     "Cannot import the goals from the file.",
                     $"The minor faction *{ex.MinorFactionName}* does not exist.",
                     "Correct the file then import it again.");
             }
             catch (UnknownStarSystemException ex)
             {
-                await Response.Error(
+                await Result.Error(
                     "Cannot import the goals from the file.",
                     $"The star system *{ex.StarSystemName}* does not exist.",
                     "Correct the file then import it again.");
             }
             catch (UnknownGoalException ex)
             {
-                await Response.Error(
+                await Result.Error(
                     "Cannot import the goals from the file.",
                     $"The goal *{ex.Goal}* does not exist.",
                     "Correct the file the import it again.");
             }
             catch (Exception ex)
             {
-                await Response.Exception(ex);
+                await Result.Exception(ex);
             }
         }
     }

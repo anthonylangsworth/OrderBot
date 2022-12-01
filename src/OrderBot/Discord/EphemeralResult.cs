@@ -12,15 +12,21 @@ namespace OrderBot.Discord;
 /// used with a <see cref="SocketInteractionContext"/>.
 /// </summary>
 /// <seealso cref="BotHostedService"/>
-public class EphemeralResponse
+public class EphemeralResult
 {
     /// <summary>
-    /// Create a new <see cref="EphemeralResponse"/>.
+    /// Create a new <see cref="EphemeralResult"/>.
     /// </summary>
     /// <param name="context">
     /// The interaction to respond to.
     /// </param>
-    public EphemeralResponse(SocketInteractionContext context, IAuditLogger auditLogger, ILogger logger)
+    /// <param name="auditLogger">
+    /// Audit here.
+    /// </param>
+    /// <param name="logger">
+    /// Log here.
+    /// </param>
+    public EphemeralResult(SocketInteractionContext context, IAuditLogger auditLogger, ILogger logger)
     {
         Context = context;
         AuditLogger = auditLogger;

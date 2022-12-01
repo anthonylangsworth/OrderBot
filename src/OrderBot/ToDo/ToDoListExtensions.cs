@@ -13,7 +13,7 @@ internal static class ToDoListExtensions
         services.AddSingleton<SupportedMinorFactionsCache>();
         services.AddSingleton<GoalStarSystemsCache>();
         services.AddSingleton<ToDoListApiFactory>();
-        services.AddSingleton<ResponseFactory>();
+        services.AddSingleton<ResultFactory>();
         services.AddScoped<EddnMessageProcessor, ToDoListMessageProcessor>();
     }
 }
