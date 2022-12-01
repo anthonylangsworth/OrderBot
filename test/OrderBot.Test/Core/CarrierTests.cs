@@ -30,7 +30,7 @@ internal class CarrierTests
     {
         if (throws)
         {
-            Assert.That(() => new Carrier() { Name = name }, Throws.ArgumentException);
+            Assert.That(() => new Carrier() { Name = name }, Throws.TypeOf<CarrierNameException>());
         }
         else
         {
