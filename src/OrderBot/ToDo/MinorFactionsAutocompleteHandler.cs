@@ -3,7 +3,7 @@ using Discord.Interactions;
 using System.Net;
 using System.Text.Json;
 
-namespace OrderBot.Core;
+namespace OrderBot.ToDo;
 
 /// <summary>
 /// Autocomplete handler for minor factions not in the database.
