@@ -68,9 +68,9 @@ Key points:
 
 `Client_InteractionCreated` in [BotHostedService](../../../tree/main/src/OrderBot/Discord/BotHostedService.cs) provides the following:
 1. Creates a `IServiceScope` so scoped DI services can be returned and cleaned up.
-2. Adds a logging scope with common details such as the user, guild and command details.
+2. Adds a logging scope with common details such as the user, guild and command details. This is done here and not in `BaseCommandsModule<T>` so errors captured here are logged with the same scope.
 3. Shows an access denied-style error messages for unmet preconditions.
-4. Logs details of other thrown exceptions.
+4. Logs details of other errors and exceptions.
 
 Best practice for writing slash (application) commands:
 1. Derive command modules classes from `BaseCommandsModule<T>`. This class handles common tasks like creating database connections, audit logs and a `Result` object.
