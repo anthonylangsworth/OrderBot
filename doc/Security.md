@@ -17,7 +17,7 @@ Access to commands follows these principles:
 This discord bot can log changes to an audit channel. This helps when multiple Officers are controlling the BGS, allowing them to observe others' behaviour and prevent duplicate or conflicting work.
 
 This discord bot requires `Send Messages` permission to the channel. Set the audit channel using [/bgs-order-bot audit-channel set](CommandReference.md#bgs-order-bot-audit-channel-set). The audit channel should be:
-1. Read-only by non-admin users. That is, they should not have `Send Messages` or `Manage Messages` access to this channel to prevent accidental or deliberate deletion of audit messages.
+1. Read-only to non-admin users. That is, they should not have `Send Messages` or `Manage Messages` access to this channel to prevent accidental or deliberate deletion of audit messages.
 2. Only visible to members of the `Officers` role and discord administrationrs. You may also want to make it visible to `Members` if they want to see changes in tactics. "Visible" means  those roles should only have `View Channel` and `Read Message History` permissions. Adding emotes and other things are unecessary.
 
 ## Reference
