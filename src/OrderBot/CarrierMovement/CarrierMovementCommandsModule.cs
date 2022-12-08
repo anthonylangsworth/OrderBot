@@ -18,6 +18,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
     [Group("channel", "Send carrier movement alerts")]
     public class Channel : BaseCommandsModule<Channel>
     {
+
         /// <summary>
         /// Create a new <see cref="Channel"/>.
         /// </summary>
@@ -121,12 +122,15 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         /// <param name="resultFactory"></param>
         public IgnoredCarriers(OrderBotDbContext dbContext,
             ILogger<IgnoredCarriers> logger,
+            CarrierApiFactory apiFactory,
             TextChannelAuditLoggerFactory auditLogFactory,
             ResultFactory resultFactory)
             : base(dbContext, logger, auditLogFactory, resultFactory)
         {
-            // Do nothing
+            ApiFactory = apiFactory;
         }
+
+        public CarrierApiFactory ApiFactory { get; }
 
         [SlashCommand("add", "Do not track this carrier or report its movements (case insensitive).")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
@@ -140,7 +144,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         {
             try
             {
-                AddImplementation(DbContext, Context.Guild, new[] { name });
+                ApiFactory.CreateApi(Context.Guild).AddIgnoredCarriers(new[] { name });
                 await Result.Success(
                     $"Fleet carrier '{name}' will be ignored and its jumps **NOT** reported", true);
                 TransactionScope.Complete();
@@ -158,28 +162,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             }
         }
 
-        internal static void AddImplementation(OrderBotDbContext dbContext, IGuild guild, IEnumerable<string> names)
-        {
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
-                dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
-            foreach (string name in names)
-            {
-                string serialNumber = Carrier.GetSerialNumber(name);
-                Carrier? ignoredCarrier = discordGuild.IgnoredCarriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
-                if (!discordGuild.IgnoredCarriers.Any(c => c.SerialNumber == serialNumber))
-                {
-                    Carrier? carrier = dbContext.Carriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
-                    if (carrier == null)
-                    {
-                        carrier = new Carrier() { Name = name };
-                        dbContext.Carriers.Add(carrier);
-                    }
-                    discordGuild.IgnoredCarriers.Add(carrier);
-                }
-                dbContext.SaveChanges();
-            }
-        }
-
         [SlashCommand("remove", "Track this carrier and report its movements")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
         [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
@@ -193,7 +175,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         {
             try
             {
-                RemoveImplementation(DbContext, Context.Guild, name);
+                ApiFactory.CreateApi(Context.Guild).RemoveIgnoredCarrier(name);
                 await Result.Success(
                     $"Fleet carrier '{name}' removed from ignored list. Its jumps will be reported.", true);
                 TransactionScope.Complete();
@@ -204,19 +186,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             }
         }
 
-        internal static void RemoveImplementation(OrderBotDbContext dbContext, IGuild guild, string name)
-        {
-            string serialNumber = Carrier.GetSerialNumber(name);
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
-                dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
-            Carrier? ignoredCarrier = discordGuild.IgnoredCarriers.FirstOrDefault(c => c.SerialNumber == serialNumber);
-            if (ignoredCarrier != null)
-            {
-                discordGuild.IgnoredCarriers.Remove(ignoredCarrier);
-            }
-            dbContext.SaveChanges();
-        }
-
         [SlashCommand("list", "List ignored fleet carriers")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
         [RequireBotRole(OfficersRole.RoleName, MembersRole.RoleName, Group = "Permission")]
@@ -224,7 +193,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         {
             try
             {
-                string result = string.Join("\n", ListImplementation(DbContext, Context.Guild).Select(c => c.Name));
+                string result = string.Join("\n", ApiFactory.CreateApi(Context.Guild).ListIgnoredCarriers().Select(c => c.Name));
                 if (!result.Any())
                 {
                     await Result.Information("No ignored fleet carriers");
@@ -240,13 +209,6 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
             }
         }
 
-        internal static IEnumerable<Carrier> ListImplementation(OrderBotDbContext dbContext, IGuild guild)
-        {
-            DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(dbContext, guild,
-                dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers));
-            return discordGuild.IgnoredCarriers.OrderBy(c => c.Name);
-        }
-
         [SlashCommand("export", "Export the ignored carriers for backup")]
         [RequireUserPermission(GuildPermission.ManageChannels | GuildPermission.ManageRoles, Group = "Permission")]
         [RequireBotRole(OfficersRole.RoleName, Group = "Permission")]
@@ -254,8 +216,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
         {
             try
             {
-                IList<CarrierCsvRow> result =
-                    ListImplementation(DbContext, Context.Guild)
+                IList<CarrierCsvRow> result = ApiFactory.CreateApi(Context.Guild).ListIgnoredCarriers()
                         .Select(c => new CarrierCsvRow() { Name = c.Name })
                         .ToList();
                 if (result.Count == 0)
@@ -292,8 +253,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
                     goals = await csvReader.GetRecordsAsync<CarrierCsvRow>().ToListAsync();
                 }
 
-                AddImplementation(DbContext, Context.Guild, goals.Select(g => g.Name));
-
+                ApiFactory.CreateApi(Context.Guild).AddIgnoredCarriers(goals.Select(g => g.Name));
                 await Result.Information($"{ignoredCarriersAttachement.Filename} added to ignored carriers");
 
                 TransactionScope.Complete();

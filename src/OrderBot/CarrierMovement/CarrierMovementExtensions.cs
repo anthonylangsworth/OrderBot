@@ -11,5 +11,6 @@ internal static class CarrierMovementExtensions
         services.AddSingleton<IgnoredCarriersCache>();
         services.AddSingleton<CarrierMovementChannelCache>();
         services.AddScoped<EddnMessageProcessor, CarrierMovementMessageProcessor>();
+        services.AddSingleton<CarrierApiFactory>();
     }
 }
