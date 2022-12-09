@@ -256,7 +256,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
             {
                 await Result.Error(
                     $"Cannot remove the goal for *{minorFactionName}* in {starSystemName}.",
-                    $"The star system *{ex.StarSystemName}* does not exist.",
+                    $"The star system {ex.StarSystemName} does not exist.",
                     "Try again, checking the spelling and capitalization carefully.");
             }
             catch (Exception ex)
