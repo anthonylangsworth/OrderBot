@@ -242,7 +242,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
             try
             {
                 Api.RemoveGoal(minorFactionName, starSystemName);
-                await Result.Success($"Remove goal for *{minorFactionName}* in {starSystemName}", true);
+                await Result.Success($"Removed goal for *{minorFactionName}* in {starSystemName}.", true);
                 TransactionScope.Complete();
             }
             catch (UnknownMinorFactionException ex)
