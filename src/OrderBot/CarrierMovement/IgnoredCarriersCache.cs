@@ -41,19 +41,19 @@ public class IgnoredCarriersCache : MessageProcessorCache
     /// </returns>
     public bool IsIgnored(OrderBotDbContext dbContext, ulong discordId, string carrierSerialNumber)
     {
-        IDictionary<ulong, HashSet<string>> discordGuildToIgnoredCarrierSerialNumber =
+        Dictionary<ulong, HashSet<string>> discordGuildToIgnoredCarrierSerialNumber =
             MemoryCache.GetOrCreate(
                 CacheEntryName,
                 ce =>
                 {
                     ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
                     return GetIgnoredCarriers(dbContext);
-                });
+                }) ?? new();
         discordGuildToIgnoredCarrierSerialNumber.TryGetValue(discordId, out HashSet<string>? ignoredCarriers);
         return ignoredCarriers != null && ignoredCarriers.Contains(carrierSerialNumber);
     }
 
-    private IDictionary<ulong, HashSet<string>> GetIgnoredCarriers(OrderBotDbContext dbContext)
+    private static Dictionary<ulong, HashSet<string>> GetIgnoredCarriers(OrderBotDbContext dbContext)
     {
         return dbContext.DiscordGuilds.Include(dg => dg.IgnoredCarriers)
                                       .ToDictionary(dg => dg.GuildId, dg => dg.IgnoredCarriers.Select(ic => ic.SerialNumber).ToHashSet());

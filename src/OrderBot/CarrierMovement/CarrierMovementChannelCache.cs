@@ -46,12 +46,12 @@ public class CarrierMovementChannelCache : MessageProcessorCache
                 {
                     ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
                     return GetCarrierMovementChannel(dbContext);
-                });
+                }) ?? new();
         discordGuildToCarrierMovementChannel.TryGetValue(discordGuidId, out ulong? carrierMovementChannelId);
         return carrierMovementChannelId;
     }
 
-    private IDictionary<ulong, ulong?> GetCarrierMovementChannel(OrderBotDbContext dbContext)
+    private static Dictionary<ulong, ulong?> GetCarrierMovementChannel(OrderBotDbContext dbContext)
     {
         return dbContext.DiscordGuilds.ToDictionary(dg => dg.GuildId, dg => dg.CarrierMovementChannel);
     }

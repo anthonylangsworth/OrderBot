@@ -44,7 +44,7 @@ public class SupportedMinorFactionsCache : MessageProcessorCache
                 {
                     ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
                     return GetSupportedMinorFactions(dbContext);
-                });
+                }) ?? new HashSet<string>();
         return supportedMinorFactions.Contains(minorFactionName);
     }
 

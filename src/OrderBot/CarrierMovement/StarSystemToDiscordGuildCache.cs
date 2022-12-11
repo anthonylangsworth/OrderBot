@@ -83,6 +83,6 @@ public class StarSystemToDiscordGuildCache : MessageProcessorCache
                 return Enumerable.Concat(fromGoals, fromPresences)
                                     .GroupBy(t => t.Item1, t => t.Item2)
                                     .ToDictionary(g => g.Key, g => (IReadOnlySet<ulong>)new HashSet<ulong>(g));
-            });
+            }) ?? new Dictionary<string, IReadOnlySet<ulong>>();
     }
 }

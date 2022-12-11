@@ -10,8 +10,8 @@ internal class MaintainGoalTests
     public void Instance()
     {
         Assert.That(MaintainGoal.Instance.Name, Is.EqualTo("Maintain"));
-        Assert.That(MaintainGoal.Instance.Description, Is.EqualTo("Keep influence above 10% and below the controlling minor faction."));
-        Assert.That(MaintainGoal.LowerInfluenceThreshold, Is.EqualTo(0.1));
+        Assert.That(MaintainGoal.Instance.Description, Is.EqualTo("Keep influence above 8% and below the controlling minor faction."));
+        Assert.That(MaintainGoal.LowerInfluenceThreshold, Is.EqualTo(0.08));
         Assert.That(MaintainGoal.MaxInfuenceGap, Is.EqualTo(0.03));
     }
     [Test]

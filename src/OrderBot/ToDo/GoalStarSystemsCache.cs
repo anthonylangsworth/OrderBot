@@ -43,7 +43,7 @@ public class GoalStarSystemsCache : MessageProcessorCache
                 {
                     ce.AbsoluteExpiration = DateTime.Now.Add(CacheDuration);
                     return GetGoalSystems(dbContext);
-                });
+                }) ?? new HashSet<string>();
         return goalStarSystems.Contains(starSystemName);
     }
 

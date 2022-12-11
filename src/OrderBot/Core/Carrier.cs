@@ -2,7 +2,7 @@
 
 namespace OrderBot.Core;
 
-public class Carrier
+public partial class Carrier
 {
     private string _name = null!;
 
@@ -36,7 +36,7 @@ public class Carrier
         }
     }
 
-    private readonly static Regex SerialNumberRegex = new("\\w\\w\\w-\\w\\w\\w$");
+    private readonly static Regex SerialNumberRegex = MyRegex();
 
     public static bool IsCarrier(string signalName)
     {
@@ -60,4 +60,7 @@ public class Carrier
     {
         return $"{Name} in {StarSystem?.Name ?? "(None)"} at {FirstSeen}";
     }
+
+    [GeneratedRegex("\\w\\w\\w-\\w\\w\\w$")]
+    private static partial Regex MyRegex();
 }

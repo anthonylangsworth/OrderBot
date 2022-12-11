@@ -25,7 +25,7 @@ internal class MaintainGoal : Goal
     /// Do Pro work if the influence falls below this value. This is intentionally
     /// higher than <see cref="RetreatGoal.InfluenceThreshold"/>.
     /// </summary>
-    public static double LowerInfluenceThreshold => 0.1;
+    public static double LowerInfluenceThreshold => 0.08;
 
     /// <summary>
     /// Do Anti work if the influence is within this of the controlling
