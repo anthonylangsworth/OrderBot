@@ -12,7 +12,7 @@ public class OrderBotDbContextFactory : IDbContextFactory<OrderBotDbContext>, ID
     public OrderBotDbContextFactory(bool useInMemory = false, string? connectionString = null)
     {
         // Share the same connection to enable transactions
-        SqlConnection = new(connectionString ?? @"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password");
+        SqlConnection = new(connectionString ?? @"Server=localhost;Database=OrderBot;User ID=OrderBot;Password=password;Encrypt=false");
         DbContextOptionsBuilder<OrderBotDbContext> optionsBuilder = new();
         DbContextOptions = (useInMemory
             ? optionsBuilder.UseInMemoryDatabase("OrderBot").ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning))
