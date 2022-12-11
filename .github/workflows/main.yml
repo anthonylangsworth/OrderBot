@@ -25,10 +25,6 @@ jobs:
       run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -e -i deploy/db.sql
     - name: Create DB Tables
       run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -d ${{ env.DB_NAME }} -e -i deploy/tables.sql
-    - name: Add Azure CA Certificates
-      run: |
-        cp deploy/AzureCAs/*.crt /usr/local/share/ca-certificates
-        update-ca-certificates
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
     - name: Install dependencies
