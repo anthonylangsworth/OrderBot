@@ -154,7 +154,7 @@ internal class BotHostedService : IHostedService
 
         // Get an ILogger from the scope.
         ILogger<BotHostedService> logger = ServiceProvider.GetRequiredService<ILogger<BotHostedService>>();
-        using IDisposable loggerScope = logger.BeginScope(new InteractionScopeBuilder(context).Build());
+        using IDisposable? loggerScope = logger.BeginScope(new InteractionScopeBuilder(context).Build());
 
         IResult result = await InteractionService.ExecuteCommandAsync(context, ServiceProvider);
         if (!result.IsSuccess)
