@@ -1,18 +1,13 @@
-// Basic OrderBot messages
-Event_CL
-| where CategoryName_s startswith_cs "OrderBot"
-| order by TimeGenerated desc
-| project Command_s, InteractionId_s, LogLevel_s, Message, Guild_s, User_s
-
 //  OrderBot errors
 Event_CL
-| where CategoryName_s startswith_cs "OrderBot"
-| where LogLevel_s == "Error"
-| order by TimeGenerated desc
+| order by TimeGenerated
+// | where LogLevel_s != "Information" and Exception_Message_s != "Server requested a reconnect"
+| where CategoryName_s startswith "OrderBot."
+| project TimeGenerated, CategoryName_s, Command_s, User_s, Exception_Message_s, LogLevel_s, Message
 
-//  OrderBot status
+// Commands
 Event_CL
-// | where LogLevel_s != "Information"
 | order by TimeGenerated
 | where CategoryName_s startswith "OrderBot."
-| project TimeGenerated, CategoryName_s, Message, Command_s, Exception_Message_s
+| where column_ifexists("Command_s", "") != ""
+| project TimeGenerated, Command_s, Message, User_s, GuildId_s, Exception_Message_s
