@@ -13,8 +13,8 @@ This bot generates the following suggestions for each goal:
 |Ignore   |(None)|(None)|(None)|Never|
 
 Note:
-1. The bot does not check whether a minor faction targeted with a `Retreat` goal is non-native. Using a `Retreat` goal with a non-native minor faction will continually generate suggestions to work against that minor faction.
-2. The bot does not check whether a minor faction is already in the Expansion state. Using a `Expand` goal in this case will generate suggestions to keep the influence above 75%.
+1. The bot does not check whether a minor faction targeted with a `Retreat` goal is non-native. Using a `Retreat` goal with a native minor faction will continually generate suggestions to work against that minor faction.
+2. The bot does not check whether a minor faction targetd with an `Expand` goal is already in the Expansion state. Using a `Expand` goal in this case will generate suggestions to keep the influence above 75%.
 3. `Retreat` and `Expand` goals remain until removed. Auto-remove may be added in the future.
 
 ## Principles
