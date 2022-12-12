@@ -7,7 +7,7 @@ This bot generates the following suggestions for each goal:
 |Goal     |Conflict|Influence|State|Auto-Remove|
 |---------|--------|---------|-----|-----------|
 |Control (Default) |Fight for the minor faction in any conflict.|If there are no conflicts, keep influence between 55% and 65%.|(TODO)|Never|
-|Maintain |Fight for the minor faction except for conflicts against the controlling minor faction, where you fight for the controlling minor faction.|If there are no conflicts, have at least 10% influence and up to 3% below the controlling minor faction.|(TODO)|Never|
+|Maintain |Fight for the minor faction except for conflicts against the controlling minor faction, where you fight for the controlling minor faction.|If there are no conflicts, have at least 8% influence and up to 3% below the controlling minor faction.|(TODO)|Never|
 |Expand   |Fight for the minor faction in any conflict.|If there are no conflicts, keep influence above 75% force an expansion.|(TODO)|(TODO)|
 |Retreat  |Fight against the minor faction in all conflicts.|If there are no conflicts, always work against the minor faction to force a retreat.|(TODO)|(TODO)|
 |Ignore   |(None)|(None)|(None)|Never|
