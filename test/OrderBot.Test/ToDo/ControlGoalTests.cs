@@ -28,6 +28,7 @@ internal class ControlGoalTests
         StarSystem polaris = new() { Name = "Polaris", LastUpdated = DateTime.UtcNow };
         MinorFaction flyingFish = new() { Name = "Flying Fish" };
         MinorFaction bloatedJellyFish = new() { Name = "Bloated Jelly Fish" };
+        MinorFaction blueMarlins = new() { Name = "Marlins" };
         Presence belowLower = new()
         {
             StarSystem = polaris,
@@ -75,6 +76,14 @@ internal class ControlGoalTests
             StarSystem = polaris,
             MinorFaction = bloatedJellyFish,
             Influence = ControlGoal.UpperInfluenceThreshold,
+            SecurityLevel = null
+        };
+        Presence marlinsRetreating = new()
+        {
+            StarSystem = polaris,
+            MinorFaction = blueMarlins,
+            Influence = RetreatGoal.InfluenceThreshold - 0.01,
+            States = new List<State> { new State { Name = State.Retreat } },
             SecurityLevel = null
         };
         Conflict war = new()
@@ -170,15 +179,15 @@ internal class ControlGoalTests
                 })
              .SetName("AddActions CivilWar"),
             new TestCaseData(
-                belowLower,
-                new HashSet<Presence>() { belowLower, bloatedJellyFishInPolaris },
-                new HashSet<Conflict>() { election }
+                belowUpper,
+                new HashSet<Presence>() { belowUpper, marlinsRetreating },
+                new HashSet<Conflict>()
             ).Returns(new Suggestion[]
                 {
-                    new ConflictSuggestion(polaris, flyingFish, election.MinorFaction2WonDays,
-                    bloatedJellyFish, election.MinorFaction1WonDays, ConflictState.CloseDefeat, election.WarType)
+                    new InfluenceSuggestion(marlinsRetreating.StarSystem, marlinsRetreating.MinorFaction, true,
+                        marlinsRetreating.Influence, SuggestionDescriptions.AvoidRetreat),
                 })
-             .SetName("AddActions Election"),
+             .SetName("AddActions with Retreat"),
         };
     }
 }

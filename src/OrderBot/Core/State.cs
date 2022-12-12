@@ -10,4 +10,6 @@ public class State
     {
         return Name;
     }
+
+    public static readonly string Retreat = "Retreat";
 }
