@@ -34,7 +34,7 @@ E.g. Missions/PAX, cartographic data, bounties, and profitable trade to *Anti Xe
 - Merope - 70%
 - Atlas - 65%
 
-***Urgent Pro-Non-Native/Coalition Faction** support required* - Work for ONLY the listed factions in the listed systems to avoid a retreat or to disrupt system interference.
+***Pro-Non-Native/Coalition Faction** support required* - Work for ONLY the listed factions in the listed systems to avoid a retreat or to disrupt system interference.
 - *Operation Ida* in Merope - 4%
 
 ---------------------------------------------------------------------------------------------------------------------------------

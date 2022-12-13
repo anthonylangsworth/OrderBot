@@ -79,7 +79,7 @@ $@"***Anti-{toDoList.MinorFaction}** support required* - Work ONLY for the other
     internal static string OtherInfluence(ToDoList toDoList)
     {
         return
-$@"***Urgent Pro-Non-Native/Coalition Faction** support required* - Work for ONLY the listed factions in the listed systems to avoid a retreat or to disrupt system interference.
+$@"***Pro-Non-Native/Coalition Faction** support required* - Work for ONLY the listed factions in the listed systems to avoid a retreat or to disrupt system interference.
 {GetInfluenceList(toDoList, i => i.MinorFaction.Name != toDoList.MinorFaction && i.Pro, ascending: true, showFaction: true)}";
     }
 
