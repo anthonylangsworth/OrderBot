@@ -64,10 +64,11 @@ internal class ControlGoal : Goal
             yield return new SecuritySuggestion(presence.StarSystem, presence.SecurityLevel);
         }
 
-        // Look for Retreat state instead of low influence to not flag native minor factions
-        // (who cannot retreat) with low influence.
+        // Look for Retreat state as well as low influence. This avoids flagging un-retreatable
+        // native minor factions with low influence.
         foreach (Presence retreatingPresence in systemPresences.Where(p => p != presence
-                                                                           && p.States.Any(s => s.Name == State.Retreat)))
+                                                                           && p.States.Any(s => s.Name == State.Retreat)
+                                                                           && p.Influence <= RetreatGoal.InfluenceThreshold))
         {
             yield return new InfluenceSuggestion(
                 retreatingPresence.StarSystem, retreatingPresence.MinorFaction, true,

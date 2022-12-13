@@ -86,6 +86,14 @@ internal class ControlGoalTests
             States = new List<State> { new State { Name = State.Retreat } },
             SecurityLevel = null
         };
+        Presence marlinsRetreatingButAboveThreshold = new()
+        {
+            StarSystem = polaris,
+            MinorFaction = blueMarlins,
+            Influence = RetreatGoal.InfluenceThreshold + 0.01,
+            States = new List<State> { new State { Name = State.Retreat } },
+            SecurityLevel = null
+        };
         Conflict war = new()
         {
             StarSystem = polaris,
@@ -188,6 +196,12 @@ internal class ControlGoalTests
                         marlinsRetreating.Influence, SuggestionDescriptions.AvoidRetreat),
                 })
              .SetName("AddActions with Retreat"),
+            new TestCaseData(
+                belowUpper,
+                new HashSet<Presence>() { belowUpper, marlinsRetreatingButAboveThreshold },
+                new HashSet<Conflict>()
+            ).Returns(Array.Empty<Suggestion>())
+             .SetName("AddActions with Retreat but above threshold"),
         };
     }
 }
