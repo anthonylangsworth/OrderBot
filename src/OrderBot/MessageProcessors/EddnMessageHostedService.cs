@@ -60,33 +60,33 @@ internal class EddnMessageHostedService : BackgroundService
             try
             {
                 string message = Encoding.UTF8.GetString(ZlibStream.UncompressBuffer(compressed));
+                JsonDocument jsonDocument = JsonDocument.Parse(message);
 
-                foreach (EddnMessageProcessor messageProcessor in messageProcessors)
+                Version? version = GetGameVersion(jsonDocument);
+                if (version != null && version >= RequiredGameVersion)
                 {
-                    try
+                    foreach (EddnMessageProcessor messageProcessor in messageProcessors)
                     {
-                        JsonDocument jsonDocument = JsonDocument.Parse(message);
-                        Version? version = GetGameVersion(jsonDocument);
-                        if (version != null && version >= RequiredGameVersion)
+                        try
                         {
                             await messageProcessor.ProcessAsync(jsonDocument);
                         }
-                    }
-                    catch (JsonException ex)
-                    {
-                        scopedLogger.LogError(ex, "Invalid JSON", message);
-                    }
-                    catch (KeyNotFoundException ex)
-                    {
-                        scopedLogger.LogError(ex, "Required field(s) missing", message);
-                    }
-                    catch (FormatException ex)
-                    {
-                        scopedLogger.LogError(ex, "Incorrect field format", message);
-                    }
-                    catch (Exception ex)
-                    {
-                        scopedLogger.LogError(ex, "Process message failed");
+                        catch (JsonException ex)
+                        {
+                            scopedLogger.LogError(ex, "Invalid JSON", message);
+                        }
+                        catch (KeyNotFoundException ex)
+                        {
+                            scopedLogger.LogError(ex, "Required field(s) missing", message);
+                        }
+                        catch (FormatException ex)
+                        {
+                            scopedLogger.LogError(ex, "Incorrect field format", message);
+                        }
+                        catch (Exception ex)
+                        {
+                            scopedLogger.LogError(ex, "Process message failed", message);
+                        }
                     }
                 }
             }
