@@ -17,8 +17,13 @@ internal class EddnMessageHostedService : BackgroundService
         ServiceProvider = serviceProvider;
     }
 
-    public ILogger<EddnMessageHostedService> Logger { get; }
-    public IServiceProvider ServiceProvider { get; }
+    protected ILogger<EddnMessageHostedService> Logger { get; }
+    protected IServiceProvider ServiceProvider { get; }
+
+    /// <summary>
+    /// Exclude Legacy events.
+    /// </summary>
+    public static Version RequiredGameVersion { get; } = new(4, 0);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -60,7 +65,12 @@ internal class EddnMessageHostedService : BackgroundService
                 {
                     try
                     {
-                        await messageProcessor.ProcessAsync(JsonDocument.Parse(message));
+                        JsonDocument jsonDocument = JsonDocument.Parse(message);
+                        Version? version = GetGameVersion(jsonDocument);
+                        if (version != null && version >= RequiredGameVersion)
+                        {
+                            await messageProcessor.ProcessAsync(jsonDocument);
+                        }
                     }
                     catch (JsonException)
                     {
@@ -85,5 +95,16 @@ internal class EddnMessageHostedService : BackgroundService
                 scopedLogger.LogError("Decompress message failed");
             }
         }
+    }
+
+    internal static Version? GetGameVersion(JsonDocument message)
+    {
+        JsonElement header = message.RootElement.GetProperty("header");
+        Version? result = null;
+        if (header.TryGetProperty("gameversion", out JsonElement gameVersion))
+        {
+            Version.TryParse(gameVersion.GetString(), out result);
+        }
+        return result;
     }
 }

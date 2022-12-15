@@ -1,6 +1,8 @@
 {
   "$schemaRef": "https://eddn.edcd.io/schemas/journal/1",
   "header": {
+    "gamebuild": "r289563/r0 ",
+    "gameversion": "4.0.0.1475",
     "gatewayTimestamp": "2022-02-24T12:09:53.335118Z",
     "softwareName": "GameGlass",
     "softwareVersion": "3.1.39",

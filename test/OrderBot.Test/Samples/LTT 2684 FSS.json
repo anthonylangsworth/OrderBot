@@ -1,6 +1,8 @@
 {
   "$schemaRef": "https://eddn.edcd.io/schemas/fsssignaldiscovered/1",
   "header": {
+    "gamebuild": "r289563/r0 ",
+    "gameversion": "4.0.0.1475",
     "gatewayTimestamp": "2022-10-30T13:56:59.678072Z",
     "softwareName": "E:D Market Connector [Windows]",
     "softwareVersion": "5.5.0",
