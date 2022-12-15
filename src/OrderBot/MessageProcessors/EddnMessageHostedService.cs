@@ -72,17 +72,17 @@ internal class EddnMessageHostedService : BackgroundService
                             await messageProcessor.ProcessAsync(jsonDocument);
                         }
                     }
-                    catch (JsonException)
+                    catch (JsonException ex)
                     {
-                        scopedLogger.LogError("Invalid JSON", message);
+                        scopedLogger.LogError(ex, "Invalid JSON", message);
                     }
-                    catch (KeyNotFoundException)
+                    catch (KeyNotFoundException ex)
                     {
-                        scopedLogger.LogError("Required field(s) missing", message);
+                        scopedLogger.LogError(ex, "Required field(s) missing", message);
                     }
-                    catch (FormatException)
+                    catch (FormatException ex)
                     {
-                        scopedLogger.LogError("Incorrect field format", message);
+                        scopedLogger.LogError(ex, "Incorrect field format", message);
                     }
                     catch (Exception ex)
                     {
@@ -90,9 +90,9 @@ internal class EddnMessageHostedService : BackgroundService
                     }
                 }
             }
-            catch (ZlibException)
+            catch (ZlibException ex)
             {
-                scopedLogger.LogError("Decompress message failed");
+                scopedLogger.LogError(ex, "Decompress message failed");
             }
         }
     }
