@@ -2,12 +2,12 @@
 Event_CL
 | order by TimeGenerated
 // | where LogLevel_s != "Information" and Exception_Message_s != "Server requested a reconnect"
-| where CategoryName_s startswith "OrderBot."
+| where not (CategoryName_s startswith "Microsoft.EntityFrameworkCore")
 | project TimeGenerated, CategoryName_s, Command_s, User_s, Exception_Message_s, LogLevel_s, Message
 
 // Commands
 Event_CL
 | order by TimeGenerated
-| where CategoryName_s startswith "OrderBot."
+| where not (CategoryName_s startswith "Microsoft.EntityFrameworkCore")
 | where column_ifexists("Command_s", "") != ""
 | project TimeGenerated, Command_s, Message, User_s, GuildId_s, Exception_Message_s
