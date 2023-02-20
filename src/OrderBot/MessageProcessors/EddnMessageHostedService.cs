@@ -25,25 +25,48 @@ internal class EddnMessageHostedService : BackgroundService
     /// </summary>
     public static Version RequiredGameVersion { get; } = new(4, 0);
 
+    /// <summary>
+    /// EDDN public queue.
+    /// </summary>
+    public readonly string ConnectionString = "tcp://eddn.edcd.io:9500";
+
+    /// <summary>
+    /// Recommend if no message received for this interval.
+    /// </summary>
+    public readonly TimeSpan ReconnectionInterval = TimeSpan.FromMinutes(10);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        using SubscriberSocket client = new("tcp://eddn.edcd.io:9500");
-        client.SubscribeToAnyTopic();
-        Logger.LogInformation("Started");
-
+        SubscriberSocket client = new(ConnectionString);
         try
         {
+            client.SubscribeToAnyTopic();
+            Logger.LogInformation("Started");
+
+            DateTime lastMessageReceived = DateTime.Now;
             while (!stoppingToken.IsCancellationRequested)
             {
-                if (client.TryReceiveFrameBytes(TimeSpan.FromMilliseconds(1000), out byte[]? compressed, out bool _)
+                if (client.TryReceiveFrameBytes(TimeSpan.FromSeconds(5), out byte[]? compressed)
                     && compressed != null)
                 {
+                    lastMessageReceived = DateTime.Now;
                     await ProcessMessageAsync(compressed);
+                }
+
+                if (DateTime.Now - lastMessageReceived > ReconnectionInterval)
+                {
+                    Logger.LogInformation(
+                        "Reconnecting after {ReconnectionInterval} due to presumed disconnection",
+                        ReconnectionInterval);
+                    client.Close();
+                    client = new(ConnectionString);
+                    client.SubscribeToAnyTopic();
                 }
             }
         }
         finally
         {
+            client.Close();
             Logger.LogInformation("Stopping");
         }
     }
@@ -85,7 +108,9 @@ internal class EddnMessageHostedService : BackgroundService
                         }
                         catch (Exception ex)
                         {
-                            scopedLogger.LogError(ex, "Process message failed", message);
+                            // Default logger does not log inner exceptions
+                            Exception loggedException = ex.InnerException != null ? ex.InnerException : ex;
+                            scopedLogger.LogError(loggedException, "Process message failed", message);
                         }
                     }
                 }
