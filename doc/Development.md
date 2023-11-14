@@ -5,24 +5,25 @@ This project is currently hosted in Azure. Run the [Deploy](../../../actions/wor
 
 To setup locally:
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).
-2. Create the database container:
+2. Download the code.
+3. Create the database container:
     1. Download the SQL Server instance using `docker pull mcr.microsoft.com/mssql/server:2019-latest`
     2. Create and run a new SQL Server container using `docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=<password>" -e "MSSQL_PID=Express" -p 1433:1433 -d mcr.microsoft.com/mssql/server:2019-latest`, substituting `<password>` with a strong, unique password.
-    3. Set the password for the new `OrderBot` login in `deploy/db.sql` login around line 7. 
+    3. Set the new `OrderBot` password in `deploy/db.sql` login around line 7. 
     4. Run `deploy/db.sql` as sa, such as via [SQL Management Studio](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16), to create the database.
     5. Run `deploy/tables.sql` as sa to create the table structure.
-3. Create the application container:
+4. Create the application container:
     1. Download a base image for the application using `docker pull mcr.microsoft.com/dotnet/runtime:6.0`.
     2. Create a `.env` file in `src/OrderBot`. Create four entries inside it:
         1. `ConnectionStrings__OrderBot`, containing the SQL server connection string.
         2. `Discord__ApiKey`, containing the Discord Bot's API key.
         3. `LogAnalytics__WorkspaceId`, containing an Azure LogAnalytics workspace ID.
         4. `LogAnalytics__WorkspaceKey`, containing an Azure LogAnalytics primary key.
-4. Download, build and run the code.
+5. Build and run the code.
 
 ## Infrastructure
 
-An overview of the BGS Bot's deployed infrastucture is:
+An overview of the BGS Bot's deployed infrastructure is:
 ```mermaid
 flowchart TB
   edmc["Elite Dangerous<br/>Market Connector (EDMC)"] -->|Journal Entries| eddn["Elite Dangerous<br/>Data Network (EDDN)"]
@@ -60,14 +61,14 @@ sequenceDiagram
 ```
 
 Key points:
-1. `CommandsModule` refers to a class that derives from `InteractionModuleBase<SocketInteractionContext>`. There are currently three:
+1. `CommandsModule` refers to a class derived from `InteractionModuleBase<SocketInteractionContext>`. There are currently three:
     1. `AdminCommandsModule`, which handles administrative commands like audit and role management.
     2. `CarrierMovementCommandsModule`, which handles commands to ignore or track carrier movements. 
-    3. `ToDoListCommandsModule`, which handlings viewing the To-Do list, supporting minor factions and adding goals. 
+    3. `ToDoListCommandsModule`, which handles viewing the To-Do list, supporting minor factions and adding goals. 
 2. The `InteractionService` provided by Discord.Net provides a nice wrapper over manually parsing and handling commands.
 
 `Client_InteractionCreated` in [BotHostedService](../../../tree/main/src/OrderBot/Discord/BotHostedService.cs) provides the following:
-1. Creates a `IServiceScope` so scoped DI services can be returned and cleaned up.
+1. Creates an `IServiceScope` so scoped DI services can be returned and cleaned up.
 2. Adds a logging scope with common details such as the user, guild and command details. This is done here and not in `BaseCommandsModule<T>` so errors captured here are logged with the same scope.
 3. Shows an access denied-style error messages for unmet preconditions.
 4. Logs details of other errors and exceptions.
@@ -76,19 +77,19 @@ Best practice for writing slash (application) commands:
 1. Derive command modules classes from `BaseCommandsModule<T>`. This class handles common tasks like creating database connections, audit logs and a `Result` object.
 2. Wrap the code for each command in a `try ... catch` block with an `Exception` handler containing `Result.Exception`. This handles any unexpected exceptions. While Discord.Net will catch and log unthrown exceptions, it will not notify the user.
 3. Use `Result` methods to communicate with the user and wraps logging and auditing for most situations. Specifically:
-    1.  `Information` for responses to queries or acknowledgements. THese are logged as Information by default but not audited.
+    1.  `Information` for responses to queries or acknowledgements. These are logged as Information by default but not audited.
     2.  `Success` for successful changes or actions. These are audited by default and logged as Information.
-    3.  `Error` for unnecessful changes or actions, such as invalid command parameter values. These are logged as Warnings. The error message is in three parts: what, why and a fix. This encourages better error messages and separates the loggable portion (why).
+    3.  `Error` for unsuccessful changes or actions, such as invalid command parameter values. These are logged as Warnings. The error message has three parts: what, why and a fix. This encourages better error messages and separates the loggable portion (why).
     4.  `Exception` for unhandled or unknown exceptions. These are logged as Errors.
-4. The `Result` object also does some house keeping like (1) calling `DeferAsync` early to ensure long-running commands do not time out and (2) capping the message length to the max ephemeral response length.
-5. Auditing is usually handled through the `Result` object but you can still audit directly using `AuditLogger`. Try to keep it to one audit message per command execution.
-6. Logging is usually handled also through the `Result` object but you can still log directly using `Logger`. Try to keep it to one non-verbose/diagnostic log message per command execution.
+4. The `Result` object also does some housekeeping like (1) calling `DeferAsync` early to ensure long-running commands do not time out and (2) capping the message length to the max ephemeral response length.
+5. Auditing is usually handled through the `Result` object but you can still audit directly using `AuditLogger`. Keep it to one audit message per command execution.
+6. Logging is usually handled also through the `Result` object but you can still log directly using `Logger`. Keep it to one non-verbose/diagnostic log message per command execution.
 7. Use `TransactionScope.Complete()` as the last statement to save any database work. Otherwise, results will not be saved.
 8. Remember that the class housing the command handler is instantiated for each interaction.
 9. Do not duplicate work in `BaseCommandsModule` or `BotHostedService.Client_InteractionCreated`. The general goal is to move as much work to there as possible. This standardizes behaviour and prevents code repetition.
 
 ## Message Processing
-To provide data for the Discord bot, this system listens for [Elite Dangerous Data Network (EDDN)](https://eddn.edcd.io/) messages via the `EddnMessageHostedService`, which are handled by `EddnMessageMessageProcessor` subclasses. There are currently two: `TodoListMessageProcessor`, which captures system BGS data, and `CarrierMovementMessageProcessor`, which looks for carrier movements and notifies Discord guilds which have registered a carrier movement channel. These classes are instiated for each message.
+To provide data for the Discord bot, this system listens for [Elite Dangerous Data Network (EDDN)](https://eddn.edcd.io/) messages via the `EddnMessageHostedService`, which are handled by `EddnMessageMessageProcessor` subclasses. There are currently two: `TodoListMessageProcessor`, which captures system BGS data, and `CarrierMovementMessageProcessor`, which looks for carrier movements and notifies Discord guilds which have registered a carrier movement channel. These classes are instantiated for each message.
 
 This structure provides separation of responsibilities. Classes for each message processor are in separate namespaces to further emphasize this.
 
@@ -120,14 +121,14 @@ sequenceDiagram
 ```
 
 Key points:
-1. `EddnMessageHostedService` is started from Program.cs and runs for the liftetime of the container.
-2. `Caches` includes various classes that inherit from `MessageProcessorCache`. Singleton objects instantiated from these cache classes minimize database access when processing and eliminating messages. 
+1. `EddnMessageHostedService` is started from Program.cs and runs for the container's lifetime.
+2. `Caches` includes various classes inherited from `MessageProcessorCache`. Singleton objects instantiated from these cache classes minimize database access when processing and eliminating messages. 
     1. `TodoListMessageProcessor` uses `SupportedMinorFactionsCache` and `GoalStarSystemsCache`. 
     2. `CarrierMovementMessageProcessor` uses `StarSystemToDiscordGuildCache`, `IgnoredCarriersCache` and `CarrierMovementChannelCache`.
 4. Technically, the `TextChannelWriter` is a `TextWriter` created via a `TextChannelWritterFactory`. This is used to write to carrier movement channel(s).
-5. Database or ORM classes, such as `OrderbotDbContext` are omitted for clarity.
+5. Database or ORM classes like `OrderbotDbContext` are omitted for clarity.
 
-Regarding `Caches`, there is currently no cache invalidation mechanism but the cache durations are short: five minutes. An unfinished invalidation pattern is in `MessageProcessorCacheInvalidator`.
+Regarding `Caches`, there is currently no cache invalidation mechanism, but the cache durations are short: five minutes. An unfinished invalidation pattern is in `MessageProcessorCacheInvalidator`.
 
 ## References
 1. Using Docker with .Net Core: https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/docker/visual-studio-tools-for-docker?view=aspnetcore-6.0
