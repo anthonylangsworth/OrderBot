@@ -35,14 +35,11 @@ public class ToDoListApiFactory
     /// <summary>
     /// Create a <see cref="ToDoListApi"/>
     /// </summary>
-    /// <param name="guild">
-    /// The <see cref="IGuild"/> to act on or for.
-    /// </param>
     /// <returns>
     /// A <see cref="ToDoListApi"/>.
     /// </returns>
-    public ToDoListApi CreateApi(IGuild guild)
+    public ToDoListApi CreateApi()
     {
-        return new(DbContext, guild, Validator);
+        return new(DbContext, Validator);
     }
 }
