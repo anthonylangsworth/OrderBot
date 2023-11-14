@@ -107,9 +107,6 @@ CREATE TABLE [dbo].[PresenceState](
 	PRIMARY KEY ([PresenceId], [StatesId])
 )
 GO
--- CREATE INDEX [IX_StarSystemMinorFactionState_SystemMinorFaction] 
--- ON [dbo].[StarSystemMinorFactionState]([StarSystemMinorFactionsId])
-GO
 CREATE TABLE [dbo].[DiscordGuildPresenceGoal](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
 	[DiscordGuildId] [int] NOT NULL FOREIGN KEY REFERENCES [DiscordGuild]([Id]) ON DELETE CASCADE,
