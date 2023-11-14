@@ -5,7 +5,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <DockerfileFile>Dockerfile</DockerfileFile>
+    <DockerfileFile>DockerFile</DockerfileFile>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..</DockerfileContext>
     <DockerfileRunEnvironmentFiles>.env</DockerfileRunEnvironmentFiles>
