@@ -236,9 +236,10 @@ public class ToDoListApi
     {
         DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, guild);
         return DbContext.DiscordGuildPresenceGoals
-                        .Include(dgssmfg => dgssmfg.Presence)
-                        .Include(dgssmfg => dgssmfg.Presence.StarSystem)
-                        .Include(dgssmfg => dgssmfg.Presence.MinorFaction);
+                        .Where(dgpg => dgpg.DiscordGuild == discordGuild)
+                        .Include(dgpg => dgpg.Presence)
+                        .Include(dgpg => dgpg.Presence.StarSystem)
+                        .Include(dgpg => dgpg.Presence.MinorFaction);
     }
 
     /// <summary>
