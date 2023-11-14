@@ -48,8 +48,8 @@ public class BaseCommandsModule<T> : InteractionModuleBase<SocketInteractionCont
 
     public override Task AfterExecuteAsync(ICommandInfo command)
     {
-        AuditLogger?.Dispose();
-        TransactionScope?.Dispose();
+        AuditLogger.Dispose();
+        TransactionScope.Dispose();
 
         return base.AfterExecuteAsync(command);
     }
