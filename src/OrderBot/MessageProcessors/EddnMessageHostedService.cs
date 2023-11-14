@@ -96,21 +96,21 @@ internal class EddnMessageHostedService : BackgroundService
                         }
                         catch (JsonException ex)
                         {
-                            scopedLogger.LogError(ex, "Invalid JSON", message);
+                            scopedLogger.LogError(ex, "Invalid JSON in message {message}", message);
                         }
                         catch (KeyNotFoundException ex)
                         {
-                            scopedLogger.LogError(ex, "Required field(s) missing", message);
+                            scopedLogger.LogError(ex, "Required field(s) missing in message {message}", message);
                         }
                         catch (FormatException ex)
                         {
-                            scopedLogger.LogError(ex, "Incorrect field format", message);
+                            scopedLogger.LogError(ex, "Incorrect field format in message {message}", message);
                         }
                         catch (Exception ex)
                         {
                             // Default logger does not log inner exceptions
                             Exception loggedException = ex.InnerException != null ? ex.InnerException : ex;
-                            scopedLogger.LogError(loggedException, "Process message failed", message);
+                            scopedLogger.LogError(loggedException, "Process message {message} failed", message);
                         }
                     }
                 }
