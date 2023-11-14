@@ -31,7 +31,7 @@ public abstract class BaseTodoListCommandsModule<T> : BaseCommandsModule<T>
     {
         base.BeforeExecuteAsync(command);
 
-        Api = ApiFactory.CreateApi();
+        Api = ApiFactory.CreateApi(Context.Guild);
 
         return Task.CompletedTask;
     }

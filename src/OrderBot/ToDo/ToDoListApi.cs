@@ -42,24 +42,26 @@ public class ToDoListApi
     /// <param name="dbContext">
     /// The <see cref="OrderBotDbContext"/> to use.
     /// </param>
+    /// <param name="guild">
+    /// The <see cref="IGuild"/> to act on or for.
+    /// </param>
     /// <param name="validator">
     /// Used to validate minor factions and star systems via web services.
     /// </param>
-    public ToDoListApi(OrderBotDbContext dbContext, INameValidator validator)
+    public ToDoListApi(OrderBotDbContext dbContext, IGuild guild, INameValidator validator)
     {
         DbContext = dbContext;
+        Guild = guild;
         Validator = validator;
     }
 
     internal OrderBotDbContext DbContext { get; }
+    internal IGuild Guild { get; }
     public INameValidator Validator { get; }
 
     /// <summary>
     /// Get the list of suggestions.
     /// </summary>
-    /// <param name="guild">
-    /// Generate the list for this guild.
-    /// </param>
     /// <exception cref="InvalidOperationException">
     /// Either there is no <see cref="DiscordGuild"/> for <paramref name="guild"/>
     /// in the database, that guild supports no minor factions.
@@ -67,24 +69,21 @@ public class ToDoListApi
     /// <exception cref="UnknownGoalException">
     /// A goal in a star system for a minor faction is not known.
     /// </exception>
-    public string GetTodoList(IGuild guild)
+    public string GetTodoList()
     {
-        return new ToDoListFormatter().Format(new ToDoListGenerator(DbContext).Generate(guild.Id));
+        return new ToDoListFormatter().Format(new ToDoListGenerator(DbContext).Generate(Guild.Id));
     }
 
     /// <summary>
     /// Set the supported minor faction.
     /// </summary>
-    /// <param name="guild">
-    /// Use this guild.
-    /// </param>
     /// <param name="minorFactionName">
     /// The minor faction to support.
     /// </param>
     /// <exception cref="UnknownMinorFactionException">
     /// <paramref name="minorFactionName"/> is not a known or valid minor faction.
     /// </exception>
-    public async Task SetSupportedMinorFactionAsync(IGuild guild, string minorFactionName)
+    public async Task SetSupportedMinorFactionAsync(string minorFactionName)
     {
         MinorFaction? minorFaction = DbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
         if (minorFaction == null && await Validator.IsKnownMinorFaction(minorFactionName))
@@ -98,7 +97,7 @@ public class ToDoListApi
             throw new UnknownMinorFactionException(minorFactionName);
         }
 
-        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, guild,
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild,
             DbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
         discordGuild.SupportedMinorFactions.Clear();
         discordGuild.SupportedMinorFactions.Add(minorFaction);
@@ -109,15 +108,12 @@ public class ToDoListApi
     /// <summary>
     /// Get the supported minor faction.
     /// </summary>
-    /// <param name="guild">
-    /// Use this guild.
-    /// </param>
     /// <returns>
     /// The supported minor faction or <see cref="null"/> if there is none.
     /// </returns>
-    public MinorFaction? GetSupportedMinorFaction(IGuild guild)
+    public MinorFaction? GetSupportedMinorFaction()
     {
-        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, guild,
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild,
             DbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
         return discordGuild.SupportedMinorFactions.Any()
             ? discordGuild.SupportedMinorFactions.FirstOrDefault()
@@ -127,12 +123,9 @@ public class ToDoListApi
     /// <summary>
     /// Clear the supported minor faction.
     /// </summary>
-    /// <param name="guild">
-    /// Use this guild.
-    /// </param>
-    public void ClearSupportedMinorFaction(IGuild guild)
+    public void ClearSupportedMinorFaction()
     {
-        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, guild,
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild,
             DbContext.DiscordGuilds.Include(e => e.SupportedMinorFactions));
         discordGuild.SupportedMinorFactions.Clear();
         DbContext.SaveChanges();
@@ -141,9 +134,6 @@ public class ToDoListApi
     /// <summary>
     /// Add goals.
     /// </summary>
-    /// <param name="guild">
-    /// Use this guild.
-    /// </param>
     /// <param name="goals">
     /// The goal(s) to add.
     /// </param>
@@ -156,10 +146,10 @@ public class ToDoListApi
     /// <exception cref="UnknownGoalException">
     /// An unknown goal was specified in <paramref name="goals"/>..
     /// </exception>
-    public async Task AddGoals(IGuild guild,
+    public async Task AddGoals(
         IEnumerable<(string minorFactionName, string starSystemName, string goalName)> goals)
     {
-        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, guild);
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild);
 
         foreach ((string minorFactionName, string starSystemName, string goalName) in goals)
         {
@@ -226,15 +216,12 @@ public class ToDoListApi
     /// <summary>
     /// List goals.
     /// </summary>
-    /// <param name="guild">
-    /// Use this guild.
-    /// </param>
     /// <returns>
     /// The goals.
     /// </returns>
-    public IEnumerable<DiscordGuildPresenceGoal> ListGoals(IGuild guild)
+    public IEnumerable<DiscordGuildPresenceGoal> ListGoals()
     {
-        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, guild);
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild);
         return DbContext.DiscordGuildPresenceGoals
                         .Where(dgpg => dgpg.DiscordGuild == discordGuild)
                         .Include(dgpg => dgpg.Presence)
@@ -245,9 +232,6 @@ public class ToDoListApi
     /// <summary>
     /// Remove a goal.
     /// </summary>
-    /// <param name="guild">
-    /// Use this guild.
-    /// </param>
     /// <param name="minorFactionName">
     /// </param>
     /// <param name="starSystemName">
@@ -258,10 +242,10 @@ public class ToDoListApi
     /// <exception cref="UnknownStarSystemException">
     /// <paramref name="starSystemName"/> is not a valid star system.
     /// </exception>
-    public void RemoveGoal(IGuild guild, string minorFactionName,
+    public void RemoveGoal(string minorFactionName,
         string starSystemName)
     {
-        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, guild);
+        DiscordGuild discordGuild = DiscordHelper.GetOrAddGuild(DbContext, Guild);
 
         MinorFaction? minorFaction = DbContext.MinorFactions.FirstOrDefault(mf => mf.Name == minorFactionName);
         if (minorFaction == null)

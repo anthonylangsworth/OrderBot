@@ -21,16 +21,16 @@ internal class ToDoListApiTests : DbTest
         const string testGuildName = "My Discord Server";
         IGuild guild = Mock.Of<IGuild>(g => g.Id == testGuildId && g.Name == testGuildName);
 
-        ToDoListApi api = new(DbContext, new FakeValidator());
+        ToDoListApi api = new(DbContext, guild, new FakeValidator());
 
-        Assert.That(() => api.GetTodoList(guild), Throws.TypeOf<NoSupportedMinorFactionException>());
-        Assert.That(api.GetSupportedMinorFaction(guild), Is.Null);
-        await api.SetSupportedMinorFactionAsync(guild, minorFaction.Name);
-        Assert.That(() => api.GetTodoList(guild), Throws.Nothing);
-        Assert.That(api.GetSupportedMinorFaction(guild), Is.EqualTo(minorFaction));
-        api.ClearSupportedMinorFaction(guild);
-        Assert.That(() => api.GetTodoList(guild), Throws.TypeOf<NoSupportedMinorFactionException>());
-        Assert.That(api.GetSupportedMinorFaction(guild), Is.Null);
+        Assert.That(() => api.GetTodoList(), Throws.TypeOf<NoSupportedMinorFactionException>());
+        Assert.That(api.GetSupportedMinorFaction(), Is.Null);
+        await api.SetSupportedMinorFactionAsync(minorFaction.Name);
+        Assert.That(() => api.GetTodoList(), Throws.Nothing);
+        Assert.That(api.GetSupportedMinorFaction(), Is.EqualTo(minorFaction));
+        api.ClearSupportedMinorFaction();
+        Assert.That(() => api.GetTodoList(), Throws.TypeOf<NoSupportedMinorFactionException>());
+        Assert.That(api.GetSupportedMinorFaction(), Is.Null);
     }
 
     [Test]
@@ -50,12 +50,12 @@ internal class ToDoListApiTests : DbTest
         const string testGuildName = "My Discord Server";
         IGuild guild = Mock.Of<IGuild>(g => g.Id == testGuildId && g.Name == testGuildName);
 
-        ToDoListApi api = new(DbContext, new FakeValidator());
+        ToDoListApi api = new(DbContext, guild, new FakeValidator());
 
         string minorFactionName = minorFaction.Name;
         string starSystemName = starSystem.Name;
         string goalName = goal.Name;
-        await api.AddGoals(guild, new[] { (minorFactionName, starSystemName, goalName) });
+        await api.AddGoals(new[] { (minorFactionName, starSystemName, goalName) });
 
         DiscordGuildPresenceGoal? discordGuildStarSystemMinorFactionGoal =
             DbContext.DiscordGuildPresenceGoals.Include(dgssmfg => dgssmfg.Presence)
@@ -98,7 +98,7 @@ internal class ToDoListApiTests : DbTest
 
         IGuild guild = Mock.Of<IGuild>(g => g.Id == testGuildId && g.Name == testGuildName);
 
-        ToDoListApi api = new(DbContext, new FakeValidator());
+        ToDoListApi api = new(DbContext, guild, new FakeValidator());
 
         Presence starSystemMinorFaction = new() { StarSystem = starSystem, MinorFaction = minorFaction };
         DbContext.Presences.Add(starSystemMinorFaction);
@@ -112,7 +112,7 @@ internal class ToDoListApiTests : DbTest
         };
         DbContext.DiscordGuildPresenceGoals.Add(discordGuildStarSystemMinorFactionGoal);
         DbContext.SaveChanges();
-        await api.AddGoals(guild, new[] { (minorFaction.Name, starSystem.Name, goal.Name) });
+        await api.AddGoals(new[] { (minorFaction.Name, starSystem.Name, goal.Name) });
 
         DiscordGuildPresenceGoal? newDiscordGuildStarSystemMinorFactionGoal =
             DbContext.DiscordGuildPresenceGoals.Include(dgssmfg => dgssmfg.Presence)

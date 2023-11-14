@@ -49,8 +49,8 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
         try
         {
             string text = raw
-                ? $"```\n{Api.GetTodoList(Context.Guild)}\n```"
-                : Api.GetTodoList(Context.Guild);
+                ? $"```\n{Api.GetTodoList()}\n```"
+                : Api.GetTodoList();
             await Result.Information(text, false);
             Logger.LogInformation("Completed successfully");
         }
@@ -101,7 +101,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
         {
             try
             {
-                await Api.SetSupportedMinorFactionAsync(Context.Guild, name);
+                await Api.SetSupportedMinorFactionAsync(name);
                 await Result.Success($"Now supporting minor faction *{name}*", true);
                 TransactionScope.Complete();
             }
@@ -125,7 +125,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
         {
             try
             {
-                Api.ClearSupportedMinorFaction(Context.Guild);
+                Api.ClearSupportedMinorFaction();
                 await Result.Success("Not supporting any minor faction", true);
                 TransactionScope.Complete();
             }
@@ -142,7 +142,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
         {
             try
             {
-                string? minorFactionName = Api.GetSupportedMinorFaction(Context.Guild)?.Name;
+                string? minorFactionName = Api.GetSupportedMinorFaction()?.Name;
                 string message = string.IsNullOrEmpty(minorFactionName)
                     ? $"Not supporting any minor faction"
                     : $"Supporting *{minorFactionName}*";
@@ -191,7 +191,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
         {
             try
             {
-                await Api.AddGoals(Context.Guild, 
+                await Api.AddGoals(
                     new[] { (minorFactionName, starSystemName, goalName) });
                 await Result.Success($"Added goal to {goalName} *{minorFactionName}* in {starSystemName}", true);
                 TransactionScope.Complete();
@@ -241,7 +241,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
         {
             try
             {
-                Api.RemoveGoal(Context.Guild,minorFactionName, starSystemName);
+                Api.RemoveGoal(minorFactionName, starSystemName);
                 await Result.Success($"Removed goal for *{minorFactionName}* in {starSystemName}.", true);
                 TransactionScope.Complete();
             }
@@ -273,7 +273,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
             try
             {
                 string result = string.Join(Environment.NewLine,
-                    Api.ListGoals(Context.Guild).Select(
+                    Api.ListGoals().Select(
                         dgssmfg => $"{dgssmfg.Goal} {dgssmfg.Presence.MinorFaction.Name} in {dgssmfg.Presence.StarSystem.Name}"));
                 if (result.Length == 0)
                 {
@@ -298,7 +298,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
         {
             try
             {
-                IList<GoalCsvRow> result = Api.ListGoals(Context.Guild)
+                IList<GoalCsvRow> result = Api.ListGoals()
                     .Select(dgssmfg => new GoalCsvRow()
                     {
                         Goal = dgssmfg.Goal,
@@ -340,7 +340,7 @@ public class ToDoListCommandsModule : BaseTodoListCommandsModule<ToDoListCommand
                     goals = await csvReader.GetRecordsAsync<GoalCsvRow>().ToListAsync();
                 }
 
-                await Api.AddGoals(Context.Guild, goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
+                await Api.AddGoals(goals.Select(g => (g.MinorFaction, g.StarSystem, g.Goal)));
                 AuditLogger.Audit($"Imported goals:\n{string.Join("\n", goals.Select(g => $"{g.Goal} {g.MinorFaction} in {g.StarSystem}"))}");
                 await Result.Success($"{goalsAttachement.Filename} added to goals", false);
                 TransactionScope.Complete();
