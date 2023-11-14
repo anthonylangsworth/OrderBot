@@ -2,7 +2,7 @@
 using OrderBot.EntityFramework;
 using OrderBot.MessageProcessors;
 
-namespace OrderBot.CarrierMovement;
+namespace OrderBot.ToDo;
 
 /// <summary>
 /// Cache supported minor factions across all discord guilds.

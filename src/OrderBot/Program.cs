@@ -24,9 +24,9 @@ internal class Program
                              services.AddDiscordBot(hostContext.Configuration);
                              services.AddCarrierMovement();
 
-                             // This must follow AddDiscordBot. Otherwise, the BotHostedServce.StartAsync does
-                             // not fire. This maybe something to do with the use of BackgroundServce instead
-                             // if IHostedSerice.
+                             // This must follow AddDiscordBot. Otherwise, the BotHostedService.StartAsync does
+                             // not fire. This maybe something to do with the use of BackgroundService instead
+                             // of IHostedService.
                              // TODO: Fix this
                              services.AddEddnMessageProcessor();
                          })

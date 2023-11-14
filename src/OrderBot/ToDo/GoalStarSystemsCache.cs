@@ -2,7 +2,7 @@
 using OrderBot.EntityFramework;
 using OrderBot.MessageProcessors;
 
-namespace OrderBot.CarrierMovement;
+namespace OrderBot.ToDo;
 
 /// <summary>
 /// Cache systems with at least one goal.
