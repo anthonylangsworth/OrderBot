@@ -4,13 +4,13 @@
 # BGS Order Bot
 
 ## Overview
-For any squadron in the game **Elite Dangerous** that supports a minor faction, keeping up to date with the background simulation (BGS) is an arduous task. For example, player activity and BGS randomness can reduce or increase influence, leading to conflicts, expansions or retreats.
+For any squadron in the game **Elite Dangerous** that supports a minor faction, keeping up to date with the background simulation (BGS) is an arduous task. For example, player activity and BGS randomness can reduce or increase influence. These influence changes can cause conflicts, expansions or retreats.
 
-Trawling through each system on websites like [Inara](https://inara.cz/) or [Elite BGS](https://elitebgs.app/) is time-consuming and error-prone. Not monitoring these websites or routinely visiting every system means missing a retreating minor faction or an unintended expansion into an ally's star system.
+Trawling through each system on websites like [Inara](https://inara.cz/) or [Elite BGS](https://elitebgs.app/) is time-consuming and error-prone. Not monitoring these websites or routinely visiting every system could mean missing a retreating minor faction or an unintended expansion into an ally's star system.
 
-This Discord bot aims to fix that. It receives BGS data from the [Elite Dangerous Data Network (EDDN)](https://eddn.edcd.io/) and creates a list of suggestions based on an admin-specified minor faction(s) to support and star system-specific goals. This allows the bot to produce specific and valuable recommendations, unlike the websites mentioned above.
+This Discord bot aims to fix that. It receives BGS data from the [Elite Dangerous Data Network (EDDN)](https://eddn.edcd.io/) and creates a list of suggestions based on an admin-specified minor faction(s) to support and star system-specific goals. Unlike the websites mentioned above, this allows the bot to produce specific and valuable recommendations.
 
-This Discord bot is not intended to replace squadron officers, although it can be used that way, or existing tools like those mentioned above. For example, it will not give graphs of influence history like Inara or Elite BGS. However, automating much of the work can save time and increase accuracy.
+This Discord bot is intended to supplement squadron officers or existing tools like those mentioned above. For example, it will not give graphs of influence history like Inara or Elite BGS. However, automating much of the work can save time and increase accuracy.
 
 This Discord bot can send alerts to a Discord channel when unknown carriers jump into a star system where their supported minor faction is present. This may indicate when others are working against you.
 
