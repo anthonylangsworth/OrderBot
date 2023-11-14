@@ -1,4 +1,10 @@
-﻿IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[IgnoredCarrier]') AND type in (N'U'))
+﻿IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordRoleMember]') AND type in (N'U'))
+DROP TABLE [dbo].[DiscordRoleMember]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[Conflict]') AND type in (N'U'))
+DROP TABLE [dbo].[Conflict]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[IgnoredCarrier]') AND type in (N'U'))
 DROP TABLE [dbo].[IgnoredCarrier]
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[StarSystemCarrier]') AND type in (N'U'))
@@ -10,11 +16,26 @@ GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuildStarSystemMinorFactionGoal]') AND type in (N'U'))
 DROP TABLE [dbo].[DiscordGuildStarSystemMinorFactionGoal]
 GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[Role]') AND type in (N'U'))
+DROP TABLE [dbo].[Role]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuildPresenceGoal]') AND type in (N'U'))
+DROP TABLE [dbo].[DiscordGuildPresenceGoal]
+GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[PresenceState]') AND type in (N'U'))
 DROP TABLE [dbo].[PresenceState]
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[Presence]') AND type in (N'U'))
-DROP TABLE [dbo].Presence
+DROP TABLE [dbo].[Presence]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[State]') AND type in (N'U'))
+DROP TABLE [dbo].[State]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[MinorFaction]') AND type in (N'U'))
+DROP TABLE [dbo].[MinorFaction]
+GO
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[StarSystem]') AND type in (N'U'))
+DROP TABLE [dbo].[StarSystem]
 GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuildMinorFaction]') AND type in (N'U'))
 DROP TABLE [dbo].[DiscordGuildMinorFaction]
@@ -22,16 +43,6 @@ GO
 IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[DiscordGuild]') AND type in (N'U'))
 DROP TABLE [dbo].[DiscordGuild]
 GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[StarSystem]') AND type in (N'U'))
-DROP TABLE [dbo].[StarSystem]
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[MinorFaction]') AND type in (N'U'))
-DROP TABLE [dbo].[MinorFaction]
-GO
-IF  EXISTS (SELECT * FROM sys.objects WHERE object_Id = OBJECT_Id(N'[dbo].[State]') AND type in (N'U'))
-DROP TABLE [dbo].[State]
-GO
-
 
 CREATE TABLE [dbo].[DiscordGuild](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
@@ -96,8 +107,8 @@ CREATE TABLE [dbo].[PresenceState](
 	PRIMARY KEY ([PresenceId], [StatesId])
 )
 GO
-CREATE INDEX [IX_StarSystemMinorFactionState_SystemMinorFaction] 
-ON [dbo].[StarSystemMinorFactionState]([StarSystemMinorFactionsId])
+-- CREATE INDEX [IX_StarSystemMinorFactionState_SystemMinorFaction] 
+-- ON [dbo].[StarSystemMinorFactionState]([StarSystemMinorFactionsId])
 GO
 CREATE TABLE [dbo].[DiscordGuildPresenceGoal](
 	[Id] [int] IDENTITY(1,1) PRIMARY KEY,
