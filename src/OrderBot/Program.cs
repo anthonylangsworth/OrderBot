@@ -29,11 +29,11 @@ internal class Program
                                  throw new InvalidOperationException("LogAnalytics configuration section missing");
                             }
 
-                            ILogger serilogLogger = new LoggerConfiguration()
-                                .WriteTo.AzureAnalytics(loggingConfig.WorkspaceId, loggingConfig.WorkspaceKey)
+                            Serilog.ILogger serilogLogger = new LoggerConfiguration()
+                                .WriteTo.AzureAnalytics(loggingConfig.WorkspaceId, loggingConfig.WorkspaceKey, logName: "Event_CL")
                                 .CreateLogger();
 
-                            services.AddLogging(builder => builder.AddSerilog(serilogLogger));
+                            services.AddLogging(builder => builder.AddSerilog(serilogLogger, dispose:true));
                             services.AddMemoryCache();
 
                             services.AddDatabase(hostContext.Configuration);
