@@ -30,10 +30,7 @@ public class CarrierMovementChannelCache : MessageProcessorCache
     /// </param>
     /// <param name="discordGuildId">
     /// The ID of a <see cref="DiscordGuild"/>.
-    /// </param>
-    /// <param name="discordGuidId">
-    /// The Discord guild to check.
-    /// </param>
+    /// </param>    
     /// <returns>
     /// The ID of the carrier movement channel or <c>null</c>, if none is configured.
     /// </returns>
