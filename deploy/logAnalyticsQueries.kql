@@ -1,13 +1,11 @@
 //  OrderBot errors
-Event_CL
+Log_CL
 | order by TimeGenerated
-// | where LogLevel_s != "Information" and Exception_Message_s != "Server requested a reconnect"
-| where not (CategoryName_s startswith "Microsoft.EntityFrameworkCore")
-| project TimeGenerated, CategoryName_s, Command_s, User_s, Exception_Message_s, LogLevel_s, Message
+| where not (LogProperties_SourceContext_s startswith "Microsoft.EntityFrameworkCore")
+| project TimeGenerated, LogProperties_SourceContext_s, LogProperties_Command_s, LogProperties_User_s, LogLevel_s, LogMessage_s // TODO: Need exception message
 
 // Commands
-Event_CL
+Log_CL
 | order by TimeGenerated
-| where not (CategoryName_s startswith "Microsoft.EntityFrameworkCore")
-| where column_ifexists("Command_s", "") != ""
-| project TimeGenerated, Command_s, Message, User_s, GuildId_s, Exception_Message_s
+| where not (LogProperties_SourceContext_s startswith "Microsoft.EntityFrameworkCore")
+| project TimeGenerated, LogProperties_Command_s, LogProperties_SourceContext_s, LogMessage_s, LogProperties_User_s, LogProperties_Guild_s
