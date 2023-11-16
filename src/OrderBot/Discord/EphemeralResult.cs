@@ -32,7 +32,14 @@ public class EphemeralResult
         AuditLogger = auditLogger;
         Logger = logger;
 
-        Context.Interaction.DeferAsync(ephemeral: true).GetAwaiter().GetResult();
+        try
+        {
+            Context.Interaction.DeferAsync(ephemeral: true).GetAwaiter().GetResult();
+        }
+        catch(TimeoutException ex)
+        {
+            Logger.LogWarning(ex, "DeferAsync timed out");
+        }
     }
 
     /// <summary>
