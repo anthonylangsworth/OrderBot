@@ -1,10 +1,8 @@
 {
   "profiles": {
-    "EddnMessageProcessor": {
-      "commandName": "Project"
-    },
     "Docker": {
-      "commandName": "Docker"
+      "commandName": "Docker",
+      "DockerfileRunArguments": "--env-file .env"
     }
   }
 }
