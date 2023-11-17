@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Docker": {
-      "commandName": "Docker",
-      "DockerfileRunArguments": "--env-file .env"
+      "commandName": "Docker"
     }
   }
 }
