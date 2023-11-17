@@ -1,8 +1,9 @@
 //  OrderBot errors
 Log_CL
 | order by TimeGenerated
-| where not (LogProperties_SourceContext_s startswith "Microsoft.EntityFrameworkCore")
-| project TimeGenerated, LogProperties_SourceContext_s, LogProperties_Command_s, LogProperties_User_s, LogLevel_s, LogMessage_s // TODO: Need exception message
+// | where not (LogProperties_SourceContext_s startswith "Microsoft.EntityFrameworkCore")
+| where LogLevel_s in ("Warning", "Error", "Critical")
+| project TimeGenerated, LogLevel_s, LogProperties_SourceContext_s, LogMessage_s, LogException_InnerException_Message_s, LogProperties_Command_s, LogProperties_User_s
 
 // Commands
 Log_CL
