@@ -34,7 +34,7 @@ internal class Program
                                 .WriteTo.AzureAnalytics(loggingConfig.WorkspaceId, loggingConfig.WorkspaceKey, logName: "Log_CL")
                                 .CreateLogger();
 
-                            services.AddLogging(builder => builder.AddSerilog(serilogLogger, dispose:true));
+                            services.AddLogging(builder => builder.AddSerilog(serilogLogger));
                             services.AddMemoryCache();
 
                             services.AddDatabase(hostContext.Configuration);
