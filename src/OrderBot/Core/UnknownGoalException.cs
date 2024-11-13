@@ -22,11 +22,6 @@ internal class UnknownGoalException : Exception
         MinorFaction = minorFactionName;
     }
 
-    protected UnknownGoalException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-        throw new NotImplementedException();
-    }
-
     public string Goal { get; }
     public string? StarSystem { get; }
     public string? MinorFaction { get; }

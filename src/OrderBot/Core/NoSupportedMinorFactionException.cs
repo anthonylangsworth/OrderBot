@@ -14,10 +14,5 @@ internal class NoSupportedMinorFactionException : Exception
         GuildId = guildId;
     }
 
-    protected NoSupportedMinorFactionException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-        throw new NotImplementedException();
-    }
-
     public ulong GuildId { get; }
 }
