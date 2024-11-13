@@ -13,7 +13,7 @@ To setup locally:
     4. Run `deploy/db.sql` as sa, such as via [SQL Management Studio](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16), to create the database.
     5. Run `deploy/tables.sql` as sa to create the table structure.
 4. Create the application container:
-    1. (Optional - Visual Studio does this automatically) Download a base image for the application using `docker pull mcr.microsoft.com/dotnet/runtime:7.0`.
+    1. (Optional - Visual Studio does this automatically) Download a base image for the application using `docker pull mcr.microsoft.com/dotnet/runtime:8.0`.
     2. Create a `.env` file in `src/OrderBot`. Create four entries inside it:
         1. `ConnectionStrings__OrderBot`, containing the SQL server connection string.
         2. `Discord__ApiKey`, containing the Discord Bot's API key.
