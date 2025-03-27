@@ -10,6 +10,7 @@ namespace OrderBot.Test;
 public class DbDateTimeComparer : IEqualityComparer<DateTime?>
 {
     public static readonly DbDateTimeComparer Instance = new();
+    public static readonly TimeSpan Epsilon = TimeSpan.FromMilliseconds(500);
 
     /// <summary>
     /// Prevent instantiation
@@ -27,7 +28,7 @@ public class DbDateTimeComparer : IEqualityComparer<DateTime?>
         }
         else if (x != null && y != null)
         {
-            return (x - y).Value.TotalMilliseconds < 1000;
+            return (x - y) < Epsilon;
         }
         else
         {

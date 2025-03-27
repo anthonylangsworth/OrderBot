@@ -31,7 +31,7 @@ internal class Program
 
                             ILogger serilogLogger = new LoggerConfiguration()
                                 .Enrich.FromLogContext()
-                                .WriteTo.AzureAnalytics(loggingConfig.WorkspaceId, loggingConfig.WorkspaceKey, logName: "Log_CL")
+                                // .WriteTo.AzureLogAnalytics(loggingConfig.WorkspaceId, loggingConfig.WorkspaceKey)
                                 .CreateLogger();
 
                             services.AddLogging(builder => builder.AddSerilog(serilogLogger));

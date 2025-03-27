@@ -182,7 +182,7 @@ internal class ToDoListMessageProcessorTests : DbTest
         Presence? newSystemMinorFaction = systemMinorFactions.First();
         Assert.That(newSystemMinorFaction.StarSystem, Is.Not.Null);
         Assert.That(newSystemMinorFaction.StarSystem.Name, Is.EqualTo(starSystem));
-        Assert.That(newSystemMinorFaction.StarSystem.LastUpdated, Is.EqualTo(timestamp).Using(DbDateTimeComparer.Instance));
+        Assert.That(newSystemMinorFaction.StarSystem.LastUpdated, Is.EqualTo(timestamp).Within(DbDateTimeComparer.Epsilon));
         Assert.That(newSystemMinorFaction.MinorFaction, Is.Not.Null);
         Assert.That(newSystemMinorFaction.MinorFaction.Name, Is.EqualTo(minorFaction));
         Assert.That(newSystemMinorFaction.Influence, Is.EqualTo(newInfluence));
@@ -195,8 +195,8 @@ internal class ToDoListMessageProcessorTests : DbTest
     {
         string starSystem1 = "A";
         string starSystem2 = "B";
-        EddnMinorFactionInfluence systemOneMinorFactionInfo = new() { MinorFaction = "MF1", Influence = 0.3, States = new string[] { "A", "B" } };
-        EddnMinorFactionInfluence systemTwoMinorFactionInfo = new() { MinorFaction = "MF2", Influence = 0.5, States = new string[] { "B" } };
+        EddnMinorFactionInfluence systemOneMinorFactionInfo = new() { MinorFaction = "MF1", Influence = 0.3, States = ["A", "B"] };
+        EddnMinorFactionInfluence systemTwoMinorFactionInfo = new() { MinorFaction = "MF2", Influence = 0.5, States = ["B"] };
         string[] states = new string[] { "C", "D" };
         DateTime timestamp = DateTime.UtcNow.ToUniversalTime();
         const string system1Security = "$SYSTEM_SECURITY_MEDIUM";
@@ -281,7 +281,7 @@ internal class ToDoListMessageProcessorTests : DbTest
         Presence? newSystemMinorFaction1 = systemMinorFactions[0];
         Assert.That(newSystemMinorFaction1.StarSystem, Is.Not.Null);
         Assert.That(newSystemMinorFaction1.StarSystem.Name, Is.EqualTo(starSystem));
-        Assert.That(newSystemMinorFaction1.StarSystem.LastUpdated, Is.EqualTo(timestamp).Using(DbDateTimeComparer.Instance));
+        Assert.That(newSystemMinorFaction1.StarSystem.LastUpdated, Is.EqualTo(timestamp).Within(DbDateTimeComparer.Epsilon));
         Assert.That(newSystemMinorFaction1.MinorFaction, Is.Not.Null);
         Assert.That(newSystemMinorFaction1.MinorFaction.Name, Is.EqualTo(minorFaction1));
         Assert.That(newSystemMinorFaction1.Influence, Is.EqualTo(minorFaction1Influence));
@@ -291,7 +291,7 @@ internal class ToDoListMessageProcessorTests : DbTest
         Presence? newSystemMinorFaction2 = systemMinorFactions[1];
         Assert.That(newSystemMinorFaction2.StarSystem, Is.Not.Null);
         Assert.That(newSystemMinorFaction2.StarSystem.Name, Is.EqualTo(starSystem));
-        Assert.That(newSystemMinorFaction2.StarSystem.LastUpdated, Is.EqualTo(timestamp).Using(DbDateTimeComparer.Instance));
+        Assert.That(newSystemMinorFaction2.StarSystem.LastUpdated, Is.EqualTo(timestamp).Within(DbDateTimeComparer.Epsilon));
         Assert.That(newSystemMinorFaction2.MinorFaction, Is.Not.Null);
         Assert.That(newSystemMinorFaction2.MinorFaction.Name, Is.EqualTo(minorFaction2));
         Assert.That(newSystemMinorFaction2.Influence, Is.EqualTo(minorFaction2Influence));
