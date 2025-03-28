@@ -36,7 +36,7 @@ internal class Program
                                         null,
                                         loggingConfig.WorkspaceId,
                                         loggingConfig.WorkspaceKey,
-                                        "OrderBot",
+                                        "OrderBot", // Table name prefix
                                         null))));
                              services.AddMemoryCache();
 
