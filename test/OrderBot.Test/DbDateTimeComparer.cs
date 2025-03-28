@@ -10,7 +10,7 @@ namespace OrderBot.Test;
 public class DbDateTimeComparer : IEqualityComparer<DateTime?>
 {
     public static readonly DbDateTimeComparer Instance = new();
-    public static readonly TimeSpan Epsilon = TimeSpan.FromMilliseconds(500);
+    public static readonly TimeSpan Epsilon = TimeSpan.FromMilliseconds(1);
 
     /// <summary>
     /// Prevent instantiation
