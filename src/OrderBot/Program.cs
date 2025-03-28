@@ -33,11 +33,11 @@ internal class Program
                             services.AddLogging(builder => builder.Services.Add(
                                 ServiceDescriptor.Singleton<ILoggerProvider, LogAnalyticsLoggerProvider>(
                                     sp => new LogAnalyticsLoggerProvider(
-                                    (category, loglevel) => !category.StartsWith("Microsoft.EntityFrameworkCore.Database"), // Do not log SQL
-                                    loggingConfig.WorkspaceId,
-                                    loggingConfig.WorkspaceKey,
-                                    "OrderBot", // Table name prefix
-                                    null))));
+                                        (category, loglevel) => !category.StartsWith("Microsoft.EntityFrameworkCore.Database"), // Do not log SQL
+                                        loggingConfig.WorkspaceId,
+                                        loggingConfig.WorkspaceKey,
+                                        "OrderBot", // Table name prefix
+                                        null))));
                              services.AddMemoryCache();
 
                              services.AddDatabase(hostContext.Configuration);
