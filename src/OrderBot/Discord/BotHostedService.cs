@@ -135,6 +135,11 @@ internal class BotHostedService : IHostedService
 #pragma warning disable CA2254
         if (message.Exception != null)
         {
+            // Override for reconnects, as this is processed within Discord.Net code
+            if (message.Exception is GatewayReconnectException)
+            {
+                logLevel = LogLevel.Information;
+            }
             Logger.Log(logLevel, message.Exception, message.ToString());
         }
         else
