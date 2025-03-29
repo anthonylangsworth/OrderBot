@@ -12,7 +12,7 @@ This Discord bot aims to fix that. It receives BGS data from the [Elite Dangerou
 
 This Discord bot is intended to supplement squadron officers or existing tools like those mentioned above. For example, it will not give graphs of influence history like Inara or Elite BGS. However, automating much of the work can save time and increase accuracy.
 
-This Discord bot can send alerts to a Discord channel when unknown carriers jump into a star system where their supported minor faction is present. This may indicate when others are working against you.
+This Discord bot can also send alerts to a Discord channel when unknown carriers jump into a star system where their supported minor faction is present. This may indicate when others are working against you.
 
 ## Sample Suggestions
 
