@@ -166,9 +166,9 @@ public class CarrierMovementMessageProcessor : EddnMessageProcessor
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(
+                    Logger.LogWarning(
                         ex,
-                        "Sending carrier jump notification(s) to channel '{ChannelId}' for discord Guid '{GuildId}' failed",
+                        "Sending carrier jump notification(s) to channel '{ChannelId}' for discord guild '{GuildId}' failed",
                         carrierMovementChannel, discordGuildId
                     );
                 }
