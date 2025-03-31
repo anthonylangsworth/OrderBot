@@ -181,7 +181,7 @@ internal class BotHostedService : IHostedService
                 Logger.LogError("Error: {ErrorMessage}", result.ErrorReason);
             }
 
-            await context.Interaction.Channel.SendMessageAsync(errorMessage, flags: MessageFlags.Ephemeral);
+            await context.Interaction.RespondAsync(errorMessage, ephemeral: true);
         }
     }
 }
