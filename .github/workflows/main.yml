@@ -19,8 +19,10 @@ jobs:
     - name: Setup DB
       uses: rails-sqlserver/setup-mssql@v1 # Was ankane/setup-sqlserver@v1
       with:
-        accept-eula: true
-        sqlserver-version: 2019
+        components: sqlcmd,sqlengine
+        force-encryption: true
+        sa-password: "YourStrong!Passw0rd"
+        version: 2022    
     - name: Create DB
       run: sqlcmd -U SA -P 'YourStrong!Passw0rd' -e -i deploy/db.sql
     - name: Create DB Tables
