@@ -15,9 +15,9 @@ jobs:
         os: [ubuntu-latest] # Was ubuntu-20.04. No MSSQL available for 22 yet
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: Setup DB
-      uses: ankane/setup-sqlserver@v1
+      uses: rails-sqlserver/setup-mssql@v1 # Was ankane/setup-sqlserver@v1
       with:
         accept-eula: true
         sqlserver-version: 2019
