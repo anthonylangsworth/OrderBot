@@ -1,5 +1,4 @@
 ﻿using OrderBot.Core;
-using System.Reactive.Linq;
 
 namespace OrderBot.ToDo;
 

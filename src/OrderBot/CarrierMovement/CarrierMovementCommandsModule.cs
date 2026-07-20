@@ -250,7 +250,7 @@ public class CarrierMovementCommandsModule : InteractionModuleBase<SocketInterac
                     using Stream stream = await client.GetStreamAsync(ignoredCarriersAttachement.Url);
                     using StreamReader reader = new(stream);
                     using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
-                    goals = await csvReader.GetRecordsAsync<CarrierCsvRow>().ToListAsync();
+                    goals = await csvReader.GetRecordsAsync<CarrierCsvRow>().ToListAsync(CancellationToken.None);
                 }
 
                 ApiFactory.CreateApi(Context.Guild).AddIgnoredCarriers(goals.Select(g => g.Name));

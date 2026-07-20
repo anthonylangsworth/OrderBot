@@ -21,7 +21,9 @@ while (true)
     if (client.TryReceiveFrameBytes(TimeSpan.FromMilliseconds(1000), out byte[]? compressed, out bool _)
         && compressed != null)
     {
+#pragma warning disable JSON001
         string message = "(None)";
+#pragma warning restore
         try
         {
             message = Encoding.UTF8.GetString(ZlibStream.UncompressBuffer(compressed));
@@ -54,59 +56,59 @@ while (true)
     }
 }
 
-bool MentionsFleetCarrierinSystemList(JsonDocument jsonDocument)
-{
-    // See https://github.com/EDCD/EDDN/blob/master/schemas/fsssignaldiscovered-v1.0.json for the schema
-    // "signals": [{"IsStation": true, "SignalName": "THE PEAKY BLINDERS KNF-83G", "timestamp": "2022-10-13T12:13:09Z"}]
+//bool MentionsFleetCarrierinSystemList(JsonDocument jsonDocument)
+//{
+//    // See https://github.com/EDCD/EDDN/blob/master/schemas/fsssignaldiscovered-v1.0.json for the schema
+//    // "signals": [{"IsStation": true, "SignalName": "THE PEAKY BLINDERS KNF-83G", "timestamp": "2022-10-13T12:13:09Z"}]
 
-    string[] systems = new string[]
-    {
-            "9 G. Carinae",
-            "Aha Wa",
-            "Anek Wango",
-            "Antai",
-            "Anukan",
-            "Arun",
-            "Bhajaja",
-            "CD-62 234",
-            "CPD-59 314",
-            "Eta-1 Pictoris",
-            "Gally Bese",
-            "Groanomana",
-            "HR 1597",
-            "HR 2283",
-            "Kanates",
-            "Kunti",
-            "Kutjara",
-            "LHS 1832",
-            "LHS 199",
-            "LPM 229",
-            "LTT 2337",
-            "LTT 2412",
-            "LTT 2684",
-            "Luchu",
-            "Lutni",
-            "Marya Wang",
-            "Mors",
-            "Naualam",
-            "Naunei",
-            "Rureri",
-            "San Davokje",
-            "Sanka",
-            "Shambogi",
-            "Shongbon",
-            "Tabalban",
-            "Trumuye",
-            "Wuy jugun"
-    };
+//    string[] systems = new string[]
+//    {
+//            "9 G. Carinae",
+//            "Aha Wa",
+//            "Anek Wango",
+//            "Antai",
+//            "Anukan",
+//            "Arun",
+//            "Bhajaja",
+//            "CD-62 234",
+//            "CPD-59 314",
+//            "Eta-1 Pictoris",
+//            "Gally Bese",
+//            "Groanomana",
+//            "HR 1597",
+//            "HR 2283",
+//            "Kanates",
+//            "Kunti",
+//            "Kutjara",
+//            "LHS 1832",
+//            "LHS 199",
+//            "LPM 229",
+//            "LTT 2337",
+//            "LTT 2412",
+//            "LTT 2684",
+//            "Luchu",
+//            "Lutni",
+//            "Marya Wang",
+//            "Mors",
+//            "Naualam",
+//            "Naunei",
+//            "Rureri",
+//            "San Davokje",
+//            "Sanka",
+//            "Shambogi",
+//            "Shongbon",
+//            "Tabalban",
+//            "Trumuye",
+//            "Wuy jugun"
+//    };
 
-    JsonElement messageElement = jsonDocument.RootElement.GetProperty("message");
-    return messageElement.TryGetProperty("event", out JsonElement eventProperty)
-        && eventProperty.GetString() == "FSSSignalDiscovered"
-        && messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty)
-        && systems.Contains(starSystemProperty.GetString(), StringComparer.OrdinalIgnoreCase)
-        && messageElement.TryGetProperty("signals", out JsonElement signalsElement);
-}
+//    JsonElement messageElement = jsonDocument.RootElement.GetProperty("message");
+//    return messageElement.TryGetProperty("event", out JsonElement eventProperty)
+//        && eventProperty.GetString() == "FSSSignalDiscovered"
+//        && messageElement.TryGetProperty("StarSystem", out JsonElement starSystemProperty)
+//        && systems.Contains(starSystemProperty.GetString(), StringComparer.OrdinalIgnoreCase)
+//        && messageElement.TryGetProperty("signals", out JsonElement signalsElement);
+//}
 
 static void SaveMessage(JsonDocument jsonDocument)
 {

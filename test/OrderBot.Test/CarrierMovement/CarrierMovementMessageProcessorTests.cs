@@ -160,13 +160,13 @@ internal class CarrierMovementMessageProcessorTests
         dbContext.Presences.Add(presence);
         dbContext.SaveChanges();
 
-        Carrier[] expectedCarriers = new Carrier[]
-        {
+        Carrier[] expectedCarriers =
+        [
             new() { Name = "Cowboy B X9Z-B0B", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
             new() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
             new() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
             new() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp }
-        };
+        ];
 
         return (Ltt2684Message, testGuild, ltt2684, expectedCarriers,
             expectedCarriers.Where(c => c.SerialNumber != cowboyB.SerialNumber));
@@ -195,13 +195,13 @@ internal class CarrierMovementMessageProcessorTests
         dbContext.DiscordGuildPresenceGoals.Add(discordGuildPresenceGoal);
         dbContext.SaveChanges();
 
-        Carrier[] expectedCarriers = new Carrier[]
-        {
+        Carrier[] expectedCarriers =
+        [
             new() { Name = "Cowboy B X9Z-B0B", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
             new() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
             new() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
             new() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp }
-        };
+        ];
 
         return (Ltt2684Message, testGuild, ltt2684, expectedCarriers,
             expectedCarriers.Where(c => c.SerialNumber != cowboyB.SerialNumber));
@@ -211,13 +211,13 @@ internal class CarrierMovementMessageProcessorTests
     {
         StarSystem ltt2684 = new() { Name = "LTT 2684" };
 
-        Carrier[] existingCarriers = new Carrier[]
-        {
+        Carrier[] existingCarriers =
+        [
             new() { Name = "Cowboy B X9Z-B0B", FirstSeen = Ltt2684MessageTimeStamp },
             new() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
             new() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
             new() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp }
-        };
+        ];
 
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
         DiscordGuild testGuild = new() { Name = "Test Guild", CarrierMovementChannel = 1234567890 };
@@ -260,13 +260,13 @@ internal class CarrierMovementMessageProcessorTests
         dbContext.Presences.Add(presence);
         dbContext.SaveChanges();
 
-        Carrier[] expectedCarriers = new Carrier[]
-        {
+        Carrier[] expectedCarriers =
+        [
             new() { Name = "Cowboy B X9Z-B0B", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1) },
             new() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp  },
             new() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp  },
             new() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1)  }
-        };
+        ];
 
         return (Ltt2684Message, testGuild, ltt2684, expectedCarriers, Array.Empty<Carrier>());
     }
@@ -275,14 +275,14 @@ internal class CarrierMovementMessageProcessorTests
     {
         StarSystem ltt2684 = new() { Name = "LTT 2684" };
         StarSystem hr1597 = new() { Name = "HR 1597" };
-        Carrier[] existingCarriers = new Carrier[]
-        {
+        Carrier[] existingCarriers =
+        [
             new() { Name = "Cowboy B X9Z-B0B", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1) },
             new() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = hr1597, FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1) },
             new() { Name = "ODIN W6B-94Z", StarSystem = hr1597, FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1) },
             new() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1) },
             new() { Name = "PIZZA HUT 6HY-U7U", StarSystem = hr1597, FirstSeen = Ltt2684MessageTimeStamp.AddDays(-2) }
-        };
+        ];
 
         MinorFaction minorFaction = new() { Name = "Test Minor Faction" };
         DiscordGuild testGuild = new() { Name = "Test Guild" };
@@ -297,14 +297,14 @@ internal class CarrierMovementMessageProcessorTests
         dbContext.Presences.Add(presence);
         dbContext.SaveChanges();
 
-        Carrier[] expectedCarriers = new Carrier[]
-        {
+        Carrier[] expectedCarriers =
+        [
             new() { Name = "Cowboy B X9Z-B0B", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1) },
             new() { Name = "E.D.A. WALKABOUT KHF-79Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
             new() { Name = "ODIN W6B-94Z", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp },
             new() { Name = "T.N.V.A COSMOS HNV-L7X", StarSystem = ltt2684, FirstSeen = Ltt2684MessageTimeStamp.AddDays(-1) },
             new() { Name = "PIZZA HUT 6HY-U7U", StarSystem = hr1597, FirstSeen = Ltt2684MessageTimeStamp.AddDays(-2) }
-        };
+        ];
 
         return (Ltt2684Message, testGuild, ltt2684, expectedCarriers, Array.Empty<Carrier>());
     }
